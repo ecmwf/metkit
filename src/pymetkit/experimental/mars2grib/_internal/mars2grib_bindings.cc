@@ -17,8 +17,12 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/runtime/Main.h"
+#include "eckit/system/Library.h"
+#include "eckit/system/LibraryManager.h"
 
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
+#include "metkit_version.h"
 
 namespace py = pybind11;
 
@@ -85,25 +89,49 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
     return config;
 }
 
-py::bytes encode(Mars2Grib& encoder, const std::vector<double>& values, const py::dict& mars, const py::dict& misc) {
-    const auto message = encoder.encode(values, dictToLocalConfig(mars), dictToLocalConfig(misc));
+PYBIND11_MODULE(mars2grib_bindings, m) {
+    py::module_::import("pymetkit_bindings");
 
-    const auto size = message->messageSize();
-
-    std::vector<uint8_t> buffer(message->messageSize());
-    message->copyInto(buffer.data(), buffer.size());
-
-    return py::bytes(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-}
-
-PYBIND11_MODULE(mars2grib_core, m) {
     m.def("init_bindings", []() {
         const char* args[] = {"mars2grib", ""};
         eckit::Main::initialise(1, const_cast<char**>(args));
     });
+
+    m.def("version_info", []() {
+        std::vector<std::tuple<std::string, std::string, std::string, std::string>> dependencyInformation;
+
+        for (const std::string& libname : eckit::system::LibraryManager::list()) {
+            const eckit::system::Library& lib = eckit::system::LibraryManager::lookup(libname);
+            dependencyInformation.emplace_back(lib.name(), lib.version(), lib.gitsha1(), lib.libraryPath());
+        }
+
+        return dependencyInformation;
+    });
+
+    // Compile-time mars2grib version
+    m.attr("__mars2grib_build_version__") = metkit_VERSION_STR;
+
     auto mars2grib =
         py::class_<Mars2Grib>(m, "Mars2GribCore")
             .def(py::init<>())
             .def(py::init([](py::dict dict) { return std::make_unique<Mars2Grib>(dictToLocalConfig(dict)); }))
-            .def("encode", &encode, py::arg("values"), py::arg("mars"), py::arg("misc"));
+            .def(
+                "encode",
+                [](Mars2Grib& encoder, const std::vector<double>& values, const py::dict& mars, const py::dict& misc) {
+                    const auto message = encoder.encode(values, dictToLocalConfig(mars), dictToLocalConfig(misc));
+                    const auto size    = message->messageSize();
+                    std::vector<uint8_t> buffer(message->messageSize());
+
+                    message->copyInto(buffer.data(), buffer.size());
+
+                    return py::bytes(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+                },
+                py::arg("values"), py::arg("mars"), py::arg("misc"))
+            .def(
+                "encode",
+                [](Mars2Grib& encoder, const std::vector<double>& values, const metkit::mars::MarsRequest& mars,
+                   const metkit::mars::MarsRequest& misc) {
+                    throw py::value_error("Mars2Grib::encode: Currently metkit::mars::MarsRequest is not supported.");
+                },
+                py::arg("values"), py::arg("mars"), py::arg("misc"));
 }

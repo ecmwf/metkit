@@ -348,7 +348,7 @@
     type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]
     obsgroup: [mwhs2_as]
   defaults:
-    reportype: [57001/57002/57003]
+    reportype: [57001/57002/57003/57004]
 
 - context:
     type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]
@@ -402,7 +402,7 @@
     type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]
     obsgroup: [mwts3_as]
   defaults:
-    reportype: [66001]
+    reportype: [66001/66002]
 
 - context:
     type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]
@@ -523,6 +523,24 @@
     obsgroup: [smmr_as]
   defaults:
     reportype: [86001]
+
+- context:
+    type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]
+    obsgroup: [geos_as]
+  defaults:
+    reportype: [87001/87002/87003/87004/87005]
+
+- context:
+    type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]
+    obsgroup: [wsfm_as]
+  defaults:
+    reportype: [88001]
+
+- context:
+    type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]
+    obsgroup: [pmr]
+  defaults:
+    reportype: [89001]
 
 - context:
     type: [ofb,mfb,oai,sfb,fsoifb,fcdfb,ofa]

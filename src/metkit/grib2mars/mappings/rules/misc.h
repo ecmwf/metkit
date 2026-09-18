@@ -21,14 +21,14 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
             misc.set("generatingProcessIdentifier", generatingProcessIdentifier);
         }
 
-        if (grib.getString("type") != "ai" && grib.has("typeOfProcessedData")) {
+        const auto type = get_or_throw<std::string>(mars, "type");
+
+        if (type != "ai" && type != "fc" && grib.has("typeOfProcessedData")) {
             const auto typeOfProcessedData = grib.getString("typeOfProcessedData");
             if (typeOfProcessedData != "missing") {
                 misc.set("typeOfProcessedData", typeOfProcessedData);
             }
         }
-
-        const auto type = get_or_throw<std::string>(mars, "type");
 
         if (type == "eme" || type == "me") {
             if (grib.has("numberOfComponents")) {

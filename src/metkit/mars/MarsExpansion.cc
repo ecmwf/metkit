@@ -56,6 +56,18 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
     return result;
 }
 
+std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& requests) {
+    std::vector<MarsRequest> result;
+    result.reserve(requests.size());
+
+    for (const auto& request : requests) {
+        auto& lang = language(request.verb());
+        result.emplace_back(lang.expand(request, inherit_, strict_));
+    }
+
+    return result;
+}
+
 MarsRequest MarsExpansion::expand(const MarsRequest& request) {
     return language(request.verb()).expand(request, inherit_, strict_);
 }

@@ -108,40 +108,53 @@ public:
 
     ~Mars2Mars() = default;
 
-    /// @brief Convert a supported dictionary type.
-    ///
-    /// The primary template is deleted intentionally. Only explicit
-    /// specializations are available through the public API.
-    ///
-    /// @tparam Dict_t
-    /// Input dictionary type.
+    /// @brief Convert a MARS description
     ///
     /// @param[in] mars
     /// Input MARS dictionary.
     ///
     /// @return
-    /// A converted result for the supported dictionary type.
-    template <typename Dict_t>
-    Mars2MarsResult<Dict_t> convert(const Dict_t& mars) = delete;
+    /// A converted MARS + misc result
+    Mars2MarsResult<eckit::LocalConfiguration> convert(const eckit::LocalConfiguration& mars);
+
+    /// @brief Convert a MARS description
+    ///
+    /// @param[in] mars
+    /// Input MARS dictionary.
+    ///
+    /// @param[in] misc
+    /// Input misc dictionary.
+    ///
+    /// @return
+    /// A converted MARS + misc result
+    Mars2MarsResult<eckit::LocalConfiguration> convert(const eckit::LocalConfiguration& mars,
+                                                       const eckit::LocalConfiguration& misc);
+
+    /// @brief Convert a MARS description
+    ///
+    /// @param[in] mars
+    /// Input MARS dictionary.
+    ///
+    /// @return
+    /// A converted MARS + misc result
+    Mars2MarsResult<metkit::mars::MarsRequest> convert(const metkit::mars::MarsRequest& mars);
+
+    /// @brief Convert a MARS description
+    ///
+    /// @param[in] mars
+    /// Input MARS dictionary.
+    ///
+    /// @param[in] misc
+    /// Input misc dictionary.
+    ///
+    /// @return
+    /// A converted MARS + misc result
+    Mars2MarsResult<metkit::mars::MarsRequest> convert(const metkit::mars::MarsRequest& mars,
+                                                       const eckit::LocalConfiguration& misc);
 
 private:
 
     const Options opts_;
 };
-
-
-// -----------------------------------------------------------------------------
-// Supported API specializations
-// -----------------------------------------------------------------------------
-
-/// @brief Convert an `eckit::LocalConfiguration` request.
-template <>
-Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfiguration>(
-    const eckit::LocalConfiguration& mars);
-
-/// @brief Convert a `metkit::mars::MarsRequest` request.
-template <>
-Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert<metkit::mars::MarsRequest>(
-    const metkit::mars::MarsRequest& mars);
 
 }  // namespace metkit::mars2mars

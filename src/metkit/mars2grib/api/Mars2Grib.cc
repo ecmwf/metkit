@@ -60,6 +60,8 @@
 ///
 #include "Mars2Grib.h"
 
+#include <cstdlib>
+
 // other libraries
 #include "eckit/exception/Exceptions.h"
 
@@ -397,13 +399,49 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
 // Mars2Grib construction
 // -----------------------------------------------------------------------------
 
-Mars2Grib::Mars2Grib() : opts_{} {}
+namespace {
 
-Mars2Grib::Mars2Grib(const Options& opts) : opts_{opts} {}
+/// @brief Apply environment side effects implied by a set of options.
+///
+/// When `skipSection3` is enabled the encoder delegates geometry handling to
+/// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
+/// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
+/// variable.
+Options checkEnvironment(Options opts) {
+    const auto eccodesEckitGeoValue = []() {
+        const auto* eccodesEckitGeo = ::getenv("ECCODES_ECKIT_GEO");
+        if (eccodesEckitGeo) {
+            const std::string eccodesEckitGeoValue(eccodesEckitGeo);
+            if (eccodesEckitGeoValue == "1" || eccodesEckitGeoValue == "2") {
+                return true;
+            }
+        }
+        return false;
+    }();
 
-Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {}
+    if (opts.skipSection3 && !eccodesEckitGeoValue) {
+        throw eckit::UserError(
+            "Environment variable `ECCODES_ECKIT_GEO` must be set to \"1\" or \"2\" when option `skipSection3` is "
+            "enabled!",
+            Here());
+    }
 
-Mars2Grib::Mars2Grib(OptionList opts) : opts_{detail::readOptions(opts)} {}
+    if (!opts.skipSection3 && eccodesEckitGeoValue) {
+        opts.skipSection3 = true;
+    }
+
+    return opts;
+}
+
+}  // namespace
+
+Mars2Grib::Mars2Grib() : opts_{checkEnvironment({})} {}
+
+Mars2Grib::Mars2Grib(const Options& opts) : opts_{checkEnvironment(opts)} {}
+
+Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
+
+Mars2Grib::Mars2Grib(OptionList opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
 
 
 // -----------------------------------------------------------------------------

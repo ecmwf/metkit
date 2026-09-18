@@ -153,16 +153,16 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                 result = tables::TypeOfProcessedData::MlBasedForecast;
             }
             else {  // Mars type for everything else
-                if (marsType == "an") {
+                if (marsType == "an" || marsType == "me" || marsType == "4i") {
                     result = tables::TypeOfProcessedData::AnalysisProducts;
                 }
-                else if (marsType == "fc" || marsType == "ssd") {
+                else if (marsType == "ssd") {
                     result = tables::TypeOfProcessedData::ForecastProducts;
                 }
                 else if (marsType == "pf") {
                     result = tables::TypeOfProcessedData::PerturbedForecastProducts;
                 }
-                else if (marsType == "cf") {
+                else if (marsType == "fc" || marsType == "cf") {
                     result = tables::TypeOfProcessedData::ControlForecastProducts;
                 }
                 else if (marsType == "gsd") {

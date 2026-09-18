@@ -44,8 +44,9 @@
 
 // System includes
 #include <algorithm>
-#include <regex>
 #include <string>
+
+#include "eckit/geo/Grid.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -92,8 +93,6 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
-    static const std::regex tGridRegex("^T(0|[1-9][0-9]*)$");
-
     try {
 
         // subSetTruncation must not be larger than any pentagonalResolutionParameter
@@ -102,13 +101,9 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
 
         const long truncation = [&]() {
             if (get_or_throw<bool>(opt, "skipSection3")) {
-                const std::string grid = get_or_throw<std::string>(mars, "grid");
-                std::smatch tGridMatch;
-                if (!std::regex_match(grid, tGridMatch, tGridRegex) || tGridMatch.size() != 2) {
-                    throw Mars2GribDeductionException("Cannot extract truncation from MARS grid '" + grid + "'",
-                                                      Here());
-                }
-                return std::stol(tGridMatch[1].str());
+                const std::string grid           = get_or_throw<std::string>(mars, "grid");
+                const eckit::geo::Grid* gridSpec = eckit::geo::GridFactory::make_from_string(grid);
+                return static_cast<long>(gridSpec->truncation());
             }
             return get_or_throw<long>(mars, "truncation");
         }();

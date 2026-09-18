@@ -233,6 +233,3 @@ ecbuild_add_library(
         ${mars2grib_libs}
 )
 
-if( HAVE_MARS2GRIB_PYTHON )
-    add_subdirectory(mars2grib/api/pymars2grib)
-endif()

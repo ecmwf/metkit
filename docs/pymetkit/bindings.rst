@@ -67,10 +67,13 @@ Classes
 
    .. py:method:: __init__()
                   __init__(verb)
+                  __init__(other)
 
-      Construct an empty request, or a request with the given ``verb``.
+      Construct an empty request, a request with the given ``verb``, or a
+      deep copy of ``other``.
 
       :param str verb: the request verb (e.g. ``"retrieve"``).
+      :param MarsRequest other: an existing request to copy.
 
    .. py:method:: verb()
 
@@ -104,13 +107,6 @@ Classes
 
       :rtype: list[str]
 
-   .. py:method:: count_values(param)
-
-      Return the number of values held for ``param``.
-
-      :param str param: the parameter name.
-      :rtype: int
-
    .. py:method:: values(param)
 
       Return the values held for ``param``.
@@ -124,6 +120,22 @@ Classes
       of ``other`` that are not already present are appended (order-preserving union).
 
       :param MarsRequest other: the request to merge in.
+
+   .. py:method:: split(keys)
+
+      Return one request per value combination across *keys*. All other
+      parameters are carried over unchanged. Purely structural — does not
+      invoke the MARS language engine.
+
+      :param list[str] keys: parameter names to split on.
+      :rtype: list[MarsRequest]
+
+   .. py:method:: md5()
+
+      Return an MD5 digest of the request's canonical string form. Used by
+      the Python layer to implement expansion-backed equality.
+
+      :rtype: str
 
    .. py:method:: expand(inherit, strict)
 

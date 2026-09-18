@@ -1,5 +1,3 @@
-if( HAVE_MARS2MARS )
-
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/mars2mars-test-requests.mars
     ${CMAKE_CURRENT_BINARY_DIR}/mars2mars-test-requests.mars
@@ -33,5 +31,3 @@ ecbuild_add_test(
         eckit
         metkit
 )
-
-endif()

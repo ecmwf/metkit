@@ -1,0 +1,416 @@
+- id: 1
+  name: m**2 s**-1
+- id: 2
+  name: K
+- id: 3
+  name: (0 - 1)
+- id: 4
+  name: m
+- id: 5
+  name: m s**-1
+- id: 6
+  name: J m**-2
+- id: 7
+  name: '~'
+- id: 8
+  name: s**-1
+- id: 9
+  name: kg m**-3
+- id: 10
+  name: m**3 m**-3
+- id: 11
+  name: 10**-6 W m**-2 sr**-1 m**-1
+- id: 12
+  name: s
+- id: 13
+  name: mol mol**-1
+- id: 14
+  name: N m**-2 s
+- id: 15
+  name: m**2 s**-2
+- id: 16
+  name: Pa
+- id: 17
+  name: J kg**-1
+- id: 18
+  name: K m**2 kg**-1 s**-1
+- id: 19
+  name: m**2 m**-2
+- id: 20
+  name: s m**-1
+- id: 21
+  name: kg kg**-1
+- id: 22
+  name: kg m**-2
+- id: 23
+  name: dimensionless
+- id: 24
+  name: m**-3
+- id: 25
+  name: Various
+- id: 26
+  name: Pa s**-1
+- id: 27
+  name: m of water equivalent
+- id: 28
+  name: gpm
+- id: 29
+  name: '%'
+- id: 30
+  name: radians
+- id: 31
+  name: m**2
+- id: 32
+  name: N m**-2
+- id: 33
+  name: kg m**-2 s**-1
+- id: 34
+  name: (-1 to 1)
+- id: 35
+  name: Millimetres*100 + number of stations
+- id: 36
+  name: kg m**-2 s
+- id: 37
+  name: K s**-1
+- id: 38
+  name: m**2 s**-3
+- id: 39
+  name: kg kg**-1 s**-1
+- id: 40
+  name: DU
+- id: 41
+  name: degrees
+- id: 42
+  name: m**2 s radian**-1
+- id: 43
+  name: deg C
+- id: 44
+  name: psu
+- id: 45
+  name: kg m**-3 -1000
+- id: 46
+  name: m s**-2
+- id: 47
+  name: m s**-1 deg C
+- id: 48
+  name: m s**-1 degC
+- id: 49
+  name: m**3 s**-1
+- id: 50
+  name: N m**-3
+- id: 51
+  name: Nm**-3
+- id: 52
+  name: degrees C
+- id: 53
+  name: J m**-1 s**-1
+- id: 54
+  name: m s**-1 per time step
+- id: 55
+  name: psu per time step
+- id: 56
+  name: deg C per time step
+- id: 57
+  name: Pa m**-1
+- id: 58
+  name: N m**-2 s**-1
+- id: 59
+  name: K m**2 s**-2
+- id: 60
+  name: m**3 s**-3
+- id: 61
+  name: K m s**-1
+- id: 62
+  name: Pa m**2 s**-3
+- id: 63
+  name: K Pa s**-1
+- id: 64
+  name: Pa m s**-2
+- id: 65
+  name: K kg m**-2
+- id: 66
+  name: kg m**-1 s**-1
+- id: 67
+  name: m**4 s**-4
+- id: 68
+  name: m**2 K s**-2
+- id: 69
+  name: K**2
+- id: 70
+  name: m s**-1 K
+- id: 71
+  name: m**2 Pa s**-3
+- id: 72
+  name: Pa s**-1 K
+- id: 73
+  name: m Pa s**-2
+- id: 74
+  name: Pa**2 s**-2
+- id: 75
+  name: Pa**2
+- id: 76
+  name: W m**-2
+- id: 78
+  name: m of water equivalent s**-1
+- id: 79
+  name: W m**-2 s**-1
+- id: 80
+  name: kg C m**-2 s**-1
+- id: 81
+  name: (Code table 4.239)
+- id: 82
+  name: g kg**-1 m**-2 s**-1
+- id: 83
+  name: g kg**-1 s**-1
+- id: 84
+  name: W**-2 m**4
+- id: 85
+  name: kg s**-1 m**-2
+- id: 86
+  name: m**-1
+- id: 87
+  name: m**3 m**-2
+- id: 88
+  name: J kg**-1 s**-1
+- id: 89
+  name: s**-2
+- id: 90
+  name: kg s**2 m**-5
+- id: 92
+  name: Degree true
+- id: 93
+  name: W m**-1 sr**-1
+- id: 94
+  name: W m**-3 sr**-1
+- id: 95
+  name: J
+- id: 96
+  name: m**-1 sr**-1
+- id: 97
+  name: m**2/3 s**-1
+- id: 98
+  name: day
+- id: 100
+  name: (Code table 4.201)
+- id: 103
+  name: (Code table 4.202)
+- id: 104
+  name: (Code table 4.222)
+- id: 105
+  name: Proportion
+- id: 106
+  name: Numeric
+- id: 107
+  name: km**-2 day**-1
+- id: 110
+  name: (Code table 4.203)
+- id: 111
+  name: (Code table 4.204)
+- id: 112
+  name: (Code table 4.234)
+- id: 113
+  name: (Code table 4.205)
+- id: 114
+  name: Dobson
+- id: 115
+  name: dB
+- id: 116
+  name: kg m**-1
+- id: 117
+  name: Bq m**-3
+- id: 118
+  name: Bq m**-2
+- id: 119
+  name: Bq s m**-3
+- id: 120
+  name: (Code table 4.206)
+- id: 121
+  name: (Code table 4.207)
+- id: 122
+  name: (Code table 4.208)
+- id: 123
+  name: (Code table 4.209)
+- id: 124
+  name: (Code table 4.210)
+- id: 125
+  name: (Code table 4.211)
+- id: 126
+  name: CCITTIA5
+- id: 127
+  name: (Code table 4.215)
+- id: 128
+  name: (Code table 4.216)
+- id: 129
+  name: kg**-2 s**-1
+- id: 130
+  name: (Code table 4.212)
+- id: 131
+  name: (Code table JMA-252)
+- id: 133
+  name: (Code table 4.219)
+- id: 134
+  name: Degree
+- id: 137
+  name: J m**-2 K**-1
+- id: 139
+  name: kg (m**2 s**-1)**-1
+- id: 140
+  name: kg (kg s**-1)**-1
+- id: 142
+  name: cm per day
+- id: 143
+  name: g kg**-1 m
+- id: 145
+  name: mm per day
+- id: 146
+  name: m s**-1 per day
+- id: 147
+  name: g kg**-1
+- id: 148
+  name: deg
+- id: 154
+  name: (s m**-1)**-1
+- id: 157
+  name: ln(kPa)
+- id: 158
+  name: kg (m**2 s-1)**-1
+- id: 159
+  name: 10**-3
+- id: 161
+  name: (10**-6 g) m**-3
+- id: 162
+  name: log10((10**-6g) m**-3)
+- id: 163
+  name: ppb
+- id: 164
+  name: mm**6 m**-3
+- id: 165
+  name: categorical
+- id: 166
+  name: Integer
+- id: 167
+  name: log10(kg m**-3)
+- id: 168
+  name: Fraction
+- id: 169
+  name: ppm
+- id: 170
+  name: Integer(0-13)
+- id: 171
+  name: 10**-3 m**-2
+- id: 173
+  name: Index
+- id: 176
+  name: degreeperday
+- id: 177
+  name: psuperday
+- id: 178
+  name: W m**-1
+- id: 179
+  name: W
+- id: 180
+  name: kg**2 m**-4
+- id: 181
+  name: s**-1 m**-2
+- id: 182
+  name: Degree N
+- id: 183
+  name: Degree E
+- id: 184
+  name: m**3 kg**-1 s**-1
+- id: 185
+  name: m**2 kg**-1 s**-1
+- id: 186
+  name: W m sr m**-2
+- id: 188
+  name: 10**5 s**-1
+- id: 189
+  name: K s**-2
+- id: 190
+  name: K m**-1
+- id: 191
+  name: Pa hPa
+- id: 192
+  name: Ws m**-2
+- id: 193
+  name: cbar s**-1
+- id: 194
+  name: cm
+- id: 195
+  name: dam
+- id: 196
+  name: hPa
+- id: 197
+  name: image^data
+- id: 198
+  name: kg m**-2/day
+- id: 199
+  name: ln(cbar)
+- id: 200
+  name: m cm
+- id: 201
+  name: m s**-12
+- id: 202
+  name: m**2 s**-12
+- id: 203
+  name: mb
+- id: 204
+  name: s s**-1
+- id: 205
+  name: s**-12
+- id: 206
+  name: -/+
+- id: 207
+  name: m**3
+- id: 208
+  name: m**3 s**-1 m**-1
+- id: 209
+  name: (Code table 4.217)
+- id: 210
+  name: (Code table 4.218)
+- id: 211
+  name: (Code table 4.223)
+- id: 212
+  name: K per day
+- id: 213
+  name: kg kg**-1 per day
+- id: 214
+  name: mg kg**-1
+- id: 215
+  name: kg m**-3 s**-1
+- id: 216
+  name: psu*m
+- id: 217
+  name: hour
+- id: 218
+  name: Number m**-2
+- id: 219
+  name: Person m**-2
+- id: 220
+  name: Bites per day per person
+- id: 221
+  name: Byte
+- id: 222
+  name: J m**-1
+- id: 223
+  name: W s
+- id: 224
+  name: km**-2
+- id: 225
+  name: day**-1
+- id: 226
+  name: '% K'
+- id: 227
+  name: '% m**3 m**-3'
+- id: 228
+  name: K K
+- id: 229
+  name: K m**3 m**-3
+- id: 230
+  name: m**3 m**-3 m**3 m**-3
+- id: 231
+  name: (Code table 4.213)
+- id: 232
+  name: (Code table 4.106)
+- id: 233
+  name: (Code table 4.253)

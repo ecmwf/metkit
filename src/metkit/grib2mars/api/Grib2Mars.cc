@@ -20,6 +20,8 @@
 
 #include "Grib2Mars.h"
 
+#include <cstdlib>
+
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "metkit/grib2mars/mappings/mappings.h"
@@ -38,18 +40,55 @@
 
 namespace metkit::grib2mars {
 
+namespace {
+
+/// @brief Apply environment side effects implied by a set of options.
+///
+/// When `skipSection3` is enabled the encoder delegates geometry handling to
+/// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
+/// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
+/// variable.
+Options checkEnvironment(Options opts) {
+    const auto eccodesEckitGeoValue = []() {
+        const auto* eccodesEckitGeo = ::getenv("ECCODES_ECKIT_GEO");
+        if (eccodesEckitGeo) {
+            const std::string eccodesEckitGeoValue(eccodesEckitGeo);
+            if (eccodesEckitGeoValue == "1" || eccodesEckitGeoValue == "2") {
+                return true;
+            }
+        }
+        return false;
+    }();
+
+    if (opts.skipSection3 && !eccodesEckitGeoValue) {
+        throw eckit::UserError(
+            "Environment variable `ECCODES_ECKIT_GEO` must be set to \"1\" or \"2\" when option `skipSection3` is "
+            "enabled!",
+            Here());
+    }
+
+    if (!opts.skipSection3 && eccodesEckitGeoValue) {
+        opts.skipSection3 = true;
+    }
+
+    return opts;
+}
+
+}  // namespace
+
 // -----------------------------------------------------------------------------
 // Grib2Mars construction
 // -----------------------------------------------------------------------------
 
 /// @brief Default construct a Grib2Mars converter.
-Grib2Mars::Grib2Mars() : opts_{} {}
+Grib2Mars::Grib2Mars() : opts_{checkEnvironment({})} {}
 
-Grib2Mars::Grib2Mars(const Options& opts) : opts_{opts} {}
+Grib2Mars::Grib2Mars(const Options& opts) : opts_{checkEnvironment(opts)} {}
 
-Grib2Mars::Grib2Mars(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {}
+Grib2Mars::Grib2Mars(const eckit::LocalConfiguration& opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
 
-Grib2Mars::Grib2Mars(OptionList opts) : opts_{detail::readOptions(opts)} {}
+Grib2Mars::Grib2Mars(OptionList opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
+
 
 /// @brief Convert an `eckit::LocalConfiguration` request.
 template <>

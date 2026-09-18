@@ -90,6 +90,7 @@ _field: &_field
       - [uk, united kingdom]
       - [ul, ulysses]
       - [ur, uerra]
+      - [we, Wildfire emissions]
       - [yp, yopp]
       - [yt, yotc]
 
@@ -245,6 +246,7 @@ _field: &_field
       - [ewmm, ensemble wave data assimilation monthly means]
       - [ewmo, ensemble wave data assimilation monthly means of daily means]
       - [fgge, fg]
+      - [frcd, Forcing data]
       - [fsob, forecast sensitivity to observations]
       - [fsow, forecast sensitivity to observations wave]
       - [gfas, global fire assimilation system]
@@ -1528,7 +1530,7 @@ _postproc: &_postproc
       - [F4000, 4000]
       - [F8000, 8000]
     regex:
-      - '^[oOfF][1-9][0-9]*$'
+      - '^[oOfFtT][1-9][0-9]*$'
       - '^[nN](32|48|64|80|96|128|160|200|256|320|400|512|640|800|1024|1280|8000)$'
       - '^[hH][rRnN]?(1|2|4|8|16|32|64|128|256|512|1024|2048|4096|8192)$'
     uppercase: true

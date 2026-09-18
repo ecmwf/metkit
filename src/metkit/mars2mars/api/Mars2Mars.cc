@@ -20,6 +20,8 @@
 
 #include "Mars2Mars.h"
 
+#include <cstdlib>
+
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "metkit/mars/MarsRequest.h"
@@ -38,41 +40,128 @@
 
 namespace metkit::mars2mars {
 
+namespace {
+
+/// @brief Apply environment side effects implied by a set of options.
+///
+/// When `skipSection3` is enabled the encoder delegates geometry handling to
+/// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
+/// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
+/// variable.
+Options checkEnvironment(Options opts) {
+    const auto eccodesEckitGeoValue = []() {
+        const auto* eccodesEckitGeo = ::getenv("ECCODES_ECKIT_GEO");
+        if (eccodesEckitGeo) {
+            const std::string eccodesEckitGeoValue(eccodesEckitGeo);
+            if (eccodesEckitGeoValue == "1" || eccodesEckitGeoValue == "2") {
+                return true;
+            }
+        }
+        return false;
+    }();
+
+    if (opts.skipSection3 && !eccodesEckitGeoValue) {
+        throw eckit::UserError(
+            "Environment variable `ECCODES_ECKIT_GEO` must be set to \"1\" or \"2\" when option `skipSection3` is "
+            "enabled!",
+            Here());
+    }
+
+    if (!opts.skipSection3 && eccodesEckitGeoValue) {
+        opts.skipSection3 = true;
+    }
+
+    return opts;
+}
+
+eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& base,
+                                            const eckit::LocalConfiguration& overwrite) {
+    eckit::LocalConfiguration result{base};
+    for (const auto& key : overwrite.keys()) {
+        if (overwrite.isString(key)) {
+            result.set(key, overwrite.getString(key));
+        }
+        else if (overwrite.isIntegral(key)) {
+            result.set(key, overwrite.getLong(key));
+        }
+        else if (overwrite.isFloatingPoint(key)) {
+            result.set(key, overwrite.getDouble(key));
+        }
+        else if (overwrite.isBoolean(key)) {
+            result.set(key, overwrite.getBool(key));
+        }
+        else if (overwrite.isFloatingPointList(key)) {
+            result.set(key, overwrite.getDoubleVector(key));
+        }
+        else {
+            throw eckit::NotImplemented("Unexpected type for '" + key + "'", Here());
+        }
+    }
+    return result;
+}
+
+}  // namespace
+
 // -----------------------------------------------------------------------------
 // Mars2Mars construction
 // -----------------------------------------------------------------------------
 
 /// @brief Default construct a Mars2Mars converter.
-Mars2Mars::Mars2Mars() : opts_{} {}
+Mars2Mars::Mars2Mars() : opts_{checkEnvironment({})} {}
 
-Mars2Mars::Mars2Mars(const Options& opts) : opts_{opts} {}
+Mars2Mars::Mars2Mars(const Options& opts) : opts_{checkEnvironment(opts)} {}
 
-Mars2Mars::Mars2Mars(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {}
+Mars2Mars::Mars2Mars(const eckit::LocalConfiguration& opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
 
-Mars2Mars::Mars2Mars(OptionList opts) : opts_{detail::readOptions(opts)} {}
+Mars2Mars::Mars2Mars(OptionList opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
+
 
 /// @brief Convert an `eckit::LocalConfiguration` request.
-template <>
-Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfiguration>(
-    const eckit::LocalConfiguration& mars) {
-
+Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert(const eckit::LocalConfiguration& mars) {
     using metkit::mars2mars::utils::exceptions::withMars2MarsApiErrorHandling;
 
     return withMars2MarsApiErrorHandling<Mars2MarsResult<eckit::LocalConfiguration>>(
-        "Mars2Mars::convert<eckit::LocalConfiguration>", opts_,
+        "Mars2Mars::convert", opts_,
         [&]() { return rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars, opts_); }, Here());
 }
 
-/// @brief Convert a `metkit::mars::MarsRequest` request.
-template <>
-Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert<metkit::mars::MarsRequest>(
-    const metkit::mars::MarsRequest& mars) {
+/// @brief Convert an `eckit::LocalConfiguration` request.
+Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert(const eckit::LocalConfiguration& mars,
+                                                              const eckit::LocalConfiguration& misc) {
+    using metkit::mars2mars::utils::exceptions::withMars2MarsApiErrorHandling;
 
+    return withMars2MarsApiErrorHandling<Mars2MarsResult<eckit::LocalConfiguration>>(
+        "Mars2Mars::convert", opts_,
+        [&]() {
+            auto result = rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars, opts_);
+            result.misc = mergeLocalConfigs(result.misc, misc);
+            return result;
+        },
+        Here());
+}
+
+/// @brief Convert a `metkit::mars::MarsRequest` request.
+Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert(const metkit::mars::MarsRequest& mars) {
     using metkit::mars2mars::utils::exceptions::withMars2MarsApiErrorHandling;
 
     return withMars2MarsApiErrorHandling<Mars2MarsResult<metkit::mars::MarsRequest>>(
-        "Mars2Mars::convert<metkit::mars::MarsRequest>", opts_,
+        "Mars2Mars::convert", opts_,
         [&]() { return rules::convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars, opts_); }, Here());
+}
+
+/// @brief Convert a `metkit::mars::MarsRequest` request.
+Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert(const metkit::mars::MarsRequest& mars,
+                                                              const eckit::LocalConfiguration& misc) {
+    using metkit::mars2mars::utils::exceptions::withMars2MarsApiErrorHandling;
+
+    return withMars2MarsApiErrorHandling<Mars2MarsResult<metkit::mars::MarsRequest>>(
+        "Mars2Mars::convert", opts_,
+        [&]() {
+            auto result = rules::convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars, opts_);
+            result.misc = mergeLocalConfigs(result.misc, misc);
+            return result;
+        },
+        Here());
 }
 
 }  // namespace metkit::mars2mars

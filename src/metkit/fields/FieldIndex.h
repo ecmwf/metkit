@@ -8,26 +8,26 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef metkit_FieldIndex_H
-#define metkit_FieldIndex_H
+#pragma once
 
-#include "eckit/memory/NonCopyable.h"
 #include "eckit/serialisation/Stream.h"
 
-namespace eckit {
-namespace message {
+namespace eckit::message {
 class Message;
-}
-}  // namespace eckit
+}  // namespace eckit::message
 
-namespace metkit {
-namespace fields {
+namespace metkit::fields {
 
-class FieldIndex : private eckit::NonCopyable {
+class FieldIndex {
 public:
 
     FieldIndex();
     FieldIndex(const eckit::message::Message&);
+
+    FieldIndex(const FieldIndex&)            = delete;
+    FieldIndex(FieldIndex&&)                 = delete;
+    FieldIndex& operator=(const FieldIndex&) = delete;
+    FieldIndex& operator=(FieldIndex&&)      = delete;
 
     FieldIndex(eckit::Stream&);
 
@@ -52,7 +52,4 @@ protected:  // members
     std::map<std::string, double> doubleValues_;
 };
 
-}  // namespace fields
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::fields

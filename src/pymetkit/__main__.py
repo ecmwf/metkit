@@ -28,6 +28,7 @@ def main():
         action="store_true",
         help="Print the home directories of all pymetkit dependencies",
     )
+
     parser.add_argument(
         "-v",
         "--verbose",
