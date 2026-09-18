@@ -17,6 +17,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@
 
 namespace metkit::mars {
 
-class MarsLanguage;
+class ExpansionContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -56,17 +57,25 @@ public:
 
     MarsExpansion(bool inherit, bool strict = false);
 
-    MarsRequest expand(const MarsRequest&) const;
-    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&) const;
-    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&) const;
+    void reset();
 
-    void expand(const MarsRequest&, ExpandCallback&) const;
-    void flatten(const MarsRequest&, FlattenCallback&) const;
+    MarsRequest expand(const MarsRequest&);
+    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
+    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
+
+    void expand(const MarsRequest&, ExpandCallback&);
+    void flatten(const MarsRequest&, FlattenCallback&);
+
+private:
+
+    ExpansionContext& ctxForVerb(const std::string& verb);
 
 private:
 
     bool inherit_;
     bool strict_;
+
+    std::map<std::string, ExpansionContext*> ctx_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

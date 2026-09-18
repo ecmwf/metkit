@@ -88,7 +88,7 @@ std::unique_ptr<MarsRequestWrapper> MarsRequestWrapper::extract(rust::Str catego
 }
 
 std::unique_ptr<MarsRequestWrapper> MarsRequestWrapper::expand(bool inherit, bool strict) const {
-    metkit::mars::MarsRequest ctx;
+    metkit::mars::ExpansionContext ctx;
     auto expanded = metkit::mars::MarsLanguage::get(request_.verb()).expand(request_, ctx, inherit, strict);
     return std::make_unique<MarsRequestWrapper>(std::move(expanded));
 }

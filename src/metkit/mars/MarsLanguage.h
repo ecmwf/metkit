@@ -60,8 +60,12 @@ class MarsLanguage {
 public:  // methods
 
     MarsLanguage(const std::string& verb);
-
     ~MarsLanguage();
+
+    MarsLanguage(const MarsLanguage&)            = delete;
+    MarsLanguage(MarsLanguage&&)                 = delete;
+    MarsLanguage& operator=(const MarsLanguage&) = delete;
+    MarsLanguage& operator=(MarsLanguage&&)      = delete;
 
     MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
