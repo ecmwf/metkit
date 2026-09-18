@@ -47,11 +47,31 @@ namespace {
 /// When `skipSection3` is enabled the encoder delegates geometry handling to
 /// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
 /// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
-/// variable, so force it to "1" whenever `skipSection3` is requested.
-inline void applyOptionSideEffects(const Options& opts) {
-    if (opts.skipSection3) {
-        ::setenv("ECCODES_ECKIT_GEO", "1", 1);
+/// variable.
+Options checkEnvironment(Options opts) {
+    const auto eccodesEckitGeoValue = []() {
+        const auto* eccodesEckitGeo = ::getenv("ECCODES_ECKIT_GEO");
+        if (eccodesEckitGeo) {
+            const std::string eccodesEckitGeoValue(eccodesEckitGeo);
+            if (eccodesEckitGeoValue == "1" || eccodesEckitGeoValue == "2") {
+                return true;
+            }
+        }
+        return false;
+    }();
+
+    if (opts.skipSection3 && !eccodesEckitGeoValue) {
+        throw eckit::UserError(
+            "Environment variable `ECCODES_ECKIT_GEO` must be set to \"1\" or \"2\" when option `skipSection3` is "
+            "enabled!",
+            Here());
     }
+
+    if (!opts.skipSection3 && eccodesEckitGeoValue) {
+        opts.skipSection3 = true;
+    }
+
+    return opts;
 }
 
 eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& base,
@@ -87,21 +107,14 @@ eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& bas
 // -----------------------------------------------------------------------------
 
 /// @brief Default construct a Mars2Mars converter.
-Mars2Mars::Mars2Mars() : opts_{} {
-    applyOptionSideEffects(opts_);
-}
+Mars2Mars::Mars2Mars() : opts_{checkEnvironment({})} {}
 
-Mars2Mars::Mars2Mars(const Options& opts) : opts_{opts} {
-    applyOptionSideEffects(opts_);
-}
+Mars2Mars::Mars2Mars(const Options& opts) : opts_{checkEnvironment(opts)} {}
 
-Mars2Mars::Mars2Mars(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {
-    applyOptionSideEffects(opts_);
-}
+Mars2Mars::Mars2Mars(const eckit::LocalConfiguration& opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
 
-Mars2Mars::Mars2Mars(OptionList opts) : opts_{detail::readOptions(opts)} {
-    applyOptionSideEffects(opts_);
-}
+Mars2Mars::Mars2Mars(OptionList opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
+
 
 /// @brief Convert an `eckit::LocalConfiguration` request.
 Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert(const eckit::LocalConfiguration& mars) {

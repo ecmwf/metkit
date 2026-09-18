@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/log/JSON.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
@@ -215,7 +216,8 @@ struct DictToJsonTraits<eckit::LocalConfiguration> {
     static std::string to_json(const eckit::LocalConfiguration& cfg) noexcept(true) {
         try {
             std::ostringstream os;
-            os << cfg;
+            eckit::JSON json(os);
+            json << cfg;
             return os.str();
         }
         catch (...) {

@@ -153,7 +153,7 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                 result = tables::TypeOfProcessedData::MlBasedForecast;
             }
             else {  // Mars type for everything else
-                if (marsType == "an") {
+                if (marsType == "an" || marsType == "me" || marsType == "4i") {
                     result = tables::TypeOfProcessedData::AnalysisProducts;
                 }
                 else if (marsType == "ssd") {
