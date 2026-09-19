@@ -12,8 +12,7 @@
 /// @author Tiago Quintino
 /// @date   August 2016
 
-#ifndef mir_LibMetkit_H
-#define mir_LibMetkit_H
+#pragma once
 
 #include "eckit/filesystem/PathName.h"
 #include "eckit/system/Library.h"
@@ -29,11 +28,15 @@ public:
 
     static eckit::PathName configFile(const std::string& filename);
 
+    static uint16_t binaryFilesVersion() { return 1; }
+
     static eckit::PathName languageYamlFile();
     static std::vector<eckit::PathName> modifiersYamlFiles();
     static eckit::PathName paramYamlFile();
     static eckit::PathName paramStaticYamlFile();
     static eckit::PathName paramIDYamlFile();
+    static eckit::PathName languageBinaryFile();
+    static eckit::PathName paramsBinaryFile();
     static eckit::PathName paramMatchingYamlFile();
     static eckit::PathName shortnameContextYamlFile();
     static eckit::PathName bufrSubtypesYamlFile();
@@ -52,5 +55,3 @@ protected:
 }  // namespace metkit
 
 //----------------------------------------------------------------------------------------------------------------------
-
-#endif
