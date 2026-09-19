@@ -25,7 +25,7 @@ void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicate
     std::string value = eckit::StringTools::lower(vv);
     if (!allowDuplicates && values_.find(value) != values_.end()) {
         std::ostringstream oss;
-        oss << "Redefined enum value '" << value << "'";
+        oss << "Redefined enum value '" << value << "' while parsing " << name_;
         throw eckit::SeriousBug(oss.str());
     }
     values_[value] = idx;
