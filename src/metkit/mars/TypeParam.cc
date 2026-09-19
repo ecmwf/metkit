@@ -70,25 +70,34 @@ uint32_t littleEndian2uint32(const char* value) {
 
 uint8_t read8(std::ifstream& file) {
     uint8_t size;
-    file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t));
-    return size;
+    if (file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t))) {
+        return size;
+    }
+    throw eckit::SeriousBug("Failed to read 8-bit value from file", Here());
 }
 uint16_t read16(std::ifstream& file) {
     uint16_t size;
-    file.read(reinterpret_cast<char*>(&size), sizeof(uint16_t));
-    return littleEndian2uint16(reinterpret_cast<const char*>(&size));
+    if (file.read(reinterpret_cast<char*>(&size), sizeof(uint16_t))) {
+        return littleEndian2uint16(reinterpret_cast<const char*>(&size));
+    }
+    throw eckit::SeriousBug("Failed to read 16-bit value from file", Here());
 }
 uint32_t read32(std::ifstream& file) {
     uint32_t value;
-    file.read(reinterpret_cast<char*>(&value), sizeof(uint32_t));
-    return littleEndian2uint32(reinterpret_cast<const char*>(&value));
+    if (file.read(reinterpret_cast<char*>(&value), sizeof(uint32_t))) {
+        return littleEndian2uint32(reinterpret_cast<const char*>(&value));
+    }
+    throw eckit::SeriousBug("Failed to read 32-bit value from file", Here());
 }
 std::string readString(std::ifstream& file) {
     uint8_t size;
-    file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t));
-    std::string str(size, '\0');
-    file.read(str.data(), size);
-    return str;
+    if (file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t))) {
+        std::string str(size, '\0');
+        if (file.read(str.data(), size)) {
+            return str;
+        }
+    }
+    throw eckit::SeriousBug("Failed to read string from file", Here());
 }
 
 void write16(std::ofstream& file, uint16_t size) {
@@ -452,7 +461,11 @@ std::string Rule::lookup(const std::string& s) const {
             throw eckit::UserError("Unrecognised format for parameter " + s, Here());
         }
 
-        uint32_t pp = table * 1000 + param;
+        constexpr size_t maxParamId = std::numeric_limits<uint32_t>::max();
+        if (param > maxParamId || table > (maxParamId - param) / 1000) {
+            throw eckit::UserError("Cannot match parameter " + s, Here());
+        }
+        uint32_t pp = static_cast<uint32_t>(table * 1000 + param);
 
         auto it = values_.find(pp);
         if (it == values_.end()) {
@@ -502,6 +515,8 @@ void Rule::init() {
         if (paramBinFile.exists()) {
             std::ifstream file(paramBinFile.localPath(), std::ios::binary);
 
+            ASSERT(file.good());  // ensure the file stream is good before reading the header
+
             std::string header(4, '\0');
             file.read(header.data(), 4);
             uint16_t version             = read16(file);
@@ -528,6 +543,15 @@ void Rule::init() {
                 rules->reserve(numRules);
                 for (uint32_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
                     rules->emplace_back(file);
+                }
+                size_t filesize = file.tellg();     // current position is supposed to be the end of the file
+                file.seekg(0, std::ios_base::end);  // go to end of the file
+                size_t endpos = file.tellg();
+
+                if (!(filesize == endpos)) {
+                    std::ostringstream ss;
+                    ss << "Error reading parameter binary file: " << paramBinFile << " - File not fully read";
+                    throw eckit::SeriousBug(ss.str(), Here());
                 }
                 file.close();
 
