@@ -100,7 +100,6 @@ ecbuild_add_test( TARGET       "metkit_test_expand_param_multivalue"
                   ENVIRONMENT  "${metkit_env}"
                   NO_AS_NEEDED
                   LIBS         metkit)
-        
 
 # Compile C test
 ecbuild_add_test( TARGET        metkit_test_c_compiled

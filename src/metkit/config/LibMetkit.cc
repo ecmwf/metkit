@@ -74,6 +74,9 @@ eckit::PathName LibMetkit::shortnameContextYamlFile() {
 eckit::PathName LibMetkit::paramIDYamlFile() {
     return LibMetkit::configFile("paramids.yaml");
 }
+eckit::PathName LibMetkit::languageBinaryFile() {
+    return LibMetkit::configFile("language.bin");
+}
 eckit::PathName LibMetkit::paramsBinaryFile() {
     return LibMetkit::configFile("params.bin");
 }

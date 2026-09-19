@@ -10,9 +10,9 @@
 
 #include "metkit/mars/TypeParam.h"
 
-#include <unordered_map>
-
+#include "eckit/codec/detail/Endian.h"
 #include "eckit/config/Resource.h"
+#include "eckit/io/FileLock.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/thread/AutoLock.h"
@@ -24,7 +24,9 @@
 
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 
 using eckit::Log;
@@ -33,6 +35,95 @@ using metkit::LibMetkit;
 using ParamIdAliases = std::unordered_map<uint32_t, std::vector<std::string>>;
 
 namespace {
+
+#define IS_BIG_ENDIAN (!*(unsigned char*)&(uint16_t){1})
+
+const char* toLittleEndian(uint16_t* value) {
+    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
+        *value = (*value >> 8) | (*value << 8);
+    }
+    return reinterpret_cast<const char*>(value);
+}
+
+const char* toLittleEndian(uint32_t* value) {
+    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
+        *value = ((*value >> 24) & 0x000000FF) | ((*value >> 8) & 0x0000FF00) | ((*value << 8) & 0x00FF0000) |
+                 ((*value << 24) & 0xFF000000);
+    }
+    return reinterpret_cast<const char*>(value);
+}
+
+uint16_t littleEndian2uint16(const char* value) {
+    uint16_t v = *reinterpret_cast<const uint16_t*>(value);
+    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
+        v = (v >> 8) | (v << 8);
+    }
+    return v;
+}
+uint32_t littleEndian2uint32(const char* value) {
+    uint32_t v = *reinterpret_cast<const uint32_t*>(value);
+    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
+        v = ((v >> 24) & 0x000000FF) | ((v >> 8) & 0x0000FF00) | ((v << 8) & 0x00FF0000) | ((v << 24) & 0xFF000000);
+    }
+    return v;
+}
+
+uint8_t read8(std::ifstream& file) {
+    uint8_t size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t));
+    return size;
+}
+uint16_t read16(std::ifstream& file) {
+    uint16_t size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(uint16_t));
+    return littleEndian2uint16(reinterpret_cast<const char*>(&size));
+}
+uint32_t read32(std::ifstream& file) {
+    uint32_t value;
+    file.read(reinterpret_cast<char*>(&value), sizeof(uint32_t));
+    return littleEndian2uint32(reinterpret_cast<const char*>(&value));
+}
+std::string readString(std::ifstream& file) {
+    uint8_t size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t));
+    std::string str(size, '\0');
+    file.read(str.data(), size);
+    return str;
+}
+
+void write16(std::ofstream& file, uint16_t size) {
+    file.write(toLittleEndian(&size), sizeof(uint16_t));
+}
+void write32(std::ofstream& file, uint32_t size) {
+    file.write(toLittleEndian(&size), sizeof(uint32_t));
+}
+void write8(std::ofstream& file, size_t size) {
+    if (size > static_cast<size_t>(std::numeric_limits<uint8_t>::max())) {
+        std::ostringstream oss;
+        oss << "TypeParam: cannot write params.bin - count of " << size << " exceeds the maximum of "
+            << static_cast<size_t>(std::numeric_limits<uint8_t>::max()) << " supported by the uint8_t field width";
+        throw eckit::SeriousBug(oss.str(), Here());
+    }
+    uint8_t size8 = static_cast<uint8_t>(size);
+    file.write(reinterpret_cast<const char*>(&size8), sizeof(uint8_t));
+}
+void write32(std::ofstream& file, size_t size) {
+    ASSERT(size <= static_cast<size_t>(std::numeric_limits<uint32_t>::max()));
+    uint32_t size32 = static_cast<uint32_t>(size);
+    file.write(toLittleEndian(&size32), sizeof(uint32_t));
+}
+void writeString(std::ofstream& file, const std::string& str) {
+    if (str.size() > static_cast<size_t>(std::numeric_limits<uint8_t>::max())) {
+        std::ostringstream oss;
+        oss << "TypeParam: cannot write params.bin - string '" << str << "' has length " << str.size()
+            << " which exceeds the maximum of " << static_cast<size_t>(std::numeric_limits<uint8_t>::max())
+            << " supported by the uint8_t field width";
+        throw eckit::SeriousBug(oss.str(), Here());
+    }
+    uint8_t size = static_cast<uint8_t>(str.size());
+    file.write(reinterpret_cast<const char*>(&size), sizeof(uint8_t));
+    file.write(str.data(), size);
+}
 
 static eckit::Mutex* local_mutex = 0;
 static pthread_once_t once       = PTHREAD_ONCE_INIT;
@@ -46,23 +137,30 @@ class Matcher {
 public:
 
     Matcher(const std::string& name, std::vector<std::string>&& values);
+    Matcher(std::ifstream& file);
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
 
+    void write(std::ofstream& out) const;
+    void print(std::ostream& out) const;
+
     friend std::ostream& operator<<(std::ostream& out, const Matcher& matcher) {
-        out << matcher.name_ << "=[";
-        std::string separator{};
-        for (const auto& v : matcher.values_) {
-            out << separator << v;
-            separator = ",";
-        }
-        out << "]";
+        matcher.print(out);
         return out;
     }
 };
 
 Matcher::Matcher(const std::string& name, std::vector<std::string>&& values) :
     name_(name), values_(std::move(values)) {}
+
+Matcher::Matcher(std::ifstream& file) {
+    name_             = readString(file);
+    uint8_t numValues = read8(file);
+    values_.reserve(numValues);
+    for (uint32_t i = 0; i < numValues; i++) {
+        values_.push_back(readString(file));
+    }
+}
 
 bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) const {
 
@@ -80,6 +178,24 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
     return false;
 }
 
+void Matcher::write(std::ofstream& out) const {
+    writeString(out, name_);
+    write8(out, values_.size());
+    for (const auto& v : values_) {
+        writeString(out, v);
+    }
+}
+
+void Matcher::print(std::ostream& out) const {
+    out << name_ << "=[";
+    std::string separator{};
+    for (const auto& v : values_) {
+        out << separator << v;
+        separator = ",";
+    }
+    out << "]";
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class Rule {
@@ -92,12 +208,6 @@ class Rule {
     static std::unordered_set<uint32_t> defaultValues_;
     static std::map<std::string, std::string> defaultMapping_;
 
-private:
-
-    Rule(std::vector<Matcher>&& matchers, std::unordered_set<uint32_t>&& values,
-         std::map<std::string, std::string>&& mapping) :
-        matchers_(std::move(matchers)), values_(std::move(values)), mapping_(std::move(mapping)) {}
-
 public:
 
     static void init();
@@ -108,29 +218,12 @@ public:
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const ParamIdAliases& ids);
+    Rule(std::ifstream& file);
+
     static void setDefault(const eckit::Value& setters, const ParamIdAliases& ids);
 
-    void print(std::ostream& out) const {
-        out << "matchers=[";
-        std::string sep = "";
-        for (const auto& m : matchers_) {
-            out << sep << m;
-            sep = ",";
-        }
-        out << "],values=[";
-        sep = "";
-        for (const auto& v : values_) {
-            out << sep << v;
-            sep = ",";
-        }
-        out << "],aliases=[";
-        sep = "";
-        for (const auto& [s, k] : mapping_) {
-            out << sep << s << "->" << k;
-            sep = ",";
-        }
-        out << "]";
-    }
+    void write(std::ofstream& out) const;
+    void print(std::ostream& out) const;
 
     friend std::ostream& operator<<(std::ostream& out, const Rule& rule) {
         rule.print(out);
@@ -272,6 +365,21 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const Param
     }
 }
 
+Rule::Rule(std::ifstream& file) {
+    uint8_t numMatchers = read8(file);
+    matchers_.reserve(numMatchers);
+    for (uint8_t i = 0; i < numMatchers; ++i) {
+        matchers_.emplace_back(file);
+    }
+    uint8_t numValues = read8(file);
+    for (uint8_t i = 0; i < numValues; ++i) {
+        values_.insert(read32(file));
+    }
+    uint8_t numMappings = read8(file);
+    for (uint8_t i = 0; i < numMappings; ++i) {
+        mapping_.emplace(readString(file), readString(file));
+    }
+}
 
 bool Rule::match(const metkit::mars::MarsRequest& request, bool partial) const {
     for (std::vector<Matcher>::const_iterator j = matchers_.begin(); j != matchers_.end(); ++j) {
@@ -363,7 +471,7 @@ std::string Rule::lookup(const std::string& s) const {
 
     std::string pp = eckit::StringTools::lower(s);
 
-    // not numeric... check just the aliases
+    // not numeric: check the aliases (shortnames) - we do not accept fuzzy matching in the list of params
     auto it = mapping_.find(pp);
     if (it == mapping_.end()) {
         it = defaultMapping_.find(pp);
@@ -384,6 +492,7 @@ void Rule::init() {
         eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
     static bool metkitRawParam   = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
     static bool precomputedParam = eckit::Resource<bool>("metkitPrecomputedParam;$METKIT_PRECOMPUTED_PARAM", true);
+    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
 
     local_mutex = new eckit::Mutex();
     rules       = new std::vector<Rule>();
@@ -391,84 +500,48 @@ void Rule::init() {
     if (precomputedParam && !metkitLegacyParamCheck && !metkitRawParam) {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
         if (paramBinFile.exists()) {
-            size_t numRules;
-            size_t size;
-            size_t numValues;
-            size_t stringSize;
-            std::fstream file(paramBinFile.localPath(), std::ios::binary | std::ios::in);
+            std::ifstream file(paramBinFile.localPath(), std::ios::binary);
 
-            // read defaultValues_
-            file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-            uint32_t v;
-            for (size_t i = 0; i < size; i++) {
-                file.read(reinterpret_cast<char*>(&v), sizeof(uint32_t));
-                defaultValues_.insert(v);
-            }
+            std::string header(4, '\0');
+            file.read(header.data(), 4);
+            uint16_t version             = read16(file);
+            uint8_t multiParamValuesFlag = read8(file);
 
-            // read defaultMapping_
-            file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-            std::string key;
-            std::string value;
-            for (size_t i = 0; i < size; i++) {
-                file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-                key.resize(stringSize);
-                file.read(key.data(), sizeof(char) * stringSize);
-                file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-                value.resize(stringSize);
-                file.read(value.data(), sizeof(char) * stringSize);
-                defaultMapping_.emplace(key, value);
-            }
+            LOG_DEBUG_LIB(LibMetkit) << "Reading parameter binary file header: " << header << " version: " << version
+                                     << std::endl;
 
-            // read rules
-            file.read(reinterpret_cast<char*>(&numRules), sizeof(size_t));
-            for (size_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
-                // read Matchers
-                std::vector<Matcher> matchers;
-                file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-                for (size_t matcherIdx = 0; matcherIdx < size; matcherIdx++) {
-                    std::unordered_set<uint32_t> values;
-                    file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-                    key.resize(stringSize);
-                    file.read(key.data(), sizeof(char) * stringSize);
-                    file.read(reinterpret_cast<char*>(&numValues), sizeof(size_t));
-                    std::vector<std::string> matcherValues;
-                    matcherValues.resize(numValues);
-                    for (size_t valueIdx = 0; valueIdx < numValues; valueIdx++) {
-                        file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-                        value.resize(stringSize);
-                        file.read(value.data(), sizeof(char) * stringSize);
-                        matcherValues.push_back(value);
-                    }
-                    matchers.emplace_back(key, std::move(matcherValues));
+            if ("PARA" == header && version == LibMetkit::binaryFilesVersion() &&
+                multiParamValuesFlag == (multiParamValues ? 1 : 0)) {
+                // read defaultValues_
+                uint32_t numDefaultValues = read32(file);
+                for (uint32_t i = 0; i < numDefaultValues; i++) {
+                    uint32_t value = read32(file);
+                    defaultValues_.insert(value);
                 }
-
-                // read values
-                std::unordered_set<uint32_t> values;
-                file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-                uint32_t v;
-                for (size_t valueIdx = 0; valueIdx < size; valueIdx++) {
-                    file.read(reinterpret_cast<char*>(&v), sizeof(uint32_t));
-                    values.insert(v);
+                // read defaultMapping_
+                uint32_t numDefaultMappings = read32(file);
+                for (uint32_t i = 0; i < numDefaultMappings; i++) {
+                    defaultMapping_.emplace(readString(file), readString(file));
                 }
-
-                // read alias mapping
-                std::map<std::string, std::string> mapping;
-                file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-                for (size_t mapperIdx = 0; mapperIdx < size; mapperIdx++) {
-                    file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-                    key.resize(stringSize);
-                    file.read(key.data(), sizeof(char) * stringSize);
-                    file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-                    value.resize(stringSize);
-                    file.read(value.data(), sizeof(char) * stringSize);
-                    mapping.emplace(key, value);
+                // read rules
+                uint32_t numRules = read32(file);
+                rules->reserve(numRules);
+                for (uint32_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
+                    rules->emplace_back(file);
                 }
-                auto rule = Rule{std::move(matchers), std::move(values), std::move(mapping)};
-                rules->push_back(std::move(rule));
+                file.close();
+
+                return;
             }
-            file.close();
-
-            return;
+            eckit::Log::error() << "Incompatible version of parameter binary file '" << LibMetkit::paramsBinaryFile()
+                                << "' - version expected: " << LibMetkit::binaryFilesVersion() << " found: " << version
+                                << " - multiValues support: " << (multiParamValues ? 1 : 0)
+                                << " found: " << (multiParamValuesFlag ? 1 : 0) << " - using slow config file parsing"
+                                << std::endl;
+        }
+        else {
+            eckit::Log::error() << "Parameter binary file '" << LibMetkit::paramsBinaryFile()
+                                << "' missing - using slow config file parsing" << std::endl;
         }
     }
 
@@ -480,15 +553,13 @@ void Rule::init() {
     for (size_t i = 0; i < keys.size(); ++i) {
         uint32_t id     = keys[i];
         auto rawAliases = rawIds[keys[i]];
-        size_t idx      = 0;
         std::vector<std::string> aliases;
         for (size_t j = 0; j < rawAliases.size(); j++) {
             std::string alias = rawAliases[j];
-            if (idx != 1 && alias.size() < 20 &&
-                alias.find(" ") == -1) {  // short string, no blanks --> it should be a shortname
+            // add only shortnames - ignore 2nd alias (descriptions) and strings too long or containing blanks
+            if (j != 1 && alias.size() < 20 && alias.find(" ") == std::string::npos) {
                 aliases.push_back(alias);
             }
-            idx++;
         }
         ids.emplace(id, aliases);
     }
@@ -587,75 +658,79 @@ void Rule::init() {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
         if (!paramBinFile.exists()) {
 
-            std::fstream file{paramBinFile.localPath(), std::ios::binary | std::ios::out};
+            // serialise across processes: only one writer generates params.bin at a time
+            eckit::FileLock lock(paramBinFile.asString() + ".lock");
+            eckit::AutoLock<eckit::FileLock> locker(lock);
 
-            size_t numRules;
-            size_t size = Rule::defaultValues_.size();
-            size_t numValues;
-            size_t stringSize;
-            file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
-            for (auto v : defaultValues_) {
-                file.write(reinterpret_cast<const char*>(&v), sizeof(uint32_t));
-            }
-            size = Rule::defaultMapping_.size();
-            file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
-            for (const auto& [name, id] : defaultMapping_) {
+            if (!paramBinFile.exists()) {  // another process may have written it while we were waiting for the lock
+
+                // write to a sibling temp file and rename, so readers never see a partial file
+                auto tmpFile = eckit::PathName::unique(paramBinFile.asString());
                 {
-                    size_t stringSize = name.size();
-                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
-                    file.write(name.c_str(), sizeof(char) * stringSize);
-                }
-                {
-                    size_t stringSize = id.size();
-                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
-                    file.write(id.c_str(), sizeof(char) * stringSize);
-                }
-            }
+                    std::ofstream file{tmpFile.localPath(), std::ios::binary};
 
-            numRules = rules->size();
-            file.write(reinterpret_cast<const char*>(&numRules), sizeof(size_t));
-            for (const auto& r : *rules) {
-                // write matchers
-                size = r.matchers_.size();
-                file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
-                for (const auto& m : r.matchers_) {
-                    // std::string name_;
-                    size_t stringSize = m.name_.size();
-                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
-                    file.write(m.name_.c_str(), sizeof(char) * stringSize);
+                    const char* header = "PARA";
+                    file.write(header, 4);
+                    write16(file, LibMetkit::binaryFilesVersion());
+                    write8(file, multiParamValues ? 1 : 0);
 
-                    // std::vector<std::string> values_;
-                    numValues = m.values_.size();
-                    file.write(reinterpret_cast<const char*>(&numValues), sizeof(size_t));
-                    for (const auto& v : m.values_) {
-                        size_t stringSize = v.size();
-                        file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
-                        file.write(v.c_str(), sizeof(char) * stringSize);
+                    write32(file, Rule::defaultValues_.size());
+                    for (auto v : defaultValues_) {
+                        write32(file, v);
+                    }
+                    write32(file, Rule::defaultMapping_.size());
+                    for (const auto& [name, id] : defaultMapping_) {
+                        writeString(file, name);
+                        writeString(file, id);
+                    }
+                    write32(file, rules->size());
+                    for (const auto& r : *rules) {
+                        r.write(file);
                     }
                 }
-
-                // write values
-                size = r.values_.size();
-                file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
-                for (const auto& v : r.values_) {
-                    file.write(reinterpret_cast<const char*>(&v), sizeof(uint32_t));
-                }
-
-                // write mapping
-                size = r.mapping_.size();
-                file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
-                for (const auto& [name, id] : r.mapping_) {
-                    size_t stringSize = name.size();
-                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
-                    file.write(name.c_str(), sizeof(char) * stringSize);
-                    stringSize = id.size();
-                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
-                    file.write(id.c_str(), sizeof(char) * stringSize);
-                }
+                eckit::PathName::rename(tmpFile, paramBinFile);
             }
-            file.close();
         }
     }
+}
+
+void Rule::write(std::ofstream& out) const {
+
+    write8(out, matchers_.size());
+    for (const auto& m : matchers_) {
+        m.write(out);
+    }
+    write8(out, values_.size());
+    for (const auto& v : values_) {
+        write32(out, v);
+    }
+    write8(out, mapping_.size());
+    for (const auto& [name, id] : mapping_) {
+        writeString(out, name);
+        writeString(out, id);
+    }
+}
+
+void Rule::print(std::ostream& out) const {
+    out << "matchers=[";
+    std::string sep = "";
+    for (const auto& m : matchers_) {
+        out << sep << m;
+        sep = ",";
+    }
+    out << "],values=[";
+    sep = "";
+    for (const auto& v : values_) {
+        out << sep << v;
+        sep = ",";
+    }
+    out << "],aliases=[";
+    sep = "";
+    for (const auto& [s, k] : mapping_) {
+        out << sep << s << "->" << k;
+        sep = ",";
+    }
+    out << "]";
 }
 
 namespace metkit::mars {
