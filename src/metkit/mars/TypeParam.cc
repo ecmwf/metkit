@@ -537,7 +537,8 @@ void Rule::init() {
                 // read defaultMapping_
                 uint32_t numDefaultMappings = read32(file);
                 for (uint32_t i = 0; i < numDefaultMappings; i++) {
-                    defaultMapping_.emplace(readString(file), readString(file));
+                    auto key = readString(file);
+                    defaultMapping_.emplace(std::move(key), readString(file));
                 }
                 // read rules
                 uint32_t numRules = read32(file);
