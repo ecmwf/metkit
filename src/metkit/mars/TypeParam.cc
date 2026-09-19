@@ -386,7 +386,8 @@ Rule::Rule(std::ifstream& file) {
     }
     uint8_t numMappings = read8(file);
     for (uint8_t i = 0; i < numMappings; ++i) {
-        mapping_.emplace(readString(file), readString(file));
+        auto key = readString(file);
+        mapping_.emplace(std::move(key), readString(file));
     }
 }
 
