@@ -1897,16 +1897,16 @@ flush:
     multiple: false
     type: enum
     values:
-      - [true, yes, y, on, 1]
-      - [false, no, n, off, 0]
+      - ['true', 'yes', 'y', 'on', '1']
+      - ['false', 'no', 'n', 'off', '0']
 
   decache:
     flatten: false
     multiple: false
     type: enum
     values:
-      - [true, yes, y, on, 1]
-      - [false, no, n, off, 0]
+      - ['true', 'yes', 'y', 'on', '1']
+      - ['false', 'no', 'n', 'off', '0']
 
   _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
 
