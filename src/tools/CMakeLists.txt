@@ -79,6 +79,17 @@ ecbuild_add_executable(
     LIBS          metkit
 )
 
+ecbuild_add_executable(
+    TARGET        create-binary-files
+    SOURCES       create-binary-files.cc
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit
+)
+
+add_custom_command(TARGET create-binary-files POST_BUILD
+                   COMMAND ${CMAKE_BINARY_DIR}/bin/create-binary-files
+                   COMMENT "Create binary files for Metkit configuration")
 # ecbuild_add_executable(
 #     TARGET        check-mars2conf
 #     CONDITION     HAVE_MARS2GRIB

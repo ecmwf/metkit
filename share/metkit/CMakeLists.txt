@@ -12,4 +12,10 @@ foreach( _file ${files} )
 
 endforeach()
 
+if( HAVE_METKIT_CONFIG )
+    install( FILES  ${CMAKE_BINARY_DIR}/share/metkit/params.bin
+            DESTINATION "share/metkit"
+            PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ )
+endif()
+
 add_subdirectory( odb )
