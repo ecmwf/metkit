@@ -67,8 +67,7 @@ namespace metkit::mars2grib {
 
 namespace detail {
 
-inline std::string activeConceptsToJson(
-    const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
+inline std::string activeConceptsToJson(const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
     using Registry = backend::concepts_::GeneralRegistry;
 
     std::ostringstream out;
@@ -92,12 +91,24 @@ inline backend::tables::TypeOfStatisticalProcessing innerStatisticalProcessing(
     using backend::concepts_::StatisticsType;
     using Type = backend::tables::TypeOfStatisticalProcessing;
 
-    constexpr std::array<Type, 18> types{
-        Type::Average,                 Type::Accumulation, Type::Maximum,          Type::Minimum,
-        Type::DifferenceEndMinusStart, Type::RootMeanSquare, Type::StandardDeviation, Type::Covariance,
-        Type::DifferenceStartMinusEnd, Type::Ratio, Type::StandardizedAnomaly, Type::Summation,
-        Type::ReturnPeriod,            Type::Median, Type::Severity, Type::Mode,
-        Type::IndexProcessing,         Type::Missing};
+    constexpr std::array<Type, 18> types{Type::Average,
+                                         Type::Accumulation,
+                                         Type::Maximum,
+                                         Type::Minimum,
+                                         Type::DifferenceEndMinusStart,
+                                         Type::RootMeanSquare,
+                                         Type::StandardDeviation,
+                                         Type::Covariance,
+                                         Type::DifferenceStartMinusEnd,
+                                         Type::Ratio,
+                                         Type::StandardizedAnomaly,
+                                         Type::Summation,
+                                         Type::ReturnPeriod,
+                                         Type::Median,
+                                         Type::Severity,
+                                         Type::Mode,
+                                         Type::IndexProcessing,
+                                         Type::Missing};
     constexpr std::size_t conceptId = GeneralRegistry::conceptId(StatisticsType::Default);
 
     const std::size_t variantId = activeConcepts.activeVariantIndices[conceptId];
