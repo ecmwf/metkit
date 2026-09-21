@@ -19,16 +19,17 @@ if( HAVE_METKIT_CONFIG )
     # re-run whenever a config yaml is copied or the generator tool is rebuilt;
     # force regeneration since create-binary-files skips writing if the file already exists;
     # disable plugin auto-loading, since sibling projects' libraries may not be built yet at this point
-    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/share/metkit/params.bin
-                    COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/share/metkit/params.bin
-                    COMMAND ${CMAKE_COMMAND} -E env METKIT_HOME=${CMAKE_BINARY_DIR} METKIT_FORCE_BINFILE_CREATION=1 AUTO_LOAD_PLUGINS=0 $<TARGET_FILE:create-binary-files>
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/share/metkit/params.bin ${CMAKE_BINARY_DIR}/share/metkit/params-multi.bin
+                    COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/share/metkit/params.bin  ${CMAKE_BINARY_DIR}/share/metkit/params-multi.bin
+                    COMMAND ${CMAKE_COMMAND} -E env METKIT_HOME=${CMAKE_BINARY_DIR} METKIT_MULTI_PARAM_VALUES=0 METKIT_FORCE_BINFILE_CREATION=1 AUTO_LOAD_PLUGINS=0 $<TARGET_FILE:create-binary-files>
+                    COMMAND ${CMAKE_COMMAND} -E env METKIT_HOME=${CMAKE_BINARY_DIR} METKIT_MULTI_PARAM_VALUES=1 METKIT_FORCE_BINFILE_CREATION=1 AUTO_LOAD_PLUGINS=0 $<TARGET_FILE:create-binary-files>
                     DEPENDS create-binary-files ${installed_files}
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                     COMMENT "Create binary files for Metkit configuration")
 
-    add_custom_target( metkit_params_bin ALL DEPENDS ${CMAKE_BINARY_DIR}/share/metkit/params.bin )
+    add_custom_target( metkit_params_bin ALL DEPENDS ${CMAKE_BINARY_DIR}/share/metkit/params.bin ${CMAKE_BINARY_DIR}/share/metkit/params-multi.bin )
 
-    install( FILES ${CMAKE_BINARY_DIR}/share/metkit/params.bin
+    install( FILES ${CMAKE_BINARY_DIR}/share/metkit/params.bin ${CMAKE_BINARY_DIR}/share/metkit/params-multi.bin
             DESTINATION "share/metkit"
             PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ )
 endif()

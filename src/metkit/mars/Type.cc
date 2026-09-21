@@ -252,7 +252,6 @@ bool Type::matches(const std::vector<std::string>& match, const std::vector<std:
     return std::find_if(values.begin(), values.end(), in_set) != values.end();
 }
 
-
 std::ostream& operator<<(std::ostream& s, const Type& x) {
     x.print(s);
     return s;

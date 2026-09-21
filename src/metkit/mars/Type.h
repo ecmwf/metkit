@@ -76,6 +76,7 @@ public:
             return false;
         }
         for (const std::string& v : req.values(key_)) {
+            // @todo - look for alternatives
             if (vals_.find(v) != vals_.end()) {
                 return true;
             }
@@ -103,6 +104,7 @@ public:
             return false;
         }
         for (const std::string& v : req.values(key_)) {
+            // @todo - look for alternatives
             if (vals_.find(v) != vals_.end()) {
                 return false;
             }
@@ -185,6 +187,7 @@ public:
 class Type : public eckit::Counted {
 public:  // methods
 
+    // ctor from the language.yaml definition
     Type(const std::string& name, const eckit::Value& settings);
 
     ~Type() noexcept override = default;
