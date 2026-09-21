@@ -244,6 +244,11 @@ public:
         rule.print(out);
         return out;
     }
+
+private:
+
+    static void mapping(const std::vector<std::string>& aliases, const std::string& first,
+                        std::map<std::string, std::string>& mapping, std::map<std::string, size_t>& precedence);
 };
 
 static void initRules() {
@@ -252,6 +257,49 @@ static void initRules() {
 
 std::unordered_set<uint32_t> Rule::defaultValues_;
 std::map<std::string, std::string> Rule::defaultMapping_;
+
+void Rule::mapping(const std::vector<std::string>& aliases, const std::string& first,
+                   std::map<std::string, std::string>& mapping, std::map<std::string, size_t>& precedence) {
+    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
+
+    for (size_t j = 0; j < aliases.size(); ++j) {
+        const std::string& v = aliases[j];
+
+        auto it = mapping.find(v);
+        if (it != mapping.end()) {
+            if (j < precedence[v]) {
+                LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param " << v << "='" << first
+                                         << "', overriding previous value of '" << it->second << "' " << std::endl;
+            }
+            else {
+                if (precedence[v] < j) {
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param " << v << "='" << first
+                                             << "', keeping previous value of '" << it->second << "' " << std::endl;
+                }
+                else {  // same precedence - if enabled, use multiparam values
+                    if (multiParamValues) {
+                        eckit::Tokenizer tokenizer("|");
+                        std::vector<std::string> tokens;
+                        tokenizer(it->second, tokens);
+                        bool found = false;
+                        for (const auto& vv : tokens) {
+                            if (vv == first) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            it->second = first + "|" + it->second;
+                        }
+                    }
+                }
+                continue;
+            }
+        }
+        precedence[v] = j;
+        mapping[v]    = first;
+    }
+}
 
 void Rule::setDefault(const eckit::Value& values, const ParamIdAliases& ids) {
 
@@ -272,40 +320,13 @@ void Rule::setDefault(const eckit::Value& values, const ParamIdAliases& ids) {
             continue;
         }
 
-
-        for (size_t j = 0; j < it->second.size(); ++j) {
-            std::string v = it->second.at(j);
-
-            if (defaultMapping_.find(v) != defaultMapping_.end()) {
-
-                if (precedence[v] <= j) {
-
-                    LOG_DEBUG_LIB(LibMetkit)
-                        << "Redefinition ignored: param " << v << "='" << first << "', keeping previous value of '"
-                        << defaultMapping_[v] << "' " << std::endl;
-                    continue;
-                }
-                else {
-
-                    LOG_DEBUG_LIB(LibMetkit)
-                        << "Redefinition of param " << v << "='" << first << "', overriding previous value of '"
-                        << defaultMapping_[v] << "' " << std::endl;
-
-                    precedence[v] = j;
-                }
-            }
-            else {
-                precedence[v] = j;
-            }
-
-            defaultMapping_[v] = first;
-        }
+        Rule::mapping(it->second, first, defaultMapping_, precedence);
     }
 }
 
 Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const ParamIdAliases& ids) {
 
-    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
+    std::map<std::string, size_t> precedence;
 
     const eckit::Value& keys = matchers.keys();
     for (size_t i = 0; i < keys.size(); ++i) {
@@ -336,36 +357,11 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const Param
 
         auto it = ids.find(paramid);
         if (it == ids.end() || it->second.empty()) {
-
             LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << " " << *this << std::endl;
             continue;
         }
-        const auto& aliases = it->second;
 
-        for (size_t j = 0; j < aliases.size(); ++j) {
-            const std::string& v = aliases[j];
-
-            auto it = mapping_.find(v);
-
-            if (it == mapping_.end()) {
-                mapping_[v] = first;
-            }
-            else if (multiParamValues) {
-                eckit::Tokenizer tokenizer("|");
-                std::vector<std::string> tokens;
-                tokenizer(it->second, tokens);
-                bool found = false;
-                for (const auto& vv : tokens) {
-                    if (vv == first) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    it->second = first + "|" + it->second;
-                }
-            }
-        }
+        Rule::mapping(it->second, first, mapping_, precedence);
     }
 }
 
@@ -532,14 +528,11 @@ void Rule::print(std::ostream& out) const {
 
 static std::vector<Rule>* rules = nullptr;
 
-}  // namespace
-
 void Rule::init() {
 
     static bool forceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
     static bool legacyParamCheck = eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
     static bool metkitRawParam   = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
-    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
 
     local_mutex = new eckit::Mutex();
     rules       = new std::vector<Rule>();
@@ -555,7 +548,7 @@ void Rule::init() {
 
                 std::string header(4, '\0');
                 file.read(header.data(), 4);
-                uint16_t version             = read16(file);
+                uint16_t version = read16(file);
 
                 LOG_DEBUG_LIB(LibMetkit) << "Reading parameter binary file header: " << header
                                          << " version: " << version << std::endl;
@@ -768,6 +761,8 @@ void Rule::init() {
         }
     }
 }
+
+}  // namespace
 
 namespace metkit::mars {
 
