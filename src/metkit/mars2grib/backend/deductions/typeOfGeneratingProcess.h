@@ -116,50 +116,62 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
         // Deduce the typeOfGeneratingProcess
         if (marsTypeVal == "4i") {
 
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::AnalysisIncrement;
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::AnalysisIncrement;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
         }
         else if (marsTypeVal == "pf" || marsTypeVal == "cf") {
 
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::EnsembleForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
         }
         else if (marsTypeVal == "fc") {
 
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::EnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result = TypeOfGeneratingProcess::EnsembleForecast;
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
 
+#if 0
             // Detect ensemble evidence even when MARS `type` is the generic
             // `fc`. Legacy GRIB1 data (and some rewritten streams) may carry
             // `type=fc` together with ensemble-describing keys; in that case
@@ -210,6 +222,8 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
+#endif
+
         }
         else if (marsTypeVal == "est" || marsTypeVal == "es" || marsTypeVal == "em" || marsTypeVal == "ses") {
 
@@ -218,19 +232,19 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // of estimation). No dedicated code table entry exists for
             // "ensemble-derived analysis"; EnsembleForecast (4) is the
             // established convention to signal ensemble provenance.
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::EnsembleForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
                 logMsg += "' (type=" + marsTypeVal + ")";
                 return logMsg;
             }());
 
             // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
@@ -244,19 +258,19 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // GRIB sample default, which only happened to be 0 by accident.
             // Grouped with eme to mirror the {4i, 4v, me, eme} grouping
             // already used in significanceOfReferenceTime.
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Analysis;
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::Analysis;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
                 logMsg += "' (type=eme/me)";
                 return logMsg;
             }());
 
             // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
@@ -265,19 +279,19 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
 
             // GRIB best forecast (gbf) fields. Generated as part of the forecast
             // system; the canonical ECMWF GRIB2 value is BiasCorrectedEnsembleForecast (11).
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
                 logMsg += "' (type=gbf)";
                 return logMsg;
             }());
 
             // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
@@ -286,19 +300,19 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
 
             // GRIB generated with time (gwt) fields. Generated as part of the forecast
             // system; the canonical ECMWF GRIB2 value is Forecast (13).
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::PostProcessedForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
                 logMsg += "' (type=gwt)";
                 return logMsg;
             }());
 
             // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
@@ -307,19 +321,19 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
 
             // GRIB single site deterministic (ssd) fields. Generated as part of the forecast
             // system; the canonical ECMWF GRIB2 value is SingleSiteForecast (4).
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+            tables::TypeOfGeneratingProcess tgp = TypeOfGeneratingProcess::EnsembleForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(tgp, cntx);
                 logMsg += "' (type=ssd)";
                 return logMsg;
             }());
 
             // Success exit point
             {
-                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                std::optional<tables::TypeOfGeneratingProcess> result{tgp};
                 metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
                 return result;
             }
