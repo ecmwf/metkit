@@ -556,13 +556,11 @@ void Rule::init() {
                 std::string header(4, '\0');
                 file.read(header.data(), 4);
                 uint16_t version             = read16(file);
-                uint8_t multiParamValuesFlag = read8(file);
 
                 LOG_DEBUG_LIB(LibMetkit) << "Reading parameter binary file header: " << header
                                          << " version: " << version << std::endl;
 
-                if ("PARA" == header && version == LibMetkit::binaryFilesVersion() &&
-                    multiParamValuesFlag == (multiParamValues ? 1 : 0)) {
+                if ("PARA" == header && version == LibMetkit::binaryFilesVersion()) {
                     // read defaultValues_
                     uint32_t numDefaultValues = read32(file);
                     for (uint32_t i = 0; i < numDefaultValues; i++) {
@@ -596,9 +594,7 @@ void Rule::init() {
 
                 eckit::Log::error() << "Incompatible version of parameter binary file '" << paramBinFile.asString()
                                     << "' - version expected: " << LibMetkit::binaryFilesVersion()
-                                    << " found: " << version << " - multiValues support: " << (multiParamValues ? 1 : 0)
-                                    << " found: " << (multiParamValuesFlag ? 1 : 0)
-                                    << " - using slow config file parsing" << std::endl;
+                                    << " found: " << version << " - using slow config file parsing" << std::endl;
             }
             catch (const std::exception& e) {
                 defaultMapping_.clear();
@@ -744,7 +740,6 @@ void Rule::init() {
                         const char* header = "PARA";
                         file.write(header, 4);
                         write16(file, LibMetkit::binaryFilesVersion());
-                        write8(file, multiParamValues ? 1 : 0);
 
                         write32(file, Rule::defaultValues_.size());
                         for (auto v : defaultValues_) {
