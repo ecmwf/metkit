@@ -25,7 +25,7 @@ namespace exceptions = metkit::mars2grib::utils::exceptions;
 namespace {
 
 using StatisticalProcessing = backend::tables::TypeOfStatisticalProcessing;
-using ProductTimeSpec = backend::models::product_time_spec::ProductTimeSpec;
+using ProductTimeSpec       = backend::models::product_time_spec::ProductTimeSpec;
 
 const char* statisticalProcessingName(StatisticalProcessing value) {
     switch (value) {
@@ -92,12 +92,12 @@ std::string productTimeSpecClassification(const ProductTimeSpec& spec) {
 }
 
 ProductTimeSpecResult computeProductTimeSpecResult(const eckit::LocalConfiguration& inputMars,
-                                                   const eckit::LocalConfiguration& inputMisc,
-                                                   const Options& options, const eckit::Value& language) {
+                                                   const eckit::LocalConfiguration& inputMisc, const Options& options,
+                                                   const eckit::Value& language) {
     eckit::LocalConfiguration scratchMars;
     eckit::LocalConfiguration scratchMisc;
-    auto [mars, misc] = CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars,
-                                                              scratchMisc);
+    auto [mars, misc] =
+        CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
     const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(mars, options);
     const ProductTimeSpec spec{detail::innerStatisticalProcessing(activeConcepts), mars, misc, options};
     return ProductTimeSpecResult{spec.to_json(), productTimeSpecClassification(spec)};
