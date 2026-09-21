@@ -292,6 +292,19 @@ public:
         Mars2GribGenericException(reason, loc) {}
 };
 
+/// @brief Exception raised while resolving misc values and defaults.
+///
+/// Used by the isolated misc-defaults layer when an explicit representation is
+/// invalid, a group of alternative inputs is ambiguous or incomplete, or an
+/// absence fallback has not yet been defined.
+class Mars2GribMiscDefaultsException : public Mars2GribGenericException {
+public:
+
+    Mars2GribMiscDefaultsException(std::string reason,
+                                   const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc) {}
+};
+
 /// @brief Exception raised by CoreOperations orchestration steps.
 ///
 /// This exception marks failures caught and rethrown by the core orchestration
