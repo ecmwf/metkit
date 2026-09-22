@@ -48,7 +48,7 @@ inline std::size_t matchSFC(const long param) {
     if (matchAny(param, 129172)) {
         return static_cast<std::size_t>(LevelType::HeightAboveGround);
     }
-    if (matchAny(param, 49, 123, 165, 166, 207, 228005, 228028, 228029, 228131, 228132, 235165, 235166, 237165, 237166,
+    if (matchAny(param, 49, 123, 165, 166, 207, 228005, 228028, 228029, 228131, 228132, 235165, 235166, 235318, 237165, 237166,
                  237207, 237318, 238165, 238166, 238207, 239165, 239166, 239207, 260260)) {
         return static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
     }
