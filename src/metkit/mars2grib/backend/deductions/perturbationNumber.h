@@ -86,8 +86,13 @@ long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t
     try {
 
         // Retrieve mandatory perturbation number from input dictionaries
-        // NOTE: MARS number is implied to be 0 if oper/fc data
+        // NOTE: MARS `number` is absent for control forecasts and is implied to be 0 for
+        //       oper/fc (the operational control forecast) and any type=cf
+        //       Keep this predicate in sync with ensembleMatcher()
         const auto perturbationNumber = [&]() {
+            if (has(mars, "type") && get_or_throw<std::string>(mars, "type") == "cf") {
+                return 0L;
+            }
             if (has(mars, "stream") && has(mars, "type") && get_or_throw<std::string>(mars, "stream") == "oper" &&
                 get_or_throw<std::string>(mars, "type") == "fc") {
                 return 0L;
