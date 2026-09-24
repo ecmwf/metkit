@@ -1,18 +1,20 @@
-# for *.cc file in this directory
-file( GLOB MARS2GRIB_ENCODING_TEST_SOURCES
-      RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-      CONFIGURE_DEPENDS
-      "*.cc" )
+list( APPEND MARS2GRIB_ENCODING_TESTS
+    001_oper_fc_as_control
+    002_spherical_harmonics
+    003_regular_latlon
+    004_regular_gaussian
+    005_reduced_gaussian
+    006_healpix
+    007_bitsPerValue
+)
 
-list( SORT MARS2GRIB_ENCODING_TEST_SOURCES )
+list( SORT MARS2GRIB_ENCODING_TESTS )
 
-foreach( _src IN LISTS MARS2GRIB_ENCODING_TEST_SOURCES )
-    get_filename_component( _name "${_src}" NAME_WE )
-
+foreach( _name IN LISTS MARS2GRIB_ENCODING_TESTS )
     ecbuild_add_test( TARGET        mars2grib_test_encoding_${_name}_legacy
                       CONDITION     HAVE_MARS2GRIB
                       INCLUDES      "${ECCODES_INCLUDE_DIRS}"
-                      SOURCES       ${_src}
+                      SOURCES       "${_name}.cc"
                       LIBS          metkit
                       NO_AS_NEEDED
     )
@@ -20,7 +22,7 @@ foreach( _src IN LISTS MARS2GRIB_ENCODING_TEST_SOURCES )
     ecbuild_add_test( TARGET        mars2grib_test_encoding_${_name}_gridSpec
                       CONDITION     HAVE_MARS2GRIB
                       INCLUDES      "${ECCODES_INCLUDE_DIRS}"
-                      SOURCES       ${_src}
+                      SOURCES       "${_name}.cc"
                       LIBS          metkit
                       ENVIRONMENT   ECCODES_ECKIT_GEO=1
                       NO_AS_NEEDED
