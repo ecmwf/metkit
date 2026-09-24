@@ -230,6 +230,13 @@ fn build_vendored() -> std::path::PathBuf {
 
     let cmake_prefix_path = format!("{eckit_root};{eccodes_root}");
 
+    // INSTALL_RPATH_USE_LINK_PATH skips dirs inside the source tree, which is
+    // where the dep prefixes live when cargo's target dir is in-tree (as in CI);
+    // set the rpath explicitly so build-tree tools (create-binary-files) can run.
+    let eckit_lib = bindman_utils::resolve_lib_dir(&PathBuf::from(&eckit_root));
+    let eccodes_lib = bindman_utils::resolve_lib_dir(&PathBuf::from(&eccodes_root));
+    let install_rpath = format!("{};{}", eckit_lib.display(), eccodes_lib.display());
+
     // Build metkit
     let mut cmd = Command::new(&ecbuild_bin);
     cmd.current_dir(&build_dir)
@@ -237,6 +244,7 @@ fn build_vendored() -> std::path::PathBuf {
         .arg("--")
         .arg(&metkit_src)
         .arg(format!("-DCMAKE_PREFIX_PATH={cmake_prefix_path}"))
+        .arg(format!("-DCMAKE_INSTALL_RPATH={install_rpath}"))
         .arg(format!(
             "-DCMAKE_BUILD_TYPE={}",
             bindman_utils::cmake_build_type()
