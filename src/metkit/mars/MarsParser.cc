@@ -163,6 +163,10 @@ std::string MarsParser::parseVerb() {
     return parseIndent();
 }
 
+std::string MarsParser::parseKeyword() {
+    return parseIndents();
+}
+
 MarsParsedRequest MarsParser::parseRequest() {
 
     MarsParsedRequest r(parseVerb(), line_ + 1);
@@ -170,7 +174,7 @@ MarsParsedRequest MarsParser::parseRequest() {
     char c = peek();
     while (c == ',') {
         consume(',');
-        std::string key = parseIndents();
+        std::string key = parseKeyword();
         consume('=');
         r.values(key, parseValues());
         c = peek();

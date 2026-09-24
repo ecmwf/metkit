@@ -23,6 +23,7 @@ list( APPEND metkit_srcs
     mars/ClientTask.h
     mars/DHSProtocol.cc
     mars/DHSProtocol.h
+    mars/Dictionary.h
     mars/Matcher.cc
     mars/Matcher.h
     mars/MarsExpansion.cc

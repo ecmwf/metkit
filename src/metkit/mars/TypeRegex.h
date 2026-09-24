@@ -28,7 +28,7 @@ class TypeRegex : public Type {
 
 public:  // methods
 
-    TypeRegex(const std::string& name, const eckit::Value& settings);
+    TypeRegex(Keyword keyword, const eckit::Value& settings);
 
     ~TypeRegex() noexcept override = default;
 

@@ -28,7 +28,9 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
 
     // Implement inheritence
     for (const auto& request : requests) {
-        auto verb = MarsLanguage::expandVerb(request.verb());
+        const std::string& verbName = MarsLanguage::expandVerb(request.verb());
+        const Verb& verb            = MarsLanguage::verb(verbName);
+
         result.emplace_back(MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_));
     }
 
@@ -40,7 +42,9 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& r
     result.reserve(requests.size());
 
     for (const auto& request : requests) {
-        auto verb = MarsLanguage::expandVerb(request.verb());
+        const std::string& verbName = MarsLanguage::expandVerb(request.verb());
+        const Verb& verb            = MarsLanguage::verb(verbName);
+
         result.emplace_back(MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_));
     }
 
@@ -48,7 +52,9 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& r
 }
 
 MarsRequest MarsExpansion::expand(const MarsRequest& request) {
-    auto verb = MarsLanguage::expandVerb(request.verb());
+    const std::string& verbName = MarsLanguage::expandVerb(request.verb());
+    const Verb& verb            = MarsLanguage::verb(verbName);
+
     return MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_);
 }
 
@@ -57,11 +63,13 @@ void MarsExpansion::expand(const MarsRequest& request, ExpandCallback& callback)
 }
 
 void MarsExpansion::flatten(const MarsRequest& request, FlattenCallback& callback) {
-    auto verb = MarsLanguage::expandVerb(request.verb());
+    const std::string& verbName = MarsLanguage::expandVerb(request.verb());
+    const Verb& verb            = MarsLanguage::verb(verbName);
+
     MarsLanguage::get(verb).flatten(request, callback);
 }
 
-ExpansionContext& MarsExpansion::ctxForVerb(const std::string& verb) {
+ExpansionContext& MarsExpansion::ctxForVerb(Verb verb) {
     static ExpansionContext dummy;
     if (!inherit_) {
         return dummy;

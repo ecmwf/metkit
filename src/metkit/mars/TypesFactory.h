@@ -19,6 +19,8 @@
 
 #include "eckit/types/Types.h"
 
+#include "metkit/mars/Dictionary.h"
+
 namespace eckit {
 class Value;
 }
@@ -44,7 +46,7 @@ public:
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
 
-    Type* build(const std::string& keyword, const eckit::Value&);
+    Type* build(Keyword keyword, const eckit::Value&);
 
     void list(std::ostream& s);
 
@@ -63,9 +65,9 @@ private:  // members
 class TypesFactory {
 public:
 
-    virtual Type* make(const std::string& keyword, const eckit::Value& settings) const = 0;
+    virtual Type* make(Keyword keyword, const eckit::Value& settings) const = 0;
 
-    static Type* build(const std::string& keyword, const eckit::Value& settings);
+    static Type* build(Keyword keyword, const eckit::Value& settings);
 
     static void list(std::ostream& s);
 
@@ -83,9 +85,7 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    Type* make(const std::string& keyword, const eckit::Value& settings) const override {
-        return new T(keyword, settings);
-    }
+    Type* make(Keyword keyword, const eckit::Value& settings) const override { return new T(keyword, settings); }
 
 public:
 

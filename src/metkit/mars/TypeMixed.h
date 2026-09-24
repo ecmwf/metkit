@@ -27,7 +27,7 @@ class TypeMixed : public Type {
 
 public:  // methods
 
-    TypeMixed(const std::string& name, const eckit::Value& settings);
+    TypeMixed(Keyword keyword, const eckit::Value& settings);
 
     ~TypeMixed() noexcept override;
 

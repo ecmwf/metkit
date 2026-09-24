@@ -15,6 +15,7 @@
 
 #include "eckit/parser/StreamParser.h"
 #include "eckit/types/Types.h"
+
 #include "metkit/mars/MarsParsedRequest.h"
 
 namespace metkit::mars {

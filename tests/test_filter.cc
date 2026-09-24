@@ -135,7 +135,7 @@ void expand(const std::string& text, const std::string& filter_text, const std::
 }
 
 CASE("day") {
-    const char* text        = "ret,date=20250301/to/20250306";
+    const char* text        = "disseminate,date=20250301/to/20250306";
     const char* filter_text = "day=1/3/5/7/9/11/13/15/17/19/21/23/25/27/29/31";
     ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},

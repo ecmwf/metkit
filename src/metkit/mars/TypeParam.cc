@@ -764,11 +764,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Type(name, settings), firstRule_(false) {
-
-    if (settings.contains("expand_with")) {
-        expandWith_ = settings["expand_with"];
-    }
+TypeParam::TypeParam(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings), firstRule_(false) {
 
     if (settings.contains("first_rule")) {
         firstRule_ = settings["first_rule"];
@@ -776,7 +772,7 @@ TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Ty
 }
 
 void TypeParam::print(std::ostream& out) const {
-    out << "TypeParam[name=" << name_ << "]";
+    out << "TypeParam[name=" << name() << "]";
 }
 
 void TypeParam::pass2(MarsRequest& request) const {
@@ -784,7 +780,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     pthread_once(&once, initRules);
 
     const Rule* rule                = 0;
-    std::vector<std::string> values = request.values(name_, true);
+    std::vector<std::string> values = request.values(id_, true);
 
     if (values.size() == 1 && values[0] == "all") {
         return;
@@ -815,21 +811,6 @@ void TypeParam::pass2(MarsRequest& request) const {
                         catch (...) {
                         }
                     }
-                }
-            }
-        }
-        else if (expandWith_.size()) {
-            MarsRequest tmp(request);
-            for (auto j = expandWith_.begin(); j != expandWith_.end(); ++j) {
-                if (!tmp.has((*j).first)) {
-                    tmp.setValue((*j).first, (*j).second);
-                }
-            }
-            for (const auto& r : *rules) {
-                if (r.match(tmp)) {
-                    rule = &r;
-                    Log::warning() << "TypeParam using 'expand with' option " << *rule << std::endl;
-                    break;
                 }
             }
         }

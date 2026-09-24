@@ -26,6 +26,7 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
@@ -182,10 +183,20 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum class Category : uint8_t {
+    None = 0,
+    Data,
+    Derived,
+    PostProc,
+    Sink
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class Type : public eckit::Counted {
 public:  // methods
 
-    Type(const std::string& name, const eckit::Value& settings);
+    Type(Keyword keyword, const eckit::Value& settings);
 
     ~Type() noexcept override = default;
 
@@ -206,12 +217,14 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
-    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter,
+    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter,
                         std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
+    Keyword id() const;
     const std::string& name() const;
-    const std::string& category() const;
+
+    const Category& category() const;
 
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
 
@@ -232,12 +245,12 @@ protected:  // methods
 
 protected:  // members
 
-    std::string name_;
-    std::string category_;
+    Keyword id_;
 
     bool flatten_;
     bool multiple_;
     bool duplicates_;
+    Category category_;
 
     std::map<std::shared_ptr<Context>, std::vector<std::string>> defaults_;
     std::map<std::shared_ptr<Context>, std::vector<std::string>> sets_;
@@ -245,7 +258,7 @@ protected:  // members
 
     std::unique_ptr<ITypeToByList> toByList_;
 
-    std::map<std::string, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
+    std::map<Keyword, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
 
