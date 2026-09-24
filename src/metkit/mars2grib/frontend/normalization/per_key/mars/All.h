@@ -13,7 +13,6 @@
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/generation.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/grid.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/hdate.h"
-#include "metkit/mars2grib/frontend/normalization/per_key/mars/htime.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/ident.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/instrument.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/levelist.h"

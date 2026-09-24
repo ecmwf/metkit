@@ -172,7 +172,6 @@ def test_flatten_convert_append_to_json(data_path):
         "wavelength",
         "timespan",
         "hdate",
-        "htime",
     ]
 
     mars2mars = Mars2Mars()
