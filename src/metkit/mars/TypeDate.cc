@@ -19,6 +19,7 @@
 #include "eckit/utils/Tokenizer.h"
 #include "eckit/utils/Translator.h"
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
@@ -115,15 +116,15 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+TypeDate::TypeDate(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
 
     toByList_       = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
     multiple_       = true;
-    filters_["day"] = &filterByDay;
+    filters_[MarsLanguage::addKeyword("day")] = &filterByDay;
 }
 
 void TypeDate::pass2(MarsRequest& request) const {
-    std::vector<std::string> values = request.values(name_, true);
+    std::vector<std::string> values = request.values(id_, true);
     if (values.size() == 1 && values[0] == "-1") {
         Type::expand(values, request);
         request.setValuesTyped(this, values);
@@ -172,7 +173,7 @@ bool TypeDate::expand(std::string& value, const MarsRequest&) const {
 }
 
 void TypeDate::print(std::ostream& out) const {
-    out << "TypeDate[name=" << name_ << "]";
+    out << "TypeDate[name=" << name() << "]";
 }
 
 static TypeBuilder<TypeDate> type("date");

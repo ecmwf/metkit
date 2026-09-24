@@ -66,14 +66,14 @@ public:
 
 private:
 
-    ExpansionContext& ctxForVerb(const std::string& verb);
+    ExpansionContext& ctxForVerb(Verb verb);
 
 private:
 
     bool inherit_;
     bool strict_;
 
-    std::map<std::string, ExpansionContext> ctx_;
+    std::map<Verb, ExpansionContext> ctx_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

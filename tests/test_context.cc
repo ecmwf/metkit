@@ -29,6 +29,8 @@ using ::eckit::BadValue;
 
 CASE("Context match") {
 
+    // metkit::mars::MarsLanguage::get("retrieve");
+
     Context c;
     std::set<std::string> cc{"s2", "ti"};
     c.add(std::make_unique<Include>("class", cc));

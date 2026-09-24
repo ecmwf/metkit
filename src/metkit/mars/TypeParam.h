@@ -25,13 +25,12 @@ class TypeParam : public Type {
 
 public:  // methods
 
-    TypeParam(const std::string& name, const eckit::Value& settings);
+    TypeParam(Keyword keyword, const eckit::Value& settings);
 
     ~TypeParam() noexcept override = default;
 
 private:  // methods
 
-    eckit::ValueMap expandWith_;
     bool firstRule_;
 
     void print(std::ostream& out) const override;

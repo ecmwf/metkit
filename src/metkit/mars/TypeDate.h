@@ -26,7 +26,7 @@ class TypeDate : public Type {
 
 public:  // methods
 
-    TypeDate(const std::string& name, const eckit::Value& settings);
+    TypeDate(Keyword keyword, const eckit::Value& settings);
 
     ~TypeDate() noexcept override = default;
 

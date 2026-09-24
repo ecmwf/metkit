@@ -18,17 +18,21 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Type.h"
 
 namespace metkit::mars {
 
 class Context;
 class FlattenCallback;
-class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -47,19 +51,25 @@ public:
     ExpansionContext(const MarsRequest& request);
     ExpansionContext& operator=(ExpansionContext&& other);
 
-    bool has(const std::string& key) const;
-    const std::vector<std::string>& values(const std::string& key) const;
+    bool has(Keyword key) const;
+
+    const std::vector<std::string>& values(Keyword key) const;
+
+    void unset(Keyword key);
     void unset(const std::string& key);
 
 private:
 
-    std::map<std::string, std::vector<std::string>> values_;
+    std::unordered_map<Keyword, std::vector<std::string>> values_;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class MarsLanguage {
 
 public:  // methods
 
+    MarsLanguage(Verb verb);
     MarsLanguage(const std::string& verb);
     ~MarsLanguage();
 
@@ -70,22 +80,26 @@ public:  // methods
 
     MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
-    const std::string& verb() const;
-
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
+    const Type* type(Keyword name) const;
     const Type* type(const std::string& name) const;
 
+    bool isData(Keyword keyword) const;
+    bool isDerived(Keyword keyword) const;
+    bool isPostProc(Keyword keyword) const;
+    bool isSink(Keyword keyword) const;
+
     bool isData(const std::string& keyword) const;
-
+    bool isDerived(const std::string& keyword) const;
     bool isPostProc(const std::string& keyword) const;
-
     bool isSink(const std::string& keyword) const;
-    const std::set<std::string>& sinkKeywords() const;
 
 public:  // class methods
 
-    static std::string expandVerb(const std::string& verb);
+    static const std::string& expandVerb(const std::string& verb);
+
+    static const MarsLanguage& get(Verb verb);
     static const MarsLanguage& get(const std::string& verb);
 
     static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
@@ -93,23 +107,36 @@ public:  // class methods
 
     static eckit::Value jsonFile(const std::string& name);
 
+    static Verb verb(const std::string& name);
+    static const std::string& name(Verb verb);
+
+    static Keyword addKeyword(const std::string& name);
+    static Keyword hasKeyword(const std::string& name);
+    static Keyword keyword(const std::string& name);
+    static const std::string& name(Keyword keyword);
+
+    static void init();
 
 private:  // methods
 
+    void parse(Verb verb);
+
+    Category group(Keyword keyword) const;
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback) const;
     void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);
 
 private:  // members
 
-    std::string verb_;
-    std::map<std::string, Type*> types_;
-    std::set<std::string> dataKeywords_;
-    std::set<std::string> sinkKeywords_;
-    std::set<std::string> postProcKeywords_;
-    std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
-    std::vector<std::string> keywords_;
+    static Dictionary<Verb> verbs_;
+    static Dictionary<Keyword> keywords_;
 
+    Verb verb_;
+    mutable std::unordered_map<Keyword, Type*> types_;
+    std::vector<std::pair<Keyword, Type*>> typesByAxisOrder_;
+
+    // for bestMatch - to be removed as we turn off fuzzy matching
+    std::vector<std::string> keywordList_;
     std::map<std::string, std::string> aliases_;
 };
 

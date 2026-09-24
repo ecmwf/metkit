@@ -14,50 +14,48 @@
 #include "metkit/mars/Parameter.h"
 #include "metkit/mars/Type.h"
 
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class UndefinedType : public Type {
-    void print(std::ostream& out) const override { out << "<undefined type>"; }
+// class UndefinedType : public Type {
+//     void print(std::ostream& out) const override { out << "<undefined type>"; }
 
-    bool expand(std::string&, const MarsRequest&) const override { NOTIMP; }
+//     bool expand(std::string&, const MarsRequest&) const override { NOTIMP; }
 
-public:
+// public:
 
-    UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
-};
+//     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
+// };
 
 
-static UndefinedType undefined;
+// static UndefinedType undefined;
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
-Parameter::Parameter() : type_(&undefined) {
-    type_->attach();
-}
+// TypeParameter::TypeParameter() : type_(&undefined) {
+//     type_->attach();
+// }
 
-Parameter::~Parameter() {
+TypeParameter::~TypeParameter() {
     type_->detach();
 }
 
-Parameter::Parameter(const std::vector<std::string>& values, const Type* type) : type_(type), values_(values) {
-    if (!type) {
-        type_ = &undefined;
-    }
+TypeParameter::TypeParameter(const std::vector<std::string>& values, const Type* type) : Parameter(values), type_(type) {
+    // if (!type) {
+    //     type_ = &undefined;
+    // }
     type_->attach();
 }
 
 
-Parameter::Parameter(const Parameter& other) : type_(other.type_), values_(other.values_) {
+TypeParameter::TypeParameter(const TypeParameter& other) : Parameter(other.values_), type_(other.type_) {
     type_->attach();
 }
 
-Parameter& Parameter::operator=(const Parameter& other) {
+TypeParameter& TypeParameter::operator=(const TypeParameter& other) {
     const Type* old = type_;
     type_           = other.type_;
     type_->attach();
@@ -72,15 +70,29 @@ void Parameter::values(const std::vector<std::string>& values) {
 }
 
 bool Parameter::filter(const std::vector<std::string>& filter) {
+    NOTIMP;
+}
+
+bool Parameter::filter(Keyword keyword, const std::vector<std::string>& filter) {
+    NOTIMP;
+}
+bool Parameter::matches(const std::vector<std::string>& match) const {
+    NOTIMP;
+}
+
+bool TypeParameter::filter(const std::vector<std::string>& filter) {
     return type_->filter(filter, values_);
 }
 
-bool Parameter::filter(const std::string& keyword, const std::vector<std::string>& filter) {
+bool TypeParameter::filter(Keyword keyword, const std::vector<std::string>& filter) {
     return type_->filter(keyword, filter, values_);
 }
 
+size_t Parameter::count() const {
+    return values_.size();
+}
 
-bool Parameter::matches(const std::vector<std::string>& match) const {
+bool TypeParameter::matches(const std::vector<std::string>& match) const {
     return type_->matches(match, values_);
 }
 
@@ -105,27 +117,33 @@ void Parameter::merge(const Parameter& p) {
     values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
 }
 
+Keyword TypeParameter::id() const {
+    return type_->id();
+}
 
-const std::string& Parameter::name() const {
+const std::string& TypeParameter::name() const {
     return type_->name();
 }
 
-size_t Parameter::count() const {
+size_t TypeParameter::count() const {
     return type_->count(values_);
 }
 
-void Parameter::print(std::ostream& s) const {
-    s << "Parameter[type=" << *type_ << ",values=" << values_ << "]";
+void StringParameter::print(std::ostream& s) const {
+    s << "StringParameter[name=" << name_ << ",values=" << values_ << "]";
 }
 
-bool Parameter::operator<(const Parameter& other) const {
-    if (name() != other.name()) {
-        return name() < other.name();
+void TypeParameter::print(std::ostream& s) const {
+    s << "TypeParameter[type=" << *type_ << ",values=" << values_ << "]";
+}
+
+bool TypeParameter::operator<(const TypeParameter& other) const {
+    if (id() != other.id()) {
+        return id() < other.id();
     }
     return values_ < other.values_;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

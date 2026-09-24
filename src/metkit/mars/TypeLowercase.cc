@@ -21,10 +21,10 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeLowercase::TypeLowercase(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
+TypeLowercase::TypeLowercase(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {}
 
 void TypeLowercase::print(std::ostream& out) const {
-    out << "TypeLowercase[name=" << name_ << "]";
+    out << "TypeLowercase[name=" << name() << "]";
 }
 
 bool TypeLowercase::expand(std::string& value, const MarsRequest&) const {

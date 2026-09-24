@@ -18,6 +18,7 @@
 #include "eckit/testing/Test.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeInteger.h"
 
@@ -32,7 +33,7 @@ CASE("Test TypeInteger expansion range=[1,100]") {
 
     ValueMap settings;
     settings["range"] = ValueList{1, 100};
-    TypeInteger type("day", settings);
+    TypeInteger type(MarsLanguage::addKeyword("day"), settings);
     Type& tday = type;
 
     // in range
@@ -61,7 +62,8 @@ CASE("Test TypeInteger expansion range=[1,1]") {
 
     ValueMap settings;
     settings["range"] = ValueList{1, 1};
-    TypeInteger type("day", settings);
+
+    TypeInteger type(MarsLanguage::addKeyword("day"), settings);
     Type& tday = type;
 
     {
@@ -82,7 +84,7 @@ CASE("Test TypeInteger day expansion range=[-1,1]") {
 
     ValueMap settings;
     settings["range"] = ValueList{-1, 1};
-    TypeInteger type("day", settings);
+    TypeInteger type(MarsLanguage::addKeyword("day"), settings);
     Type& tday = type;
 
     {

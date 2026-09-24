@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
@@ -26,16 +27,33 @@ class MarsParsedRequest : public MarsRequest {
 public:
 
     MarsParsedRequest(const std::string& verb, size_t line);
-    virtual ~MarsParsedRequest() = default;
+    ~MarsParsedRequest() = default;
 
-    virtual void info(std::ostream&) const;
+    const std::string& verb() const override;
+    void getParams(std::vector<std::string>& keys) const override;
+    const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const override;
+
+    void verb(const std::string& v) override;
+
+    void values(const std::string&, const std::vector<std::string>&) override;
+    void erase(const std::string& key) override;
+
+    const std::list<StringParameter>& params() const;
+
+    void info(std::ostream&) const;
+    void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t", bool verb = true) const override;
+    
     friend std::ostream& operator<<(std::ostream& s, const MarsParsedRequest& r) {
         r.info(s);
         return s;
     }
 
 private:
-
+    std::optional<std::reference_wrapper<const Parameter>> find(const std::string& name) const override;
+    std::optional<std::reference_wrapper<Parameter>> find(const std::string& name) override;
+    
+    std::string verb_;
+    std::list<StringParameter> params_;
     std::size_t line_;
 };
 

@@ -10,6 +10,7 @@
 
 
 #include "metkit/mars/TypeMixed.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -19,7 +20,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeMixed::TypeMixed(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+TypeMixed::TypeMixed(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
     eckit::Value types = settings["type"];
 
     eckit::Value cfg;
@@ -29,7 +30,7 @@ TypeMixed::TypeMixed(const std::string& name, const eckit::Value& settings) : Ty
             cfg         = settings;
             cfg["type"] = types[i];
 
-            Type* k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
+            Type* k = TypesFactory::build(MarsLanguage::addKeyword(name() + "." + std::string(types[i])), cfg);
             k->attach();
             types_.emplace_back(nullptr, k);
         }
@@ -42,7 +43,7 @@ TypeMixed::TypeMixed(const std::string& name, const eckit::Value& settings) : Ty
                 c = Context::parseContext(cfg["context"]);
             }
 
-            Type* k = TypesFactory::build(name + "." + std::to_string(i) + "." + std::string(type), cfg);
+            Type* k = TypesFactory::build(MarsLanguage::addKeyword(name() + "." + std::to_string(i) + "." + std::string(type)), cfg);
             k->attach();
             types_.emplace_back(std::move(c), k);
         }
@@ -56,7 +57,7 @@ TypeMixed::~TypeMixed() noexcept {
 }
 
 void TypeMixed::print(std::ostream& out) const {
-    out << "TypeMixed[name=" << name_;
+    out << "TypeMixed[name=" << name();
     for (auto it = types_.begin(); it != types_.end(); it++) {
         out << "," << *((*it).second);
     }

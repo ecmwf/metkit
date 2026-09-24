@@ -49,7 +49,7 @@ CASE("match basic") {
     req.setValue("expver", "xxxx");
     req.values("number", {"1", "2"});
     req.setValue("stream", "enfo");
-    req.setValue("step ", "0");  // step is not in the matcher. This should have no effect on matching
+    req.setValue("step", "0");  // step is not in the matcher. This should have no effect on matching
 
     EXPECT_EQUAL(req.count(), 2);
     EXPECT_EQUAL(match_any.match(req), true);

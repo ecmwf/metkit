@@ -45,7 +45,7 @@ std::string date(long d) {
 
 CASE("Test TypeDate expansions") {
 
-    TypeDate tdate("date", Value());
+    TypeDate tdate(MarsLanguage::addKeyword(std::string("date")), Value());
     Type& td(tdate);
 
     assertTypeExpansion("date", {"20140506"}, {"20140506"});

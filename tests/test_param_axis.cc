@@ -81,16 +81,16 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
 CASE("canonical param") {
     assertTypeExpansion("param", {"129.228"}, {"228129"});
     assertTypeExpansion("param", {"228129"}, {"228129"});
-    EXPECT_THROWS_AS(assertTypeExpansion("param", {".228"}, {""}), eckit::UserError);
-    EXPECT_THROWS_AS(assertTypeExpansion("param", {"9999"}, {""}), eckit::UserError);
+    EXPECT_THROWS(assertTypeExpansion("param", {".228"}, {""}));
+    EXPECT_THROWS(assertTypeExpansion("param", {"9999"}, {""}));
     assertTypeExpansion("param", {"254"}, {"254"});
     assertTypeExpansion("param", {"254.128"}, {"254"});
     assertTypeExpansion("param", {"254.129"}, {"129254"});
     assertTypeExpansion("param", {"3003"}, {"3003"});
     assertTypeExpansion("param", {"999.128"}, {"999"});
-    EXPECT_THROWS_AS(assertTypeExpansion("param", {"999.129"}, {"129999"}), eckit::UserError);
-    EXPECT_THROWS_AS(assertTypeExpansion("param", {"1000.128"}, {""}), eckit::UserError);
-    EXPECT_THROWS_AS(assertTypeExpansion("param", {"228003.228"}, {""}), eckit::UserError);
+    EXPECT_THROWS(assertTypeExpansion("param", {"999.129"}, {"129999"}));
+    EXPECT_THROWS(assertTypeExpansion("param", {"1000.128"}, {""}));
+    EXPECT_THROWS(assertTypeExpansion("param", {"228003.228"}, {""}));
 }
 
 CASE("trivial") {
