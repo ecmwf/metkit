@@ -113,7 +113,6 @@ enum class LevelType : std::size_t {
     MixedLayerParcel,
     Isothermal,
     IsobaricInPa,
-    IsobaricInHpa,
     LowCloudLayer,
     MediumCloudLayer,
     HighCloudLayer,
@@ -165,21 +164,19 @@ enum class LevelType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using LevelList =
-    ValueList<LevelType::Surface, LevelType::EntireAtmosphere, LevelType::EntireLake, LevelType::CloudBase,
-              LevelType::Tropopause, LevelType::NominalTop, LevelType::MostUnstableParcel, LevelType::MixedLayerParcel,
-              LevelType::Isothermal, LevelType::IsobaricInPa, LevelType::IsobaricInHpa, LevelType::LowCloudLayer,
-              LevelType::MediumCloudLayer, LevelType::HighCloudLayer, LevelType::MeanSea, LevelType::HeightAboveSea,
-              LevelType::HeightAboveGround, LevelType::ModelSingleLevel, LevelType::ModelMultipleLevel,
-              LevelType::Theta, LevelType::PotentialVorticity, LevelType::SnowLayer, LevelType::SoilLayer,
-              LevelType::SeaIceLayer, LevelType::OceanSurface, LevelType::DepthBelowSeaLayer,
-              LevelType::OceanSurfaceToBottom, LevelType::LakeBottom, LevelType::MixingLayer, LevelType::OceanModel,
-              LevelType::OceanModelLayer, LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
-              LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater, LevelType::IceLayerOnWater,
-              LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel,
-              LevelType::AbstractLevel, LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M,
-              LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M,
-              LevelType::FlightLevel, LevelType::Default>;
+using LevelList = ValueList<
+    LevelType::Surface, LevelType::EntireAtmosphere, LevelType::EntireLake, LevelType::CloudBase, LevelType::Tropopause,
+    LevelType::NominalTop, LevelType::MostUnstableParcel, LevelType::MixedLayerParcel, LevelType::Isothermal,
+    LevelType::IsobaricInPa, LevelType::LowCloudLayer, LevelType::MediumCloudLayer, LevelType::HighCloudLayer,
+    LevelType::MeanSea, LevelType::HeightAboveSea, LevelType::HeightAboveGround, LevelType::ModelSingleLevel,
+    LevelType::ModelMultipleLevel, LevelType::Theta, LevelType::PotentialVorticity, LevelType::SnowLayer,
+    LevelType::SoilLayer, LevelType::SeaIceLayer, LevelType::OceanSurface, LevelType::DepthBelowSeaLayer,
+    LevelType::OceanSurfaceToBottom, LevelType::LakeBottom, LevelType::MixingLayer, LevelType::OceanModel,
+    LevelType::OceanModelLayer, LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
+    LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater, LevelType::IceLayerOnWater, LevelType::EntireMeltPond,
+    LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel, LevelType::AbstractLevel,
+    LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M, LevelType::HeightAboveSeaAt2M,
+    LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M, LevelType::FlightLevel, LevelType::Default>;
 
 ///
 /// @brief Compile-time mapping from `LevelType` to human-readable name.
@@ -218,7 +215,6 @@ DEF(LevelType::MostUnstableParcel, "mostUnstableParcel");
 DEF(LevelType::MixedLayerParcel, "mixedLayerParcel");
 DEF(LevelType::Isothermal, "isothermal");
 DEF(LevelType::IsobaricInPa, "isobaricInPa");
-DEF(LevelType::IsobaricInHpa, "isobaricInhPa");
 DEF(LevelType::LowCloudLayer, "lowCloudLayer");
 DEF(LevelType::MediumCloudLayer, "mediumCloudLayer");
 DEF(LevelType::HighCloudLayer, "highCloudLayer");

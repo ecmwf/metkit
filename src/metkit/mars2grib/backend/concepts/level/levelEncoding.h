@@ -129,10 +129,9 @@ constexpr bool needLevel() {
                   Variant == LevelType::HeightAboveGround || Variant == LevelType::HeightAboveSeaAt10M ||
                   Variant == LevelType::HeightAboveSeaAt2M || Variant == LevelType::HeightAboveSea ||
                   Variant == LevelType::ModelSingleLevel || Variant == LevelType::ModelMultipleLevel ||
-                  Variant == LevelType::IsobaricInHpa || Variant == LevelType::IsobaricInPa ||
-                  Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta ||
-                  Variant == LevelType::OceanModel || Variant == LevelType::AbstractLevel ||
-                  Variant == LevelType::FlightLevel) {
+                  Variant == LevelType::IsobaricInPa || Variant == LevelType::PotentialVorticity ||
+                  Variant == LevelType::Theta || Variant == LevelType::OceanModel ||
+                  Variant == LevelType::AbstractLevel || Variant == LevelType::FlightLevel) {
 
         return true;
     }
@@ -306,11 +305,6 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
                 else if constexpr (Variant == LevelType::HeightAboveSeaAt10M) {
                     set_or_throw<std::string>(out, "typeOfLevel", "heightAboveSea");
                     set_or_throw<long>(out, "level", 10L);
-                }
-                else if constexpr (Variant == LevelType::IsobaricInHpa) {
-                    long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
-                    set_or_throw<std::string>(out, "typeOfLevel", "isobaricInhPa");
-                    set_or_throw<long>(out, "level", levelVal / 100);
                 }
                 else {
                     set_or_throw<std::string>(out, "typeOfLevel", std::string(levelTypeName<Variant>()));
