@@ -23,12 +23,12 @@
 #include <vector>
 
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Type.h"
 
 namespace metkit::mars {
 
 class Context;
 class FlattenCallback;
-class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -77,11 +77,9 @@ public:  // methods
     const Type* type(const std::string& name) const;
 
     bool isData(const std::string& keyword) const;
-
+    bool isDerived(const std::string& keyword) const;
     bool isPostProc(const std::string& keyword) const;
-
     bool isSink(const std::string& keyword) const;
-    const std::set<std::string>& sinkKeywords() const;
 
 public:  // class methods
 
@@ -96,6 +94,7 @@ public:  // class methods
 
 private:  // methods
 
+    Category category(const std::string& keyword) const;
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback) const;
     void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);
@@ -104,12 +103,10 @@ private:  // members
 
     std::string verb_;
     std::map<std::string, Type*> types_;
-    std::set<std::string> dataKeywords_;
-    std::set<std::string> sinkKeywords_;
-    std::set<std::string> postProcKeywords_;
     std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
-    std::vector<std::string> keywords_;
 
+    // for bestMatch - to be removed as we turn off fuzzy matching
+    std::vector<std::string> keywords_;
     std::map<std::string, std::string> aliases_;
 };
 

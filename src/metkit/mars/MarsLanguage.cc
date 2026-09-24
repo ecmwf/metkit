@@ -163,30 +163,6 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
         if (settings.contains("aliases")) {
             aliases = settings["aliases"];
         }
-        if (settings.contains("category") && settings["category"] == "data") {
-            dataKeywords_.insert(keyword);
-            if (aliases) {
-                for (size_t j = 0; j < aliases->size(); ++j) {
-                    dataKeywords_.insert((*aliases)[j]);
-                }
-            }
-        }
-        if (settings.contains("category") && settings["category"] == "postproc") {
-            postProcKeywords_.insert(keyword);
-            if (aliases) {
-                for (auto j = 0; j < aliases->size(); ++j) {
-                    postProcKeywords_.insert((*aliases)[j]);
-                }
-            }
-        }
-        if (settings.contains("category") && settings["category"] == "sink") {
-            sinkKeywords_.insert(keyword);
-            if (aliases) {
-                for (auto j = 0; j < aliases->size(); ++j) {
-                    sinkKeywords_.insert((*aliases)[j]);
-                }
-            }
-        }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
                 aliases_[(*aliases)[j]] = keyword;
@@ -234,25 +210,31 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
         typesByAxisOrder_.emplace_back(a, t);
     }
     for (auto& [k, t] : types_) {
-        if (dataKeywords_.find(k) == dataKeywords_.end()) {
+        if (t->category() != Category::Data) {
             typesByAxisOrder_.emplace_back(k, t);
         }
     }
 }
 
-bool MarsLanguage::isData(const std::string& keyword) const {
-    return (dataKeywords_.find(keyword) != dataKeywords_.end());
+Category MarsLanguage::category(const std::string& keyword) const {
+    auto it = types_.find(keyword);
+    if (it != types_.end()) {
+        return it->second->category();
+    }
+    throw eckit::UserError("Cannot find keyword: " + keyword);
 }
 
-bool MarsLanguage::isPostProc(const std::string& keyword) const {
-    return (postProcKeywords_.find(keyword) != postProcKeywords_.end());
+bool MarsLanguage::isData(const std::string& k) const {
+    return category(k) == Category::Data;
 }
-
-bool MarsLanguage::isSink(const std::string& keyword) const {
-    return (sinkKeywords_.find(keyword) != sinkKeywords_.end());
+bool MarsLanguage::isDerived(const std::string& k) const {
+    return category(k) == Category::Derived;
 }
-const std::set<std::string>& MarsLanguage::sinkKeywords() const {
-    return sinkKeywords_;
+bool MarsLanguage::isPostProc(const std::string& k) const {
+    return category(k) == Category::PostProc;
+}
+bool MarsLanguage::isSink(const std::string& k) const {
+    return category(k) == Category::Sink;
 }
 
 MarsLanguage::~MarsLanguage() {

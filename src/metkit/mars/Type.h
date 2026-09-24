@@ -182,6 +182,16 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum class Category : uint8_t {
+    None = 0,
+    Data,
+    Derived,
+    PostProc,
+    Sink
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class Type : public eckit::Counted {
 public:  // methods
 
@@ -211,7 +221,7 @@ public:  // methods
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
-    const std::string& category() const;
+    const Category& category() const;
 
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
 
@@ -233,11 +243,11 @@ protected:  // methods
 protected:  // members
 
     std::string name_;
-    std::string category_;
 
     bool flatten_;
     bool multiple_;
     bool duplicates_;
+    Category category_;
 
     std::map<std::shared_ptr<Context>, std::vector<std::string>> defaults_;
     std::map<std::shared_ptr<Context>, std::vector<std::string>> sets_;
