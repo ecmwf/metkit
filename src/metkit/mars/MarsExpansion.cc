@@ -29,7 +29,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
     // Implement inheritence
     for (const auto& request : requests) {
         const std::string& verbName = MarsLanguage::expandVerb(request.verb());
-        const Verb& verb = MarsLanguage::verb(verbName);
+        const Verb& verb            = MarsLanguage::verb(verbName);
 
         result.emplace_back(MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_));
     }
@@ -43,7 +43,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& r
 
     for (const auto& request : requests) {
         const std::string& verbName = MarsLanguage::expandVerb(request.verb());
-        const Verb& verb = MarsLanguage::verb(verbName);
+        const Verb& verb            = MarsLanguage::verb(verbName);
 
         result.emplace_back(MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_));
     }
@@ -53,7 +53,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& r
 
 MarsRequest MarsExpansion::expand(const MarsRequest& request) {
     const std::string& verbName = MarsLanguage::expandVerb(request.verb());
-    const Verb& verb = MarsLanguage::verb(verbName);
+    const Verb& verb            = MarsLanguage::verb(verbName);
 
     return MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_);
 }
@@ -64,7 +64,7 @@ void MarsExpansion::expand(const MarsRequest& request, ExpandCallback& callback)
 
 void MarsExpansion::flatten(const MarsRequest& request, FlattenCallback& callback) {
     const std::string& verbName = MarsLanguage::expandVerb(request.verb());
-    const Verb& verb = MarsLanguage::verb(verbName);
+    const Verb& verb            = MarsLanguage::verb(verbName);
 
     MarsLanguage::get(verb).flatten(request, callback);
 }

@@ -50,7 +50,8 @@ TypeToByListQuantile::TypeToByListQuantile(Keyword keyword, const eckit::Value& 
         }
     }
 
-    LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name() << " denominators " << denominators_ << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name() << " denominators " << denominators_
+                             << std::endl;
 
     toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, settings);
     multiple_ = true;

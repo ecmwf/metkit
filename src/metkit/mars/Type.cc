@@ -28,8 +28,8 @@
 #include "metkit/mars/ContextRule.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
 
@@ -240,8 +240,7 @@ bool Type::filter(const std::vector<std::string>& filter, std::vector<std::strin
     return !values.empty();
 }
 
-bool Type::filter(Keyword keyword, const std::vector<std::string>& f,
-                  std::vector<std::string>& values) const {
+bool Type::filter(Keyword keyword, const std::vector<std::string>& f, std::vector<std::string>& values) const {
 
     if (keyword == id()) {
         return filter(f, values);
@@ -386,7 +385,7 @@ void Type::finalise(MarsRequest& request, bool strict) const {
         if (values.size() > 0) {
             for (const auto& context : unsets_) {
                 if (context->matches(request)) {
-                        if (strict && request.has(id_)) {
+                    if (strict && request.has(id_)) {
                         std::ostringstream oss;
                         oss << *this << ": Key [" << name() << "] not acceptable with context: " << *context;
                         throw eckit::UserError(oss.str());

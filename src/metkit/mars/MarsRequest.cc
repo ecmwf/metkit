@@ -46,7 +46,7 @@ MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::
     verb_ = MarsLanguage::verb(s);
     MarsLanguage::get(verb_);
     for (auto j = values.begin(); j != values.end(); ++j) {
-        Keyword param = MarsLanguage::keyword((*j).first);
+        Keyword param            = MarsLanguage::keyword((*j).first);
         const std::string& value = (*j).second;
 
         params_.push_back(TypeParameter(std::vector<std::string>(1, value), new TypeAny(param)));
@@ -59,7 +59,7 @@ MarsRequest::MarsRequest(const std::string& s, const eckit::Value& values) {
     MarsLanguage::get(verb_);
     eckit::ValueMap m = values;
     for (auto j = m.begin(); j != m.end(); ++j) {
-        Keyword param  = MarsLanguage::keyword((*j).first);
+        Keyword param             = MarsLanguage::keyword((*j).first);
         const eckit::Value& value = (*j).second;
 
         if (value.isList()) {
@@ -224,7 +224,7 @@ void MarsRequest::setValuesTyped(const Type* type, const std::vector<std::string
 bool MarsRequest::filter(const MarsRequest& filter) {
 
     Keyword date = MarsLanguage::keyword("date");
-    Keyword day = MarsLanguage::keyword("day");
+    Keyword day  = MarsLanguage::keyword("day");
 
     for (auto& p : params_) {
         if (p.id() == date) {
@@ -240,7 +240,7 @@ bool MarsRequest::filter(const MarsRequest& filter) {
         if (!fp) {
             continue;
         }
-        
+
         if (!p.filter(fp->get().values())) {
             return false;
         }

@@ -85,9 +85,7 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    Type* make(Keyword keyword, const eckit::Value& settings) const override {
-        return new T(keyword, settings);
-    }
+    Type* make(Keyword keyword, const eckit::Value& settings) const override { return new T(keyword, settings); }
 
 public:
 

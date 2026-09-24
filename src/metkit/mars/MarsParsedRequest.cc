@@ -15,7 +15,9 @@ namespace metkit::mars {
 
 MarsParsedRequest::MarsParsedRequest(const std::string& verb, size_t line) : verb_(verb), line_(line) {}
 
-const std::string& MarsParsedRequest::verb() const { return verb_; }
+const std::string& MarsParsedRequest::verb() const {
+    return verb_;
+}
 
 void MarsParsedRequest::getParams(std::vector<std::string>& keys) const {
     keys.clear();
@@ -32,13 +34,16 @@ const std::vector<std::string>& MarsParsedRequest::values(const std::string& key
     return empty;
 }
 
-void MarsParsedRequest::verb(const std::string& v) { verb_ = v; }
+void MarsParsedRequest::verb(const std::string& v) {
+    verb_ = v;
+}
 
 void MarsParsedRequest::values(const std::string& key, const std::vector<std::string>& vals) {
     auto p = find(key);
     if (p) {
         p->get().values(vals);
-    } else {
+    }
+    else {
         params_.push_back(StringParameter{key, vals});
     }
 }
@@ -50,7 +55,6 @@ std::optional<std::reference_wrapper<const Parameter>> MarsParsedRequest::find(c
         }
     }
     return std::nullopt;
-
 }
 std::optional<std::reference_wrapper<Parameter>> MarsParsedRequest::find(const std::string& name) {
     for (auto i = params_.begin(); i != params_.end(); ++i) {
@@ -69,7 +73,7 @@ void MarsParsedRequest::erase(const std::string& key) {
         }
     }
 }
-    
+
 const std::list<StringParameter>& MarsParsedRequest::params() const {
     return params_;
 }

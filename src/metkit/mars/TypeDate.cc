@@ -118,8 +118,8 @@ namespace metkit::mars {
 
 TypeDate::TypeDate(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
 
-    toByList_       = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
-    multiple_       = true;
+    toByList_                                 = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
+    multiple_                                 = true;
     filters_[MarsLanguage::addKeyword("day")] = &filterByDay;
 }
 

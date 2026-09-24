@@ -73,7 +73,8 @@ void filter(MarsRequest& r, const MarsRequest& f, const ExpectedVals& expected, 
     }
 }
 
-void filter(const std::string& text, const std::string& filter_text, const ExpectedVals& expected, std::vector<long> dates, bool strict = true) {
+void filter(const std::string& text, const std::string& filter_text, const ExpectedVals& expected,
+            std::vector<long> dates, bool strict = true) {
     MarsRequest r      = MarsRequest::parse(text, strict);
     std::string f_text = "filter," + filter_text;
     std::istringstream in(f_text);

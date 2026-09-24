@@ -69,12 +69,14 @@ protected:
     }
 
 protected:
+
     std::vector<std::string> values_;
 };
 
 class StringParameter : public Parameter {
 
 public:
+
     StringParameter(const std::string& name) : name_(name) {}
     StringParameter(const std::string& name, const std::vector<std::string>& values) : name_(name) { values_ = values; }
 

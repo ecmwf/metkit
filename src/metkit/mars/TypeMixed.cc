@@ -43,7 +43,8 @@ TypeMixed::TypeMixed(Keyword keyword, const eckit::Value& settings) : Type(keywo
                 c = Context::parseContext(cfg["context"]);
             }
 
-            Type* k = TypesFactory::build(MarsLanguage::addKeyword(name() + "." + std::to_string(i) + "." + std::string(type)), cfg);
+            Type* k = TypesFactory::build(
+                MarsLanguage::addKeyword(name() + "." + std::to_string(i) + "." + std::string(type)), cfg);
             k->attach();
             types_.emplace_back(std::move(c), k);
         }

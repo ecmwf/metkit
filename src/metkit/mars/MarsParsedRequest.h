@@ -42,16 +42,17 @@ public:
 
     void info(std::ostream&) const;
     void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t", bool verb = true) const override;
-    
+
     friend std::ostream& operator<<(std::ostream& s, const MarsParsedRequest& r) {
         r.info(s);
         return s;
     }
 
 private:
+
     std::optional<std::reference_wrapper<const Parameter>> find(const std::string& name) const override;
     std::optional<std::reference_wrapper<Parameter>> find(const std::string& name) override;
-    
+
     std::string verb_;
     std::list<StringParameter> params_;
     std::size_t line_;

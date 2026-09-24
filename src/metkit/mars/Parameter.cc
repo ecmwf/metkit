@@ -43,7 +43,8 @@ TypeParameter::~TypeParameter() {
     type_->detach();
 }
 
-TypeParameter::TypeParameter(const std::vector<std::string>& values, const Type* type) : Parameter(values), type_(type) {
+TypeParameter::TypeParameter(const std::vector<std::string>& values, const Type* type) :
+    Parameter(values), type_(type) {
     // if (!type) {
     //     type_ = &undefined;
     // }

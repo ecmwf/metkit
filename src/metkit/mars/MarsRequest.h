@@ -147,6 +147,7 @@ public:  // static methods
     static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
 
 protected:  // methods
+
     std::optional<std::reference_wrapper<const Parameter>> find(Keyword) const;
     std::optional<std::reference_wrapper<Parameter>> find(Keyword);
 

@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
- #include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/TypesFactory.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/thread/AutoLock.h"

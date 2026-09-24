@@ -564,7 +564,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
 
         if (inherit) {
             for (const auto& [k, t] : typesByAxisOrder_) {
-                    if (t != nullptr && result.countValues(keywords_.name(k)) == 0) {
+                if (t != nullptr && result.countValues(keywords_.name(k)) == 0) {
                     if (ctx.has(k)) {
                         result.setValuesTyped(t, ctx.values(k));
                     }
