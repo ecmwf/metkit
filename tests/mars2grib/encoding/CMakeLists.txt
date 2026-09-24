@@ -6,6 +6,7 @@ list( APPEND MARS2GRIB_ENCODING_TESTS
     005_reduced_gaussian
     006_healpix
     007_bitsPerValue
+    008_enfh_chemical_reforecast
 )
 
 list( SORT MARS2GRIB_ENCODING_TESTS )
