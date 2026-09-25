@@ -15,6 +15,8 @@
 #include <exception>
 #include <stdexcept>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/testing/Test.h"
@@ -75,6 +77,26 @@ CASE("enwh is converted to enfh, keeping hdate and number") {
 
 CASE("enwh cf is converted to enfh") {
     EXPECT_EQUAL(convertedStream(waveRequest("enwh", "cf")), "enfh");
+}
+
+CASE("every wave stream is converted to its atmospheric counterpart") {
+    const std::vector<std::pair<std::string, std::string>> streams{
+        {"wave", "oper"}, {"scwv", "scda"}, {"dcwv", "dcda"}, {"lwwv", "lwda"}, {"ewda", "enda"}, {"ewla", "elda"},
+        {"fsow", "fsob"}, {"waef", "enfo"}, {"enwh", "enfh"}, {"weef", "eefo"}, {"weeh", "eefh"}, {"ewho", "efho"},
+        {"weov", "efov"}, {"ewhc", "efhc"}, {"wehs", "efhs"}, {"wees", "eehs"}, {"wamo", "mnth"}, {"wamd", "moda"},
+        {"ewmm", "edmm"}, {"ewmo", "edmo"}, {"dacw", "dacl"},
+    };
+
+    for (const auto& stream : streams) {
+        EXPECT_EQUAL(convertedStream(waveRequest(stream.first, "fc")), stream.second);
+    }
+}
+
+CASE("legacy seasonal and monthly forecast wave streams, and streams without a counterpart, are unchanged") {
+    for (const std::string stream : {"wasf", "swmm", "wams", "mswm", "mmaw", "mmwm", "wamf", "wmfm", "mnfw", "mfhw",
+                                     "mfaw", "mfwm", "mhwm", "mawm", "mawv", "wvhc", "wavm"}) {
+        EXPECT_EQUAL(convertedStream(waveRequest(stream, "fc")), stream);
+    }
 }
 
 CASE("atmospheric streams are unchanged") {
