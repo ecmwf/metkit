@@ -51,6 +51,7 @@ inline void setParamTimespan(OutDict_t& out, long param, const std::string& time
 /// output `timespan` to "none" if it is not already set on `in`.
 template <class InDict_t, class OutDict_t, class OptDict_t>
 inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out, const OptDict_t& opts) {
+    using metkit::mars2mars::utils::dict_traits::get_opt;
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::has;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
@@ -62,8 +63,9 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out, const
             return;
         }
 
-        const std::string step = has<long>(in, "step") ? std::to_string(get_or_throw<long>(in, "step"))
-                                                       : get_or_throw<std::string>(in, "step");
+        // Read as a string first: string-based dictionaries (MarsRequest) cannot read a range as long
+        const auto stepString  = get_opt<std::string>(in, "step");
+        const std::string step = stepString ? *stepString : std::to_string(get_or_throw<long>(in, "step"));
 
         // Strict range detection: "<digits>-<digits>"
         const auto dash        = step.find('-');
@@ -129,8 +131,8 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out, const
 /// @brief Fix timespan of statistical fields that have been wrongly encoded as instant at step 0.
 template <class InDict_t, class OutDict_t>
 inline void fixTimespanFS(const InDict_t& in, OutDict_t& out) {
+    using metkit::mars2mars::utils::dict_traits::get_opt;
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
-    using metkit::mars2mars::utils::dict_traits::has;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
@@ -143,9 +145,15 @@ inline void fixTimespanFS(const InDict_t& in, OutDict_t& out) {
         228130, 228216, 228222, 228223, 228224, 228225, 228226, 228227, 228026, 228027, 228028, 228251};
 
     try {
+        // No timespan without a step (e.g. monthly means indexed by fcmonth)
+        const auto timespan = get_opt<std::string>(out, "timespan");
+        if (!timespan) {
+            return;
+        }
+
         const long param = get_or_throw<long>(in, "param");
 
-        const bool isTimespanNone      = get_or_throw<std::string>(out, "timespan") == "none";
+        const bool isTimespanNone      = *timespan == "none";
         const bool isTimespanFSAllowed = paramsWithTimespanFS.find(param) != paramsWithTimespanFS.end();
 
         if (isTimespanNone && isTimespanFSAllowed) {
