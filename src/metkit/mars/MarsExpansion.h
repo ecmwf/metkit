@@ -57,9 +57,9 @@ public:
 
     void reset();
 
-    MarsRequest expand(const MarsRequest&);
-    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
-    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
+    MarsValidatedRequest expand(const MarsRequest&);
+    std::vector<MarsValidatedRequest> expand(const std::vector<MarsParsedRequest>&);
+    std::vector<MarsValidatedRequest> expand(const std::vector<MarsValidatedRequest>&);
 
     void expand(const MarsRequest&, ExpandCallback&);
     void flatten(const MarsRequest&, FlattenCallback&);

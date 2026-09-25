@@ -25,10 +25,6 @@ void TypeAny::print(std::ostream& out) const {
     out << "TypeAny[name=" << name() << "]";
 }
 
-bool TypeAny::expand(std::string&, const MarsRequest&) const {
-    return true;
-}
-
 static TypeBuilder<TypeAny> type("any");
 
 //----------------------------------------------------------------------------------------------------------------------

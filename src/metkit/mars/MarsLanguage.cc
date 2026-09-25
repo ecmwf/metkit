@@ -46,7 +46,7 @@ void initLanguage() {
 
 ExpansionContext::ExpansionContext(const MarsRequest& request) {
     for (const auto& param : request.parameters()) {
-        values_[MarsLanguage::keyword(param.name())] = param.values();
+        values_[param->id()] = param->values();
     }
 }
 
@@ -97,9 +97,12 @@ void MarsLanguage::init() {
             }
         }
     }
+    keywords_.add("_verb");
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
         keywords_.add(a);
     }
+    keywords_.add("output");
+    keywords_.add("pseudodate");
 }
 
 void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
@@ -477,7 +480,7 @@ const std::string& MarsLanguage::expandVerb(const std::string& verb) {
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    bool expand(std::string&, const MarsRequest&) const override { return true; }
+    bool expand(std::string&, std::optional<std::reference_wrapper<const MarsRequest>> request = std::nullopt) const override { return true; }
 
 public:
 
@@ -505,16 +508,16 @@ const Type* MarsLanguage::type(const std::string& name) const {
     throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
 }
 
-MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
-    MarsRequest result(verb_);
+MarsValidatedRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
+    MarsValidatedRequest result(verb_);
 
     try {
         std::vector<std::pair<Keyword, std::string>> sortedParams;
         std::map<Keyword, std::string> paramSet;
         std::vector<std::string> params;
 
-        for (const auto& PP : r.params()) {
-            std::string p = eckit::StringTools::lower(PP);
+        for (const auto& PP : r.parameters()) {
+            std::string p = eckit::StringTools::lower(PP->name());
             Keyword key   = keywords_.exist(p);
             if (!key) {
                 // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
@@ -522,7 +525,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
                 key = keywords_.exist(p);
                 ASSERT(key);
             }
-            paramSet.emplace(key, PP);
+            paramSet.emplace(key, PP->name());
         }
         {  // sort the parameters, following the AxisOrder
             for (const auto& a : metkit::hypercube::AxisOrder::instance().axes()) {
@@ -535,18 +538,18 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
                     }
                 }
             }
-            for (const auto& [k, PP] : paramSet) {
-                sortedParams.emplace_back(k, PP);
+            for (const auto& [k, PPname] : paramSet) {
+                sortedParams.emplace_back(k, PPname);
             }
         }
 
-        for (const auto& [k, PP] : sortedParams) {
-            std::vector<std::string> values = r.values(PP);
+        for (const auto& [k, PPname] : sortedParams) {
+            std::vector<std::string> values = r.values(PPname);
 
             if (values.size() == 1) {
                 const std::string& s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
-                    result.unsetValues(keywords_.name(k));
+                    result.erase(k);
                     ctx.unset(k);
                     continue;
                 }
@@ -575,10 +578,8 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
             }
         }
 
-        result.getParams(params);
-
-        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->pass2(result);
+        for (const auto& p : result.parameters()) {
+            dynamic_cast<TypeParameter*>(p.get())->type().pass2(result);
         }
 
         for (const auto& [k, t] : typesByAxisOrder_) {
@@ -621,11 +622,12 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
 }
 
 void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
-    std::vector<std::string> params;
-    request.getParams(params);
+    // TODO
+    // std::vector<std::string> params;
+    // request.getParams(params);
 
-    MarsRequest result(request);
-    flatten(request, params, 0, result, callback);
+    // MarsRequest result(request);
+    // flatten(request, params, 0, result, callback);
 }
 
 Verb MarsLanguage::verb(const std::string& name) {

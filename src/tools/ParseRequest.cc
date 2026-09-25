@@ -150,7 +150,7 @@ void ParseRequest::process(const eckit::PathName& path) {
                 // values)
                 for (const auto& r : converted) {
                     std::set<std::string> keys;
-                    for (const auto& p : r.parameters()) {
+                    for (const auto& [k,p] : r.parameters()) {
                         keys.insert(p.name());
                     }
                     coherentRequests[keys].push_back(r);

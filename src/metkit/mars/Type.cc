@@ -35,6 +35,22 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bool Include::matches(MarsRequest req) const {
+    static const Keyword verbKey = MarsLanguage::keyword("_verb");
+    if (key_ == verbKey) {
+        return (vals_.find(req.verb()) != vals_.end());
+    }
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (vals_.find(v) != vals_.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Context::add(std::unique_ptr<ContextRule> rule) {
     rules_.push_back(std::move(rule));
 }
@@ -67,44 +83,42 @@ void Context::print(std::ostream& out) const {
 //----------------------------------------------------------------------------------------------------------------------
 // HELPERS
 
-std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
+ContextRule parseRule(Keyword key, eckit::Value r) {
 
     std::set<std::string> vals;
 
     if (r.isList()) {
         if (r.size() == 0) {
-            throw eckit::UserError("Empty list for context rule '" + key + "'");
+            throw eckit::UserError("Empty list for context rule '" + MarsLanguage::name(key) + "'");
         }
         bool exclude = (r[0] == "!");
         for (size_t k = exclude ? 1 : 0; k < r.size(); k++) {
             vals.insert(r[k]);
         }
         if (exclude)
-            return std::make_unique<Exclude>(key, vals);
-        return std::make_unique<Include>(key, vals);
+            return Exclude{key, vals};
+        return Include{key, vals};
     }
-    else {
-        ASSERT(r.isString());
+    if (r.isString()) {
         std::string v = r;
-        if (v == "undefined") {
-            return std::make_unique<Undef>(key);
+        if (v == "defined") {
+            return Def{key};
         }
-        else if (v == "defined") {
-            return std::make_unique<Def>(key);
+        if (v == "undefined") {
+            return Undef{key};
         }
     }
-    return nullptr;
+    std::ostringstream ss;
+    ss << "Unsupported value " << r <<" in context rule '" << MarsLanguage::name(key) << "'";
+    throw eckit::UserError(ss.str());
 }
 
-std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
+std::unique_ptr<Context> Context::parseContext(eckit::ValueMap c) {
 
     std::unique_ptr<Context> context = std::make_unique<Context>();
 
-    eckit::Value keys = c.keys();
-
-    for (size_t j = 0; j < keys.size(); j++) {
-        std::string key = keys[j];
-        context->add(parseRule(key, c[key]));
+    for (auto j = c.begin(); j != c.end(); ++j) {
+        context->add(parseRule(MarsLanguage::keyword(j->first), j->second));
     }
     return context;
 }
@@ -113,8 +127,9 @@ size_t Context::maxAxisIndex() const {
     size_t maxIndex = 0;
     for (const auto& r : rules_) {
         size_t idx = 0;
-        if (!r->key().empty() && r->key()[0] != '_') {
-            idx = metkit::hypercube::AxisOrder::instance().index(r->key());
+        const std::string& key = MarsLanguage::name(r->key());
+        if (!key.empty() && key[0] != '_') {
+            idx = metkit::hypercube::AxisOrder::instance().index(key);
             if (idx > maxIndex) {
                 maxIndex = idx;
             }
@@ -379,7 +394,7 @@ void Type::finalise(MarsRequest& request, bool strict) const {
 
     const std::vector<std::string>& values = request.values(id_, true);
     if (values.size() == 1 && values[0] == "off") {
-        request.unsetValues(id_);
+        request.erase(id_);
     }
     else {
         if (values.size() > 0) {
@@ -390,7 +405,7 @@ void Type::finalise(MarsRequest& request, bool strict) const {
                         oss << *this << ": Key [" << name() << "] not acceptable with context: " << *context;
                         throw eckit::UserError(oss.str());
                     }
-                    request.unsetValues(id_);
+                    request.erase(id_);
                 }
             }
         }

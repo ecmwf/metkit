@@ -534,11 +534,6 @@ _field: &_field
     multiple: true
     type: to-by-list
     by: 1
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [me, eme]
 
   obscutoff:
     category: data

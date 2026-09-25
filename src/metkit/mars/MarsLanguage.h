@@ -78,7 +78,7 @@ public:  // methods
     MarsLanguage& operator=(const MarsLanguage&) = delete;
     MarsLanguage& operator=(MarsLanguage&&)      = delete;
 
-    MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
+    MarsValidatedRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
@@ -130,6 +130,7 @@ private:  // members
 
     static Dictionary<Verb> verbs_;
     static Dictionary<Keyword> keywords_;
+    static Keyword maxDataKeyword_;
 
     Verb verb_;
     mutable std::unordered_map<Keyword, Type*> types_;

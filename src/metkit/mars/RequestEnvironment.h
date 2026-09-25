@@ -51,7 +51,7 @@ private:
 
     static RequestEnvironment& inst();
 
-    std::optional<MarsRequest> env_ = std::nullopt;
+    std::optional<MarsParsedRequest> env_ = std::nullopt;
     std::recursive_mutex init_;
 };
 

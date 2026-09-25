@@ -22,11 +22,40 @@ void MarsExpansion::reset() {
     ctx_.clear();
 }
 
-std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) {
-    std::vector<MarsRequest> result;
+// std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) {
+//     std::vector<MarsRequest> result;
+//     result.reserve(requests.size());
+
+//     // Implement inheritence
+//     for (const auto& request : requests) {
+//         const std::string& verbName = MarsLanguage::expandVerb(request.verb());
+//         const Verb& verb            = MarsLanguage::verb(verbName);
+
+//         result.emplace_back(MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_));
+//     }
+
+//     return result;
+// }
+
+std::vector<MarsValidatedRequest> MarsExpansion::expand(const std::vector<MarsValidatedRequest>& requests) {
+
+    std::vector<MarsValidatedRequest> result;
     result.reserve(requests.size());
 
-    // Implement inheritence
+    for (const auto& request : requests) {
+        const Verb& verb = request.verbId();
+
+        result.emplace_back(MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_));
+    }
+
+    return result;
+}
+
+std::vector<MarsValidatedRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) {
+
+    std::vector<MarsValidatedRequest> result;
+    result.reserve(requests.size());
+
     for (const auto& request : requests) {
         const std::string& verbName = MarsLanguage::expandVerb(request.verb());
         const Verb& verb            = MarsLanguage::verb(verbName);
@@ -37,21 +66,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
     return result;
 }
 
-std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& requests) {
-    std::vector<MarsRequest> result;
-    result.reserve(requests.size());
-
-    for (const auto& request : requests) {
-        const std::string& verbName = MarsLanguage::expandVerb(request.verb());
-        const Verb& verb            = MarsLanguage::verb(verbName);
-
-        result.emplace_back(MarsLanguage::get(verb).expand(request, ctxForVerb(verb), inherit_, strict_));
-    }
-
-    return result;
-}
-
-MarsRequest MarsExpansion::expand(const MarsRequest& request) {
+MarsValidatedRequest MarsExpansion::expand(const MarsRequest& request) {
     const std::string& verbName = MarsLanguage::expandVerb(request.verb());
     const Verb& verb            = MarsLanguage::verb(verbName);
 

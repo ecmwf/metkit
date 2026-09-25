@@ -31,43 +31,16 @@ namespace metkit::mars {
 
 // static UndefinedType undefined;
 
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
-// TypeParameter::TypeParameter() : type_(&undefined) {
-//     type_->attach();
-// }
-
-TypeParameter::~TypeParameter() {
-    type_->detach();
-}
-
-TypeParameter::TypeParameter(const std::vector<std::string>& values, const Type* type) :
-    Parameter(values), type_(type) {
-    // if (!type) {
-    //     type_ = &undefined;
-    // }
-    type_->attach();
-}
-
-
-TypeParameter::TypeParameter(const TypeParameter& other) : Parameter(other.values_), type_(other.type_) {
-    type_->attach();
-}
-
-TypeParameter& TypeParameter::operator=(const TypeParameter& other) {
-    const Type* old = type_;
-    type_           = other.type_;
-    type_->attach();
-    old->detach();
-
-    values_ = other.values_;
-    return *this;
-}
-
 void Parameter::values(const std::vector<std::string>& values) {
     values_ = values;
+}
+
+size_t Parameter::count() const {
+    return values_.size();
+}
+
+bool Parameter::multiple() const {
+    return true;
 }
 
 bool Parameter::filter(const std::vector<std::string>& filter) {
@@ -81,21 +54,6 @@ bool Parameter::matches(const std::vector<std::string>& match) const {
     NOTIMP;
 }
 
-bool TypeParameter::filter(const std::vector<std::string>& filter) {
-    return type_->filter(filter, values_);
-}
-
-bool TypeParameter::filter(Keyword keyword, const std::vector<std::string>& filter) {
-    return type_->filter(keyword, filter, values_);
-}
-
-size_t Parameter::count() const {
-    return values_.size();
-}
-
-bool TypeParameter::matches(const std::vector<std::string>& match) const {
-    return type_->matches(match, values_);
-}
 
 void Parameter::merge(const Parameter& p) {
     ASSERT(name() == p.name());
@@ -118,6 +76,75 @@ void Parameter::merge(const Parameter& p) {
     values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+
+Keyword StringParameter::id() const {
+    return MarsLanguage::keyword(name_);
+}
+
+void StringParameter::print(std::ostream& s) const {
+    s << "StringParameter[name=" << name_ << ",values=" << values_ << "]";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+// TypeParameter::TypeParameter() : type_(&undefined) {
+//     type_->attach();
+// }
+
+TypeParameter::~TypeParameter() {
+    type_->detach();
+}
+
+TypeParameter::TypeParameter(const std::vector<std::string>& values, const Type* type) :
+    Parameter(values), type_(type) {
+    // if (!type) {
+    //     type_ = &undefined;
+    // }
+    type_->attach();
+}
+
+
+TypeParameter::TypeParameter(const TypeParameter& other) : Parameter(other), type_(other.type_) {
+    type_->attach();
+}
+
+TypeParameter& TypeParameter::operator=(const TypeParameter& other) {
+    const Type* old = type_;
+    type_           = other.type_;
+    type_->attach();
+    old->detach();
+
+    values_ = other.values_;
+    return *this;
+}
+
+Keyword TypeParameter::id() const {
+    return type_->id();
+}
+
+const std::string& TypeParameter::name() const {
+    return type_->name();
+}
+
+bool TypeParameter::multiple() const {
+    return type_->multiple();
+}
+
+bool TypeParameter::filter(const std::vector<std::string>& filter) {
+    return type_->filter(filter, values_);
+}
+
+bool TypeParameter::filter(Keyword keyword, const std::vector<std::string>& filter) {
+    return type_->filter(keyword, filter, values_);
+}
+
+bool TypeParameter::matches(const std::vector<std::string>& match) const {
+    return type_->matches(match, values_);
+}
+
 Keyword TypeParameter::id() const {
     return type_->id();
 }
@@ -128,10 +155,6 @@ const std::string& TypeParameter::name() const {
 
 size_t TypeParameter::count() const {
     return type_->count(values_);
-}
-
-void StringParameter::print(std::ostream& s) const {
-    s << "StringParameter[name=" << name_ << ",values=" << values_ << "]";
 }
 
 void TypeParameter::print(std::ostream& s) const {

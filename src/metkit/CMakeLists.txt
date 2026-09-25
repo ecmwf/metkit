@@ -32,8 +32,8 @@ list( APPEND metkit_srcs
     mars/MarsHandle.h
     mars/MarsLanguage.cc
     mars/MarsLanguage.h
-    mars/MarsLocation.cc
-    mars/MarsLocation.h
+    # mars/MarsLocation.cc
+    # mars/MarsLocation.h
     mars/MarsParsedRequest.cc
     mars/MarsParsedRequest.h
     mars/MarsParser.cc

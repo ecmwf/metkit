@@ -35,95 +35,130 @@ struct metkit_marsrequest_t;
 namespace metkit::mars {
 
 class Type;
+class MarsValidatedRequest;
+
+
+// //----------------------------------------------------------------------------------------------------------------------
+
+// class MarsID {
+// public:
+//     const std::string& get(Keyword key) const;
+//     void set(Keyword key, const std::string& value);
+//     void unset(Keyword key);
+//     bool has(Keyword key) const;
+//     const std::unordered_map<Keyword, std::string>& values() const;
+
+// private:
+//     std::unordered_map<Keyword, std::string> values_;
+// };
+
+// //----------------------------------------------------------------------------------------------------------------------
+
+
+// class MarsDataCube {
+// public:  // methods
+
+//     const std::vector<std::string>& get(Keyword key) const;
+//     void set(Keyword key, const std::vector<std::string>& value);
+//     void unset(Keyword key);
+//     bool has(Keyword key) const;
+//     void add(const MarsID& id);
+//     void merge(const MarsDataCube& other);
+//     const std::unordered_map<Keyword, std::vector<std::string>>& values() const;
+
+// private:
+//     std::unordered_map<Keyword, std::vector<std::string>> values_;
+// };
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class MarsRequest {
 public:  // methods
 
-    MarsRequest();
+    MarsRequest() = default;
+    // MarsRequest(const MarsRequest&);
 
-    explicit MarsRequest(Verb);
-    explicit MarsRequest(const std::string&);
-    explicit MarsRequest(eckit::Stream&, bool lowercase = false);
+    // explicit MarsRequest(Verb);
+    // explicit MarsRequest(const std::string&);
+    // explicit MarsRequest(eckit::Stream&, bool lowercase = false);
 
-    MarsRequest(const std::string&, const std::map<std::string, std::string>&);
-    MarsRequest(const std::string&, const eckit::Value&);
+    // MarsRequest(const std::string&, const std::map<std::string, std::string>&);
+    // MarsRequest(const std::string&, const eckit::Value&);
 
-    explicit MarsRequest(const eckit::message::Message&);
+    // explicit MarsRequest(const eckit::message::Message&);
 
-    // MarsRequest(const MarsParsedRequest& parsed);
+    // // MarsRequest(const MarsParsedRequest& parsed);
 
     virtual ~MarsRequest() = default;
 
-    bool operator<(const MarsRequest& other) const;
+    // bool operator<(const MarsRequest& other) const;
 
-    // eckit::Value&        operator[](const std::string&);
-    const std::string& operator[](Keyword) const;
-    const std::string& operator[](const std::string&) const;
+    // // eckit::Value&        operator[](const std::string&);
+    // const std::string& operator[](Keyword) const;
+    // const std::string& operator[](const std::string&) const;
 
-    operator eckit::Value() const;
+    // operator eckit::Value() const;
 
-    virtual const std::string& verb() const;
+    virtual Verb verbId() const = 0;
+    virtual const std::string& verb() const = 0;
 
-    size_t countValues(Keyword) const;
-    size_t countValues(const std::string&) const;
-    bool has(Keyword) const;
-    bool has(const std::string&) const;
+    virtual size_t countValues(Keyword) const = 0;
+    virtual size_t countValues(const std::string&) const = 0;
 
-    bool is(Keyword param, const std::string& value) const;
-    bool is(const std::string& param, const std::string& value) const;
+    virtual bool has(Keyword) const = 0;
+    virtual bool has(const std::string&) const = 0;
 
-    const std::vector<std::string>& values(Keyword, bool emptyOk = false) const;
-    virtual const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const;
+    virtual const std::vector<std::string>& values(Keyword, bool emptyOk = false) const = 0;
+    virtual const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const = 0;
 
-    // Returns reference to values or nullopt if not found
-    std::optional<std::reference_wrapper<const std::vector<std::string>>> get(Keyword id) const;
-    std::optional<std::reference_wrapper<const std::vector<std::string>>> get(const std::string& keyword) const;
+    // // Returns reference to values or nullopt if not found
+    // std::optional<std::reference_wrapper<const std::vector<std::string>>> get(Keyword id) const;
+    // std::optional<std::reference_wrapper<const std::vector<std::string>>> get(const std::string& keyword) const;
 
     template <class T>
     size_t getValues(Keyword, std::vector<T>& v, bool emptyOk = false) const;
     template <class T>
     size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;
 
-    virtual void getParams(std::vector<std::string>&) const;
-    std::vector<std::string> params() const;
+    // virtual void getParams(std::vector<std::string>&) const;
+    // std::vector<std::string> params() const;
 
-    std::list<TypeParameter>& parameters() { return params_; }
+    const std::vector<std::unique_ptr<Parameter>>& parameters() const { return params_; }
 
-    const std::list<TypeParameter>& parameters() const { return params_; }
+    // virtual void verb(const std::string&);
 
-    virtual void verb(const std::string&);
-
-    void values(Keyword, const std::vector<std::string>&);
-    virtual void values(const std::string&, const std::vector<std::string>&);
+    virtual void values(Keyword, const std::vector<std::string>&) = 0;
+    virtual void values(const std::string&, const std::vector<std::string>&) = 0;
 
     template <class T>
     void setValue(const std::string& name, const T& value);
     // virtual void setValue(const std::string& name, const std::vector<std::string>& value);
 
+    void unsetValues(const std::string&);
 
-    void unsetValues(Keyword);
-    virtual void unsetValues(const std::string&);
+    virtual void erase(Keyword);
+    virtual void erase(const std::string&);
 
-    /// Splits a MARS request into multiple requests along the provided key
-    std::vector<MarsRequest> split(const std::string& keys) const;
-
-    /// Splits a MARS request into multiple requests along the indicated keys
-    std::vector<MarsRequest> split(const std::vector<std::string>& keys) const;
+    // /// Splits a MARS request into multiple requests along the provided key
+    // std::vector<MarsRequest> split(const std::string& keys) const;
+    // /// Splits a MARS request into multiple requests along the indicated keys
+    // std::vector<MarsRequest> split(const std::vector<std::string>& keys) const;
 
     /// Merges one MarsRequest into another
-    /// @todo Improve performance -- uses O(N^2) search / merge in std::list's
-    void merge(const MarsRequest& other);
+    // parameters existing in the other request but not present in the current request will be ignored
+    virtual void merge(const MarsRequest& other);
 
-    /// Create a new MarsRequest from this one with only the given set of keys
-    MarsRequest subset(const std::set<std::string>&) const;
+    // /// Create a new MarsRequest from this one with only the given set of keys
+    // MarsRequest subset(const std::set<std::string>&) const;
 
     void json(eckit::JSON&, bool array = false) const;
 
-    void md5(eckit::MD5&) const;
+    // void md5(eckit::MD5&) const;
 
-    virtual void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
+    void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
 
-    void setValuesTyped(const Type*, const std::vector<std::string>&);
+    virtual void setValuesTyped(const Type*, const std::vector<std::string>&) = 0;
 
     bool filter(const MarsRequest& filter);
     bool matches(const MarsRequest& filter) const;
@@ -133,28 +168,22 @@ public:  // methods
 
     // MarsRequest extract(const std::string& category) const;
 
-    void erase(Keyword);
-    virtual void erase(const std::string& param);
-
     virtual std::string asString() const;
 
-public:  // static methods
+    virtual const Parameter* find(Keyword) const = 0;
+    // Parameter* find(Keyword);
+    virtual const Parameter* find(const std::string& name) const = 0;
+    // Parameter* find(const std::string& name);
 
-    static MarsRequest parse(const std::string& s, bool strict = false);
-    static std::vector<MarsRequest> parse(std::istream&, bool strict = false);
+public:  // static methods
 
     /// Implementation in api/metkit_c.cc
     static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
 
-protected:  // methods
-
-    std::optional<std::reference_wrapper<const Parameter>> find(Keyword) const;
-    std::optional<std::reference_wrapper<Parameter>> find(Keyword);
-
-    virtual std::optional<std::reference_wrapper<const Parameter>> find(const std::string& name) const;
-    virtual std::optional<std::reference_wrapper<Parameter>> find(const std::string& name);
-
 private:  // methods
+
+    friend class Type;
+    friend class MarsLanguage;
 
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
@@ -179,11 +208,13 @@ private:  // methods
         return s;
     }
 
-private:  // members
+protected:  // members
 
-    Verb verb_;
-    std::list<TypeParameter> params_;
+    std::vector<std::unique_ptr<Parameter>> params_;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 template <class T>
 size_t MarsRequest::getValues(Keyword key, std::vector<T>& values, bool emptyOk) const {
@@ -224,6 +255,52 @@ void MarsRequest::setValue(const std::string& name, const T& value) {
     eckit::Translator<T, std::string> t;
     values(name, std::vector<std::string>{t(value)});
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class MarsValidatedRequest : public MarsRequest {
+public:
+    MarsValidatedRequest() = default;
+    MarsValidatedRequest(Verb verb);
+    MarsValidatedRequest(const MarsRequest& request);
+    explicit MarsValidatedRequest(eckit::Stream& s, bool lowercase = false);
+
+    ~MarsValidatedRequest() override = default;
+
+    Verb verbId() const override { return verb_; }
+    const std::string& verb() const override;
+
+    size_t countValues(Keyword) const override;
+    size_t countValues(const std::string&) const override;
+
+    bool has(Keyword) const override;
+    bool has(const std::string&) const override;
+
+    const std::vector<std::string>& values(Keyword, bool emptyOk = false) const override;
+    const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const override;
+
+    void values(Keyword, const std::vector<std::string>&) override;
+    void values(const std::string&, const std::vector<std::string>&) override;
+
+    void erase(Keyword) override;
+    void erase(const std::string&) override;
+
+    void merge(const MarsRequest& other) override;
+
+    void setValuesTyped(const Type*, const std::vector<std::string>&) override;
+
+    const Parameter* find(Keyword) const override;
+    const Parameter* find(const std::string& name) const override;
+
+private:  // members
+
+    Verb verb_;
+    std::unordered_map<Keyword, size_t> paramMap_;
+
+};
+
+MarsValidatedRequest parse(const std::string& s, bool strict = false);
+std::vector<MarsValidatedRequest> parse(std::istream&, bool strict = false);
 
 //----------------------------------------------------------------------------------------------------------------------
 

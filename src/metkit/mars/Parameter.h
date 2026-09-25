@@ -41,15 +41,19 @@ class Parameter {
 public:
 
     Parameter() = default;
+    Parameter(const Parameter& other) { values_ = other.values_; }
     Parameter(const std::vector<std::string>& values) : values_(values) {}
     Parameter(std::vector<std::string>&& values) : values_(std::move(values)) {}
 
     virtual ~Parameter() = default;
 
+    virtual Keyword id() const = 0;
     virtual const std::string& name() const = 0;
 
     const std::vector<std::string>& values() const { return values_; }
     void values(const std::vector<std::string>& values);
+
+    virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter);
     virtual bool filter(Keyword keyword, const std::vector<std::string>& filter);
@@ -77,9 +81,13 @@ class StringParameter : public Parameter {
 
 public:
 
-    StringParameter(const std::string& name) : name_(name) {}
-    StringParameter(const std::string& name, const std::vector<std::string>& values) : name_(name) { values_ = values; }
+    StringParameter(const Parameter& other) : Parameter(other), name_(other.name()) {}
 
+    StringParameter(const std::string& name) : name_(name) {}
+    StringParameter(const std::string& name, const std::vector<std::string>& values) : Parameter(values), name_(name) {}
+    StringParameter(const std::string& name, std::vector<std::string>&& values) : Parameter(std::move(values)), name_(name) {}
+
+    Keyword id() const override;
     const std::string& name() const override { return name_; }
 
 private:  // methods
@@ -103,6 +111,11 @@ public:  // methods
     TypeParameter& operator=(const TypeParameter&);
     bool operator<(const TypeParameter&) const;
 
+    Keyword id() const override;
+    const std::string& name() const override;
+
+    bool multiple() const override;
+
     bool filter(const std::vector<std::string>& filter) override;
     bool filter(Keyword keyword, const std::vector<std::string>& filter) override;
     bool matches(const std::vector<std::string>& matches) const override;
@@ -110,8 +123,6 @@ public:  // methods
     size_t count() const override;
 
     const Type& type() const { return *type_; }
-    Keyword id() const;
-    const std::string& name() const override;
 
 private:  // methods
 
