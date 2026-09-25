@@ -1,0 +1,5 @@
+retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000,step=6,expver=0001,param=167,domain=g,timespan=none,grid=1/1,target=a.grib
+retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000,step=6,expver=0001,param=228228,domain=g,timespan=fs,grid=1/1,target=a.grib
+retrieve,step=12,param=165,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000,expver=0001,domain=g,timespan=none,grid=1/1,target=a.grib
+retrieve,step=12,param=228143,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000,expver=0001,domain=g,timespan=fs,grid=1/1,target=a.grib
+retrieve,levtype=pl,levelist=500,param=130,class=od,type=fc,stream=oper,date=20260901,time=0000,step=12,expver=0001,domain=g,timespan=none,target=a.grib
