@@ -8,6 +8,7 @@ list( APPEND MARS2GRIB_ENCODING_TESTS
     007_bitsPerValue
     008_pressure_level
     009_enfh_chemical_reforecast
+    010_oper_enfo_chemical
 )
 
 list( SORT MARS2GRIB_ENCODING_TESTS )
