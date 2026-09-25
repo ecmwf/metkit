@@ -71,8 +71,12 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         const auto param = get_or_throw<long>(mars, "param");
 
-        // TODO: This is the range for CAMS, there are some unmapped parameters that may need to be supported for ERA6,
-        // etc.
+        // Special case for ERA6 params not in the chemical range for CAMS
+        if (matchAny(param, range(228080, 228085))) {
+            return static_cast<std::size_t>(CompositionType::Chem);
+        }
+
+        // Filter out remaining params not in the CAMS range
         if (param < 400000 || param >= 500000) {
             return compile_time_registry_engine::MISSING;
         }
