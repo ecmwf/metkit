@@ -32,6 +32,20 @@ ecbuild_add_test(
         metkit
 )
 
+ecbuild_add_test(
+    TARGET
+        mars2mars-test-03
+
+    SOURCES
+        mars2mars-test-03.cc
+
+    NO_AS_NEEDED
+
+    LIBS
+        eckit
+        metkit
+)
+
 if( HAVE_BUILD_GRIB2_TOOLS )
     ecbuild_configure_file( convert-mars-request.sh.in convert-mars-request.sh @ONLY )
 
