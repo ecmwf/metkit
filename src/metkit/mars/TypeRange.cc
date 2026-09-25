@@ -46,7 +46,7 @@ void TypeRange::print(std::ostream& out) const {
     out << "TypeRange[name=" << name() << "]";
 }
 
-bool TypeRange::expand(std::string& value, const MarsRequest&) const {
+bool TypeRange::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
 
     value = StepRange{value};
     return true;

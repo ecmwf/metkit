@@ -90,7 +90,7 @@ public:  // methods
 
     // // MarsRequest(const MarsParsedRequest& parsed);
 
-    virtual ~MarsRequest() = default;
+    virtual ~MarsRequest();
 
     // bool operator<(const MarsRequest& other) const;
 
@@ -102,6 +102,9 @@ public:  // methods
 
     virtual Verb verbId() const = 0;
     virtual const std::string& verb() const = 0;
+
+    virtual void verb(Verb id) = 0;
+    virtual void verb(const std::string&) = 0;
 
     virtual size_t countValues(Keyword) const = 0;
     virtual size_t countValues(const std::string&) const = 0;
@@ -124,13 +127,15 @@ public:  // methods
     // virtual void getParams(std::vector<std::string>&) const;
     // std::vector<std::string> params() const;
 
-    const std::vector<std::unique_ptr<Parameter>>& parameters() const { return params_; }
+    const std::vector<Parameter*>& parameters() const { return params_; }
 
     // virtual void verb(const std::string&);
 
     virtual void values(Keyword, const std::vector<std::string>&) = 0;
     virtual void values(const std::string&, const std::vector<std::string>&) = 0;
 
+    template <class T>
+    void setValue(Keyword key, const T& value);
     template <class T>
     void setValue(const std::string& name, const T& value);
     // virtual void setValue(const std::string& name, const std::vector<std::string>& value);
@@ -210,11 +215,10 @@ private:  // methods
 
 protected:  // members
 
-    std::vector<std::unique_ptr<Parameter>> params_;
+    std::vector<Parameter*> params_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-
 
 template <class T>
 size_t MarsRequest::getValues(Keyword key, std::vector<T>& values, bool emptyOk) const {
@@ -232,7 +236,6 @@ size_t MarsRequest::getValues(Keyword key, std::vector<T>& values, bool emptyOk)
 
     return values.size();
 }
-
 template <class T>
 size_t MarsRequest::getValues(const std::string& name, std::vector<T>& val, bool emptyOk) const {
 
@@ -251,11 +254,16 @@ size_t MarsRequest::getValues(const std::string& name, std::vector<T>& val, bool
 }
 
 template <class T>
+void MarsRequest::setValue(Keyword key, const T& value) {
+    eckit::Translator<T, std::string> t;
+    values(key, std::vector<std::string>{t(value)});
+}
+template <class T>
 void MarsRequest::setValue(const std::string& name, const T& value) {
     eckit::Translator<T, std::string> t;
     values(name, std::vector<std::string>{t(value)});
 }
-
+    
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsValidatedRequest : public MarsRequest {
@@ -269,6 +277,9 @@ public:
 
     Verb verbId() const override { return verb_; }
     const std::string& verb() const override;
+
+    void verb(Verb id) override;
+    void verb(const std::string&) override;
 
     size_t countValues(Keyword) const override;
     size_t countValues(const std::string&) const override;

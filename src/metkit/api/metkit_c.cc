@@ -7,14 +7,14 @@
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
-    using metkit::mars::MarsRequest::MarsRequest;
+struct metkit_marsrequest_t : public metkit::mars::MarsParsedRequest {
+    using metkit::mars::MarsParsedRequest::MarsParsedRequest;
 
-    metkit_marsrequest_t(metkit::mars::MarsRequest&& req) : metkit::mars::MarsRequest(std::move(req)) {}
+    metkit_marsrequest_t(metkit::mars::MarsParsedRequest&& req) : metkit::mars::MarsParsedRequest(std::move(req)) {}
 };
 
 struct metkit_requestiterator_t {
-    explicit metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest>&& vec) :
+    explicit metkit_requestiterator_t(std::vector<metkit::mars::MarsValidatedRequest>&& vec) :
         vector_(std::move(vec)), current_(vector_.begin()) {}
 
     metkit_iterator_status_t next() {
@@ -47,8 +47,8 @@ struct metkit_requestiterator_t {
 private:
 
     bool first_ = true;
-    std::vector<metkit::mars::MarsRequest> vector_;
-    std::vector<metkit::mars::MarsRequest>::iterator current_;
+    std::vector<metkit::mars::MarsValidatedRequest> vector_;
+    std::vector<metkit::mars::MarsValidatedRequest>::iterator current_;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator
         ASSERT(requests);
         ASSERT(str);
         std::istringstream in(str);
-        *requests = new metkit_requestiterator_t(metkit::mars::MarsRequest::parse(in, strict));
+        *requests = new metkit_requestiterator_t(metkit::mars::parse(in, strict));
     });
 }
 
@@ -179,7 +179,7 @@ metkit_error_t metkit_parse_marsrequest(const char* str, metkit_marsrequest_t* r
     return tryCatch([request, str, strict] {
         ASSERT(request);
         ASSERT(str);
-        *request = metkit::mars::MarsRequest::parse(str, strict);
+        *request = metkit::mars::parse(str, strict);
     });
 }
 
@@ -246,7 +246,11 @@ metkit_error_t metkit_marsrequest_params(const metkit_marsrequest_t* request, me
     return tryCatch([request, params] {
         ASSERT(request);
         ASSERT(params);
-        *params = new metkit_paramiterator_t(request->params());
+        std::vector<std::string> param_keys;
+        for (const auto& p : request->parameters()) {
+            param_keys.push_back(p->name());
+        }
+        *params = new metkit_paramiterator_t(param_keys);
     });
 }
 

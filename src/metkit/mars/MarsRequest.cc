@@ -111,6 +111,12 @@ namespace metkit::mars {
 //     message.getMetadata(setter);
 // }
 
+MarsRequest::~MarsRequest() {
+    for (auto& p : params_) {
+        delete p;
+    }
+}
+
 void MarsRequest::encode(eckit::Stream& s) const {
     s << verb();
 
@@ -572,7 +578,7 @@ MarsValidatedRequest::MarsValidatedRequest(const MarsRequest& request) : MarsReq
     for (const auto& param : request.parameters()) {
         Keyword key = param->id();
         paramMap_[key] = params_.size();
-        params_.push_back(std::make_unique<TypeParameter>(param->values(), new TypeAny(key)));
+        params_.push_back(new TypeParameter(param->values(), new TypeAny(key)));
     }
 }
 
@@ -609,12 +615,20 @@ MarsValidatedRequest::MarsValidatedRequest(eckit::Stream& s, bool lowercase) {
         }
         
         paramMap_[key] = params_.size();
-        params_.emplace_back(std::make_unique<TypeParameter>(v, new TypeAny(key)));
+        params_.emplace_back(new TypeParameter(v, new TypeAny(key)));
     }
 }
 
 const std::string& MarsValidatedRequest::verb() const {
     return MarsLanguage::name(verb_);
+}
+
+void MarsValidatedRequest::verb(Verb id) {
+    verb_ = id;
+}
+void MarsValidatedRequest::verb(const std::string& name) {
+    // might throw if keyword name is not valid
+    verb_ = MarsLanguage::verb(name);
 }
 
 size_t MarsValidatedRequest::countValues(Keyword key) const {
@@ -664,7 +678,7 @@ void MarsValidatedRequest::values(Keyword key, const std::vector<std::string>& v
     }
     else {
         paramMap_[key] = params_.size();
-        params_.emplace_back(std::make_unique<TypeParameter>(vals, new TypeAny(key)));
+        params_.emplace_back(new TypeParameter(vals, new TypeAny(key)));
     }
 }
 void MarsValidatedRequest::values(const std::string& name, const std::vector<std::string>& vals) {
@@ -697,17 +711,17 @@ void MarsValidatedRequest::merge(const MarsRequest& other) {
 void MarsValidatedRequest::setValuesTyped(const Type* type, const std::vector<std::string>& values) {
     auto it = paramMap_.find(type->id());
     if (it != paramMap_.end()) {
-        params_[it->second] = std::make_unique<TypeParameter>(values, type);
+        params_[it->second] = new TypeParameter(values, type);
         return;
     }
     paramMap_[type->id()] = params_.size();
-    params_.emplace_back(std::make_unique<TypeParameter>(values, type));
+    params_.emplace_back(new TypeParameter(values, type));
 }
 
 const Parameter* MarsValidatedRequest::find(Keyword key) const {
     auto it = paramMap_.find(key);
     if (it != paramMap_.end()) {
-        return params_[it->second].get();
+        return params_[it->second];
     }
     return nullptr;
 }

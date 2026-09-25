@@ -579,7 +579,7 @@ MarsValidatedRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext
         }
 
         for (const auto& p : result.parameters()) {
-            dynamic_cast<TypeParameter*>(p.get())->type().pass2(result);
+            dynamic_cast<TypeParameter*>(p)->type().pass2(result);
         }
 
         for (const auto& [k, t] : typesByAxisOrder_) {

@@ -35,7 +35,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool Include::matches(MarsRequest req) const {
+bool Include::matches(const MarsRequest& req) const {
     static const Keyword verbKey = MarsLanguage::keyword("_verb");
     if (key_ == verbKey) {
         return (vals_.find(req.verb()) != vals_.end());
@@ -52,10 +52,10 @@ bool Include::matches(MarsRequest req) const {
 }
 
 void Context::add(std::unique_ptr<ContextRule> rule) {
-    rules_.push_back(std::move(rule));
+    rules_.emplace_back(std::move(rule));
 }
 
-bool Context::matches(MarsRequest req) const {
+bool Context::matches(const MarsRequest& req) const {
 
     for (const auto& r : rules_) {
         if (!r->matches(req)) {
@@ -74,7 +74,7 @@ void Context::print(std::ostream& out) const {
     std::string sep;
     out << "Context[";
     for (const auto& r : rules_) {
-        out << sep << *r;
+        out << sep << r;
         sep = ",";
     }
     out << "]";
@@ -83,7 +83,7 @@ void Context::print(std::ostream& out) const {
 //----------------------------------------------------------------------------------------------------------------------
 // HELPERS
 
-ContextRule parseRule(Keyword key, eckit::Value r) {
+std::unique_ptr<ContextRule> parseRule(Keyword key, eckit::Value r) {
 
     std::set<std::string> vals;
 
@@ -96,16 +96,16 @@ ContextRule parseRule(Keyword key, eckit::Value r) {
             vals.insert(r[k]);
         }
         if (exclude)
-            return Exclude{key, vals};
-        return Include{key, vals};
+            return std::make_unique<Exclude>(key, vals);
+        return std::make_unique<Include>(key, vals);
     }
     if (r.isString()) {
         std::string v = r;
         if (v == "defined") {
-            return Def{key};
+            return std::make_unique<Def>(key);
         }
         if (v == "undefined") {
-            return Undef{key};
+            return std::make_unique<Undef>(key);
         }
     }
     std::ostringstream ss;
@@ -294,19 +294,19 @@ std::ostream& operator<<(std::ostream& s, const Type& x) {
     return s;
 }
 
-std::string Type::tidy(const std::string& value, const MarsRequest& request) const {
+std::string Type::tidy(const std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
     std::string result = value;
     expand(result, request);
     return result;
 }
 
-bool Type::expand(std::string& value, const MarsRequest&) const {
+bool Type::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
 }
 
-void Type::expand(std::vector<std::string>& values, const MarsRequest& request) const {
+void Type::expand(std::vector<std::string>& values, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
 
     if (toByList_ && values.size() > 1) {
         toByList_->expandRanges(values, request);

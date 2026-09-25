@@ -12,14 +12,11 @@
 /// @date   Aug 2020
 
 
-#ifndef metkit_HyperCubePayloaded_H
-#define metkit_HyperCubePayloaded_H
+#pragma once
 
 #include "metkit/hypercube/HyperCube.h"
 
-
-namespace metkit {
-namespace hypercube {
+namespace metkit::hypercube {
 
 template <typename T>
 class Deduplicator {
@@ -32,7 +29,7 @@ template <typename T>
 class HyperCubePayloaded : public HyperCube {
 public:
 
-    HyperCubePayloaded(const metkit::mars::MarsRequest& request, const Deduplicator<T>& deduplicator) :
+    HyperCubePayloaded(const metkit::mars::MarsValidatedRequest& request, const Deduplicator<T>& deduplicator) :
         HyperCube(request), dedup_(deduplicator) {
 
 
@@ -40,7 +37,7 @@ public:
     }
 
 
-    void add(const metkit::mars::MarsRequest& request, T payload) {
+    void add(const metkit::mars::MarsValidatedRequest& request, T payload) {
 
         int idx = indexOf(request);
 
@@ -81,8 +78,4 @@ private:
     std::map<size_t, T> entries_;
 };
 
-}  // namespace hypercube
-}  // namespace metkit
-
-
-#endif
+}  // namespace metkit::hypercube

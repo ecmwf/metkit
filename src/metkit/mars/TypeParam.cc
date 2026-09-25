@@ -836,7 +836,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     request.setValuesTyped(this, values);
 }
 
-bool TypeParam::expand(std::string&, const MarsRequest&) const {
+bool TypeParam::expand(std::string&, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
     // Work done on pass2()
     return true;
 }

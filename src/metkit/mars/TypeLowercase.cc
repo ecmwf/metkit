@@ -27,7 +27,7 @@ void TypeLowercase::print(std::ostream& out) const {
     out << "TypeLowercase[name=" << name() << "]";
 }
 
-bool TypeLowercase::expand(std::string& value, const MarsRequest&) const {
+bool TypeLowercase::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
     value = eckit::StringTools::lower(value);
     return true;
 }

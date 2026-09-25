@@ -57,19 +57,19 @@ OdbToRequest::OdbToRequest(const std::string& verb, bool one, bool constant) :
 OdbToRequest::~OdbToRequest() {}
 
 
-std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
+std::vector<MarsParsedRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
     LOG_DEBUG_LIB(LibMetkit) << "OdbToRequest::odbToRequest() dh: " << dh << std::endl;
 
     Reader reader(dh, false);
     Frame frame;
 
-    std::vector<MarsRequest> requests;
+    std::vector<MarsParsedRequest> requests;
     const MarsLanguage& language = MarsLanguage::get(verb_);
 
     while ((frame = reader.next())) {
         Span span = frame.span(OdbMetadataDecoder::columnNames(), onlyConstantColumns_);
 
-        MarsRequest r(verb_);
+        MarsParsedRequest r(verb_);
         MarsRequestSetter setter(r);
         OdbMetadataDecoder decoder(setter, {}, language);
         span.visit(decoder);

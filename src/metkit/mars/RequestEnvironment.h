@@ -17,7 +17,7 @@
 #include <optional>
 #include <string>
 
-#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsParsedRequest.h"
 
 namespace metkit::mars {
 

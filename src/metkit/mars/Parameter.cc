@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <iterator>
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Parameter.h"
 #include "metkit/mars/Type.h"
 
@@ -143,14 +144,6 @@ bool TypeParameter::filter(Keyword keyword, const std::vector<std::string>& filt
 
 bool TypeParameter::matches(const std::vector<std::string>& match) const {
     return type_->matches(match, values_);
-}
-
-Keyword TypeParameter::id() const {
-    return type_->id();
-}
-
-const std::string& TypeParameter::name() const {
-    return type_->name();
 }
 
 size_t TypeParameter::count() const {

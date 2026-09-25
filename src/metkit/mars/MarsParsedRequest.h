@@ -31,7 +31,7 @@ class MarsParsedRequest : public MarsRequest {
 public:
 
     MarsParsedRequest() = default;
-    MarsParsedRequest(const std::string& verb, size_t line);
+    MarsParsedRequest(const std::string& verb, size_t line = 0);
     MarsParsedRequest(const MarsRequest& request);
     explicit MarsParsedRequest(eckit::Stream& s, bool lowercase = false);
 
@@ -39,6 +39,9 @@ public:
 
     Verb verbId() const override;
     const std::string& verb() const override { return verb_; }
+
+    void verb(Verb id) override;
+    void verb(const std::string&) override;
 
     size_t countValues(Keyword) const override;
     size_t countValues(const std::string&) const override;

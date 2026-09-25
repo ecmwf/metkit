@@ -131,7 +131,7 @@ void TypeDate::pass2(MarsRequest& request) const {
     }
 }
 
-bool TypeDate::expand(std::string& value, const MarsRequest&) const {
+bool TypeDate::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
     if (!value.empty()) {
         eckit::Translator<std::string, long> s2l;
         eckit::Translator<long, std::string> l2s;

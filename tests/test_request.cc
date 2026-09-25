@@ -37,7 +37,7 @@ CASE("test_request_json") {
         const char* text =
             "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/"
             "12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         {
             std::stringstream ss;
             eckit::JSON plain(ss);
@@ -62,7 +62,7 @@ CASE("test_request_json") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=wave,date=20240729,time=00,type=an,levtype=sfc,step=24,param=2dfd ";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         {
             std::stringstream ss;
             eckit::JSON plain(ss);
@@ -89,28 +89,28 @@ CASE("test_request_count") {
         const char* text =
             "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/"
             "12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(12, r.count());
     }
     {
         const char* text =
             "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/to/"
             "137,levtype=ml,number=-1,param=z,process=local,step=000,stream=scda,time=18,type=an,target=reference.data";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(1, r.count());
     }
     {
         const char* text =
             "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/to/137,levtype=ml,number=-1,param=z/"
             "t,process=local,step=000,stream=scda,time=18,type=an,target=reference.data";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(138, r.count());
     }
     {
         const char* text =
             "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/to/137,levtype=ml,number=-1,param=22/127/"
             "128/129/152/u/v,process=local,step=000,stream=scda,time=18,type=an,target=reference.data";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(279, r.count());
     }
 }
@@ -122,7 +122,7 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=1/to/"
             "137,levtype=ml,param=z,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(1, r.count());  // Only level 1 for param z
     }
     {
@@ -130,7 +130,7 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=2/to/"
             "137,levtype=ml,param=z,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(0, r.count());  // No levels counted for param z when level 1 is absent
     }
     {
@@ -138,7 +138,7 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=1/to/137,levtype=ml,param=z/"
             "t,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(138, r.count());  // 137 levels for t + 1 for z
     }
     {
@@ -146,7 +146,7 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=2/to/137,levtype=ml,param=z/"
             "t,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(136, r.count());  // 136 levels (2-137) for t, 0 for z
     }
     {
@@ -154,7 +154,7 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=1/50/100,levtype=ml,param=z/"
             "t,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(4, r.count());  // 3 levels for t + 1 for z
     }
     {
@@ -162,7 +162,7 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=1,levtype=ml,param=z/"
             "t,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(2, r.count());  // 1 level for t + 1 for z
     }
     {
@@ -170,7 +170,7 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=1/to/10,levtype=ml,param=152/"
             "z,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(2, r.count());  // 1 for z + 1 for 152 (both single-level params)
     }
     {
@@ -178,28 +178,28 @@ CASE("test_request_count_single_level_params") {
         const char* text =
             "retrieve,class=od,date=20230810,expver=1,levelist=2/to/10,levtype=ml,param=152/"
             "z,step=000,stream=scda,time=18,type=an";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(0, r.count());  // 0 for both single-level params when level 1 is absent
     }
     {
         const char* text =
             "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/to/137,levtype=ml,number=-1,param=22/127/"
             "128/129/152/u/v,process=local,step=000,stream=scda,time=6/18,type=an,target=reference.data";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(558, r.count());
     }
     {
         const char* text =
             "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=3/to/137,levtype=ml,number=-1,param=22/127/"
             "128/129/152/u/v,process=local,step=000,stream=scda,time=6/18,type=an,target=reference.data";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(540, r.count());
     }
     {
         const char* text =
             "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/2,levtype=ml,number=-1,param=22/127/"
             "128/129/152/u/v,process=local,step=0/1/2,stream=scda,time=6/18,type=an,target=reference.data";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsValidatedRequest r      = parse(text);
         EXPECT_EQUAL(54, r.count());
     }
 }

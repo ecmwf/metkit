@@ -28,7 +28,7 @@ MarsParsedRequest::MarsParsedRequest(const MarsRequest& request) : MarsRequest()
     for (const auto& param : parameters) {
         const std::string& name = param->name();
         paramMap_[name] = params_.size();
-        params_.push_back(std::make_unique<StringParameter>(*param));
+        params_.push_back(new StringParameter(*param));
     }
 }
 
@@ -63,13 +63,21 @@ MarsParsedRequest::MarsParsedRequest(eckit::Stream& s, bool lowercase) {
         }
         
         paramMap_[param] = params_.size();
-        params_.emplace_back(std::make_unique<StringParameter>(param, std::move(v)));
+        params_.emplace_back(new StringParameter(param, std::move(v)));
     }
 }
 
 Verb MarsParsedRequest::verbId() const {
     // might throw if verb_ is not valid
     return MarsLanguage::verb(verb_);
+}
+
+void MarsParsedRequest::verb(Verb id) {
+    // might throw if verb id is not valid
+    verb_ = MarsLanguage::name(id);
+}
+void MarsParsedRequest::verb(const std::string& name) {
+    verb_ = name;
 }
 
 size_t MarsParsedRequest::countValues(Keyword key) const {
@@ -123,7 +131,7 @@ void MarsParsedRequest::values(const std::string& name, const std::vector<std::s
     }
     else {
         paramMap_[name] = params_.size();
-        params_.emplace_back(std::make_unique<StringParameter>(name, vals));
+        params_.emplace_back(new StringParameter(name, vals));
     }
 }
 
@@ -144,11 +152,11 @@ void MarsParsedRequest::setValuesTyped(const Type* type, const std::vector<std::
     eckit::Log::warning() << "Type " << name << " will be omitted while setting values in MarsParsedRequest" << *this << std::endl;
     auto it = paramMap_.find(name);
     if (it != paramMap_.end()) {
-        params_[it->second] = std::make_unique<StringParameter>(name, values);
+        params_[it->second] = new StringParameter(name, values);
         return;
     }
     paramMap_[name] = params_.size();
-    params_.emplace_back(std::make_unique<StringParameter>(name, values));
+    params_.emplace_back(new StringParameter(name, values));
 }
 
 const Parameter* MarsParsedRequest::find(Keyword key) const {
@@ -158,7 +166,7 @@ const Parameter* MarsParsedRequest::find(Keyword key) const {
 const Parameter* MarsParsedRequest::find(const std::string& name) const {
     auto it = paramMap_.find(name);
     if (it != paramMap_.end()) {
-        return params_[it->second].get();
+        return params_[it->second];
     }
     return nullptr;
 }

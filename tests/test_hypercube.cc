@@ -27,7 +27,7 @@ CASE("test_metkit_hypercube") {
     const char* text =
         "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
         "500,param=138";
-    MarsRequest r = MarsRequest::parse(text);
+    MarsValidatedRequest r      = parse(text);
 
     metkit::hypercube::HyperCube cube(r);
 
@@ -42,7 +42,7 @@ CASE("test_metkit_hypercube_subset") {
     const char* text =
         "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
         "500/600,param=138";
-    MarsRequest r = MarsRequest::parse(text);
+    MarsValidatedRequest r      = parse(text);
 
     metkit::hypercube::HyperCube cube(r);
     EXPECT(cube.size() == 2);
@@ -84,7 +84,7 @@ CASE("test_metkit_hypercube_request") {
     const char* text =
         "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
         "500/600,param=138/155";
-    MarsRequest r = MarsRequest::parse(text);
+    MarsValidatedRequest r      = parse(text);
 
     metkit::hypercube::HyperCube cube(r);
     EXPECT(cube.size() == 4);
@@ -131,7 +131,7 @@ CASE("test_metkit_hypercube_request") {
 CASE("test_metkit_hypercube_request METK-132") {
     std::vector<std::string> keys = {"levelist", "param"};
 
-    MarsRequest r = MarsRequest::parse("retrieve,levelist=2/4/1/3/5,param=228038/235094/235077/235078");
+    MarsValidatedRequest r      = parse("retrieve,levelist=2/4/1/3/5,param=228038/235094/235077/235078");
     metkit::hypercube::HyperCube cube{r};
 
     // unset levelist 5 for params 235077/235094

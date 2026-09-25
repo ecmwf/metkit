@@ -156,7 +156,7 @@ private:  // methods
 
 private:
 
-    std::vector<ContextRule> rules_;
+    std::vector<std::unique_ptr<ContextRule>> rules_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ class ITypeToByList {
 public:
 
     virtual ~ITypeToByList()                                                                      = default;
-    virtual void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const = 0;
+    virtual void expandRanges(std::vector<std::string>& values, std::optional<std::reference_wrapper<const MarsRequest>> request) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

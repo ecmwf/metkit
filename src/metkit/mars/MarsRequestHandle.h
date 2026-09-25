@@ -22,7 +22,7 @@
 #include "eckit/types/Types.h"
 
 #include "metkit/mars/BaseProtocol.h"
-#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsParsedRequest.h"
 
 
 namespace metkit::mars {
@@ -57,7 +57,7 @@ public:
 
 private:  // members
 
-    metkit::mars::MarsRequest request_;
+    metkit::mars::MarsParsedRequest request_;
 
     std::unique_ptr<BaseProtocol> protocol_;
 

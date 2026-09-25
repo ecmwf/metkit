@@ -53,8 +53,8 @@ MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* p
 MarsRequestHandle::MarsRequestHandle(const metkit::mars::MarsRequest& request, const eckit::Configuration& database) :
     request_(request.verb()), protocol_(ProtocolFactory::build(database)), opened_(false) {
 
-    for (const auto& [k,p] : request.parameters()) {
-        request_.values(k, p.values());
+    for (const auto& p : request.parameters()) {
+        request_.values(p->name(), p->values());
     }
 }
 

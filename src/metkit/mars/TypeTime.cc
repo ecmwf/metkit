@@ -26,7 +26,7 @@ TypeTime::TypeTime(Keyword keyword, const eckit::Value& settings) : Type(keyword
     multiple_ = true;
 }
 
-bool TypeTime::expand(std::string& value, const MarsRequest&) const {
+bool TypeTime::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
 
     eckit::Time time(value);
 
