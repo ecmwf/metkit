@@ -369,6 +369,28 @@ inline const Recipe S4_R143 =
         Select<EnsembleConcept, EnsembleType::RandomPatterns>
     >();
 
+inline const Recipe S4_R152 =
+    make_recipe<152,
+        Select<GeneratingProcessConcept>,
+        Select<ReferenceTimeConcept, ReferenceTimeType::Reforecast>,
+        Select<PointInTimeConcept>,
+        Select<LevelConcept>,
+        Select<CompositionConcept, CompositionType::Chem>,
+        Select<ParamConcept>,
+        Select<EnsembleConcept, EnsembleType::Individual>
+    >();
+
+inline const Recipe S4_R153 =
+    make_recipe<153,
+        Select<GeneratingProcessConcept>,
+        Select<ReferenceTimeConcept, ReferenceTimeType::Reforecast>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
+        Select<CompositionConcept, CompositionType::Chem>,
+        Select<ParamConcept>,
+        Select<EnsembleConcept, EnsembleType::Individual>
+    >();
+
 //------------------------------------------------------------------------------
 // Section 4 – Aggregated Recipes
 //------------------------------------------------------------------------------
@@ -387,7 +409,8 @@ inline const Recipes Section4Recipes{ 4,
         &S4_R103, &S4_R104, &S4_R107,
         &S4_R121, &S4_R122, &S4_R131,
         &S4_R142, &S4_R143,
-        &S4_R144, &S4_R145
+        &S4_R144, &S4_R145,
+        &S4_R152, &S4_R153
     }
 };
 
