@@ -145,7 +145,9 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {142, &allocateTemplateNumber4<4, 142, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {143, &allocateTemplateNumber4<4, 143, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {144, &allocateTemplateNumber4<4, 144, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {145, &allocateTemplateNumber4<4, 145, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
+    {145, &allocateTemplateNumber4<4, 145, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {152, &allocateTemplateNumber4<4, 152, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {153, &allocateTemplateNumber4<4, 153, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 5 (Data Representation Section) initializers.
