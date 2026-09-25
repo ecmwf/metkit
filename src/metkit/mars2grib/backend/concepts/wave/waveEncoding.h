@@ -124,7 +124,7 @@ constexpr bool waveApplicable() {
 /// ### Variant `WaveType::Spectra`
 ///
 /// #### StageAllocate
-/// - Validates that the Product Definition Template Number is one of `{99, 100}`.
+/// - Validates that the Product Definition Template Number is one of `{99, 100, 142}`.
 /// - Deduces and encodes:
 /// - Wave direction grid (number, scale factor, scaled values)
 /// - Wave frequency grid (number, scale factor, scaled values)
@@ -138,7 +138,7 @@ constexpr bool waveApplicable() {
 /// ### Variant `WaveType::Period`
 ///
 /// #### StagePreset
-/// - Validates that the Product Definition Template Number is one of `{103, 104}`.
+/// - Validates that the Product Definition Template Number is one of `{103, 104, 140, 144, 145}`.
 /// - Deduces optional lower and/or upper wave period bounds.
 /// - Encodes wave period interval metadata according to the availability
 /// of minimum and/or maximum bounds.
@@ -204,10 +204,10 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
 
             // Checks/Validation
             if constexpr (Variant == WaveType::Spectra) {
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {99, 100});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {99, 100, 142});
             }
             else if constexpr (Variant == WaveType::Period) {
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104, 144, 145});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104, 140, 144, 145});
             }
 
             if constexpr (Stage == StageAllocate) {
