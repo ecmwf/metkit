@@ -27,3 +27,8 @@ done
 out=$( (ulimit -v 2000000 && $cmr --porcelain $srcdir/r05-large.req) | grep -v "^Matching")
 [[ $(echo "$out" | wc -l) -eq 1 ]] || die "r05-large: expected a single output request"
 echo "$out" | grep -q "number=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50" || die "r05-large: number list lost"
+
+# Post-processing keys known to the language are validated; unknown keys (password) pass through
+if $cmr --porcelain $srcdir/r03c-invalid-postproc.req > /dev/null 2>&1; then
+    die "r03c-invalid-postproc: expected packing=foo to be rejected"
+fi

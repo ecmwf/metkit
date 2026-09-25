@@ -239,9 +239,10 @@ std::vector<MarsRequest> convertRequest(const MarsRequest& request, Mars2Mars& c
     return result;
 }
 
-/// Split off the keys that do not describe fields (post-processing, sink and unknown keys). They play no
-/// part in the conversion, so they are neither validated nor expanded, and are passed through verbatim.
-/// Like MARS, a key is inherited by the following requests of the same verb until it is set to "off".
+/// Split off the keys unknown to the MARS language of the request verb (e.g. password). They play no part in
+/// the conversion and cannot be expanded, so they are passed through verbatim; all known keys, including
+/// post-processing ones, are validated and normalised by the expansion. Like MARS, an unknown key is inherited
+/// by the following requests of the same verb until it is set to "off".
 class PassThroughKeys {
 public:
 
@@ -251,7 +252,7 @@ public:
 
         for (const auto& name : request.params()) {
             const std::string key = StringTools::lower(name);
-            if (language.isData(key)) {
+            if (language.isKeyword(key)) {
                 continue;
             }
 

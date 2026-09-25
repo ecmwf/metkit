@@ -237,6 +237,10 @@ bool MarsLanguage::isSink(const std::string& k) const {
     return category(k) == Category::Sink;
 }
 
+bool MarsLanguage::isKeyword(const std::string& keyword) const {
+    return types_.find(keyword) != types_.end() || aliases_.find(keyword) != aliases_.end();
+}
+
 MarsLanguage::~MarsLanguage() {
     for (auto& [k, t] : types_) {
         t->detach();
