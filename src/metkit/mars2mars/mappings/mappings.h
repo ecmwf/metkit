@@ -36,11 +36,17 @@ template <class InDict_t, class OutDict_t, class OptDict_t>
 Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in, const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::clone_or_throw;
+    using metkit::mars2mars::utils::dict_traits::has;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
         std::unique_ptr<OutDict_t> out                  = clone_or_throw(in);
         std::unique_ptr<eckit::LocalConfiguration> misc = std::make_unique<eckit::LocalConfiguration>();
+
+        // Without a param there is no field to convert (e.g. tropical cyclone tracks, type=tf)
+        if (!has(in, "param")) {
+            return Mars2MarsResult<OutDict_t>{std::move(*out), std::move(*misc)};
+        }
 
         // Apply all conversions in sequence
         impl::convertWaveStreams(in, *out, *misc, opts);
