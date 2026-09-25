@@ -29,7 +29,7 @@ public:
 
     static eckit::PathName configFile(const std::string& filename);
 
-    static uint16_t binaryFilesVersion() { return 1; }
+    static uint16_t binaryFilesVersion() { return 2; }
 
     static eckit::PathName languageYamlFile();
     static std::vector<eckit::PathName> modifiersYamlFiles();

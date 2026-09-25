@@ -843,6 +843,30 @@ CASE("test_metkit_expand_param") {
     }
 }
 
+CASE("test_metkit_expand_param_bare_number") {
+    // A param number without table is read from the table holding it in the request context, like MARS does
+    const auto expandParam = [](const std::string& context, const std::string& param) {
+        const std::string text = "retrieve,expver=0001,date=20260901,time=0000,step=6," + context + ",param=" + param;
+        return MarsRequest::parse(text).values("param");
+    };
+
+    const std::string waveFc = "class=od,stream=wave,type=fc,levtype=sfc";
+    const std::string operFc = "class=od,stream=oper,type=fc,levtype=sfc";
+    const std::string era5Fc = "class=ea,stream=oper,type=fc,levtype=sfc";
+
+    // Only another table holds the number in this context
+    EXPECT_EQUAL(expandParam(waveFc, "229"), std::vector<std::string>{"140229"});
+    EXPECT_EQUAL(expandParam(operFc, "246/247/249"), (std::vector<std::string>{"228246", "228247", "228249"}));
+    // Several other tables hold the number: table 228 takes precedence
+    EXPECT_EQUAL(expandParam(operFc, "227"), std::vector<std::string>{"228227"});
+    // Table 128 holds the number, or the table is explicit
+    EXPECT_EQUAL(expandParam(operFc, "229"), std::vector<std::string>{"229"});
+    EXPECT_EQUAL(expandParam(operFc, "246.128"), std::vector<std::string>{"246"});
+    EXPECT_EQUAL(expandParam(era5Fc, "239/240"), (std::vector<std::string>{"239", "240"}));
+    EXPECT_EQUAL(expandParam("class=od,stream=oper,type=fc,levtype=pl,levelist=500", "130"),
+                 std::vector<std::string>{"130"});
+}
+
 CASE("test_metkit_expand_d1") {
     {
         const char* text = "retrieve,class=d1,dataset=extremes-dt,date=-1";
