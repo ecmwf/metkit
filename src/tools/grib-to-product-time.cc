@@ -10,8 +10,8 @@
  */
 
 ///
-/// @file grib1-to-grib2.cc
-/// @brief CLI tool for converting grib1 to grib2 files.
+/// @file grib-to-product-time.cc
+/// @brief CLI tool that writes the post-MTG2 MARS/misc and ProductTimeSpec of GRIB messages as JSON.
 ///
 
 #include <cstddef>
@@ -108,10 +108,12 @@ void GribToProductTime::init(const CmdArgs& args) {
 }
 
 void GribToProductTime::usage(const std::string& tool) const {
-    Log::info() << "Usage: " << tool << " [options] input output" << std::endl
-                << std::endl
-                << "Convert (pre-MTG2) GRIB1 to (post-MTG2) GRIB2" << std::endl
-                << std::endl;
+    Log::info()
+        << "Usage: " << tool << " [options] input output" << std::endl
+        << std::endl
+        << "Write the post-MTG2 MARS/misc dictionaries and the ProductTimeSpec of each GRIB message as a JSON array"
+        << std::endl
+        << std::endl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
