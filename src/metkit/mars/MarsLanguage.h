@@ -121,7 +121,7 @@ private:  // methods
 
     void parse(Verb verb);
 
-    Category group(Keyword keyword) const;
+    Category category(Keyword keyword) const;
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback) const;
     void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);

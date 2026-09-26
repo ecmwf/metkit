@@ -257,7 +257,7 @@ void MarsLanguage::parse(Verb verb) {
     }
 }
 
-Category MarsLanguage::group(Keyword keyword) const {
+Category MarsLanguage::category(Keyword keyword) const {
     auto it = types_.find(keyword);
     if (it != types_.end()) {
         return it->second->category();
@@ -266,29 +266,29 @@ Category MarsLanguage::group(Keyword keyword) const {
 }
 
 bool MarsLanguage::isData(Keyword k) const {
-    return group(k) == Category::Data;
+    return category(k) == Category::Data;
 }
 bool MarsLanguage::isDerived(Keyword k) const {
-    return group(k) == Category::Derived;
+    return category(k) == Category::Derived;
 }
 bool MarsLanguage::isPostProc(Keyword k) const {
-    return group(k) == Category::PostProc;
+    return category(k) == Category::PostProc;
 }
 bool MarsLanguage::isSink(Keyword k) const {
-    return group(k) == Category::Sink;
+    return category(k) == Category::Sink;
 }
 
 bool MarsLanguage::isData(const std::string& k) const {
-    return group(keywords_.keyword(k)) == Category::Data;
+    return category(keywords_.keyword(k)) == Category::Data;
 }
 bool MarsLanguage::isDerived(const std::string& k) const {
-    return group(keywords_.keyword(k)) == Category::Derived;
+    return category(keywords_.keyword(k)) == Category::Derived;
 }
 bool MarsLanguage::isPostProc(const std::string& k) const {
-    return group(keywords_.keyword(k)) == Category::PostProc;
+    return category(keywords_.keyword(k)) == Category::PostProc;
 }
 bool MarsLanguage::isSink(const std::string& k) const {
-    return group(keywords_.keyword(k)) == Category::Sink;
+    return category(keywords_.keyword(k)) == Category::Sink;
 }
 
 MarsLanguage::~MarsLanguage() {

@@ -32,8 +32,6 @@ void extractLevelist(const std::string& keyword, const metkit::codes::CodesHandl
 
         const std::string levtype = grib.getString("levtype");
 
-        std::optional<long> levelist;
-
         if (levtype == "pl") {
             if (!grib.has("pressureUnits")) {
                 throw Grib2MarsGenericException(
@@ -43,20 +41,19 @@ void extractLevelist(const std::string& keyword, const metkit::codes::CodesHandl
                     Here());
             }
 
-            const std::string pressureUnits = grib.getString("pressureUnits");
+            const auto pressureUnits = grib.getString("pressureUnits");
+            auto level               = grib.getDouble("level");
 
-            if (pressureUnits == "hPa") {
-                const long level = grib.getLong("level");
-                levelist         = level * 100;
+            if (pressureUnits == "Pa") {
+                level /= 100;  // Convert from Pa to hPa
             }
-        }
 
-        if (!levelist) {
-            const long level = grib.getLong("level");
-            levelist         = level;
+            set_or_throw<double>(mars, keyword, level);
         }
-
-        set_or_throw<long>(mars, keyword, *levelist);
+        else {
+            const auto level = grib.getLong("level");
+            set_or_throw<long>(mars, keyword, level);
+        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
