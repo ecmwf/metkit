@@ -1041,6 +1041,13 @@ _field: &_field
       - [11, nov, november]
       - [12, dec, december]
 
+  day:
+    category: postproc
+    multiple: true
+    type: to-by-list
+    by: 1
+    range: [1, 31]
+
   hdate:
     category: data
     multiple: true
@@ -1636,6 +1643,8 @@ disseminate:
   <<: *_field
   <<: *_postproc
 
+  _aliases: [filter]
+
   requirements:
     type: any
 
@@ -1646,13 +1655,6 @@ disseminate:
   # repres:
   #   category: postproc
   #   type: any
-
-  day:
-    category: postproc
-    multiple: true
-    type: to-by-list
-    by: 1
-    range: [1, 31]
 
   use:
     category: sink
@@ -1877,10 +1879,6 @@ read:
 
   _options:
     param:
-      # expand_with:  # In case not type/stream/levtype is provided
-      #   type: an
-      #   stream: oper
-      #   levtype: pl
       first_rule: true
 ##############################################################
 
@@ -2028,10 +2026,6 @@ pointdb:
 
   _options:
     param:
-      # expand_with:  # In case not type/stream/levtype is provided
-      #   type: an
-      #   stream: oper
-      #   levtype: pl
       first_rule: true
 
 end: {}

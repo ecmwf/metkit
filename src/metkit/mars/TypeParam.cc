@@ -766,10 +766,6 @@ namespace metkit::mars {
 
 TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Type(name, settings), firstRule_(false) {
 
-    if (settings.contains("expand_with")) {
-        expandWith_ = settings["expand_with"];
-    }
-
     if (settings.contains("first_rule")) {
         firstRule_ = settings["first_rule"];
     }
@@ -815,21 +811,6 @@ void TypeParam::pass2(MarsRequest& request) const {
                         catch (...) {
                         }
                     }
-                }
-            }
-        }
-        else if (expandWith_.size()) {
-            MarsRequest tmp(request);
-            for (auto j = expandWith_.begin(); j != expandWith_.end(); ++j) {
-                if (!tmp.has((*j).first)) {
-                    tmp.setValue((*j).first, (*j).second);
-                }
-            }
-            for (const auto& r : *rules) {
-                if (r.match(tmp)) {
-                    rule = &r;
-                    Log::warning() << "TypeParam using 'expand with' option " << *rule << std::endl;
-                    break;
                 }
             }
         }
