@@ -1,0 +1,1 @@
+retrieve,class=od,expver=0001,date=20260901,time=0000,stream=oper,type=fc,levtype=sfc,step=0/6,param=2t/mx2t6,grid=0.25/0.25,area=70/-30/30/40,target="out.grib"

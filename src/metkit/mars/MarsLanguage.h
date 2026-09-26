@@ -81,6 +81,9 @@ public:  // methods
     bool isPostProc(const std::string& keyword) const;
     bool isSink(const std::string& keyword) const;
 
+    /// @brief Whether `keyword` is a keyword of this verb, or an alias of one
+    bool isKeyword(const std::string& keyword) const;
+
 public:  // class methods
 
     static std::string expandVerb(const std::string& verb);
