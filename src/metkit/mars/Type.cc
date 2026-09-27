@@ -26,10 +26,44 @@
 
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/ContextRule.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
+
+bool Include::matches(const MarsRequest& req) const {
+    static const Keyword verbKey = MarsLanguage::keyword("_verb");
+    if (key_ == verbKey) {
+        return (vals_.find(req.verb()) != vals_.end());
+    }
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (vals_.find(v) != vals_.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Exclude::matches(const MarsRequest& req) const {
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (vals_.find(v) != vals_.end()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Undef::matches(const MarsRequest& req) const { return !req.has(key_); }
+
+bool Def::matches(const MarsRequest& req) const { return req.has(key_); }
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +71,7 @@ void Context::add(std::unique_ptr<ContextRule> rule) {
     rules_.push_back(std::move(rule));
 }
 
-bool Context::matches(MarsRequest req) const {
+bool Context::matches(const MarsRequest& req) const {
 
     for (const auto& r : rules_) {
         if (!r->matches(req)) {
@@ -65,14 +99,17 @@ void Context::print(std::ostream& out) const {
 //----------------------------------------------------------------------------------------------------------------------
 // HELPERS
 
-std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
+std::unique_ptr<ContextRule> parseRule(std::string name, eckit::Value r) {
 
     std::set<std::string> vals;
 
+    Keyword key = MarsLanguage::keyword(name);
+
     if (r.isList()) {
         if (r.size() == 0) {
-            throw eckit::UserError("Empty list for context rule '" + key + "'");
+            throw eckit::UserError("Empty list for context rule '" + name + "'");
         }
+
         bool exclude = (r[0] == "!");
         for (size_t k = exclude ? 1 : 0; k < r.size(); k++) {
             vals.insert(r[k]);
@@ -107,24 +144,18 @@ std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
     return context;
 }
 
-size_t Context::maxAxisIndex() const {
-    size_t maxIndex = 0;
+Keyword Context::maxAxisIndex() const {
+    Keyword maxIndex = 0;
     for (const auto& r : rules_) {
-        size_t idx = 0;
-        if (!r->key().empty() && r->key()[0] != '_') {
-            idx = metkit::hypercube::AxisOrder::instance().index(r->key());
-            if (idx > maxIndex) {
-                maxIndex = idx;
-            }
-        }
+        maxIndex = std::max(maxIndex, r->key());
     }
     return maxIndex;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Type::Type(const std::string& name, const eckit::Value& settings) :
-    name_(name), flatten_(true), multiple_(false), duplicates_(true) {
+Type::Type(Keyword keyword, const eckit::Value& settings) :
+    id_(keyword), flatten_(true), multiple_(false), duplicates_(true) {
 
     if (settings.contains("multiple")) {
         multiple_ = settings["multiple"];
@@ -152,11 +183,6 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
         }
         else if (category == "sink") {
             category_ = Category::Sink;
-        }
-        else {
-            std::stringstream ss;
-            ss << "Unknown category: " << category << " in Type " << name_;
-            throw eckit::SeriousBug(ss.str());
         }
     }
 
@@ -243,13 +269,19 @@ bool Type::filter(const std::vector<std::string>& filter, std::vector<std::strin
     return !values.empty();
 }
 
-bool Type::filter(const std::string& keyword, const std::vector<std::string>& f,
-                  std::vector<std::string>& values) const {
-    if (keyword == name_) {
+bool Type::filter(Keyword keyword, const std::vector<std::string>& f, std::vector<std::string>& values) const {
+
+    if (keyword == id()) {
         return filter(f, values);
     }
     auto it = filters_.find(keyword);
     if (it == filters_.end()) {
+        std::cerr << "No filter found for keyword: " << MarsLanguage::name(keyword) << std::endl;
+        std::cerr << "Available filters are: ";
+        for (const auto& f : filters_) {
+            std::cerr << MarsLanguage::name(f.first) << " ";
+        }
+        std::cerr << std::endl;
         return false;
     }
     return it->second(f, values);
@@ -328,7 +360,7 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
     std::swap(newvals, values);
 
     if (!multiple_ && values.size() > 1) {
-        throw eckit::UserError("Only one value possible for '" + name_ + "'");
+        throw eckit::UserError("Only one value possible for '" + name() + "'");
     }
 }
 
@@ -351,15 +383,19 @@ void Type::setDefaults(MarsRequest& request) const {
 }
 
 const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) const {
-    return request.values(name_);
+    return request.values(name());
 }
 
 void Type::clearDefaults() {
     defaults_.clear();
 }
 
+Keyword Type::id() const {
+    return id_;
+}
+
 const std::string& Type::name() const {
-    return name_;
+    return MarsLanguage::name(id_);
 }
 
 const Category& Type::category() const {
@@ -370,20 +406,21 @@ void Type::pass2(MarsRequest& request) const {}
 
 void Type::finalise(MarsRequest& request, bool strict) const {
 
-    const std::vector<std::string>& values = request.values(name_, true);
+    auto nn = MarsLanguage::name(id_);
+    const std::vector<std::string>& values = request.values(nn, true);
     if (values.size() == 1 && values[0] == "off") {
-        request.unsetValues(name_);
+        request.unsetValues(nn);
     }
     else {
         if (values.size() > 0) {
             for (const auto& context : unsets_) {
                 if (context->matches(request)) {
-                    if (strict && request.has(name_)) {
+                    if (strict && request.has(nn)) {
                         std::ostringstream oss;
-                        oss << *this << ": Key [" << name_ << "] not acceptable with context: " << *context;
+                        oss << *this << ": Key [" << name() << "] not acceptable with context: " << *context;
                         throw eckit::UserError(oss.str());
                     }
-                    request.unsetValues(name_);
+                    request.unsetValues(nn);
                 }
             }
         }
@@ -391,9 +428,9 @@ void Type::finalise(MarsRequest& request, bool strict) const {
         if (request.verb() != "list") {
             for (const auto& [context, values] : sets_) {
                 if (context->matches(request)) {
-                    if (strict && !request.has(name_)) {
+                    if (strict && !request.has(nn)) {
                         std::ostringstream oss;
-                        oss << *this << ": missing Key [" << name_ << "] - required with context: " << *context;
+                        oss << *this << ": missing Key [" << name() << "] - required with context: " << *context;
                         throw eckit::UserError(oss.str());
                     }
                     patchRequest(request, values);
@@ -407,7 +444,7 @@ void Type::check(const std::vector<std::string>& values) const {
     if (flatten_) {
         std::set<std::string> s(values.begin(), values.end());
         if (values.size() != s.size()) {
-            std::cerr << "Duplicate values in " << name_ << " " << values;
+            std::cerr << "Duplicate values in " << name() << " " << values;
             std::set<std::string> seen;
             for (const std::string& val : values) {
                 if (seen.find(val) != seen.end()) {

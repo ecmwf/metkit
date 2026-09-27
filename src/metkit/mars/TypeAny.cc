@@ -10,16 +10,26 @@
 
 
 #include "metkit/mars/TypeAny.h"
+
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeAny::TypeAny(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
+
+TypeAny::TypeAny(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {}
+
+std::shared_ptr<TypeAny> TypeAny::create(Keyword keyword, const eckit::Value& settings) {
+    return std::shared_ptr<TypeAny>(new TypeAny(keyword, settings));
+}
+std::shared_ptr<TypeAny> TypeAny::create(const std::string& name, const eckit::Value& settings) {
+    return std::shared_ptr<TypeAny>(new TypeAny(MarsLanguage::keyword(name), settings));
+}
 
 void TypeAny::print(std::ostream& out) const {
-    out << "TypeAny[name=" << name_ << "]";
+    out << "TypeAny[name=" << name() << "]";
 }
 
 bool TypeAny::expand(std::string&, const MarsRequest&) const {

@@ -26,6 +26,7 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
@@ -37,13 +38,13 @@ namespace metkit::mars {
 class ContextRule {
 public:
 
-    ContextRule(const std::string& k) : key_(k) {}
+    ContextRule(Keyword k) : key_(k) {}
 
     virtual ~ContextRule() = default;
 
-    const std::string& key() const { return key_; }
+    Keyword key() const { return key_; }
 
-    virtual bool matches(MarsRequest req) const = 0;
+    virtual bool matches(const MarsRequest& req) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
         r.print(s);
@@ -52,7 +53,7 @@ public:
 
 protected:
 
-    std::string key_;
+    Keyword key_;
 
 private:  // methods
 
@@ -65,30 +66,13 @@ private:  // methods
 /// values associated with the Include rule
 class Include : public ContextRule {
 public:
-
-    Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-
-    bool matches(MarsRequest req) const override {
-        if (key_ == "_verb") {
-            return (vals_.find(req.verb()) != vals_.end());
-        }
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    Include(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    bool matches(const MarsRequest& req) const override;
 
 private:  // methods
-
     void print(std::ostream& out) const override { out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]"; }
 
 private:
-
     std::set<std::string> vals_;
 };
 
@@ -96,50 +80,33 @@ private:
 /// associated with the Exclude rule
 class Exclude : public ContextRule {
 public:
-
-    Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-    bool matches(MarsRequest req) const override {
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return false;
-            }
-        }
-        return true;
-    }
+    Exclude(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    bool matches(const MarsRequest& req) const override;
 
 private:  // methods
-
     void print(std::ostream& out) const override { out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]"; }
 
 private:
-
     std::set<std::string> vals_;
 };
 
 /// @brief A MarsRequest matches an Undef ContextRule if the specified keyword is not defined in the mars request
 class Undef : public ContextRule {
 public:
-
-    Undef(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return !req.has(key_); }
+    Undef(Keyword k) : ContextRule(k) {}
+    bool matches(const MarsRequest& req) const override;
 
 private:  // methods
-
     void print(std::ostream& out) const override { out << "Undef[key=" << key_ << "]"; }
 };
 
 /// @brief A MarsRequest matches an Undef ContextRule if the specified keyword is defined in the mars request
 class Def : public ContextRule {
 public:
-
-    Def(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return req.has(key_); }
+    Def(Keyword k) : ContextRule(k) {}
+    bool matches(const MarsRequest& req) const override;
 
 private:  // methods
-
     void print(std::ostream& out) const override { out << "Def[key=" << key_ << "]"; }
 };
 
@@ -156,9 +123,9 @@ public:
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
 
-    size_t maxAxisIndex() const;
+    Keyword maxAxisIndex() const;
 
-    bool matches(MarsRequest req) const;
+    bool matches(const MarsRequest& req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
 
@@ -192,12 +159,21 @@ enum class Category : uint8_t {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Type : public eckit::Counted {
+class TypesFactory;
+
+class Type : public std::enable_shared_from_this<Type> {
+    
 public:  // methods
+    Type(Keyword keyword, const eckit::Value& settings);
+    
+    virtual ~Type() = default;
 
-    Type(const std::string& name, const eckit::Value& settings);
-
-    ~Type() noexcept override = default;
+    std::shared_ptr<Type> getptr() {
+        return shared_from_this();
+    }
+    std::shared_ptr<const Type> getptr() const {
+        return shared_from_this();
+    }
 
     virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
     void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;
@@ -216,11 +192,13 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
-    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter,
+    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter,
                         std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
+    Keyword id() const;
     const std::string& name() const;
+
     const Category& category() const;
 
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
@@ -242,7 +220,7 @@ protected:  // methods
 
 protected:  // members
 
-    std::string name_;
+    Keyword id_;
 
     bool flatten_;
     bool multiple_;
@@ -255,11 +233,11 @@ protected:  // members
 
     std::unique_ptr<ITypeToByList> toByList_;
 
-    std::map<std::string, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
+    std::map<Keyword, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
 
-    virtual void print(std::ostream& out) const = 0;
+    virtual void print(std::ostream& out) const {}
     void patchRequest(MarsRequest& request, const std::vector<std::string>& values) const;
 };
 

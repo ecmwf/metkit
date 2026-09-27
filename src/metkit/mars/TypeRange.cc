@@ -36,14 +36,14 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRange::TypeRange(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+TypeRange::TypeRange(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
 
     toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, settings);
     multiple_ = true;
 }
 
 void TypeRange::print(std::ostream& out) const {
-    out << "TypeRange[name=" << name_ << "]";
+    out << "TypeRange[name=" << name() << "]";
 }
 
 bool TypeRange::expand(std::string& value, const MarsRequest&) const {

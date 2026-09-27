@@ -20,7 +20,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeFloat::TypeFloat(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
+TypeFloat::TypeFloat(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {}
 
 bool TypeFloat::expand(std::string& value, const MarsRequest&) const {
 
@@ -79,13 +79,18 @@ static TypeBuilder<TypeFloat> type("float");
 
 
 class TypeToByListFloat : public TypeFloat {
-public:
-
-    TypeToByListFloat(const std::string& name, const eckit::Value& settings) : TypeFloat(name, settings) {
-
+private:  // ctor
+    TypeToByListFloat(Keyword keyword, const eckit::Value& settings) : TypeFloat(keyword, settings) {
         toByList_ = std::make_unique<TypeToByList<float, float>>(*this, settings);
         multiple_ = true;
     }
+
+public:
+    static std::shared_ptr<TypeToByListFloat> create(Keyword keyword, const eckit::Value& settings){
+        return std::shared_ptr<TypeToByListFloat>(new TypeToByListFloat(keyword, settings));
+    }
+    ~TypeToByListFloat() noexcept override = default;
+
 
 protected:
 

@@ -21,7 +21,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
+TypeExpver::TypeExpver(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {}
 
 bool TypeExpver::expand(std::string& value, const MarsRequest&) const {
 
@@ -39,7 +39,7 @@ bool TypeExpver::expand(std::string& value, const MarsRequest&) const {
 }
 
 void TypeExpver::print(std::ostream& out) const {
-    out << "TypeExpver[name=" << name_ << "]";
+    out << "TypeExpver[name=" << name() << "]";
 }
 
 static TypeBuilder<TypeExpver> type("expver");

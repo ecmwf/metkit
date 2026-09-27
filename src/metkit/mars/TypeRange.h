@@ -25,9 +25,11 @@ class StepRange;
 class TypeRange : public Type {
 
 public:  // methods
+    TypeRange(Keyword keyword, const eckit::Value& settings);
 
-    TypeRange(const std::string& name, const eckit::Value& settings);
-
+    static std::shared_ptr<TypeRange> create(Keyword keyword, const eckit::Value& settings){
+        return std::shared_ptr<TypeRange>(new TypeRange(keyword, settings));
+    }
     ~TypeRange() noexcept override = default;
 
 private:  // methods

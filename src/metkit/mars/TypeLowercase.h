@@ -23,9 +23,11 @@ namespace metkit::mars {
 class TypeLowercase : public Type {
 
 public:  // methods
+    TypeLowercase(Keyword keyword, const eckit::Value& settings);
 
-    TypeLowercase(const std::string& name, const eckit::Value& settings = eckit::Value());
-
+    static std::shared_ptr<TypeLowercase> create(Keyword keyword, const eckit::Value& settings){
+        return std::shared_ptr<TypeLowercase>(new TypeLowercase(keyword, settings));
+    }
     ~TypeLowercase() noexcept override = default;
 
 private:  // methods

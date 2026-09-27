@@ -24,8 +24,11 @@ namespace metkit::mars {
 class TypeAny : public Type {
 
 public:  // methods
+    TypeAny(Keyword keyword, const eckit::Value& settings);
 
-    TypeAny(const std::string& name, const eckit::Value& settings = eckit::Value());
+    // // Everyone else has to use this factory function, hence all Type objects will be contained in shared_ptr
+    static std::shared_ptr<TypeAny> create(Keyword keyword, const eckit::Value& settings = eckit::Value());
+    static std::shared_ptr<TypeAny> create(const std::string& name, const eckit::Value& settings = eckit::Value());
 
     ~TypeAny() noexcept override = default;
 

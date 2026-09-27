@@ -24,9 +24,11 @@ namespace metkit::mars {
 class TypeParam : public Type {
 
 public:  // methods
+    TypeParam(Keyword keyword, const eckit::Value& settings);
 
-    TypeParam(const std::string& name, const eckit::Value& settings);
-
+    static std::shared_ptr<TypeParam> create(Keyword keyword, const eckit::Value& settings){
+        return std::shared_ptr<TypeParam>(new TypeParam(keyword, settings));
+    }
     ~TypeParam() noexcept override = default;
 
 private:  // methods

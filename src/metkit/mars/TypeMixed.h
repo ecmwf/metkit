@@ -26,17 +26,19 @@ namespace mars {
 class TypeMixed : public Type {
 
 public:  // methods
+    TypeMixed(Keyword keyword, const eckit::Value& settings);
 
-    TypeMixed(const std::string& name, const eckit::Value& settings);
-
-    ~TypeMixed() noexcept override;
+    static std::shared_ptr<TypeMixed> create(Keyword keyword, const eckit::Value& settings){
+        return std::shared_ptr<TypeMixed>(new TypeMixed(keyword, settings));
+    }
+    ~TypeMixed() noexcept override = default;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
     bool expand(std::string& value, const MarsRequest& request) const override;
 
-    std::vector<std::pair<std::unique_ptr<Context>, Type*>> types_;
+    std::vector<std::pair<std::unique_ptr<Context>, std::shared_ptr<Type>>> types_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

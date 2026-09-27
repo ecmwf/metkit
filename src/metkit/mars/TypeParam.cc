@@ -21,6 +21,7 @@
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/MarsLanguage.h"
 
 #include <fstream>
 #include <limits>
@@ -764,7 +765,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Type(name, settings), firstRule_(false) {
+TypeParam::TypeParam(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings), firstRule_(false) {
 
     if (settings.contains("first_rule")) {
         firstRule_ = settings["first_rule"];
@@ -772,7 +773,7 @@ TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Ty
 }
 
 void TypeParam::print(std::ostream& out) const {
-    out << "TypeParam[name=" << name_ << "]";
+    out << "TypeParam[name=" << name() << "]";
 }
 
 void TypeParam::pass2(MarsRequest& request) const {
@@ -780,7 +781,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     pthread_once(&once, initRules);
 
     const Rule* rule                = 0;
-    std::vector<std::string> values = request.values(name_, true);
+    std::vector<std::string> values = request.values(MarsLanguage::name(id_), true);
 
     if (values.size() == 1 && values[0] == "all") {
         return;
