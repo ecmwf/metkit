@@ -134,7 +134,7 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedVals& e
 
 void expand(const std::string& text, const std::string& verb, const ExpectedVals& expected, std::vector<long> dates,
             bool strict = false) {
-    MarsRequest r = MarsRequest::parse(text, strict);
+    MarsRequest r      = parse(text, strict);
     std::set<std::string> ignore;
     std::string tt = eckit::StringTools::lower(text);
     for (const auto& i : ignore_) {
@@ -193,7 +193,7 @@ void expand(const std::string& text, const std::string& expected, bool strict = 
         out.dates.push_back(date(d));
     }
     parse(expected, out);
-    MarsRequest r = MarsRequest::parse(text, strict);
+    MarsRequest r      = parse(text, strict);
     std::set<std::string> ignore;
     std::string tt = eckit::StringTools::lower(text);
     for (const auto& i : ignore_) {
@@ -707,7 +707,7 @@ CASE("test_metkit_expand_param") {
         const char* text =
             "retrieve,class=od,expver=0079,stream=enfo,date=-1,time=00/12,type=pf,levtype=sfc,step=24,number=1/to/"
             "2,param=mucin/mucape/tprate";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 3);
 
@@ -719,7 +719,7 @@ CASE("test_metkit_expand_param") {
         const char* text =
             "retrieve,class=od,expver=0079,stream=enfh,date=-1,time=00/12,type=fcmean,levtype=sfc,step=24,number=1/to/"
             "2,param=mucin/mucape/tprate";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 3);
 
@@ -730,7 +730,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=wave,date=-1,time=00/12,type=an,levtype=sfc,step=24,param=2dfd ";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
@@ -739,7 +739,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=enwh,date=-1,time=00/12,type=cf,levtype=sfc,step=24,param=tmax";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
@@ -755,7 +755,7 @@ CASE("test_metkit_expand_param") {
         const char* text =
             "retrieve,class=ai,expver=1,stream=oper,model=aifs-single,date=-1,time=00/"
             "12,type=pf,levtype=pl,step=24,param=t";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
@@ -765,7 +765,7 @@ CASE("test_metkit_expand_param") {
         const char* text =
             "retrieve,class=od,date=20240723,domain=g,expver=0079,levtype=sfc,param=asn/cp/lsp/sf/tcc/"
             "tp,step=0,stream=oper,time=0000,type=fc";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 6);
 
@@ -779,7 +779,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=msmm,date=-1,time=0000,type=em,levtype=sfc,step=24,param=e";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
@@ -788,7 +788,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=msmm,date=-1,time=0000,type=em,levtype=sfc,step=24,param=e/erate";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 2);
 
@@ -798,7 +798,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=enwh,date=-1,time=0000,type=pf,levtype=sfc,step=24,param=sh10";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
@@ -807,7 +807,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=enwh,date=-1,time=0000,type=pf,levtype=sfc,step=24,param=p1ww";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
@@ -816,7 +816,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=waef,date=-1,time=0000,type=cf,levtype=sfc,step=24,param=WSK/MWP";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 2);
 
@@ -826,7 +826,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=eefo,date=-1,time=0000,type=fcmean,levtype=sfc,step=24,param=MSL";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
@@ -835,7 +835,7 @@ CASE("test_metkit_expand_param") {
     {
         const char* text =
             "retrieve,class=od,expver=1,stream=eefo,date=-1,time=0000,type=fcmean,levtype=sfc,step=24,param=strda";
-        MarsRequest r = MarsRequest::parse(text);
+        MarsRequest r      = parse(text);
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 

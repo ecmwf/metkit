@@ -21,7 +21,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRegex::TypeRegex(const std::string& name, const eckit::Value& settings) : Type(name, settings), uppercase_(false) {
+TypeRegex::TypeRegex(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings), uppercase_(false) {
 
     if (settings.contains("uppercase")) {
         uppercase_ = settings["uppercase"];
@@ -39,7 +39,7 @@ TypeRegex::TypeRegex(const std::string& name, const eckit::Value& settings) : Ty
     }
 }
 
-bool TypeRegex::expand(std::string& value, const MarsRequest&) const {
+bool TypeRegex::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
 
     for (std::vector<eckit::Regex>::const_iterator j = regex_.begin(); j != regex_.end(); ++j) {
         if ((*j).match(value)) {
@@ -55,7 +55,7 @@ bool TypeRegex::expand(std::string& value, const MarsRequest&) const {
 
 
 void TypeRegex::print(std::ostream& out) const {
-    out << "TypeRegex[name=" << name_ << "]";
+    out << "TypeRegex[name=" << name() << "]";
 }
 
 

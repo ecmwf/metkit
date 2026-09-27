@@ -27,7 +27,7 @@ class TypeEnum : public Type {
 
 public:  // methods
 
-    TypeEnum(const std::string& name, const eckit::Value& settings);
+    TypeEnum(Keyword keyword, const eckit::Value& settings);
 
     ~TypeEnum() noexcept override = default;
 
@@ -39,7 +39,7 @@ private:  // methods
 
     void print(std::ostream& out) const override;
 
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const override;
     std::map<std::string, uint16_t>::const_iterator find(const std::string& value) const;
 
     std::vector<std::string> parseEnumValue(const eckit::Value& val, bool allowDuplicates = false) const;

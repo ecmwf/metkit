@@ -19,7 +19,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeInteger::TypeInteger(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+TypeInteger::TypeInteger(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
     // check if the settings contain a range
     if (settings.contains("range") && settings["range"].size() == 2) {
         range_ = {settings["range"][0], settings["range"][1]};
@@ -67,7 +67,7 @@ bool TypeInteger::ok(const std::string& value, long& n) const {
     return !range_ || (n >= range_->lower_ && n <= range_->upper_);
 }
 
-bool TypeInteger::expand(std::string& value, const MarsRequest&) const {
+bool TypeInteger::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
     long n = 0;
     if (ok(value, n)) {
         static eckit::Translator<long, std::string> l2s;
@@ -84,7 +84,7 @@ static TypeBuilder<TypeInteger> type("integer");
 class TypeToByListInt : public TypeInteger {
 public:
 
-    TypeToByListInt(const std::string& name, const eckit::Value& settings) : TypeInteger(name, settings) {
+    TypeToByListInt(Keyword keyword, const eckit::Value& settings) : TypeInteger(keyword, settings) {
 
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, settings);
         multiple_ = true;

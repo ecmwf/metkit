@@ -25,6 +25,7 @@ class TypeAny : public Type {
 
 public:  // methods
 
+    TypeAny(Keyword keyword, const eckit::Value& settings = eckit::Value());
     TypeAny(const std::string& name, const eckit::Value& settings = eckit::Value());
 
     ~TypeAny() noexcept override = default;
@@ -32,7 +33,7 @@ public:  // methods
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request = std::nullopt) const override { return true; }
 };
 
 //----------------------------------------------------------------------------------------------------------------------

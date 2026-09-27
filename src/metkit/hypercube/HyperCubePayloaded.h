@@ -12,14 +12,11 @@
 /// @date   Aug 2020
 
 
-#ifndef metkit_HyperCubePayloaded_H
-#define metkit_HyperCubePayloaded_H
+#pragma once
 
 #include "metkit/hypercube/HyperCube.h"
 
-
-namespace metkit {
-namespace hypercube {
+namespace metkit::hypercube {
 
 template <typename T>
 class Deduplicator {
@@ -81,8 +78,4 @@ private:
     std::map<size_t, T> entries_;
 };
 
-}  // namespace hypercube
-}  // namespace metkit
-
-
-#endif
+}  // namespace metkit::hypercube

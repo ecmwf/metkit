@@ -25,8 +25,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit::Value& settings) :
-    Type(name, settings) {
+TypeToByListQuantile::TypeToByListQuantile(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
 
     eckit::Value values = settings["denominators"];
 
@@ -51,22 +50,23 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit:
         }
     }
 
-    LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name << " denominators " << denominators_ << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name() << " denominators " << denominators_
+                             << std::endl;
 
     toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, settings);
     multiple_ = true;
 }
 
 void TypeToByListQuantile::print(std::ostream& out) const {
-    out << "TypeToByListQuantile[name=" << name_ << "]";
+    out << "TypeToByListQuantile[name=" << name() << "]";
 }
 
-bool TypeToByListQuantile::expand(std::string& value, const MarsRequest&) const {
+bool TypeToByListQuantile::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
 
     Quantile q(value);
     if (denominators_.find(q.den()) == denominators_.end()) {
         std::ostringstream oss;
-        oss << name_ << ": " << q.den() << "-quantile not supported.";
+        oss << name() << ": " << q.den() << "-quantile not supported.";
         throw eckit::BadValue(oss.str());
     }
     return true;

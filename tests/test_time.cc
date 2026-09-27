@@ -44,7 +44,9 @@ void checkExpansion(const Type& tt, const std::string& value, const std::string&
 
 CASE("Test TypeTime expansions") {
 
-    TypeTime ttime("time", Value());
+    MarsLanguage::get("retrieve");
+
+    TypeTime ttime(MarsLanguage::addKeyword("time"), Value());
     Type& tt(ttime);
 
     // 1 and 2-digit times

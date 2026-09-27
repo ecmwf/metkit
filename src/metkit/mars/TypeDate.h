@@ -26,7 +26,7 @@ class TypeDate : public Type {
 
 public:  // methods
 
-    TypeDate(const std::string& name, const eckit::Value& settings);
+    TypeDate(Keyword keyword, const eckit::Value& settings);
 
     ~TypeDate() noexcept override = default;
 
@@ -34,7 +34,7 @@ private:  // methods
 
     void print(std::ostream& out) const override;
     void pass2(MarsRequest& request) const override;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

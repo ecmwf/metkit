@@ -29,12 +29,12 @@ class TypeInteger : public Type {
 
 public:  // methods
 
-    TypeInteger(const std::string& name, const eckit::Value& settings);
+    TypeInteger(Keyword keyword, const eckit::Value& settings);
 
 protected:
 
     bool ok(const std::string& value, long& n) const;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const override;
 
 private:  // methods
 

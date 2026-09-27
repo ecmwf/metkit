@@ -19,6 +19,7 @@
 #include "eckit/testing/Test.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypeDate.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -42,7 +43,7 @@ CASE("test_build") {
     eckit::ValueMap settings;
     settings["type"] = "date";
 
-    Type* t1(TypesFactory::build("abcd", eckit::Value(settings)));
+    Type* t1(TypesFactory::build(MarsLanguage::addKeyword("abcd"), eckit::Value(settings)));
 
     EXPECT(t1 != 0);
     t1->attach();

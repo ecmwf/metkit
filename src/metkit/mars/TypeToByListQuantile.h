@@ -24,14 +24,14 @@ class TypeToByListQuantile : public Type {
 
 public:  // methods
 
-    TypeToByListQuantile(const std::string& name, const eckit::Value& settings);
+    TypeToByListQuantile(Keyword keyword, const eckit::Value& settings);
 
     ~TypeToByListQuantile() noexcept override = default;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const override;
 
     std::set<long> denominators_;
 };

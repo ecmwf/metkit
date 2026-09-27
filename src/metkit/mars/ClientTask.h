@@ -23,6 +23,7 @@
 #include "eckit/transaction/TxnEvent.h"
 
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
 namespace mars {

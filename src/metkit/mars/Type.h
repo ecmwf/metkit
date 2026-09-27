@@ -26,6 +26,7 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
@@ -37,13 +38,13 @@ namespace metkit::mars {
 class ContextRule {
 public:
 
-    ContextRule(const std::string& k) : key_(k) {}
+    ContextRule(Keyword k) : key_(k) {}
 
     virtual ~ContextRule() = default;
 
-    const std::string& key() const { return key_; }
+    Keyword key() const { return key_; }
 
-    virtual bool matches(MarsRequest req) const = 0;
+    virtual bool matches(const MarsRequest& req) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
         r.print(s);
@@ -52,7 +53,7 @@ public:
 
 protected:
 
-    std::string key_;
+    Keyword key_;
 
 private:  // methods
 
@@ -66,22 +67,9 @@ private:  // methods
 class Include : public ContextRule {
 public:
 
-    Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    Include(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
 
-    bool matches(MarsRequest req) const override {
-        if (key_ == "_verb") {
-            return (vals_.find(req.verb()) != vals_.end());
-        }
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    bool matches(const MarsRequest& req) const override;
 
 private:  // methods
 
@@ -97,8 +85,8 @@ private:
 class Exclude : public ContextRule {
 public:
 
-    Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-    bool matches(MarsRequest req) const override {
+    Exclude(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    bool matches(const MarsRequest& req) const override {
         if (!req.has(key_)) {
             return false;
         }
@@ -123,8 +111,8 @@ private:
 class Undef : public ContextRule {
 public:
 
-    Undef(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return !req.has(key_); }
+    Undef(Keyword k) : ContextRule(k) {}
+    bool matches(const MarsRequest& req) const override { return !req.has(key_); }
 
 private:  // methods
 
@@ -135,8 +123,8 @@ private:  // methods
 class Def : public ContextRule {
 public:
 
-    Def(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return req.has(key_); }
+    Def(Keyword k) : ContextRule(k) {}
+    bool matches(const MarsRequest& req) const override { return req.has(key_); }
 
 private:  // methods
 
@@ -151,14 +139,14 @@ private:  // methods
 class Context {
 public:
 
-    static std::unique_ptr<Context> parseContext(eckit::Value c);
+    static std::unique_ptr<Context> parseContext(eckit::ValueMap c);
 
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
 
     size_t maxAxisIndex() const;
 
-    bool matches(MarsRequest req) const;
+    bool matches(const MarsRequest& req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
 
@@ -177,7 +165,7 @@ class ITypeToByList {
 public:
 
     virtual ~ITypeToByList()                                                                      = default;
-    virtual void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const = 0;
+    virtual void expandRanges(std::vector<std::string>& values, std::optional<std::reference_wrapper<const MarsRequest>> request) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -195,14 +183,14 @@ enum class Category : uint8_t {
 class Type : public eckit::Counted {
 public:  // methods
 
-    Type(const std::string& name, const eckit::Value& settings);
+    Type(Keyword k, const eckit::Value& settings);
 
     ~Type() noexcept override = default;
 
-    virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
-    void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;
+    virtual bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request = std::nullopt) const;
+    void expand(std::vector<std::string>& values, std::optional<std::reference_wrapper<const MarsRequest>> request = std::nullopt) const;
 
-    std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
+    std::string tidy(const std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request = std::nullopt) const;
 
     virtual void setDefaults(MarsRequest& request) const;
     virtual void check(const std::vector<std::string>& values) const;
@@ -216,11 +204,13 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
-    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter,
+    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter,
                         std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
+    Keyword id() const;
     const std::string& name() const;
+
     const Category& category() const;
 
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
@@ -242,7 +232,7 @@ protected:  // methods
 
 protected:  // members
 
-    std::string name_;
+    Keyword id_;
 
     bool flatten_;
     bool multiple_;
@@ -255,7 +245,7 @@ protected:  // members
 
     std::unique_ptr<ITypeToByList> toByList_;
 
-    std::map<std::string, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
+    std::map<Keyword, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
 

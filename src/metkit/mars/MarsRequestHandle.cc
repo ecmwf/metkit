@@ -54,7 +54,7 @@ MarsRequestHandle::MarsRequestHandle(const metkit::mars::MarsRequest& request, c
     request_(request.verb()), protocol_(ProtocolFactory::build(database)), opened_(false) {
 
     for (const auto& p : request.parameters()) {
-        request_.values(p.name(), p.values());
+        request_.values(p->name(), p->values());
     }
 }
 

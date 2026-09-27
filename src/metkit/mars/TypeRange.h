@@ -26,14 +26,14 @@ class TypeRange : public Type {
 
 public:  // methods
 
-    TypeRange(const std::string& name, const eckit::Value& settings);
+    TypeRange(Keyword keyword, const eckit::Value& settings);
 
     ~TypeRange() noexcept override = default;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

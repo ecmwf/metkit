@@ -27,14 +27,14 @@ class TypeTime : public Type {
 
 public:  // methods
 
-    TypeTime(const std::string& name, const eckit::Value& settings);
+    TypeTime(Keyword keyword, const eckit::Value& settings);
 
     ~TypeTime() noexcept override = default;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

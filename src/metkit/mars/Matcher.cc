@@ -34,7 +34,7 @@ public:
 
     explicit MarsRequestAccessor(const metkit::mars::MarsRequest& request) : request_(request) {}
 
-    std::optional<values_t> get(const std::string& keyword) const override { return request_.get(keyword); }
+    std::optional<values_t> get(const std::string& keyword) const override { return request_.values(keyword); }
 
 private:
 

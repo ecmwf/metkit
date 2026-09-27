@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/MarsParsedRequest.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
@@ -58,7 +58,7 @@ public:
     void reset();
 
     MarsRequest expand(const MarsRequest&);
-    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
+    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
     std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
 
     void expand(const MarsRequest&, ExpandCallback&);
@@ -66,14 +66,14 @@ public:
 
 private:
 
-    ExpansionContext& ctxForVerb(const std::string& verb);
+    ExpansionContext& ctxForVerb(Verb verb);
 
 private:
 
     bool inherit_;
     bool strict_;
 
-    std::map<std::string, ExpansionContext> ctx_;
+    std::map<Verb, ExpansionContext> ctx_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

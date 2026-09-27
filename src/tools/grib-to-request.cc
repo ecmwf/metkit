@@ -177,7 +177,7 @@ void GribToRequestTool::execute(const eckit::option::CmdArgs& args) {
         // split the requests into groups of requests with the same set of metadata (but potentially different values)
         for (const auto& r : requests) {
             std::set<std::string> keys;
-            for (const auto& p : r.parameters()) {
+            for (const auto& [k, p] : r.parameters()) {
                 keys.insert(p.name());
             }
             coherentRequests[keys].push_back(r);

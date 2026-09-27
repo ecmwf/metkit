@@ -28,14 +28,14 @@ class TypeRegex : public Type {
 
 public:  // methods
 
-    TypeRegex(const std::string& name, const eckit::Value& settings);
+    TypeRegex(Keyword keyword, const eckit::Value& settings);
 
     ~TypeRegex() noexcept override = default;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const override;
 
     std::vector<eckit::Regex> regex_;
     bool uppercase_;

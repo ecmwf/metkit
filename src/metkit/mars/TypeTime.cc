@@ -20,13 +20,13 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeTime::TypeTime(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+TypeTime::TypeTime(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
 
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, settings);
     multiple_ = true;
 }
 
-bool TypeTime::expand(std::string& value, const MarsRequest&) const {
+bool TypeTime::expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request) const {
 
     eckit::Time time(value);
 
@@ -46,7 +46,7 @@ bool TypeTime::expand(std::string& value, const MarsRequest&) const {
 }
 
 void TypeTime::print(std::ostream& out) const {
-    out << "TypeTime[name=" << name_ << "]";
+    out << "TypeTime[name=" << name() << "]";
 }
 
 static TypeBuilder<TypeTime> type("time");

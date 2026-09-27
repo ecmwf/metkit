@@ -163,14 +163,18 @@ std::string MarsParser::parseVerb() {
     return parseIndent();
 }
 
-MarsParsedRequest MarsParser::parseRequest() {
+std::string MarsParser::parseKeyword() {
+    return parseIndents();
+}
 
-    MarsParsedRequest r(parseVerb(), line_ + 1);
+MarsRequest MarsParser::parseRequest() {
+
+    MarsRequest r(parseVerb(), line_ + 1);
 
     char c = peek();
     while (c == ',') {
         consume(',');
-        std::string key = parseIndents();
+        std::string key = parseKeyword();
         consume('=');
         r.values(key, parseValues());
         c = peek();
@@ -184,8 +188,8 @@ MarsParsedRequest MarsParser::parseRequest() {
 
 MarsParser::MarsParser(std::istream& in) : StreamParser(in, true, "#") {}
 
-std::vector<MarsParsedRequest> MarsParser::parse() {
-    std::vector<MarsParsedRequest> result;
+std::vector<MarsRequest> MarsParser::parse() {
+    std::vector<MarsRequest> result;
 
     while (peek() != 0) {
         result.push_back(parseRequest());

@@ -26,14 +26,14 @@ class TypeFloat : public Type {
 
 public:  // methods
 
-    TypeFloat(const std::string& name, const eckit::Value& settings);
+    TypeFloat(Keyword keyword, const eckit::Value& settings);
 
     ~TypeFloat() noexcept override = default;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, std::optional<std::reference_wrapper<const MarsRequest>> request = std::nullopt) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

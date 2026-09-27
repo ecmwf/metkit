@@ -8,15 +8,13 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/TypesFactory.h"
+
 #include "eckit/exception/Exceptions.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/TypesFactory.h"
-
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -28,7 +26,7 @@ TypesFactory::~TypesFactory() {
     TypesRegistry::instance().remove(name_);
 }
 
-Type* TypesRegistry::build(const std::string& keyword, const eckit::Value& settings) {
+Type* TypesRegistry::build(Keyword keyword, const eckit::Value& settings) {
     std::string name;
 
     if (settings["type"].isList()) {
@@ -70,7 +68,7 @@ void TypesRegistry::list(std::ostream& s) {
     s << "]";
 }
 
-Type* TypesFactory::build(const std::string& keyword, const eckit::Value& settings) {
+Type* TypesFactory::build(Keyword keyword, const eckit::Value& settings) {
     return TypesRegistry::instance().build(keyword, settings);
 }
 
@@ -97,5 +95,4 @@ void TypesRegistry::remove(const std::string& name) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

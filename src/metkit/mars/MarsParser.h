@@ -15,7 +15,8 @@
 
 #include "eckit/parser/StreamParser.h"
 #include "eckit/types/Types.h"
-#include "metkit/mars/MarsParsedRequest.h"
+
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
 
@@ -41,7 +42,7 @@ public:  // methods
 
     MarsParser(std::istream& in);
 
-    std::vector<MarsParsedRequest> parse();
+    std::vector<MarsRequest> parse();
 
     void parse(MarsParserCallback& cb);
 
@@ -49,7 +50,7 @@ public:  // methods
 
 private:  // methods
 
-    MarsParsedRequest parseRequest();
+    MarsRequest parseRequest();
     std::string parseVerb();
     std::string parseKeyword();
     std::vector<std::string> parseValues();
