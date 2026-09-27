@@ -7,14 +7,14 @@
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-struct metkit_marsrequest_t : public metkit::mars::MarsParsedRequest {
-    using metkit::mars::MarsParsedRequest::MarsParsedRequest;
+struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
+    using metkit::mars::MarsRequest::MarsRequest;
 
-    metkit_marsrequest_t(metkit::mars::MarsParsedRequest&& req) : metkit::mars::MarsParsedRequest(std::move(req)) {}
+    metkit_marsrequest_t(metkit::mars::MarsRequest&& req) : metkit::mars::MarsRequest(std::move(req)) {}
 };
 
 struct metkit_requestiterator_t {
-    explicit metkit_requestiterator_t(std::vector<metkit::mars::MarsValidatedRequest>&& vec) :
+    explicit metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest>&& vec) :
         vector_(std::move(vec)), current_(vector_.begin()) {}
 
     metkit_iterator_status_t next() {
@@ -47,8 +47,8 @@ struct metkit_requestiterator_t {
 private:
 
     bool first_ = true;
-    std::vector<metkit::mars::MarsValidatedRequest> vector_;
-    std::vector<metkit::mars::MarsValidatedRequest>::iterator current_;
+    std::vector<metkit::mars::MarsRequest> vector_;
+    std::vector<metkit::mars::MarsRequest>::iterator current_;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------

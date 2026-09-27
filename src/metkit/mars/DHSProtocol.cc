@@ -356,7 +356,7 @@ DHSProtocol::DHSProtocol(Stream& s) : BaseProtocol(s), callback_(Reanimator<Base
     s >> error_;
     s >> sending_;
     s >> forward_;
-    env_ = MarsParsedRequest(s);
+    env_ = MarsRequest(s);
 }
 
 /// @attention this dtor may throw in cleanup()!

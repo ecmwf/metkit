@@ -85,7 +85,7 @@ private:
     std::vector<std::string> values_;
 };
 
-HyperCube::HyperCube(const mars::MarsValidatedRequest& request) :
+HyperCube::HyperCube(const mars::MarsRequest& request) :
     verb_(request.verbId()), cube_(std::vector<eckit::Ordinal>()) {
 
     std::vector<eckit::Ordinal> dimensions;
@@ -113,7 +113,7 @@ HyperCube::~HyperCube() {
     }
 }
 
-bool HyperCube::contains(const mars::MarsValidatedRequest& r) const {
+bool HyperCube::contains(const mars::MarsRequest& r) const {
     int idx = indexOf(r);
     return (idx >= 0) and set_[idx];
 }
@@ -127,12 +127,12 @@ bool HyperCube::clear(int idx) {
     count_--;
     return true;
 }
-bool HyperCube::clear(const mars::MarsValidatedRequest& r) {
+bool HyperCube::clear(const mars::MarsRequest& r) {
     int idx = indexOf(r);
     return clear(idx);
 }
 
-int HyperCube::indexOf(const mars::MarsValidatedRequest& r) const {
+int HyperCube::indexOf(const mars::MarsRequest& r) const {
 
     std::vector<eckit::Ordinal> coords;
 
@@ -167,10 +167,10 @@ enum requestRelation {
     DISJOINT
 };
 
-requestRelation getRelation(const mars::MarsValidatedRequest& base, const size_t& baseSize,
-                            const mars::MarsValidatedRequest& additional, const size_t additionalSize) {
+requestRelation getRelation(const mars::MarsRequest& base, const size_t& baseSize,
+                            const mars::MarsRequest& additional, const size_t additionalSize) {
 
-    mars::MarsValidatedRequest tmp(base);
+    mars::MarsRequest tmp(base);
     tmp.merge(additional);  // creates the bounding box request
 
     /// @todo: building a hypercube *JUST* to get the size? Seems like we can do better
@@ -186,7 +186,7 @@ requestRelation getRelation(const mars::MarsValidatedRequest& base, const size_t
 }
 
 // Returns true only if the last request was merged into an adjacent
-bool mergeLast(std::vector<std::pair<metkit::mars::MarsValidatedRequest, size_t>>& requests) {
+bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& requests) {
     size_t last = requests.size() - 1;
 
     size_t candidateIdx  = std::numeric_limits<size_t>::max();
@@ -222,7 +222,7 @@ bool mergeLast(std::vector<std::pair<metkit::mars::MarsValidatedRequest, size_t>
     return false;
 }
 
-std::vector<std::pair<mars::MarsValidatedRequest, size_t>> HyperCube::request(const std::set<size_t>& idxs) const {
+std::vector<std::pair<mars::MarsRequest, size_t>> HyperCube::request(const std::set<size_t>& idxs) const {
 
     using IndexSet = std::set<std::size_t>;
 
@@ -269,7 +269,7 @@ std::vector<std::pair<mars::MarsValidatedRequest, size_t>> HyperCube::request(co
     const std::size_t axis = pickBestAxis(idxs);
     const auto slices      = sliceAlongAxis(idxs, axis);
 
-    std::vector<std::pair<mars::MarsValidatedRequest, std::size_t>> result;
+    std::vector<std::pair<mars::MarsRequest, std::size_t>> result;
 
     // Process each slice recursively, appending and merging on the fly.
     for (const auto& [coord, subIdxs] : slices) {
@@ -282,10 +282,10 @@ std::vector<std::pair<mars::MarsValidatedRequest, size_t>> HyperCube::request(co
     return result;
 }
 
-std::vector<metkit::mars::MarsValidatedRequest> HyperCube::aggregatedRequests(bool remaining) const {
+std::vector<metkit::mars::MarsRequest> HyperCube::aggregatedRequests(bool remaining) const {
 
     if (countVacant() == (remaining ? 0 : size()))
-        return std::vector<metkit::mars::MarsValidatedRequest>{};
+        return std::vector<metkit::mars::MarsRequest>{};
 
     std::set<size_t> idxs;
     for (size_t i = 0; i < set_.size(); ++i) {
@@ -293,16 +293,16 @@ std::vector<metkit::mars::MarsValidatedRequest> HyperCube::aggregatedRequests(bo
             idxs.emplace(i);
     }
 
-    std::vector<std::pair<metkit::mars::MarsValidatedRequest, size_t>> requests = request(idxs);
+    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests = request(idxs);
 
-    std::vector<metkit::mars::MarsValidatedRequest> out;
+    std::vector<metkit::mars::MarsRequest> out;
     for (auto req : requests)
         out.push_back(req.first);
     return out;
 }
 
-metkit::mars::MarsValidatedRequest HyperCube::requestOf(size_t index) const {
-    metkit::mars::MarsValidatedRequest request(verb_);
+metkit::mars::MarsRequest HyperCube::requestOf(size_t index) const {
+    metkit::mars::MarsRequest request(verb_);
     std::vector<eckit::Ordinal> coords(axes_.size());
 
     cube_.coordinates(index, coords);
@@ -319,7 +319,7 @@ size_t HyperCube::countVacant() const {
     return count_;
 }
 
-size_t HyperCube::fieldOrdinal(const metkit::mars::MarsValidatedRequest& r, bool noholes) const {
+size_t HyperCube::fieldOrdinal(const metkit::mars::MarsRequest& r, bool noholes) const {
     int idx = indexOf(r);
     ASSERT(idx >= 0);
     if (noholes) {

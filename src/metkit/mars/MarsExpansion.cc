@@ -22,7 +22,7 @@ void MarsExpansion::reset() {
     ctx_.clear();
 }
 
-// std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) {
+// std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& requests) {
 //     std::vector<MarsRequest> result;
 //     result.reserve(requests.size());
 
@@ -37,9 +37,9 @@ void MarsExpansion::reset() {
 //     return result;
 // }
 
-std::vector<MarsValidatedRequest> MarsExpansion::expand(const std::vector<MarsValidatedRequest>& requests) {
+std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& requests) {
 
-    std::vector<MarsValidatedRequest> result;
+    std::vector<MarsRequest> result;
     result.reserve(requests.size());
 
     for (const auto& request : requests) {
@@ -51,9 +51,9 @@ std::vector<MarsValidatedRequest> MarsExpansion::expand(const std::vector<MarsVa
     return result;
 }
 
-std::vector<MarsValidatedRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) {
+std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& requests) {
 
-    std::vector<MarsValidatedRequest> result;
+    std::vector<MarsRequest> result;
     result.reserve(requests.size());
 
     for (const auto& request : requests) {
@@ -66,7 +66,7 @@ std::vector<MarsValidatedRequest> MarsExpansion::expand(const std::vector<MarsPa
     return result;
 }
 
-MarsValidatedRequest MarsExpansion::expand(const MarsRequest& request) {
+MarsRequest MarsExpansion::expand(const MarsRequest& request) {
     const std::string& verbName = MarsLanguage::expandVerb(request.verb());
     const Verb& verb            = MarsLanguage::verb(verbName);
 

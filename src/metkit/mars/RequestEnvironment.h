@@ -17,7 +17,7 @@
 #include <optional>
 #include <string>
 
-#include "metkit/mars/MarsParsedRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
 
@@ -51,7 +51,7 @@ private:
 
     static RequestEnvironment& inst();
 
-    std::optional<MarsParsedRequest> env_ = std::nullopt;
+    std::optional<MarsRequest> env_ = std::nullopt;
     std::recursive_mutex init_;
 };
 

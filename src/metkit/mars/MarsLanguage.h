@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "metkit/mars/Dictionary.h"
-#include "metkit/mars/MarsParsedRequest.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
@@ -78,7 +78,7 @@ public:  // methods
     MarsLanguage& operator=(const MarsLanguage&) = delete;
     MarsLanguage& operator=(MarsLanguage&&)      = delete;
 
-    MarsValidatedRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
+    MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 

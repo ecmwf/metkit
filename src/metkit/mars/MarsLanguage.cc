@@ -508,8 +508,8 @@ const Type* MarsLanguage::type(const std::string& name) const {
     throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
 }
 
-MarsValidatedRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
-    MarsValidatedRequest result(verb_);
+MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
+    MarsRequest result(verb_);
 
     try {
         std::vector<std::pair<Keyword, std::string>> sortedParams;

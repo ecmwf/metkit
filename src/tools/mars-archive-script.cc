@@ -266,7 +266,7 @@ void MarsArchiveScript::execute(const CmdArgs& args) {
         out << "\n\n$" << compareMars_ << " << @\n\n";
 
         cnt = 0;
-        for (MarsParsedRequest rq : requests) {
+        for (MarsRequest rq : requests) {
             rq.verb("retrieve");
             rq.setValue("target", cmpfile(cnt));
             setOverrides(rq, overrides[cnt++], "default", "compare", "ibm_retrieve");

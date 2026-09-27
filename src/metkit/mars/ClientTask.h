@@ -23,7 +23,7 @@
 #include "eckit/transaction/TxnEvent.h"
 
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/MarsParsedRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
 namespace mars {
@@ -152,8 +152,8 @@ protected:
 
     // -- Members
 
-    MarsValidatedRequest request_;
-    MarsParsedRequest environ_;
+    MarsRequest request_;
+    MarsRequest environ_;
 
 private:
 

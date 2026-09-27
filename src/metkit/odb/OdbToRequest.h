@@ -18,7 +18,7 @@
 #include "eckit/io/Length.h"
 #include "eckit/io/Offset.h"
 
-#include "metkit/mars/MarsParsedRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace eckit {
 class DataHandle;
@@ -37,7 +37,7 @@ public:  // methods
     OdbToRequest(const std::string& verb, bool one, bool constant);
     ~OdbToRequest();
 
-    std::vector<MarsParsedRequest> odbToRequest(eckit::DataHandle& dh) const;
+    std::vector<MarsRequest> odbToRequest(eckit::DataHandle& dh) const;
 
 private:  // members
 

@@ -42,7 +42,7 @@ CASE("Context match") {
         "class=ti,date=20250414,time=12,origin=all,expver=all,type=cf,stream=enfo,levtype=sfc,param=2t,step=24,expect="
         "any,target=data.reference";
 
-    metkit::mars::MarsValidatedRequest r      = parse(text, true);
+    metkit::mars::MarsRequest r      = parse(text, true);
 
     EXPECT(c.matches(r));
 }

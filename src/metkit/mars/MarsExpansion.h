@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/MarsParsedRequest.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
@@ -57,9 +57,9 @@ public:
 
     void reset();
 
-    MarsValidatedRequest expand(const MarsRequest&);
-    std::vector<MarsValidatedRequest> expand(const std::vector<MarsParsedRequest>&);
-    std::vector<MarsValidatedRequest> expand(const std::vector<MarsValidatedRequest>&);
+    MarsRequest expand(const MarsRequest&);
+    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
+    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
 
     void expand(const MarsRequest&, ExpandCallback&);
     void flatten(const MarsRequest&, FlattenCallback&);

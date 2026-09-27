@@ -29,7 +29,7 @@ template <typename T>
 class HyperCubePayloaded : public HyperCube {
 public:
 
-    HyperCubePayloaded(const metkit::mars::MarsValidatedRequest& request, const Deduplicator<T>& deduplicator) :
+    HyperCubePayloaded(const metkit::mars::MarsRequest& request, const Deduplicator<T>& deduplicator) :
         HyperCube(request), dedup_(deduplicator) {
 
 
@@ -37,7 +37,7 @@ public:
     }
 
 
-    void add(const metkit::mars::MarsValidatedRequest& request, T payload) {
+    void add(const metkit::mars::MarsRequest& request, T payload) {
 
         int idx = indexOf(request);
 

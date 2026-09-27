@@ -84,7 +84,7 @@ private:
     bool error_;
     bool sending_;
     bool forward_;
-    MarsParsedRequest env_;
+    MarsRequest env_;
     eckit::StringDict stats_;
 
     // -- Methods

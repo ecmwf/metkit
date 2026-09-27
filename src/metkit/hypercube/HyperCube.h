@@ -53,31 +53,31 @@ private:  // members
 class HyperCube {
 public:
 
-    HyperCube(const metkit::mars::MarsValidatedRequest&);
+    HyperCube(const metkit::mars::MarsRequest&);
     ~HyperCube();
 
-    bool contains(const metkit::mars::MarsValidatedRequest&) const;
-    bool clear(const metkit::mars::MarsValidatedRequest&);
+    bool contains(const metkit::mars::MarsRequest&) const;
+    bool clear(const metkit::mars::MarsRequest&);
 
     size_t count() const;
     size_t countVacant() const;
     size_t size() const { return cube_.count(); }
 
-    size_t fieldOrdinal(const metkit::mars::MarsValidatedRequest&, bool noholes = true) const;
-    std::vector<metkit::mars::MarsValidatedRequest> vacantRequests() const { return aggregatedRequests(true); }
-    std::vector<metkit::mars::MarsValidatedRequest> requests() const { return aggregatedRequests(false); }
+    size_t fieldOrdinal(const metkit::mars::MarsRequest&, bool noholes = true) const;
+    std::vector<metkit::mars::MarsRequest> vacantRequests() const { return aggregatedRequests(true); }
+    std::vector<metkit::mars::MarsRequest> requests() const { return aggregatedRequests(false); }
 
 protected:
 
-    std::vector<metkit::mars::MarsValidatedRequest> aggregatedRequests(bool remaining) const;
-    int indexOf(const metkit::mars::MarsValidatedRequest&) const;
+    std::vector<metkit::mars::MarsRequest> aggregatedRequests(bool remaining) const;
+    int indexOf(const metkit::mars::MarsRequest&) const;
     bool clear(int index);
-    metkit::mars::MarsValidatedRequest requestOf(size_t index) const;
+    metkit::mars::MarsRequest requestOf(size_t index) const;
 
     // Given a set of indices, build the *minimal* collection of Mars requests that cover them.
     // Each entry in the result vector is: { merged_request, number_of_points_covered_by_that_request }
     /// @note: This does not take into account whether the point is "set" or not
-    std::vector<std::pair<metkit::mars::MarsValidatedRequest, size_t>> request(const std::set<size_t>& idxs) const;
+    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(const std::set<size_t>& idxs) const;
 
 private:
 
