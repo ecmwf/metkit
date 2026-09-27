@@ -171,7 +171,7 @@ metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator
         ASSERT(requests);
         ASSERT(str);
         std::istringstream in(str);
-        *requests = new metkit_requestiterator_t(metkit::mars::parse(in, strict));
+        *requests = new metkit_requestiterator_t(metkit::mars::MarsRequest::parse(in, strict));
     });
 }
 
@@ -179,7 +179,7 @@ metkit_error_t metkit_parse_marsrequest(const char* str, metkit_marsrequest_t* r
     return tryCatch([request, str, strict] {
         ASSERT(request);
         ASSERT(str);
-        *request = metkit::mars::parse(str, strict);
+        *request = metkit::mars::MarsRequest::parse(str, strict);
     });
 }
 
