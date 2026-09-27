@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "eckit/log/JSON.h"
+#include "eckit/log/Timer.h"
 
 #include "metkit/metkit_config.h"
 
@@ -111,6 +112,8 @@ void ParseRequest::process(const eckit::PathName& path) {
         std::cout << "==========> Parsing : " << path << std::endl;
     }
 
+    eckit::Timer timer;
+    timer.start();
     std::ifstream in(path.asString().c_str());
     MarsParser parser(in);
 
@@ -133,6 +136,10 @@ void ParseRequest::process(const eckit::PathName& path) {
     }
 
     std::vector<MarsRequest> v = expand.expand(p);
+    timer.stop();
+    if (!porcelain_) {
+        std::cout << "Parsing and expansion took: " << timer.elapsed() << " seconds." << std::endl;
+    }
 
 #ifdef metkit_HAVE_MARS2MARS
     if (grib2_) {

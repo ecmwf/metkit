@@ -29,7 +29,11 @@ class TypeInteger : public Type {
 
 public:  // methods
 
-    TypeInteger(const std::string& name, const eckit::Value& settings);
+    TypeInteger(const std::string& type, Keyword key, const eckit::Value& val);
+    TypeInteger(const std::string& type, Keyword key, MemFile& file);
+    ~TypeInteger() noexcept override = default;
+
+    void write(std::ofstream& file) const override;
 
 protected:
 

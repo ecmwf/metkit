@@ -23,11 +23,10 @@ namespace metkit::mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 class TypeFloat : public Type {
-
 public:  // methods
 
-    TypeFloat(const std::string& name, const eckit::Value& settings);
-
+    TypeFloat(const std::string& type, Keyword key, const eckit::Value& val);
+    TypeFloat(const std::string& type, Keyword key, MemFile& file);
     ~TypeFloat() noexcept override = default;
 
 private:  // methods

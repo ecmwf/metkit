@@ -20,6 +20,8 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/TypesFactory.h"
 
 #include <fstream>
@@ -35,115 +37,8 @@ using ParamIdAliases = std::unordered_map<uint32_t, std::vector<std::string>>;
 
 namespace {
 
-const char* toLittleEndian(uint16_t* value) {
-    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
-        *value = (*value >> 8) | (*value << 8);
-    }
-    return reinterpret_cast<const char*>(value);
-}
-
-const char* toLittleEndian(uint32_t* value) {
-    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
-        *value = ((*value >> 24) & 0x000000FF) | ((*value >> 8) & 0x0000FF00) | ((*value << 8) & 0x00FF0000) |
-                 ((*value << 24) & 0xFF000000);
-    }
-    return reinterpret_cast<const char*>(value);
-}
-
-uint16_t littleEndian2uint16(const char* value) {
-    uint16_t v = *reinterpret_cast<const uint16_t*>(value);
-    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
-        v = (v >> 8) | (v << 8);
-    }
-    return v;
-}
-uint32_t littleEndian2uint32(const char* value) {
-    uint32_t v = *reinterpret_cast<const uint32_t*>(value);
-    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
-        v = ((v >> 24) & 0x000000FF) | ((v >> 8) & 0x0000FF00) | ((v << 8) & 0x00FF0000) | ((v << 24) & 0xFF000000);
-    }
-    return v;
-}
-
-uint8_t read8(std::ifstream& file) {
-    uint8_t size;
-    if (file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t))) {
-        return size;
-    }
-    throw eckit::SeriousBug("Failed to read 8-bit value from file", Here());
-}
-uint16_t read16(std::ifstream& file) {
-    uint16_t size;
-    if (file.read(reinterpret_cast<char*>(&size), sizeof(uint16_t))) {
-        return littleEndian2uint16(reinterpret_cast<const char*>(&size));
-    }
-    throw eckit::SeriousBug("Failed to read 16-bit value from file", Here());
-}
-uint32_t read32(std::ifstream& file) {
-    uint32_t value;
-    if (file.read(reinterpret_cast<char*>(&value), sizeof(uint32_t))) {
-        return littleEndian2uint32(reinterpret_cast<const char*>(&value));
-    }
-    throw eckit::SeriousBug("Failed to read 32-bit value from file", Here());
-}
-std::string readString(std::ifstream& file) {
-    uint8_t size;
-    if (file.read(reinterpret_cast<char*>(&size), sizeof(uint8_t))) {
-        std::string str(size, '\0');
-        if (file.read(str.data(), size)) {
-            return str;
-        }
-    }
-    throw eckit::SeriousBug("Failed to read string from file", Here());
-}
-
-void write16(std::ofstream& file, uint16_t size) {
-    file.write(toLittleEndian(&size), sizeof(uint16_t));
-}
-void write32(std::ofstream& file, uint32_t size) {
-    file.write(toLittleEndian(&size), sizeof(uint32_t));
-}
-void write8(std::ofstream& file, size_t size) {
-    if (size > static_cast<size_t>(std::numeric_limits<uint8_t>::max())) {
-        std::ostringstream oss;
-        oss << "TypeParam: cannot write params.bin - count of " << size << " exceeds the maximum of "
-            << static_cast<size_t>(std::numeric_limits<uint8_t>::max()) << " supported by the uint8_t field width";
-        throw eckit::SeriousBug(oss.str(), Here());
-    }
-    uint8_t size8 = static_cast<uint8_t>(size);
-    file.write(reinterpret_cast<const char*>(&size8), sizeof(uint8_t));
-}
-void write16(std::ofstream& file, size_t size) {
-    if (size > static_cast<size_t>(std::numeric_limits<uint16_t>::max())) {
-        std::ostringstream oss;
-        oss << "TypeParam: cannot write params.bin - count of " << size << " exceeds the maximum of "
-            << static_cast<size_t>(std::numeric_limits<uint16_t>::max()) << " supported by the uint16_t field width";
-        throw eckit::SeriousBug(oss.str(), Here());
-    }
-    uint16_t size16 = static_cast<uint16_t>(size);
-    file.write(toLittleEndian(&size16), sizeof(uint16_t));
-}
-void write32(std::ofstream& file, size_t size) {
-    ASSERT(size <= static_cast<size_t>(std::numeric_limits<uint32_t>::max()));
-    uint32_t size32 = static_cast<uint32_t>(size);
-    file.write(toLittleEndian(&size32), sizeof(uint32_t));
-}
-void writeString(std::ofstream& file, const std::string& str) {
-    if (str.size() > static_cast<size_t>(std::numeric_limits<uint8_t>::max())) {
-        std::ostringstream oss;
-        oss << "TypeParam: cannot write params.bin - string '" << str << "' has length " << str.size()
-            << " which exceeds the maximum of " << static_cast<size_t>(std::numeric_limits<uint8_t>::max())
-            << " supported by the uint8_t field width";
-        throw eckit::SeriousBug(oss.str(), Here());
-    }
-    uint8_t size = static_cast<uint8_t>(str.size());
-    file.write(reinterpret_cast<const char*>(&size), sizeof(uint8_t));
-    file.write(str.data(), size);
-}
-
 static eckit::Mutex* local_mutex = 0;
 static pthread_once_t once       = PTHREAD_ONCE_INIT;
-
 
 class Matcher {
 
@@ -155,7 +50,7 @@ class Matcher {
 public:
 
     Matcher(const std::string& name, std::vector<std::string>&& values);
-    Matcher(std::ifstream& file);
+    Matcher(MemFile& file);
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
 
@@ -171,12 +66,12 @@ public:
 Matcher::Matcher(const std::string& name, std::vector<std::string>&& values) :
     name_(name), values_(std::move(values)) {}
 
-Matcher::Matcher(std::ifstream& file) {
-    name_             = readString(file);
-    uint8_t numValues = read8(file);
+Matcher::Matcher(MemFile& file) {
+    name_             = file.readString();
+    uint8_t numValues = file.read8();
     values_.reserve(numValues);
     for (uint32_t i = 0; i < numValues; i++) {
-        values_.push_back(readString(file));
+        values_.emplace_back(file.readString());
     }
 }
 
@@ -234,7 +129,7 @@ public:
     std::string lookup(const std::string& s) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const ParamIdAliases& ids);
-    Rule(std::ifstream& file);
+    Rule(MemFile& file);
 
     static void setDefault(const eckit::Value& setters, const ParamIdAliases& ids);
 
@@ -251,8 +146,8 @@ static void initRules() {
     Rule::init();
 }
 
-std::unordered_set<uint32_t> Rule::defaultValues_;
-std::map<std::string, std::string> Rule::defaultMapping_;
+std::unordered_set<uint32_t> Rule::defaultValues_{};
+std::map<std::string, std::string> Rule::defaultMapping_{};
 
 void Rule::setDefault(const eckit::Value& values, const ParamIdAliases& ids) {
 
@@ -374,20 +269,20 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const Param
     }
 }
 
-Rule::Rule(std::ifstream& file) {
-    uint8_t numMatchers = read8(file);
+Rule::Rule(MemFile& file) {
+    uint8_t numMatchers = file.read8();
     matchers_.reserve(numMatchers);
     for (uint8_t i = 0; i < numMatchers; ++i) {
         matchers_.emplace_back(file);
     }
-    uint16_t numValues = read16(file);
+    uint16_t numValues = file.read16();
     for (uint16_t i = 0; i < numValues; ++i) {
-        values_.insert(read32(file));
+        values_.insert(file.read32());
     }
-    uint16_t numMappings = read16(file);
+    uint16_t numMappings = file.read16();
     for (uint16_t i = 0; i < numMappings; ++i) {
-        auto key = readString(file);
-        mapping_.emplace(std::move(key), readString(file));
+        std::string key{file.readString()};
+        mapping_.emplace(std::move(key), file.readString());
     }
 }
 
@@ -523,8 +418,6 @@ void Rule::print(std::ostream& out) const {
 
 static std::vector<Rule>* rules = nullptr;
 
-}  // namespace
-
 void Rule::init() {
 
     static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
@@ -538,48 +431,33 @@ void Rule::init() {
     if (!metkitForceBinfileCreation && !metkitLegacyParamCheck && !metkitRawParam) {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
         if (paramBinFile.exists()) {
-            std::ifstream file(paramBinFile.localPath(), std::ios::binary);
+            MemFile file(paramBinFile.localPath());
 
             try {
-                file.exceptions(std::fstream::failbit | std::fstream::badbit | std::fstream::eofbit);
-                ASSERT(file.good());  // ensure the file stream is good before reading the header
-
-                std::string header(4, '\0');
-                file.read(header.data(), 4);
-                uint16_t version = read16(file);
+                std::string header{file.readString(4)};
+                uint16_t version = file.read16();
 
                 LOG_DEBUG_LIB(LibMetkit) << "Reading parameter binary file header: " << header
                                          << " version: " << version << std::endl;
 
                 if ("PARA" == header && version == LibMetkit::binaryFilesVersion()) {
                     // read defaultValues_
-                    uint32_t numDefaultValues = read32(file);
+                    uint32_t numDefaultValues = file.read32();
                     for (uint32_t i = 0; i < numDefaultValues; i++) {
-                        defaultValues_.insert(read32(file));
+                        defaultValues_.insert(file.read32());
                     }
                     // read defaultMapping_
-                    uint32_t numDefaultMappings = read32(file);
+                    uint32_t numDefaultMappings = file.read32();
                     for (uint32_t i = 0; i < numDefaultMappings; i++) {
-                        auto key = readString(file);
-                        defaultMapping_.emplace(std::move(key), readString(file));
+                        auto key = file.readString();
+                        defaultMapping_.emplace(std::move(key), file.readString());
                     }
                     // read rules
-                    uint32_t numRules = read32(file);
+                    uint32_t numRules = file.read32();
                     rules->reserve(numRules);
                     for (uint32_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
                         rules->emplace_back(file);
                     }
-                    size_t filesize = file.tellg();     // current position is supposed to be the end of the file
-                    file.seekg(0, std::ios_base::end);  // go to end of the file
-                    size_t endpos = file.tellg();
-
-                    if (!(filesize == endpos)) {
-                        std::ostringstream ss;
-                        ss << "Error reading parameter binary file: " << paramBinFile << " - File not fully read";
-                        throw eckit::SeriousBug(ss.str(), Here());
-                    }
-                    file.close();
-
                     return;
                 }
 
@@ -760,19 +638,17 @@ void Rule::init() {
     }
 }
 
+}  // namespace
+
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Type(name, settings), firstRule_(false) {
-
-    if (settings.contains("first_rule")) {
-        firstRule_ = settings["first_rule"];
-    }
-}
+TypeParam::TypeParam(const std::string& type, Keyword key, const eckit::Value& val) : Type(type, key, val) {}
+TypeParam::TypeParam(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {}
 
 void TypeParam::print(std::ostream& out) const {
-    out << "TypeParam[name=" << name_ << "]";
+    out << "TypeParam[name=" << name() << "]";
 }
 
 void TypeParam::pass2(MarsRequest& request) const {
@@ -780,7 +656,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     pthread_once(&once, initRules);
 
     const Rule* rule                = 0;
-    std::vector<std::string> values = request.values(name_, true);
+    std::vector<std::string> values = request.values(MarsLanguage::name(id_), true);
 
     if (values.size() == 1 && values[0] == "all") {
         return;
@@ -797,7 +673,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     if (!rule) {
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;
 
-        if (firstRule_) {
+        if (flags_[4]) {
             bool found = false;
             for (const auto& r : *rules) {
                 if (r.match(request, true)) {

@@ -14,6 +14,7 @@
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/TypesFactory.h"
 
 
@@ -25,10 +26,13 @@ void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicate
     std::string value = eckit::StringTools::lower(vv);
     if (!allowDuplicates && values_.find(value) != values_.end()) {
         std::ostringstream oss;
-        oss << "Redefined enum value '" << value << "' while parsing " << name_;
+        oss << "Redefined enum value '" << value << "' while parsing " << name();
         throw eckit::SeriousBug(oss.str());
     }
-    values_[value] = idx;
+    // skip descriptions: and strings too long or containing blanks
+    if (value.size() < 20 && value.find(" ") == std::string::npos) {
+        values_[value] = idx;
+    }
 }
 
 uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicates) const {
@@ -40,7 +44,7 @@ uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicat
             addValue(names[i], idx, allowDuplicates);
         }
     }
-    if (uppercase_) {
+    if (flags_[3]) {
         firstName = eckit::StringTools::upper(firstName);
     }
     groups_.emplace_back(firstName, std::vector<std::string>{});
@@ -50,7 +54,7 @@ uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicat
 std::vector<std::string> TypeEnum::parseEnumValue(const eckit::Value& val, bool allowDuplicates) const {
 
     if (val.isMap()) {
-        hasGroups_ = true;
+        flags_[5] = true;
 
         ASSERT(val.contains("name"));
         uint16_t idx = parseValueNames(val["name"], allowDuplicates);
@@ -72,6 +76,7 @@ std::vector<std::string> TypeEnum::parseEnumValue(const eckit::Value& val, bool 
         return groups_.at(idx).second;
     }
 
+    // Single value (with aliases) without group
     uint16_t idx   = parseValueNames(val, allowDuplicates);
     std::string nn = groups_.at(idx).first;
     groups_.at(idx).second.push_back(nn);
@@ -89,15 +94,11 @@ void TypeEnum::readValuesFile() const {
     }
 }
 
-TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+TypeEnum::TypeEnum(const std::string& type, Keyword key, const eckit::Value& val) : Type(type, key, val) {
 
-    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name() << " settings=" << val << std::endl;
 
-    eckit::Value values = settings["values"];
-    if (settings.contains("uppercase")) {
-        uppercase_ = settings["uppercase"];
-    }
-
+    eckit::Value values = val["values"];
     if (!values.isList()) {
         valuesFile_ = static_cast<std::string>(values);
     }
@@ -108,8 +109,51 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
     }
 }
 
+TypeEnum::TypeEnum(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+
+    uint16_t numGroups = file.read16();
+    for (uint16_t i = 0; i < numGroups; ++i) {
+        std::string k{file.readString()};
+        std::vector<std::string> groupMembers;
+        uint16_t numGroupMembers = file.read16();
+        for (uint16_t j = 0; j < numGroupMembers; ++j) {
+            groupMembers.emplace_back(file.readString());
+        }
+        values_.emplace(k, groups_.size());
+        groups_.emplace_back(k, groupMembers);
+    }
+    uint16_t numAliases = file.read16();
+    for (uint16_t i = 0; i < numAliases; ++i) {
+        std::string k{file.readString()};
+        uint16_t v = file.read16();
+        values_.emplace(k, v);
+    }
+    valuesFile_ = file.readString();
+}
+
+void TypeEnum::write(std::ofstream& file) const {
+
+    Type::write(file);
+    std::map<std::string, uint16_t> aliases = values_;
+    write16(file, groups_.size());
+    for (const auto& [k, vals] : groups_) {
+        aliases.erase(k);
+        writeString(file, k);
+        write16(file, vals.size());
+        for (const auto& v : vals) {
+            writeString(file, v);
+        }
+    }
+    write16(file, aliases.size());
+    for (const auto& [k, v] : aliases) {
+        writeString(file, k);
+        write16(file, v);
+    }
+    writeString(file, valuesFile_);
+}
+
 void TypeEnum::print(std::ostream& out) const {
-    out << "TypeEnum[name=" << name_ << "]";
+    out << "TypeEnum[name=" << name() << "]";
 }
 
 bool TypeEnum::expand(std::string& value, const MarsRequest& request) const {
@@ -129,7 +173,7 @@ std::map<std::string, uint16_t>::const_iterator TypeEnum::find(const std::string
 }
 
 std::optional<std::reference_wrapper<const std::vector<std::string>>> TypeEnum::group(const std::string& value) const {
-    ASSERT(hasGroups_);
+    ASSERT(flags_[5]);
 
     auto it = find(value);
     if (it != values_.end()) {

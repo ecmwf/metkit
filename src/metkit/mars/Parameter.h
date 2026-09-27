@@ -14,8 +14,7 @@
 
 /// @date Sep 96
 
-#ifndef metkit_Parameter_H
-#define metkit_Parameter_H
+#pragma once
 
 #include "eckit/types/Date.h"
 #include "eckit/types/Double.h"
@@ -23,65 +22,164 @@
 #include "eckit/utils/Translator.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/Dictionary.h"
+
 namespace eckit {
 class JSON;
 class MD5;
 }  // namespace eckit
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class Type;
 class MarsRequest;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class Parameter;
+class ParameterBase {
+public:
 
-class Parameter {
-public:  // methods
+    ParameterBase() = default;
+    ParameterBase(const Parameter& other);
+    ParameterBase(const std::vector<std::string>& values) : values_(values) {}
+    ParameterBase(std::vector<std::string>&& values) : values_(std::move(values)) {}
 
-    Parameter();
-    ~Parameter();
+    virtual ~ParameterBase() = default;
 
-    Parameter(const std::vector<std::string>& values, const Type* = 0);
-    Parameter(const Parameter&);
+    virtual std::unique_ptr<ParameterBase> clone() const = 0;
 
-    Parameter& operator=(const Parameter&);
-    bool operator<(const Parameter&) const;
+    virtual Keyword id() const              = 0;
+    virtual const std::string& name() const = 0;
 
     const std::vector<std::string>& values() const { return values_; }
     void values(const std::vector<std::string>& values);
 
-    bool filter(const std::vector<std::string>& filter);
-    bool filter(const std::string& keyword, const std::vector<std::string>& filter);
-    bool matches(const std::vector<std::string>& matches) const;
+    virtual bool multiple() const;
+
+    virtual bool filter(const std::vector<std::string>& filter);
+    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter);
+    virtual bool matches(const std::vector<std::string>& matches) const;
 
     void merge(const Parameter& p);
 
-    const Type& type() const { return *type_; }
-    const std::string& name() const;
+    virtual size_t count() const;
 
-    size_t count() const;
+    virtual const Type& type() const { NOTIMP; }
 
-private:  // methods
+    virtual void print(std::ostream&) const = 0;
 
-    void print(std::ostream&) const;
+protected:
+
+    std::vector<std::string> values_;
+};
+
+
+class Parameter {
+public:
+
+    Parameter() = default;
+    Parameter(const Parameter& other);
+    // Parameter(const std::vector<std::string>& values) : im(values) {}
+    Parameter(const std::string& name, const std::vector<std::string>& values);
+    Parameter(std::unique_ptr<ParameterBase>&& param);
+    // Parameter(std::vector<std::string>&& values) : values_(std::move(values)) {}
+
+    Parameter& operator=(Parameter&& other) = default;
+    bool operator<(const Parameter&) const;
+
+    Keyword id() const { return impl_->id(); }
+    const std::string& name() const { return impl_->name(); }
+
+    const std::vector<std::string>& values() const { return impl_->values(); }
+    void values(const std::vector<std::string>& values) { impl_->values(values); }
+
+    bool multiple() const { return impl_->multiple(); }
+
+    bool filter(const std::vector<std::string>& filter) { return impl_->filter(filter); }
+    bool filter(Keyword keyword, const std::vector<std::string>& filter) { return impl_->filter(keyword, filter); }
+    bool filter(const std::string& name, const std::vector<std::string>& filter);
+    bool matches(const std::vector<std::string>& matches) const { return impl_->matches(matches); }
+
+    void merge(const Parameter& p) { impl_->merge(p); }
+
+    size_t count() const { return impl_->count(); }
+
+    const Type& type() const { return impl_->type(); }
+
+protected:
+
+    void print(std::ostream& s) const { impl_->print(s); }
 
     friend std::ostream& operator<<(std::ostream& s, const Parameter& p) {
         p.print(s);
         return s;
     }
 
-private:  // members
+private:
 
-    const Type* type_;
-    std::vector<std::string> values_;
+    std::unique_ptr<ParameterBase> impl_;
 };
 
+class StringParameter : public ParameterBase {
+
+public:
+
+    StringParameter(const Parameter& other) : ParameterBase(other.values()), name_(other.name()) {}
+    StringParameter(const StringParameter&) = default;
+    StringParameter& operator=(const StringParameter&);
+
+    StringParameter(const std::string& name) : name_(name) {}
+    StringParameter(const std::string& name, const std::vector<std::string>& values) :
+        ParameterBase(values), name_(name) {}
+    StringParameter(const std::string& name, std::vector<std::string>&& values) :
+        ParameterBase(std::move(values)), name_(name) {}
+
+    std::unique_ptr<ParameterBase> clone() const override { return std::make_unique<StringParameter>(*this); }
+
+    Keyword id() const override;
+    const std::string& name() const override { return name_; }
+
+    void print(std::ostream&) const override;
+
+private:  // members
+
+    std::string name_;
+};
+
+class TypeParameter : public ParameterBase {
+public:  // methods
+
+    TypeParameter();
+    TypeParameter(const std::vector<std::string>& values, std::shared_ptr<const Type> = 0);
+    TypeParameter(const TypeParameter&);
+    ~TypeParameter() override;
+
+    TypeParameter& operator=(const TypeParameter&);
+    bool operator<(const TypeParameter&) const;
+
+    std::unique_ptr<ParameterBase> clone() const override { return std::make_unique<TypeParameter>(*this); }
+
+    Keyword id() const override;
+    const std::string& name() const override;
+
+    bool multiple() const override;
+
+    bool filter(const std::vector<std::string>& filter) override;
+    bool filter(Keyword keyword, const std::vector<std::string>& filter) override;
+    bool matches(const std::vector<std::string>& matches) const override;
+
+    size_t count() const override;
+
+    const Type& type() const override { return *type_; }
+
+    void print(std::ostream&) const override;
+
+private:  // members
+
+    std::shared_ptr<const Type> type_;
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

@@ -21,6 +21,7 @@ if( HAVE_METKIT_CONFIG )
     # disable plugin auto-loading, since sibling projects' libraries may not be built yet at this point
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/share/metkit/params.bin
                     COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/share/metkit/params.bin
+                    COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/share/metkit/language.bin
                     COMMAND ${CMAKE_COMMAND} -E env METKIT_HOME=${CMAKE_BINARY_DIR} METKIT_FORCE_BINFILE_CREATION=1 AUTO_LOAD_PLUGINS=0 $<TARGET_FILE:create-binary-files>
                     DEPENDS create-binary-files ${installed_files}
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -28,7 +29,7 @@ if( HAVE_METKIT_CONFIG )
 
     add_custom_target( metkit_params_bin ALL DEPENDS ${CMAKE_BINARY_DIR}/share/metkit/params.bin )
 
-    install( FILES ${CMAKE_BINARY_DIR}/share/metkit/params.bin
+    install( FILES ${CMAKE_BINARY_DIR}/share/metkit/params.bin ${CMAKE_BINARY_DIR}/share/metkit/language.bin
             DESTINATION "share/metkit"
             PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ )
 endif()

@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   test_integer_day.cc
+/// @file   test_integer_range.cc
 /// @author Metin Cakircali
 /// @date   March 2025
 
@@ -18,6 +18,7 @@
 #include "eckit/testing/Test.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeInteger.h"
 
@@ -32,8 +33,8 @@ CASE("Test TypeInteger expansion range=[1,100]") {
 
     ValueMap settings;
     settings["range"] = ValueList{1, 100};
-    TypeInteger type("day", settings);
-    Type& tday = type;
+    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    Type& tday        = *type;
 
     // in range
 
@@ -61,8 +62,8 @@ CASE("Test TypeInteger expansion range=[1,1]") {
 
     ValueMap settings;
     settings["range"] = ValueList{1, 1};
-    TypeInteger type("day", settings);
-    Type& tday = type;
+    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    Type& tday        = *type;
 
     {
         std::string value = "1";
@@ -82,8 +83,8 @@ CASE("Test TypeInteger day expansion range=[-1,1]") {
 
     ValueMap settings;
     settings["range"] = ValueList{-1, 1};
-    TypeInteger type("day", settings);
-    Type& tday = type;
+    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    Type& tday        = *type;
 
     {
         std::string value = "-2";

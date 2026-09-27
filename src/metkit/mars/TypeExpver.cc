@@ -16,12 +16,12 @@
 #include "metkit/mars/TypeExpver.h"
 #include "metkit/mars/TypesFactory.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
+TypeExpver::TypeExpver(const std::string& type, Keyword key, const eckit::Value& value) : Type(type, key, value) {}
+TypeExpver::TypeExpver(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {}
 
 bool TypeExpver::expand(std::string& value, const MarsRequest&) const {
 
@@ -39,11 +39,10 @@ bool TypeExpver::expand(std::string& value, const MarsRequest&) const {
 }
 
 void TypeExpver::print(std::ostream& out) const {
-    out << "TypeExpver[name=" << name_ << "]";
+    out << "TypeExpver[name=" << name() << "]";
 }
 
 static TypeBuilder<TypeExpver> type("expver");
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

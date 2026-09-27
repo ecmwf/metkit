@@ -22,18 +22,21 @@ namespace metkit::mars {
 
 class TypeToByListQuantile : public Type {
 
-public:  // methods
+public:
 
-    TypeToByListQuantile(const std::string& name, const eckit::Value& settings);
+    TypeToByListQuantile(const std::string& type, Keyword key, const eckit::Value& val);
+    TypeToByListQuantile(const std::string& type, Keyword key, MemFile& file);
 
     ~TypeToByListQuantile() noexcept override = default;
+
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
     bool expand(std::string& value, const MarsRequest& request) const override;
 
-    std::set<long> denominators_;
+    std::set<uint32_t> denominators_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

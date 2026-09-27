@@ -25,15 +25,17 @@ namespace metkit::mars {
 
 class TypeEnum : public Type {
 
-public:  // methods
+public:
 
-    TypeEnum(const std::string& name, const eckit::Value& settings);
-
+    TypeEnum(const std::string& type, Keyword key, const eckit::Value& val);
+    TypeEnum(const std::string& type, Keyword key, MemFile& file);
     ~TypeEnum() noexcept override = default;
+
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
-    bool hasGroups() const override { return hasGroups_; }
+    bool hasGroups() const override { return flags_[5]; }
     std::optional<std::reference_wrapper<const std::vector<std::string>>> group(
         const std::string& value) const override;
 
@@ -53,8 +55,6 @@ private:  // members
 
     std::string valuesFile_;
 
-    bool uppercase_         = false;
-    mutable bool hasGroups_ = false;
     mutable std::vector<std::pair<std::string, std::vector<std::string>>> groups_;
     mutable std::map<std::string, uint16_t> values_;  // map of acceptable values (included aliases)
 

@@ -26,10 +26,112 @@
 
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/ContextRule.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
+
+bool ContextRule::operator<(const ContextRule& other) const {
+    std::ostringstream out;
+    std::ostringstream outOther;
+    out << *this;
+    outOther << other;
+    return out.str() < outOther.str();
+}
+bool ContextRule::operator==(const ContextRule& other) const {
+    std::ostringstream out;
+    std::ostringstream outOther;
+    out << *this;
+    outOther << other;
+    return out.str() == outOther.str();
+}
+
+std::unique_ptr<ContextRule> ContextRule::parse(MemFile& file) {
+    char type   = static_cast<char>(file.read8());
+    Keyword key = file.read16();
+    switch (type) {
+        case 'I':
+            return std::make_unique<Include>(key, file.readStringSet());
+        case 'E':
+            return std::make_unique<Exclude>(key, file.readStringSet());
+        case 'U':
+            return std::make_unique<Undef>(key);
+        case 'D':
+            return std::make_unique<Def>(key);
+        default:
+            // Handle error or unknown type
+            throw eckit::Exception("Unknown ContextRule type");
+    }
+
+    // Implementation of parsing logic goes here
+}
+
+
+bool Include::matches(const MarsRequest& req) const {
+    static const Keyword verbKey = MarsLanguage::keyword("_verb");
+    if (key_ == verbKey) {
+        return (vals_.find(req.verb()) != vals_.end());
+    }
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (vals_.find(v) != vals_.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Include::write(std::ofstream& file) const {
+    write8(file, static_cast<uint8_t>('I'));
+    write16(file, key_);
+    write8(file, vals_.size());
+    for (const auto& v : vals_) {
+        writeString(file, v);
+    }
+}
+
+bool Exclude::matches(const MarsRequest& req) const {
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (vals_.find(v) != vals_.end()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Exclude::write(std::ofstream& file) const {
+    write8(file, static_cast<uint8_t>('E'));
+    write16(file, key_);
+    write8(file, vals_.size());
+    for (const auto& v : vals_) {
+        writeString(file, v);
+    }
+}
+
+bool Undef::matches(const MarsRequest& req) const {
+    return !req.has(key_);
+}
+
+void Undef::write(std::ofstream& file) const {
+    write8(file, static_cast<uint8_t>('U'));
+    write16(file, key_);
+}
+
+bool Def::matches(const MarsRequest& req) const {
+    return req.has(key_);
+}
+
+void Def::write(std::ofstream& file) const {
+    write8(file, static_cast<uint8_t>('D'));
+    write16(file, key_);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +139,7 @@ void Context::add(std::unique_ptr<ContextRule> rule) {
     rules_.push_back(std::move(rule));
 }
 
-bool Context::matches(MarsRequest req) const {
+bool Context::matches(const MarsRequest& req) const {
 
     for (const auto& r : rules_) {
         if (!r->matches(req)) {
@@ -65,14 +167,20 @@ void Context::print(std::ostream& out) const {
 //----------------------------------------------------------------------------------------------------------------------
 // HELPERS
 
-std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
+std::unique_ptr<ContextRule> parseRule(std::string name, eckit::Value r) {
 
     std::set<std::string> vals;
 
+    // context rules may reference a keyword before its own YAML entry has been parsed
+    // (parsing order across sections/verbs is not guaranteed), so auto-intern rather
+    // than require it to already be registered.
+    Keyword key = MarsLanguage::addKeyword(name);
+
     if (r.isList()) {
         if (r.size() == 0) {
-            throw eckit::UserError("Empty list for context rule '" + key + "'");
+            throw eckit::UserError("Empty list for context rule '" + name + "'");
         }
+
         bool exclude = (r[0] == "!");
         for (size_t k = exclude ? 1 : 0; k < r.size(); k++) {
             vals.insert(r[k]);
@@ -94,49 +202,85 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
     return nullptr;
 }
 
-std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
+Context::Context(size_t id, const eckit::Value& c) : id_(id) {
+    if (c.isMap()) {
+        eckit::Value keys = c.keys();
 
-    std::unique_ptr<Context> context = std::make_unique<Context>();
-
-    eckit::Value keys = c.keys();
-
-    for (size_t j = 0; j < keys.size(); j++) {
-        std::string key = keys[j];
-        context->add(parseRule(key, c[key]));
+        for (size_t j = 0; j < keys.size(); j++) {
+            std::string key = keys[j];
+            add(parseRule(key, c[key]));
+        }
     }
-    return context;
 }
 
-size_t Context::maxAxisIndex() const {
-    size_t maxIndex = 0;
+Context::Context(size_t id, MemFile& file) : id_(id) {
+    uint8_t numRules = file.read8();
+    for (uint8_t i = 0; i < numRules; i++) {
+        // read each rule from file
+        rules_.push_back(ContextRule::parse(file));
+    }
+}
+
+// Context::Context(Context&& other) : id_(other.id_), rules_(std::move(other.rules_)) {}
+
+
+bool Context::operator<(const Context& other) const {
+    if (rules_.size() != other.rules_.size()) {
+        return rules_.size() < other.rules_.size();
+    }
+    for (size_t i = 0; i < rules_.size(); i++) {
+        if (*rules_[i] < *other.rules_[i]) {
+            return true;
+        }
+        if (*other.rules_[i] < *rules_[i]) {
+            return false;
+        }
+    }
+    return false;
+}
+
+bool Context::operator==(const Context& other) const {
+    if (rules_.size() != other.rules_.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < rules_.size(); i++) {
+        if (*rules_[i] < *other.rules_[i]) {
+            return false;
+        }
+        if (*other.rules_[i] < *rules_[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+Keyword Context::maxAxisIndex() const {
+    Keyword maxIndex = 0;
     for (const auto& r : rules_) {
-        size_t idx = 0;
-        if (!r->key().empty() && r->key()[0] != '_') {
-            idx = metkit::hypercube::AxisOrder::instance().index(r->key());
-            if (idx > maxIndex) {
-                maxIndex = idx;
-            }
+        if (r->key() < MarsLanguage::maxDataKeyword()) {
+            maxIndex = std::max(maxIndex, r->key());
         }
     }
     return maxIndex;
 }
 
+void Context::write(std::ofstream& file) const {
+    write8(file, rules_.size());
+    for (const auto& rule : rules_) {
+        rule->write(file);
+    }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
-Type::Type(const std::string& name, const eckit::Value& settings) :
-    name_(name), flatten_(true), multiple_(false), duplicates_(true) {
+Type::Type(const std::string& name, Keyword keyword, const eckit::Value& settings) : typeName_(name), id_(keyword) {
 
-    if (settings.contains("multiple")) {
-        multiple_ = settings["multiple"];
-    }
-
-    if (settings.contains("flatten")) {
-        flatten_ = settings["flatten"];
-    }
-
-    if (settings.contains("duplicates")) {
-        duplicates_ = settings["duplicates"];
-    }
+    flags_[0] = settings.contains("flatten") ? bool(settings["flatten"]) : true;
+    flags_[1] = settings.contains("multiple") ? bool(settings["multiple"]) : false;
+    flags_[2] = settings.contains("duplicates") ? bool(settings["duplicates"]) : true;
+    flags_[3] = settings.contains("uppercase") ? bool(settings["uppercase"]) : false;
+    flags_[4] = settings.contains("first_rule") ? bool(settings["first_rule"]) : false;
+    flags_[5] = false;  // ??????
 
     category_ = Category::None;
     if (settings.contains("category")) {
@@ -155,7 +299,7 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
         }
         else {
             std::stringstream ss;
-            ss << "Unknown category: " << category << " in Type " << name_;
+            ss << "Unknown category: " << category << " in Type " << MarsLanguage::name(id_);
             throw eckit::SeriousBug(ss.str());
         }
     }
@@ -180,24 +324,99 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
                 }
 
                 if (d.contains("context")) {
-                    defaults_.emplace(Context::parseContext(d["context"]), vals);
+                    const Context& ctx = MarsLanguage::addContext(d["context"]);
+                    defaults_.emplace_back(ctx, vals);
                 }
                 else {
-                    defaults_.emplace(std::make_unique<Context>(), vals);
+                    defaults_.emplace_back(MarsLanguage::context(0), vals);
                 }
             }
         }
     }
 }
 
-void Type::defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
-    defaults_.emplace(std::move(context), values);
+Type::Type(const std::string& type, Keyword key, MemFile& file) : typeName_(type), id_(key) {
+
+    // typeName_ and id_ have already been consumed by MarsLanguage (to pick the right builder): they are passed in
+
+    flags_    = file.read8();
+    category_ = static_cast<Category>(file.read8());
+
+    // read defaults_
+    uint8_t num = file.read8();
+    for (uint8_t i = 0; i < num; i++) {
+        Keyword contextId = file.read16();
+        defaults_.emplace_back(MarsLanguage::context(contextId), file.readStringVector());
+    }
+
+    // read sets_
+    num = file.read8();
+    for (uint8_t i = 0; i < num; i++) {
+        Keyword contextId = file.read16();
+        sets_.emplace_back(MarsLanguage::context(contextId), file.readStringVector());
+    }
+
+    // read unsets_
+    num = file.read8();
+    for (uint8_t i = 0; i < num; i++) {
+        Keyword contextId = file.read16();
+        unsets_.emplace_back(MarsLanguage::context(contextId));
+    }
 }
-void Type::set(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
-    sets_.emplace(std::move(context), values);
+
+void Type::write(std::ofstream& file) const {
+    writeCommon(file);
+    writeToByList(file);
 }
-void Type::unset(std::shared_ptr<Context> context) {
-    unsets_.insert(std::move(context));
+
+void Type::writeToByList(std::ofstream& file) const {
+    if (toByList_) {
+        toByList_->write(file);
+    }
+}
+
+void Type::writeCommon(std::ofstream& file) const {
+    writeString(file, typeName_);
+    write16(file, id_);
+    write8(file, flags_.to_ulong());
+    write8(file, static_cast<uint8_t>(category_));
+
+    // write defaults_
+    write8(file, defaults_.size());
+    for (const auto& [ctx, vals] : defaults_) {
+        write16(file, ctx.get().id());
+        write8(file, vals.size());
+        for (const auto& val : vals) {
+            writeString(file, val);
+        }
+    }
+
+    // write sets_
+    write8(file, sets_.size());
+    for (const auto& [ctx, vals] : sets_) {
+        write16(file, ctx.get().id());
+        write8(file, vals.size());
+        for (const auto& val : vals) {
+            writeString(file, val);
+        }
+    }
+
+    // write unsets_
+    write8(file, unsets_.size());
+    for (const auto& ctx : unsets_) {
+        write16(file, ctx.get().id());
+    }
+}
+
+
+void Type::defaults(const Context& context, const std::vector<std::string>& values) {
+    defaults_.emplace_back(std::cref(context), values);
+}
+void Type::set(const Context& context, const std::vector<std::string>& values) {
+    sets_.emplace_back(std::cref(context), values);
+}
+void Type::unset(const Context& context) {
+    unsets_.emplace_back(std::cref(context));
 }
 void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& values) const {
     // Special case: inheritance from another key.
@@ -214,26 +433,16 @@ void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& va
 }
 
 bool Type::flatten() const {
-    return flatten_;
+    return flags_[0];
 }
 
 bool Type::multiple() const {
-    return multiple_;
+    return flags_[1];
 }
 
 size_t Type::count(const std::vector<std::string>& values) const {
-    return flatten_ ? values.size() : 1;
+    return flatten() ? values.size() : 1;
 }
-
-class NotInSet {
-    std::set<std::string> set_;
-
-public:
-
-    NotInSet(const std::vector<std::string>& f) : set_(f.begin(), f.end()) {}
-
-    bool operator()(const std::string& s) const { return set_.find(s) == set_.end(); }
-};
 
 bool Type::filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const {
     NotInSet not_in_set(filter);
@@ -243,9 +452,9 @@ bool Type::filter(const std::vector<std::string>& filter, std::vector<std::strin
     return !values.empty();
 }
 
-bool Type::filter(const std::string& keyword, const std::vector<std::string>& f,
-                  std::vector<std::string>& values) const {
-    if (keyword == name_) {
+bool Type::filter(Keyword keyword, const std::vector<std::string>& f, std::vector<std::string>& values) const {
+
+    if (keyword == id()) {
         return filter(f, values);
     }
     auto it = filters_.find(keyword);
@@ -316,7 +525,7 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
             }
         }
         else {
-            if (!duplicates_ && seen.find(value) != seen.end()) {
+            if (!flags_[2] && seen.find(value) != seen.end()) {
                 std::ostringstream oss;
                 oss << *this << ": duplicated value '" << value << "'";
                 throw eckit::UserError(oss.str());
@@ -327,22 +536,22 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
 
     std::swap(newvals, values);
 
-    if (!multiple_ && values.size() > 1) {
-        throw eckit::UserError("Only one value possible for '" + name_ + "'");
+    if (!flags_[1] && values.size() > 1) {
+        throw eckit::UserError("Only one value possible for '" + name() + "'");
     }
 }
 
 void Type::setDefaults(MarsRequest& request) const {
     bool unset = false;
-    for (const auto& unsetContext : unsets_) {
-        if (unsetContext->matches(request)) {
+    for (const auto& ctx : unsets_) {
+        if (ctx.get().matches(request)) {
             unset = true;
             break;
         }
     }
     if (!unset) {
-        for (const auto& [defaultContext, values] : defaults_) {
-            if (defaultContext->matches(request)) {
+        for (const auto& [ctx, values] : defaults_) {
+            if (ctx.get().matches(request)) {
                 patchRequest(request, values);
                 break;
             }
@@ -351,15 +560,19 @@ void Type::setDefaults(MarsRequest& request) const {
 }
 
 const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) const {
-    return request.values(name_);
+    return request.values(name());
 }
 
 void Type::clearDefaults() {
     defaults_.clear();
 }
 
+Keyword Type::id() const {
+    return id_;
+}
+
 const std::string& Type::name() const {
-    return name_;
+    return MarsLanguage::name(id_);
 }
 
 const Category& Type::category() const {
@@ -370,30 +583,31 @@ void Type::pass2(MarsRequest& request) const {}
 
 void Type::finalise(MarsRequest& request, bool strict) const {
 
-    const std::vector<std::string>& values = request.values(name_, true);
+    auto nn                                = MarsLanguage::name(id_);
+    const std::vector<std::string>& values = request.values(nn, true);
     if (values.size() == 1 && values[0] == "off") {
-        request.unsetValues(name_);
+        request.unsetValues(nn);
     }
     else {
         if (values.size() > 0) {
-            for (const auto& context : unsets_) {
-                if (context->matches(request)) {
-                    if (strict && request.has(name_)) {
+            for (const auto& ctx : unsets_) {
+                if (ctx.get().matches(request)) {
+                    if (strict && request.has(nn)) {
                         std::ostringstream oss;
-                        oss << *this << ": Key [" << name_ << "] not acceptable with context: " << *context;
+                        oss << *this << ": Key [" << name() << "] not acceptable with context: " << ctx.get();
                         throw eckit::UserError(oss.str());
                     }
-                    request.unsetValues(name_);
+                    request.unsetValues(nn);
                 }
             }
         }
 
         if (request.verb() != "list") {
-            for (const auto& [context, values] : sets_) {
-                if (context->matches(request)) {
-                    if (strict && !request.has(name_)) {
+            for (const auto& [ctx, values] : sets_) {
+                if (ctx.get().matches(request)) {
+                    if (strict && !request.has(nn)) {
                         std::ostringstream oss;
-                        oss << *this << ": missing Key [" << name_ << "] - required with context: " << *context;
+                        oss << *this << ": missing Key [" << name() << "] - required with context: " << ctx.get();
                         throw eckit::UserError(oss.str());
                     }
                     patchRequest(request, values);
@@ -404,10 +618,10 @@ void Type::finalise(MarsRequest& request, bool strict) const {
 }
 
 void Type::check(const std::vector<std::string>& values) const {
-    if (flatten_) {
+    if (flatten()) {
         std::set<std::string> s(values.begin(), values.end());
         if (values.size() != s.size()) {
-            std::cerr << "Duplicate values in " << name_ << " " << values;
+            std::cerr << "Duplicate values in " << name() << " " << values;
             std::set<std::string> seen;
             for (const std::string& val : values) {
                 if (seen.find(val) != seen.end()) {

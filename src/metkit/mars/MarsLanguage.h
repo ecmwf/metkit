@@ -18,10 +18,14 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
@@ -47,21 +51,32 @@ public:
     ExpansionContext(const MarsRequest& request);
     ExpansionContext& operator=(ExpansionContext&& other);
 
-    bool has(const std::string& key) const;
-    const std::vector<std::string>& values(const std::string& key) const;
+    bool has(Keyword key) const;
+
+    const std::vector<std::string>& values(Keyword key) const;
+
+    void unset(Keyword key);
     void unset(const std::string& key);
 
 private:
 
-    std::map<std::string, std::vector<std::string>> values_;
+    std::unordered_map<Keyword, std::vector<std::string>> values_;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+struct ContextPtrComparator {
+    bool operator()(const Context* a, const Context* b) const { return std::less<const Context>()(*a, *b); }
 };
 
 class MarsLanguage {
 
 public:  // methods
 
+    MarsLanguage(Verb verb);
     MarsLanguage(const std::string& verb);
-    ~MarsLanguage();
+    MarsLanguage(Verb verb, MemFile& file);
+    ~MarsLanguage() = default;
 
     MarsLanguage(const MarsLanguage&)            = delete;
     MarsLanguage(MarsLanguage&&)                 = delete;
@@ -70,11 +85,15 @@ public:  // methods
 
     MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
-    const std::string& verb() const;
-
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
+    const Type* type(Keyword name) const;
     const Type* type(const std::string& name) const;
+
+    bool isData(Keyword keyword) const;
+    bool isDerived(Keyword keyword) const;
+    bool isPostProc(Keyword keyword) const;
+    bool isSink(Keyword keyword) const;
 
     bool isData(const std::string& keyword) const;
     bool isDerived(const std::string& keyword) const;
@@ -83,7 +102,9 @@ public:  // methods
 
 public:  // class methods
 
-    static std::string expandVerb(const std::string& verb);
+    static const std::string& expandVerb(const std::string& verb);
+
+    static const MarsLanguage& get(Verb verb);
     static const MarsLanguage& get(const std::string& verb);
 
     static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
@@ -91,22 +112,89 @@ public:  // class methods
 
     static eckit::Value jsonFile(const std::string& name);
 
+    static Verb verb(const std::string& name);
+    static const std::string& name(Verb verb);
+
+    static Keyword addKeyword(const std::string& name);
+    static Keyword hasKeyword(const std::string& name);
+    static Keyword keyword(const std::string& name);
+    static Keyword maxDataKeyword() { return maxDataKeyword_; }
+    static const std::string& name(Keyword keyword);
+
+    static void init();
+
+    static void writeDictionaries(std::ofstream& file) {
+        verbs_->serialize(file);
+        keywords_->serialize(file);
+        write16(file, maxDataKeyword_);
+    }
+    static void readDictionaries(MemFile& file) {
+        verbs_          = std::make_unique<Dictionary<Verb>>(file);
+        keywords_       = std::make_unique<Dictionary<Keyword>>(file);
+        maxDataKeyword_ = file.read16();
+    }
+    static void writeContexts(std::ofstream& file) {
+        write16(file, contexts_.size());
+        for (const auto& context : contexts_) {
+            context->write(file);
+        }
+    }
+    static void readContexts(MemFile& file) {
+        size_t size = file.read16();
+        for (size_t i = 0; i < size; ++i) {
+            auto context = std::make_unique<Context>(i, file);
+            contextsSet_.insert(context.get());
+            contexts_.push_back(std::move(context));
+        }
+    }
+    void write(std::ofstream& file) const {
+        // write one language
+
+        // write the verb identifier at the beginning of the language block
+        write8(file, verb_);
+        // write the number of types
+        write16(file, types_.size());
+        for (const auto& [keyword, type] : types_) {
+            // delegate writing of the type to the type itself
+            type->write(file);
+        }
+
+        // let's ignore data structures supporting bestMatch
+    }
 
 private:  // methods
 
-    Category category(const std::string& keyword) const;
+    friend class Type;
+    friend class TypeMixed;
+
+    void parse(Verb verb);
+
+    Category category(Keyword keyword) const;
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback) const;
-    void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);
+    void parseModifier(ModifierType typ, const Context& ctx, size_t maxIndex, const eckit::Value& mod);
+    static const Context& context(size_t ctxId);
+    static const Context& addContext(eckit::Value& val);
 
 private:  // members
 
-    std::string verb_;
-    std::map<std::string, Type*> types_;
-    std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
+    static std::unique_ptr<Dictionary<Verb>> verbs_;
+    static std::unique_ptr<Dictionary<Keyword>> keywords_;
+    static Keyword maxDataKeyword_;
+
+    static std::shared_mutex contextsMutex_;
+    static std::set<Context*, ContextPtrComparator> contextsSet_;
+    static std::vector<std::unique_ptr<Context>> contexts_;
+
+    static std::map<Keyword, size_t> langOffsets_;
+    static MemFile langFile_;
+
+    Verb verb_;
+    std::map<Keyword, std::shared_ptr<Type>> types_;
+    std::vector<std::pair<Keyword, std::shared_ptr<Type>>> typesByAxisOrder_;
 
     // for bestMatch - to be removed as we turn off fuzzy matching
-    std::vector<std::string> keywords_;
+    std::vector<std::string> keywordList_;
     std::map<std::string, std::string> aliases_;
 };
 

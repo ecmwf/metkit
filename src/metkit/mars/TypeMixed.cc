@@ -10,6 +10,7 @@
 
 
 #include "metkit/mars/TypeMixed.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -19,56 +20,69 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeMixed::TypeMixed(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
-    eckit::Value types = settings["type"];
+TypeMixed::TypeMixed(const std::string& typeName, Keyword key, const eckit::Value& val) : Type(typeName, key, val) {
+    eckit::Value types = val["type"];
 
     eckit::Value cfg;
 
     for (size_t i = 0; i < types.size(); ++i) {
         if (types[i].isString()) {
-            cfg         = settings;
+            cfg         = val;
             cfg["type"] = types[i];
 
-            Type* k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
-            k->attach();
-            types_.emplace_back(nullptr, k);
+            auto k = TypesFactory::build(MarsLanguage::addKeyword(name() + "." + std::string(types[i])), cfg);
+            types_.emplace_back(MarsLanguage::context(0), k);
         }
         else {  // it is a subtype, potentially with a Context
             cfg               = types[i];
             eckit::Value type = cfg["type"];
 
-            std::unique_ptr<Context> c;
-            if (cfg.contains("context")) {
-                c = Context::parseContext(cfg["context"]);
-            }
+            const Context& c =
+                cfg.contains("context") ? MarsLanguage::addContext(cfg["context"]) : MarsLanguage::context(0);
 
-            Type* k = TypesFactory::build(name + "." + std::to_string(i) + "." + std::string(type), cfg);
-            k->attach();
-            types_.emplace_back(std::move(c), k);
+            auto k = TypesFactory::build(
+                MarsLanguage::addKeyword(name() + "." + std::to_string(i) + "." + std::string(type)), cfg);
+            types_.emplace_back(c, k);
         }
     }
 }
 
-TypeMixed::~TypeMixed() noexcept {
-    for (auto it = types_.begin(); it != types_.end(); it++) {
-        (*it).second->detach();
+
+TypeMixed::TypeMixed(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+    uint8_t numSubtypes = file.read8();
+    for (uint8_t i = 0; i < numSubtypes; ++i) {
+        uint8_t ctxId = file.read8();
+        std::string nestedTypeName{file.readString()};
+        Keyword nestedTypeKey = file.read16();
+        auto type             = TypesFactory::build(nestedTypeName, nestedTypeKey, file);
+        types_.emplace_back(MarsLanguage::context(ctxId), type);
+    }
+}
+
+
+void TypeMixed::write(std::ofstream& file) const {
+    Type::write(file);
+    write8(file, types_.size());
+    for (const auto& [ctx, type] : types_) {
+        write8(file, ctx.get().id());
+        type->write(file);
     }
 }
 
 void TypeMixed::print(std::ostream& out) const {
-    out << "TypeMixed[name=" << name_;
-    for (auto it = types_.begin(); it != types_.end(); it++) {
-        out << "," << *((*it).second);
+    out << "TypeMixed[name=" << name();
+    for (const auto& [ctx, type] : types_) {
+        out << "," << *type;
     }
     out << "]";
 }
 
 bool TypeMixed::expand(std::string& value, const MarsRequest& request) const {
 
-    for (auto it = types_.begin(); it != types_.end(); it++) {
-        if ((*it).first == nullptr || (*it).first->matches(request)) {
+    for (const auto& [ctx, type] : types_) {
+        if (ctx.get().matches(request)) {
             std::string tmp = value;
-            if ((*it).second->expand(tmp, request)) {
+            if (type->expand(tmp, request)) {
                 value = tmp;
                 return true;
             }
