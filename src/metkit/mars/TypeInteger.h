@@ -28,6 +28,7 @@ namespace metkit::mars {
 class TypeInteger : public Type {
 
 public:  // methods
+
     TypeInteger(Keyword keyword, const eckit::Value& settings);
 
     ~TypeInteger() noexcept override = default;

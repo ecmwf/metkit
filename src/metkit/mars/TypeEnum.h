@@ -26,6 +26,7 @@ namespace metkit::mars {
 class TypeEnum : public Type {
 
 public:
+
     TypeEnum(Keyword keyword, const eckit::Value& settings);
 
     ~TypeEnum() noexcept override = default;

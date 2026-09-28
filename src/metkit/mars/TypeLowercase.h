@@ -23,6 +23,7 @@ namespace metkit::mars {
 class TypeLowercase : public Type {
 
 public:  // methods
+
     TypeLowercase(Keyword keyword, const eckit::Value& settings);
 
     ~TypeLowercase() noexcept override = default;

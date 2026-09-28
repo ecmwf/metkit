@@ -49,10 +49,6 @@ bool ParameterBase::multiple() const {
 }
 
 
-
-
-
-
 bool ParameterBase::filter(const std::vector<std::string>& filter) {
     NotInSet not_in_set(filter);
 
@@ -133,7 +129,7 @@ bool Parameter::filter(const std::string& name, const std::vector<std::string>& 
 
 
 StringParameter& StringParameter::operator=(const StringParameter& other) {
-    name_ = other.name_;
+    name_   = other.name_;
     values_ = other.values_;
     return *this;
 }
@@ -167,7 +163,7 @@ TypeParameter::TypeParameter(const std::vector<std::string>& values, std::shared
 // }
 
 
-TypeParameter::TypeParameter(const TypeParameter& other) :  ParameterBase(other.values_), type_(other.type_) {}
+TypeParameter::TypeParameter(const TypeParameter& other) : ParameterBase(other.values_), type_(other.type_) {}
 
 TypeParameter& TypeParameter::operator=(const TypeParameter& other) {
     type_   = other.type_;

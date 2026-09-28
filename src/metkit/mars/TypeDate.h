@@ -25,6 +25,7 @@ namespace metkit::mars {
 class TypeDate : public Type {
 
 public:  // methods
+
     TypeDate(Keyword keyword, const eckit::Value& settings);
 
     ~TypeDate() noexcept override = default;

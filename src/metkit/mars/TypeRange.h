@@ -25,6 +25,7 @@ class StepRange;
 class TypeRange : public Type {
 
 public:  // methods
+
     TypeRange(Keyword keyword, const eckit::Value& settings);
 
     ~TypeRange() noexcept override = default;

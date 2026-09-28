@@ -26,6 +26,7 @@ namespace metkit::mars {
 class TypeTime : public Type {
 
 public:  // methods
+
     TypeTime(Keyword keyword, const eckit::Value& settings);
 
     ~TypeTime() noexcept override = default;

@@ -73,7 +73,7 @@ public:
     static void list(std::ostream& s);
 
 protected:
-    
+
     TypesFactory(const std::string&);
 
     ~TypesFactory();
@@ -86,7 +86,9 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    std::shared_ptr<Type> make(Keyword keyword, const eckit::Value& settings) const override { return std::make_shared<T>(keyword, settings); }
+    std::shared_ptr<Type> make(Keyword keyword, const eckit::Value& settings) const override {
+        return std::make_shared<T>(keyword, settings);
+    }
 
 public:
 

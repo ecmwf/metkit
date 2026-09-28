@@ -70,39 +70,39 @@ class MarsValidatedRequest;
 //     std::unordered_map<Keyword, std::vector<std::string>> values_;
 // };
 
-    
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsBaseRequest {
 public:  // methods
 
-    MarsBaseRequest() = default;
+    MarsBaseRequest()          = default;
     virtual ~MarsBaseRequest() = default;
 
     virtual std::unique_ptr<MarsBaseRequest> clone() const = 0;
 
-    virtual Verb verbId() const = 0;
+    virtual Verb verbId() const             = 0;
     virtual const std::string& verb() const = 0;
 
-    virtual void verb(Verb id) = 0;
+    virtual void verb(Verb id)            = 0;
     virtual void verb(const std::string&) = 0;
 
-    virtual size_t countValues(Keyword) const = 0;
+    virtual size_t countValues(Keyword) const            = 0;
     virtual size_t countValues(const std::string&) const = 0;
 
-    virtual bool has(Keyword) const = 0;
+    virtual bool has(Keyword) const            = 0;
     virtual bool has(const std::string&) const = 0;
 
-    virtual const std::vector<std::string>& values(Keyword, bool emptyOk = false) const = 0;
+    virtual const std::vector<std::string>& values(Keyword, bool emptyOk = false) const            = 0;
     virtual const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const = 0;
 
     std::vector<Parameter>& parameters() { return params_; }
     const std::vector<Parameter>& parameters() const { return params_; }
 
-    virtual void values(Keyword, const std::vector<std::string>&) = 0;
+    virtual void values(Keyword, const std::vector<std::string>&)            = 0;
     virtual void values(const std::string&, const std::vector<std::string>&) = 0;
 
-    virtual void erase(Keyword) = 0;
+    virtual void erase(Keyword)            = 0;
     virtual void erase(const std::string&) = 0;
 
 
@@ -112,13 +112,13 @@ public:  // methods
 
     virtual void setValuesTyped(std::shared_ptr<const Type>, const std::vector<std::string>&) = 0;
 
-    virtual bool filter(const MarsRequest& filter) = 0;
+    virtual bool filter(const MarsRequest& filter)        = 0;
     virtual bool matches(const MarsRequest& filter) const = 0;
     bool empty() const { return params_.empty(); }
 
     virtual size_t count() const = 0;
 
-    virtual const Parameter* find(Keyword) const = 0;
+    virtual const Parameter* find(Keyword) const                 = 0;
     virtual const Parameter* find(const std::string& name) const = 0;
 
 
@@ -164,8 +164,12 @@ public:  // methods
     // Returns reference to values or nullopt if not found
     std::optional<std::reference_wrapper<const std::vector<std::string>>> get(const std::string& keyword) const;
 
-    const std::vector<std::string>& values(Keyword key, bool emptyOk = false) const { return req_->values(key, emptyOk); }
-    const std::vector<std::string>& values(const std::string& name, bool emptyOk = false) const { return req_->values(name, emptyOk); }
+    const std::vector<std::string>& values(Keyword key, bool emptyOk = false) const {
+        return req_->values(key, emptyOk);
+    }
+    const std::vector<std::string>& values(const std::string& name, bool emptyOk = false) const {
+        return req_->values(name, emptyOk);
+    }
 
     std::vector<std::string> params() const;
 
@@ -203,7 +207,9 @@ public:  // methods
     void dump(std::ostream& s, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
 
     void setValuesTyped(const Type* type, const std::vector<std::string>& values);
-    void setValuesTyped(std::shared_ptr<const Type> type, const std::vector<std::string>& values) { req_->setValuesTyped(type, values); }
+    void setValuesTyped(std::shared_ptr<const Type> type, const std::vector<std::string>& values) {
+        req_->setValuesTyped(type, values);
+    }
 
     bool filter(const MarsRequest& filter) { return req_->filter(filter); }
     bool matches(const MarsRequest& other) const { return req_->matches(other); }
@@ -336,9 +342,9 @@ public:
     void values(const std::string&, const std::vector<std::string>&) override;
 
     void merge(const MarsRequest& other) override;
-    
+
     void setValuesTyped(std::shared_ptr<const Type>, const std::vector<std::string>&) override;
-    
+
     bool filter(const MarsRequest& filter) override;
     bool matches(const MarsRequest& filter) const override;
 
@@ -356,13 +362,13 @@ private:  // members
 
     std::string verb_;
     std::unordered_map<std::string, size_t> paramMap_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsValidatedRequest : public MarsBaseRequest {
 public:
+
     MarsValidatedRequest() = default;
     MarsValidatedRequest(Verb verb);
     MarsValidatedRequest(const MarsValidatedRequest& request);
@@ -411,7 +417,6 @@ private:  // members
 
     Verb verb_;
     std::map<Keyword, size_t> paramMap_;
-
 };
 
 

@@ -84,6 +84,7 @@ static TypeBuilder<TypeInteger> type("integer");
 class TypeToByListInt : public TypeInteger {
 
 public:
+
     TypeToByListInt(Keyword keyword, const eckit::Value& settings) : TypeInteger(keyword, settings) {
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, settings);
         multiple_ = true;

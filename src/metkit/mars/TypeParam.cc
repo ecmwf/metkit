@@ -20,8 +20,8 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/TypesFactory.h"
 
 #include <fstream>
 #include <limits>

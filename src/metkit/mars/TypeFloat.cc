@@ -80,6 +80,7 @@ static TypeBuilder<TypeFloat> type("float");
 
 class TypeToByListFloat : public TypeFloat {
 public:
+
     TypeToByListFloat(Keyword keyword, const eckit::Value& settings) : TypeFloat(keyword, settings) {
         toByList_ = std::make_unique<TypeToByList<float, float>>(*this, settings);
         multiple_ = true;

@@ -79,13 +79,16 @@ private:  // methods
 /// values associated with the Include rule
 class Include : public ContextRule {
 public:
+
     Include(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
     bool matches(const MarsRequest& req) const override;
 
 private:  // methods
+
     void print(std::ostream& out) const override { out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]"; }
 
 private:
+
     std::set<std::string> vals_;
 };
 
@@ -93,33 +96,40 @@ private:
 /// associated with the Exclude rule
 class Exclude : public ContextRule {
 public:
+
     Exclude(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
     bool matches(const MarsRequest& req) const override;
 
 private:  // methods
+
     void print(std::ostream& out) const override { out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]"; }
 
 private:
+
     std::set<std::string> vals_;
 };
 
 /// @brief A MarsRequest matches an Undef ContextRule if the specified keyword is not defined in the mars request
 class Undef : public ContextRule {
 public:
+
     Undef(Keyword k) : ContextRule(k) {}
     bool matches(const MarsRequest& req) const override;
 
 private:  // methods
+
     void print(std::ostream& out) const override { out << "Undef[key=" << key_ << "]"; }
 };
 
 /// @brief A MarsRequest matches an Undef ContextRule if the specified keyword is defined in the mars request
 class Def : public ContextRule {
 public:
+
     Def(Keyword k) : ContextRule(k) {}
     bool matches(const MarsRequest& req) const override;
 
 private:  // methods
+
     void print(std::ostream& out) const override { out << "Def[key=" << key_ << "]"; }
 };
 
@@ -175,18 +185,15 @@ enum class Category : uint8_t {
 class TypesFactory;
 
 class Type : public std::enable_shared_from_this<Type> {
-    
+
 public:  // methods
+
     Type(Keyword keyword, const eckit::Value& settings);
-    
+
     virtual ~Type() = default;
 
-    std::shared_ptr<Type> getptr() {
-        return shared_from_this();
-    }
-    std::shared_ptr<const Type> getptr() const {
-        return shared_from_this();
-    }
+    std::shared_ptr<Type> getptr() { return shared_from_this(); }
+    std::shared_ptr<const Type> getptr() const { return shared_from_this(); }
 
     virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
     void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;

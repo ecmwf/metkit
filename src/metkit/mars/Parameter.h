@@ -49,7 +49,7 @@ public:
 
     virtual std::unique_ptr<ParameterBase> clone() const = 0;
 
-    virtual Keyword id() const = 0;
+    virtual Keyword id() const              = 0;
     virtual const std::string& name() const = 0;
 
     const std::vector<std::string>& values() const { return values_; }
@@ -117,6 +117,7 @@ protected:
     }
 
 private:
+
     std::unique_ptr<ParameterBase> impl_;
 };
 
@@ -129,8 +130,10 @@ public:
     StringParameter& operator=(const StringParameter&);
 
     StringParameter(const std::string& name) : name_(name) {}
-    StringParameter(const std::string& name, const std::vector<std::string>& values) : ParameterBase(values), name_(name) {}
-    StringParameter(const std::string& name, std::vector<std::string>&& values) : ParameterBase(std::move(values)), name_(name) {}
+    StringParameter(const std::string& name, const std::vector<std::string>& values) :
+        ParameterBase(values), name_(name) {}
+    StringParameter(const std::string& name, std::vector<std::string>&& values) :
+        ParameterBase(std::move(values)), name_(name) {}
 
     std::unique_ptr<ParameterBase> clone() const override { return std::make_unique<StringParameter>(*this); }
 
@@ -151,7 +154,7 @@ public:  // methods
     TypeParameter(const std::vector<std::string>& values, std::shared_ptr<const Type> = 0);
     TypeParameter(const TypeParameter&);
     ~TypeParameter() override;
-    
+
     TypeParameter& operator=(const TypeParameter&);
     bool operator<(const TypeParameter&) const;
 

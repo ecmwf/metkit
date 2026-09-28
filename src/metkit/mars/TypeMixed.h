@@ -26,6 +26,7 @@ namespace mars {
 class TypeMixed : public Type {
 
 public:  // methods
+
     TypeMixed(Keyword keyword, const eckit::Value& settings);
 
     ~TypeMixed() noexcept override = default;

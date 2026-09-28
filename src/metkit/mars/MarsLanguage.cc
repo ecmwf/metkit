@@ -246,7 +246,7 @@ void MarsLanguage::parse(Verb verb) {
 
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
         std::shared_ptr<Type> t = nullptr;
-        Keyword key = keywords_.exist(a);
+        Keyword key             = keywords_.exist(a);
         if (key) {
             auto it = types_.find(key);
             if (it != types_.end()) {
@@ -482,6 +482,7 @@ class TypeHidden : public Type {
     bool expand(std::string&, const MarsRequest&) const override { return true; }
 
 public:
+
     TypeHidden() : Type(MarsLanguage::addKeyword("hidden"), eckit::Value()) {}
     ~TypeHidden() override = default;
 };
@@ -501,7 +502,7 @@ const Type* MarsLanguage::type(const std::string& name) const {
         return type(keywords_.keyword(name));
     }
     if ((name)[0] == '_') {
-        return &hidden;  
+        return &hidden;
     }
 
     throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
@@ -528,7 +529,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
             }
 
             for (const auto& [k, PP] : paramSet) {
-                std::vector<std::string> values = r.req_->values(PP); // copy the values to expand in place
+                std::vector<std::string> values = r.req_->values(PP);  // copy the values to expand in place
 
                 if (values.size() == 1) {
                     const std::string& s = eckit::StringTools::lower(values[0]);
@@ -551,7 +552,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
         }
         else {
             for (const auto& [k, idx] : dynamic_cast<MarsValidatedRequest*>(r.req_.get())->paramMap_) {
-                const auto& param = r.req_->parameters()[idx];
+                const auto& param               = r.req_->parameters()[idx];
                 std::vector<std::string> values = param.values();
 
                 if (values.size() == 1) {
@@ -632,7 +633,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
 void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
     MarsRequest result(request);
     std::vector<std::string> params;
-    for (const auto& p: request.parameters()) {
+    for (const auto& p : request.parameters()) {
         params.push_back(p.name());
     }
     flatten(request, params, 0, result, callback);

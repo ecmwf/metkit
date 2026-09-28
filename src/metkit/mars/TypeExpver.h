@@ -23,6 +23,7 @@ namespace metkit::mars {
 
 class TypeExpver : public Type {
 public:  // methods
+
     TypeExpver(Keyword keyword, const eckit::Value& settings);
     ~TypeExpver() noexcept override = default;
 

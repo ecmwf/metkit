@@ -24,6 +24,7 @@ namespace metkit::mars {
 class TypeParam : public Type {
 
 public:  // methods
+
     TypeParam(Keyword keyword, const eckit::Value& settings);
 
     ~TypeParam() noexcept override = default;

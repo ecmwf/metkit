@@ -61,9 +61,13 @@ bool Exclude::matches(const MarsRequest& req) const {
     return true;
 }
 
-bool Undef::matches(const MarsRequest& req) const { return !req.has(key_); }
+bool Undef::matches(const MarsRequest& req) const {
+    return !req.has(key_);
+}
 
-bool Def::matches(const MarsRequest& req) const { return req.has(key_); }
+bool Def::matches(const MarsRequest& req) const {
+    return req.has(key_);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -400,7 +404,7 @@ void Type::pass2(MarsRequest& request) const {}
 
 void Type::finalise(MarsRequest& request, bool strict) const {
 
-    auto nn = MarsLanguage::name(id_);
+    auto nn                                = MarsLanguage::name(id_);
     const std::vector<std::string>& values = request.values(nn, true);
     if (values.size() == 1 && values[0] == "off") {
         request.unsetValues(nn);

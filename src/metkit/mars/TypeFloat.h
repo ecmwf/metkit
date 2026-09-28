@@ -24,6 +24,7 @@ namespace metkit::mars {
 
 class TypeFloat : public Type {
 public:  // methods
+
     TypeFloat(Keyword keyword, const eckit::Value& settings);
 
     ~TypeFloat() noexcept override = default;

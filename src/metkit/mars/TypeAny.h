@@ -24,6 +24,7 @@ namespace metkit::mars {
 class TypeAny : public Type {
 
 public:  // methods
+
     TypeAny(Keyword keyword, const eckit::Value& settings);
     TypeAny(const std::string& name);
 

@@ -85,13 +85,12 @@ private:
     std::vector<std::string> values_;
 };
 
-HyperCube::HyperCube(const mars::MarsRequest& request) :
-    verb_(request.verbId()), cube_(std::vector<eckit::Ordinal>()) {
+HyperCube::HyperCube(const mars::MarsRequest& request) : verb_(request.verbId()), cube_(std::vector<eckit::Ordinal>()) {
 
     std::vector<eckit::Ordinal> dimensions;
 
     for (auto& name : AxisOrder::instance().axes()) {
-        mars::Keyword key = mars::MarsLanguage::keyword(name);
+        mars::Keyword key               = mars::MarsLanguage::keyword(name);
         std::vector<std::string> values = request.values(key, true);
 
         if (!values.empty()) {
@@ -146,7 +145,8 @@ int HyperCube::indexOf(const mars::MarsRequest& r) const {
 
         if (values.size() > 1) {
             std::ostringstream oss;
-            oss << "HyperCube::indexOf too many values for [" << mars::MarsLanguage::name(a->key()) << "] in request " << r;
+            oss << "HyperCube::indexOf too many values for [" << mars::MarsLanguage::name(a->key()) << "] in request "
+                << r;
             throw eckit::UserError(oss.str());
         }
 
@@ -167,8 +167,8 @@ enum requestRelation {
     DISJOINT
 };
 
-requestRelation getRelation(const mars::MarsRequest& base, const size_t& baseSize,
-                            const mars::MarsRequest& additional, const size_t additionalSize) {
+requestRelation getRelation(const mars::MarsRequest& base, const size_t& baseSize, const mars::MarsRequest& additional,
+                            const size_t additionalSize) {
 
     mars::MarsRequest tmp(base);
     tmp.merge(additional);  // creates the bounding box request

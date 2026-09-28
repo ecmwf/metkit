@@ -49,7 +49,6 @@ CASE("test_build") {
 
     // Check that we have obtained the correct type
     EXPECT(dynamic_cast<TypeDate*>(t1.get()) != 0);
-
 }
 
 }  // namespace metkit::mars::test
