@@ -473,7 +473,7 @@ std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<s
 
 const std::string& MarsLanguage::expandVerb(const std::string& verb) {
     pthread_once(&once, initLanguage);
-    return verbs_.name(verbs_.keyword(verb));
+    return verbs_.name(verbs_.keyword(eckit::StringTools::lower(verb)));
 }
 
 class TypeHidden : public Type {
@@ -639,7 +639,7 @@ void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback
 
 Verb MarsLanguage::verb(const std::string& name) {
     pthread_once(&once, initLanguage);
-    return verbs_.keyword(name);
+    return verbs_.keyword(eckit::StringTools::lower(name));
 }
 const std::string& MarsLanguage::name(Verb verb) {
     pthread_once(&once, initLanguage);
@@ -652,7 +652,7 @@ Keyword MarsLanguage::addKeyword(const std::string& name) {
 }
 Keyword MarsLanguage::hasKeyword(const std::string& name) {
     pthread_once(&once, initLanguage);
-    return keywords_.exist(name);
+    return keywords_.exist(eckit::StringTools::lower(name));
 }
 Keyword MarsLanguage::keyword(const std::string& name) {
     pthread_once(&once, initLanguage);

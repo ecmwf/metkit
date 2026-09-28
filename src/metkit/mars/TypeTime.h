@@ -28,9 +28,6 @@ class TypeTime : public Type {
 public:  // methods
     TypeTime(Keyword keyword, const eckit::Value& settings);
 
-    // static std::shared_ptr<TypeTime> create(Keyword keyword, const eckit::Value& settings){
-    //     return std::shared_ptr<TypeTime>(new TypeTime(keyword, settings));
-    // }
     ~TypeTime() noexcept override = default;
 
 private:  // methods

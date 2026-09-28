@@ -524,7 +524,6 @@ void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
-    std::cout << "Expanding key: " << key << " with values: " << values << " expected: " << expected << std::endl;
     const metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
     t->expand(values);
     EXPECT_EQUAL(expected, values);

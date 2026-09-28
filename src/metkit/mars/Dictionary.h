@@ -15,8 +15,8 @@
 #pragma once
 
 #include <memory>
-#include <mutex>
 #include <ostream>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -52,7 +52,7 @@ private:
 
     void print(std::ostream&) const;
 
-    std::mutex mutex_;
+    mutable std::shared_mutex mutex_;
     std::vector<std::reference_wrapper<const std::string>> names_;
     std::unordered_map<std::string, K> map_;
 
@@ -65,6 +65,8 @@ private:
 template <typename K>
 K Dictionary<K>::add(const std::string& name) {
     static_assert(std::is_integral_v<K> == true);
+
+    std::unique_lock lock(mutex_);
 
     auto it = map_.find(name);
     if (it != map_.end()) {
@@ -79,7 +81,7 @@ K Dictionary<K>::add(const std::string& name) {
 }
 template <typename K>
 void Dictionary<K>::alias(const std::string& name, K key) {
-    std::lock_guard lock(mutex_);
+    std::unique_lock lock(mutex_);
     auto it = map_.find(name);
     if (it != map_.end()) {
         if (it->second != key) {
@@ -95,6 +97,7 @@ void Dictionary<K>::alias(const std::string& name, K key) {
 
 template <typename K>
 K Dictionary<K>::exist(const std::string& name) const {
+    std::shared_lock lock(mutex_);
     auto it = map_.find(name);
     if (it != map_.end()) {
         return it->second;
@@ -107,6 +110,7 @@ K Dictionary<K>::keyword(const std::string& name) const {
     if (key) {
         return key;
     }
+    std::shared_lock lock(mutex_);
     std::ostringstream ss;
     ss << "Unknown keyword '" << name << "'";
     ss << " (valid keywords are: ";
@@ -121,6 +125,7 @@ template <typename K>
 const std::string& Dictionary<K>::name(K key) const {
     static_assert(std::is_integral_v<K> == true);
 
+    std::shared_lock lock(mutex_);
     if (key == 0 || key >= names_.size()) {
         std::ostringstream ss;
         ss << "Invalid keyword index " << key;
@@ -131,6 +136,7 @@ const std::string& Dictionary<K>::name(K key) const {
 
 template <typename K>
 void Dictionary<K>::print(std::ostream& s) const {
+    std::shared_lock lock(mutex_);
     s << "[";
     for (size_t i = 0; i < names_.size(); ++i) {
         if (i > 0)
@@ -141,7 +147,10 @@ void Dictionary<K>::print(std::ostream& s) const {
 }
 
 template <typename K>
-K Dictionary<K>::size() const { return static_cast<K>(names_.size()); }
+K Dictionary<K>::size() const {
+    std::shared_lock lock(mutex_);
+    return static_cast<K>(names_.size());
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

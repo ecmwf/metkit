@@ -79,6 +79,8 @@ public:  // methods
     MarsBaseRequest() = default;
     virtual ~MarsBaseRequest() = default;
 
+    virtual std::unique_ptr<MarsBaseRequest> clone() const = 0;
+
     virtual Verb verbId() const = 0;
     virtual const std::string& verb() const = 0;
 
@@ -313,6 +315,8 @@ public:
 
     ~MarsRawRequest() override = default;
 
+    std::unique_ptr<MarsBaseRequest> clone() const override { return std::make_unique<MarsRawRequest>(*this); }
+
     Verb verbId() const override;
     const std::string& verb() const override { return verb_; }
 
@@ -365,6 +369,8 @@ public:
     explicit MarsValidatedRequest(eckit::Stream& s);
 
     ~MarsValidatedRequest() override = default;
+
+    std::unique_ptr<MarsBaseRequest> clone() const override { return std::make_unique<MarsValidatedRequest>(*this); }
 
     Verb verbId() const override { return verb_; }
     const std::string& verb() const override;

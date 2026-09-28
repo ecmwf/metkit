@@ -85,9 +85,6 @@ public:
         multiple_ = true;
     }
 
-    // static std::shared_ptr<TypeToByListFloat> create(Keyword keyword, const eckit::Value& settings){
-    //     return std::shared_ptr<TypeToByListFloat>(new TypeToByListFloat(keyword, settings));
-    // }
     ~TypeToByListFloat() noexcept override = default;
 
 

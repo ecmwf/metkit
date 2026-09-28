@@ -89,11 +89,6 @@ public:
         multiple_ = true;
     }
 
-// public:
-//     static std::shared_ptr<TypeToByListInt> create(Keyword keyword, const eckit::Value& settings){
-//         return std::shared_ptr<TypeToByListInt>(new TypeToByListInt(keyword, settings));
-//     }
-    
 protected:
 
     void print(std::ostream& out) const override { out << "TypeToByListInt[name=" << name() << "]"; }

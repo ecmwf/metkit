@@ -25,9 +25,6 @@ class TypeLowercase : public Type {
 public:  // methods
     TypeLowercase(Keyword keyword, const eckit::Value& settings);
 
-    // static std::shared_ptr<TypeLowercase> create(Keyword keyword, const eckit::Value& settings){
-    //     return std::shared_ptr<TypeLowercase>(new TypeLowercase(keyword, settings));
-    // }
     ~TypeLowercase() noexcept override = default;
 
 private:  // methods

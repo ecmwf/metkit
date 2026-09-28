@@ -29,9 +29,6 @@ class TypeRegex : public Type {
 public:  // methods
     TypeRegex(Keyword keyword, const eckit::Value& settings);
 
-    // static std::shared_ptr<TypeRegex> create(Keyword keyword, const eckit::Value& settings){
-    //     return std::shared_ptr<TypeRegex>(new TypeRegex(keyword, settings));
-    // }
     ~TypeRegex() noexcept override = default;
 
 private:  // methods

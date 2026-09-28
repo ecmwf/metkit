@@ -30,9 +30,6 @@ class TypeInteger : public Type {
 public:  // methods
     TypeInteger(Keyword keyword, const eckit::Value& settings);
 
-    // static std::shared_ptr<TypeInteger> create(Keyword keyword, const eckit::Value& settings){
-    //     return std::shared_ptr<TypeInteger>(new TypeInteger(keyword, settings));
-    // }
     ~TypeInteger() noexcept override = default;
 
 protected:

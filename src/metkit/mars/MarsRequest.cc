@@ -143,23 +143,9 @@ MarsRequest::MarsRequest(const std::string& s, const eckit::Value& vals) : MarsR
     }
 }
 
-MarsRequest::MarsRequest(const MarsRequest& request) {
-    if (typeid(*request.req_) == typeid(MarsValidatedRequest)) {
-        req_ = std::make_unique<MarsValidatedRequest>(dynamic_cast<MarsValidatedRequest&>(*request.req_));
-    }
-    else {
-        req_ = std::make_unique<MarsRawRequest>(dynamic_cast<MarsRawRequest&>(*request.req_));
-    }
-}
+MarsRequest::MarsRequest(const MarsRequest& request) : req_(request.req_->clone()) {}
 
-MarsRequest::MarsRequest(MarsRequest&& request) {
-    if (typeid(*request.req_) == typeid(MarsValidatedRequest)) {
-        req_ = std::make_unique<MarsValidatedRequest>(std::move(dynamic_cast<MarsValidatedRequest&>(*request.req_)));
-    }
-    else {
-        req_ = std::make_unique<MarsRawRequest>(std::move(dynamic_cast<MarsRawRequest&>(*request.req_)));
-    }
-}
+MarsRequest::MarsRequest(MarsRequest&& request) : req_(std::move(request.req_)) {}
 
 MarsRequest::MarsRequest(eckit::Stream& s, bool validate, bool lowercase) {
     if (validate) {
@@ -172,12 +158,7 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate, bool lowercase) {
 
 MarsRequest& MarsRequest::operator=(const MarsRequest& other) {
     if (this != &other) {
-        if (typeid(*other.req_) == typeid(MarsValidatedRequest)) {
-            req_ = std::make_unique<MarsValidatedRequest>(dynamic_cast<MarsValidatedRequest&>(*other.req_));
-        }
-        else {
-            req_ = std::make_unique<MarsRawRequest>(dynamic_cast<MarsRawRequest&>(*other.req_));
-        }
+        req_ = other.req_->clone();
     }
     return *this;
 }

@@ -63,9 +63,10 @@ bool ParameterBase::filter(const std::vector<std::string>& filter) {
 
 bool ParameterBase::filter(Keyword keyword, const std::vector<std::string>& f) {
     if (keyword != id()) {
-        std::ostringstream ss;
-        ss << "Custom filter for specific keyword (" << keyword << ") are not supported by raw requests";
-        throw eckit::UserError(ss.str(), Here());
+        // raw (untyped) parameters have no Type-specific knowledge of keyword-based filters
+        // (e.g. filtering "date" by "day"), so - like the old TypeAny/undefined-type path - treat
+        // an unsupported filter keyword as "no match" rather than as an error.
+        return false;
     }
     return filter(f);
 }
@@ -101,14 +102,7 @@ Parameter::Parameter(const std::string& name, const std::vector<std::string>& va
 }
 
 
-Parameter::Parameter(const Parameter& other) {
-    if (typeid(*other.impl_) == typeid(TypeParameter)) {
-        impl_ = std::make_unique<TypeParameter>(dynamic_cast<TypeParameter&>(*other.impl_));
-    }
-    else {
-        impl_ = std::make_unique<StringParameter>(other.name(), other.values());
-    }
-}
+Parameter::Parameter(const Parameter& other) : impl_(other.impl_->clone()) {}
 
 Parameter::Parameter(std::unique_ptr<ParameterBase>&& param) {
     impl_ = std::move(param);
@@ -145,7 +139,10 @@ StringParameter& StringParameter::operator=(const StringParameter& other) {
 }
 
 Keyword StringParameter::id() const {
-    return MarsLanguage::keyword(name_);
+    // raw (unvalidated) parameters may carry arbitrary custom keys not in the language
+    // definition, so auto-intern rather than throw - matching how TypeAny handled this
+    // before the split into StringParameter/TypeParameter.
+    return MarsLanguage::addKeyword(name_);
 }
 
 void StringParameter::print(std::ostream& s) const {

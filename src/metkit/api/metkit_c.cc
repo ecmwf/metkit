@@ -246,8 +246,7 @@ metkit_error_t metkit_marsrequest_params(const metkit_marsrequest_t* request, me
     return tryCatch([request, params] {
         ASSERT(request);
         ASSERT(params);
-        // TODO
-        // *params = new metkit_paramiterator_t(request->params());
+        *params = new metkit_paramiterator_t(request->params());
     });
 }
 

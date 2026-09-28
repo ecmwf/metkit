@@ -186,6 +186,11 @@ Type::Type(Keyword keyword, const eckit::Value& settings) :
         else if (category == "sink") {
             category_ = Category::Sink;
         }
+        else {
+            std::stringstream ss;
+            ss << "Unknown category: " << category << " in Type " << MarsLanguage::name(id_);
+            throw eckit::SeriousBug(ss.str());
+        }
     }
 
     if (settings.contains("defaults")) {

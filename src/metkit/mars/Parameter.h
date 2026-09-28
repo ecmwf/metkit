@@ -47,6 +47,8 @@ public:
 
     virtual ~ParameterBase() = default;
 
+    virtual std::unique_ptr<ParameterBase> clone() const = 0;
+
     virtual Keyword id() const = 0;
     virtual const std::string& name() const = 0;
 
@@ -129,6 +131,8 @@ public:
     StringParameter(const std::string& name, const std::vector<std::string>& values) : ParameterBase(values), name_(name) {}
     StringParameter(const std::string& name, std::vector<std::string>&& values) : ParameterBase(std::move(values)), name_(name) {}
 
+    std::unique_ptr<ParameterBase> clone() const override { return std::make_unique<StringParameter>(*this); }
+
     Keyword id() const override;
     const std::string& name() const override { return name_; }
 
@@ -149,6 +153,8 @@ public:  // methods
     
     TypeParameter& operator=(const TypeParameter&);
     bool operator<(const TypeParameter&) const;
+
+    std::unique_ptr<ParameterBase> clone() const override { return std::make_unique<TypeParameter>(*this); }
 
     Keyword id() const override;
     const std::string& name() const override;
