@@ -33,7 +33,7 @@ CASE("Test TypeInteger expansion range=[1,100]") {
 
     ValueMap settings;
     settings["range"] = ValueList{1, 100};
-    auto type = TypeInteger::create(MarsLanguage::keyword("day"), settings);
+    auto type = std::make_shared<TypeInteger>(MarsLanguage::keyword("day"), settings);
     Type& tday = *type;
 
     // in range
@@ -62,7 +62,7 @@ CASE("Test TypeInteger expansion range=[1,1]") {
 
     ValueMap settings;
     settings["range"] = ValueList{1, 1};
-    auto type = TypeInteger::create(MarsLanguage::keyword("day"), settings);
+    auto type = std::make_shared<TypeInteger>(MarsLanguage::keyword("day"), settings);
     Type& tday = *type;
 
     {
@@ -83,7 +83,7 @@ CASE("Test TypeInteger day expansion range=[-1,1]") {
 
     ValueMap settings;
     settings["range"] = ValueList{-1, 1};
-    auto type = TypeInteger::create(MarsLanguage::keyword("day"), settings);
+    auto type = std::make_shared<TypeInteger>(MarsLanguage::keyword("day"), settings);
     Type& tday = *type;
 
     {

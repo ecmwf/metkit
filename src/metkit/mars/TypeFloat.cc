@@ -79,16 +79,15 @@ static TypeBuilder<TypeFloat> type("float");
 
 
 class TypeToByListFloat : public TypeFloat {
-private:  // ctor
+public:
     TypeToByListFloat(Keyword keyword, const eckit::Value& settings) : TypeFloat(keyword, settings) {
         toByList_ = std::make_unique<TypeToByList<float, float>>(*this, settings);
         multiple_ = true;
     }
 
-public:
-    static std::shared_ptr<TypeToByListFloat> create(Keyword keyword, const eckit::Value& settings){
-        return std::shared_ptr<TypeToByListFloat>(new TypeToByListFloat(keyword, settings));
-    }
+    // static std::shared_ptr<TypeToByListFloat> create(Keyword keyword, const eckit::Value& settings){
+    //     return std::shared_ptr<TypeToByListFloat>(new TypeToByListFloat(keyword, settings));
+    // }
     ~TypeToByListFloat() noexcept override = default;
 
 

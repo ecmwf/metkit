@@ -48,13 +48,28 @@ bool ParameterBase::multiple() const {
     return true;
 }
 
+
+
+
+
+
 bool ParameterBase::filter(const std::vector<std::string>& filter) {
-    NOTIMP;
+    NotInSet not_in_set(filter);
+
+    values_.erase(std::remove_if(values_.begin(), values_.end(), not_in_set), values_.end());
+
+    return !values_.empty();
 }
 
-bool ParameterBase::filter(Keyword keyword, const std::vector<std::string>& filter) {
-    NOTIMP;
+bool ParameterBase::filter(Keyword keyword, const std::vector<std::string>& f) {
+    if (keyword != id()) {
+        std::ostringstream ss;
+        ss << "Custom filter for specific keyword (" << keyword << ") are not supported by raw requests";
+        throw eckit::UserError(ss.str(), Here());
+    }
+    return filter(f);
 }
+
 bool ParameterBase::matches(const std::vector<std::string>& match) const {
     NOTIMP;
 }
@@ -126,18 +141,12 @@ bool Parameter::filter(const std::string& name, const std::vector<std::string>& 
 StringParameter& StringParameter::operator=(const StringParameter& other) {
     name_ = other.name_;
     values_ = other.values_;
+    return *this;
 }
 
 Keyword StringParameter::id() const {
     return MarsLanguage::keyword(name_);
 }
-
-bool StringParameter::filter(Keyword keyword, const std::vector<std::string>& filter) {
-    NOTIMP;
-    // auto& lang = MarsLanguage::get("retrieve");
-    // return lang.type(name_)->filter(keyword, filter, values_);
-}
-
 
 void StringParameter::print(std::ostream& s) const {
     s << "StringParameter[name=" << name_ << ",values=" << values_ << "]";

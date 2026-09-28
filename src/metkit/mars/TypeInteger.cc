@@ -83,16 +83,16 @@ static TypeBuilder<TypeInteger> type("integer");
 
 class TypeToByListInt : public TypeInteger {
 
-private:  // ctor
+public:
     TypeToByListInt(Keyword keyword, const eckit::Value& settings) : TypeInteger(keyword, settings) {
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, settings);
         multiple_ = true;
     }
 
-public:
-    static std::shared_ptr<TypeToByListInt> create(Keyword keyword, const eckit::Value& settings){
-        return std::shared_ptr<TypeToByListInt>(new TypeToByListInt(keyword, settings));
-    }
+// public:
+//     static std::shared_ptr<TypeToByListInt> create(Keyword keyword, const eckit::Value& settings){
+//         return std::shared_ptr<TypeToByListInt>(new TypeToByListInt(keyword, settings));
+//     }
     
 protected:
 

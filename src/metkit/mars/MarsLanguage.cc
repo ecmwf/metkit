@@ -481,13 +481,8 @@ class TypeHidden : public Type {
     void print(std::ostream& out) const override { out << "TypeHidden"; }
     bool expand(std::string&, const MarsRequest&) const override { return true; }
 
-private:  // ctor
-    TypeHidden() : Type(MarsLanguage::addKeyword("hidden"), eckit::Value()) {}
-
 public:
-    static std::shared_ptr<TypeHidden> create() {
-        return std::shared_ptr<TypeHidden>(new TypeHidden());
-    }
+    TypeHidden() : Type(MarsLanguage::addKeyword("hidden"), eckit::Value()) {}
     ~TypeHidden() override = default;
 };
 
@@ -500,13 +495,13 @@ const Type* MarsLanguage::type(Keyword key) const {
 }
 
 const Type* MarsLanguage::type(const std::string& name) const {
-    static const Type* hidden = TypeHidden::create().get();
+    static const TypeHidden hidden{};
     Keyword key = keywords_.exist(name);
     if (key) {
         return type(keywords_.keyword(name));
     }
     if ((name)[0] == '_') {
-        return hidden;  
+        return &hidden;  
     }
 
     throw eckit::SeriousBug("Cannot find a type for '" + name + "'");

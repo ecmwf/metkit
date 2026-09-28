@@ -24,9 +24,9 @@ namespace metkit::mars {
 class TypeExpver : public Type {
 public:  // methods
     TypeExpver(Keyword keyword, const eckit::Value& settings);
-    static std::shared_ptr<TypeExpver> create(Keyword keyword, const eckit::Value& settings){
-        return std::shared_ptr<TypeExpver>(new TypeExpver(keyword, settings));
-    }
+    // static std::shared_ptr<TypeExpver> create(Keyword keyword, const eckit::Value& settings){
+    //     return std::shared_ptr<TypeExpver>(new TypeExpver(keyword, settings));
+    // }
     ~TypeExpver() noexcept override = default;
 
     bool expand(std::string& value, const MarsRequest& request) const override;

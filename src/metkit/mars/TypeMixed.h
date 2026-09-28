@@ -28,9 +28,9 @@ class TypeMixed : public Type {
 public:  // methods
     TypeMixed(Keyword keyword, const eckit::Value& settings);
 
-    static std::shared_ptr<TypeMixed> create(Keyword keyword, const eckit::Value& settings){
-        return std::shared_ptr<TypeMixed>(new TypeMixed(keyword, settings));
-    }
+    // static std::shared_ptr<TypeMixed> create(Keyword keyword, const eckit::Value& settings){
+    //     return std::shared_ptr<TypeMixed>(new TypeMixed(keyword, settings));
+    // }
     ~TypeMixed() noexcept override = default;
 
 private:  // methods

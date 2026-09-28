@@ -26,9 +26,9 @@ class TypeFloat : public Type {
 public:  // methods
     TypeFloat(Keyword keyword, const eckit::Value& settings);
 
-    static std::shared_ptr<TypeFloat> create(Keyword keyword, const eckit::Value& settings){
-        return std::shared_ptr<TypeFloat>(new TypeFloat(keyword, settings));
-    }
+    // static std::shared_ptr<TypeFloat> create(Keyword keyword, const eckit::Value& settings){
+    //     return std::shared_ptr<TypeFloat>(new TypeFloat(keyword, settings));
+    // }
     ~TypeFloat() noexcept override = default;
 
 private:  // methods

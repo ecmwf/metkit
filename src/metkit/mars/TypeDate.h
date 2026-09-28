@@ -27,9 +27,9 @@ class TypeDate : public Type {
 public:  // methods
     TypeDate(Keyword keyword, const eckit::Value& settings);
 
-    static std::shared_ptr<TypeDate> create(Keyword keyword, const eckit::Value& settings){
-        return std::shared_ptr<TypeDate>(new TypeDate(keyword, settings));
-    }
+    // static std::shared_ptr<TypeDate> create(Keyword keyword, const eckit::Value& settings){
+    //     return std::shared_ptr<TypeDate>(new TypeDate(keyword, settings));
+    // }
     
     ~TypeDate() noexcept override = default;
 

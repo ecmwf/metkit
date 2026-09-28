@@ -77,12 +77,7 @@ class MarsBaseRequest {
 public:  // methods
 
     MarsBaseRequest() = default;
-    // MarsBaseRequest(const MarsBaseRequest&) = default;
-    // MarsBaseRequest(MarsBaseRequest&&) = default;
     virtual ~MarsBaseRequest() = default;
-
-    // MarsBaseRequest& operator=(const MarsBaseRequest&) = default;
-    // MarsBaseRequest& operator=(MarsBaseRequest&&) = default;
 
     virtual Verb verbId() const = 0;
     virtual const std::string& verb() const = 0;
@@ -112,11 +107,6 @@ public:  // methods
     /// Merges one MarsRequest into another
     // parameters existing in the other request but not present in the current request will be ignored
     virtual void merge(const MarsRequest& other) = 0;
-
-    // /// Create a new MarsRequest from this one with only the given set of keys
-    // MarsRequest subset(const std::set<std::string>&) const;
-
-    // void md5(eckit::MD5&) const;
 
     virtual void setValuesTyped(std::shared_ptr<const Type>, const std::vector<std::string>&) = 0;
 
@@ -194,8 +184,6 @@ public:  // methods
     void erase(Keyword key) { req_->erase(key); }
     void erase(const std::string& name) { req_->erase(name); }
 
-    // /// Splits a MARS request into multiple requests along the provided key
-    // std::vector<MarsRequest> split(const std::string& keys) const;
     /// Splits a MARS request into multiple requests along the indicated keys
     std::vector<MarsRequest> split(const std::vector<std::string>& keys) const;
 
@@ -208,7 +196,7 @@ public:  // methods
 
     void json(eckit::JSON&, bool array = false) const;
 
-    // void md5(eckit::MD5&) const;
+    void md5(eckit::MD5&) const;
 
     void dump(std::ostream& s, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
 
@@ -223,8 +211,6 @@ public:  // methods
 
     size_t count() const { return req_->count(); }
 
-    // MarsRequest extract(const std::string& category) const;
-
     std::string asString() const;
 
     const Parameter* find(Keyword key) const { return req_->find(key); }
@@ -232,10 +218,11 @@ public:  // methods
 
 public:  // static methods
 
-    /// Implementation in api/metkit_c.cc
-    static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
     static MarsRequest parse(const std::string& s, bool strict = false);
     static std::vector<MarsRequest> parse(std::istream&, bool strict = false);
+
+    /// Implementation in api/metkit_c.cc
+    static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
 
 private:  // methods
 

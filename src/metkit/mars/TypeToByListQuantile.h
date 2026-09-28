@@ -25,9 +25,9 @@ class TypeToByListQuantile : public Type {
 public:
     TypeToByListQuantile(Keyword keyword, const eckit::Value& settings);
 
-    static std::shared_ptr<TypeToByListQuantile> create(Keyword keyword, const eckit::Value& settings){
-        return std::make_shared<TypeToByListQuantile>(keyword, settings);
-    }
+    // static std::shared_ptr<TypeToByListQuantile> create(Keyword keyword, const eckit::Value& settings){
+    //     return std::make_shared<TypeToByListQuantile>(keyword, settings);
+    // }
     ~TypeToByListQuantile() noexcept override = default;
 
 private:  // methods

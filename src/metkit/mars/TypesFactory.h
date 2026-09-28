@@ -86,7 +86,7 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    std::shared_ptr<Type> make(Keyword keyword, const eckit::Value& settings) const override { return T::create(keyword, settings); }
+    std::shared_ptr<Type> make(Keyword keyword, const eckit::Value& settings) const override { return std::make_shared<T>(keyword, settings); }
 
 public:
 

@@ -20,6 +20,7 @@
 #include <iosfwd>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -30,6 +31,18 @@
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class NotInSet {
+    std::set<std::string> set_;
+
+public:
+
+    NotInSet(const std::vector<std::string>& f) : set_(f.begin(), f.end()) {}
+
+    bool operator()(const std::string& s) const { return set_.find(s) == set_.end(); }
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

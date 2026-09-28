@@ -253,16 +253,6 @@ size_t Type::count(const std::vector<std::string>& values) const {
     return flatten_ ? values.size() : 1;
 }
 
-class NotInSet {
-    std::set<std::string> set_;
-
-public:
-
-    NotInSet(const std::vector<std::string>& f) : set_(f.begin(), f.end()) {}
-
-    bool operator()(const std::string& s) const { return set_.find(s) == set_.end(); }
-};
-
 bool Type::filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const {
     NotInSet not_in_set(filter);
 
@@ -278,12 +268,6 @@ bool Type::filter(Keyword keyword, const std::vector<std::string>& f, std::vecto
     }
     auto it = filters_.find(keyword);
     if (it == filters_.end()) {
-        std::cerr << "No filter found for keyword: " << MarsLanguage::name(keyword) << std::endl;
-        std::cerr << "Available filters are: ";
-        for (const auto& f : filters_) {
-            std::cerr << MarsLanguage::name(f.first) << " ";
-        }
-        std::cerr << std::endl;
         return false;
     }
     return it->second(f, values);

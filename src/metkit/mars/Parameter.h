@@ -56,7 +56,7 @@ public:
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter);
-    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter) = 0;
+    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter);
     virtual bool matches(const std::vector<std::string>& matches) const;
 
     void merge(const Parameter& p);
@@ -131,8 +131,6 @@ public:
 
     Keyword id() const override;
     const std::string& name() const override { return name_; }
-
-    bool filter(Keyword keyword, const std::vector<std::string>& filter) override;
 
     void print(std::ostream&) const override;
 

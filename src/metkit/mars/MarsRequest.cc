@@ -144,7 +144,7 @@ MarsRequest::MarsRequest(const std::string& s, const eckit::Value& vals) : MarsR
 }
 
 MarsRequest::MarsRequest(const MarsRequest& request) {
-    if (typeid(request.req_.get()) == typeid(MarsValidatedRequest)) {
+    if (typeid(*request.req_) == typeid(MarsValidatedRequest)) {
         req_ = std::make_unique<MarsValidatedRequest>(dynamic_cast<MarsValidatedRequest&>(*request.req_));
     }
     else {
@@ -542,6 +542,14 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
     return req;
 }
 
+
+void MarsRequest::md5(eckit::MD5& md5) const {
+    std::ostringstream oss;
+    oss << *this;
+    md5.add(oss.str());
+}
+
+
 // void MarsRequest::verb(const std::string& verb) {
 //     verb_ = MarsLanguage::verb(verb);
 //     MarsLanguage::get(verb_);
@@ -796,7 +804,10 @@ void MarsRawRequest::erase(const std::string& name) {
     auto it = paramMap_.find(name);
     if (it != paramMap_.end()) {
         params_.erase(params_.begin() + it->second);
-        paramMap_.erase(it);
+        paramMap_.clear();
+        for (size_t i = 0; i<params_.size(); i++) {
+            paramMap_[params_[i].name()] = i;
+        }
     }
 }
 
@@ -934,7 +945,10 @@ void MarsValidatedRequest::erase(Keyword key) {
     auto it = paramMap_.find(key);
     if (it != paramMap_.end()) {
         params_.erase(params_.begin() + it->second);
-        paramMap_.erase(it);
+        paramMap_.clear();
+        for (size_t i = 0; i<params_.size(); i++) {
+            paramMap_[params_[i].id()] = i;
+        }
     }
 }
 void MarsValidatedRequest::erase(const std::string& name) {

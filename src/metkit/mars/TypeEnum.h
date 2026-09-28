@@ -27,9 +27,9 @@ class TypeEnum : public Type {
 
 public:
     TypeEnum(Keyword keyword, const eckit::Value& settings);
-    static std::shared_ptr<TypeEnum> create(Keyword keyword, const eckit::Value& settings){
-        return std::shared_ptr<TypeEnum>(new TypeEnum(keyword, settings));
-    }
+    // static std::shared_ptr<TypeEnum> create(Keyword keyword, const eckit::Value& settings){
+    //     return std::shared_ptr<TypeEnum>(new TypeEnum(keyword, settings));
+    // }
 
     ~TypeEnum() noexcept override = default;
 

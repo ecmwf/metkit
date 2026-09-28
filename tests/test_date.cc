@@ -45,7 +45,7 @@ std::string date(long d) {
 
 CASE("Test TypeDate expansions") {
 
-    auto tdate = TypeDate::create(MarsLanguage::keyword("date"), Value());
+    auto tdate = std::make_shared<TypeDate>(MarsLanguage::keyword("date"), Value());
     Type& td(*tdate);
 
     assertTypeExpansion("date", {"20140506"}, {"20140506"});
