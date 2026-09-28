@@ -138,8 +138,26 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
         duplicates_ = settings["duplicates"];
     }
 
+    category_ = Category::None;
     if (settings.contains("category")) {
-        category_ = std::string(settings["category"]);
+        std::string category = settings["category"];
+        if (category == "data") {
+            category_ = Category::Data;
+        }
+        else if (category == "derived") {
+            category_ = Category::Derived;
+        }
+        else if (category == "postproc") {
+            category_ = Category::PostProc;
+        }
+        else if (category == "sink") {
+            category_ = Category::Sink;
+        }
+        else {
+            std::stringstream ss;
+            ss << "Unknown category: " << category << " in Type " << name_;
+            throw eckit::SeriousBug(ss.str());
+        }
     }
 
     if (settings.contains("defaults")) {
@@ -344,7 +362,7 @@ const std::string& Type::name() const {
     return name_;
 }
 
-const std::string& Type::category() const {
+const Category& Type::category() const {
     return category_;
 }
 

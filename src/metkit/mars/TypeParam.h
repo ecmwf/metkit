@@ -31,7 +31,6 @@ public:  // methods
 
 private:  // methods
 
-    eckit::ValueMap expandWith_;
     bool firstRule_;
 
     void print(std::ostream& out) const override;

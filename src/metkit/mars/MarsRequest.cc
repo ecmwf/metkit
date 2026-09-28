@@ -466,17 +466,6 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
     return req;
 }
 
-
-MarsRequest MarsRequest::extract(const std::string& category) const {
-    MarsRequest req(verb_);
-    for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
-        if (it->type().category() == category) {
-            req.params_.push_back(*it);
-        }
-    }
-    return req;
-}
-
 void MarsRequest::verb(const std::string& verb) {
     verb_ = verb;
 }

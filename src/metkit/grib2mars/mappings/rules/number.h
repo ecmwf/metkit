@@ -30,17 +30,6 @@ void extractNumber(const std::string& keyword, const metkit::codes::CodesHandle&
 
             if (numberOfForecastsInEnsemble != 0) {
                 misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
-
-                if (grib.getString("class") != "ai") {
-                    if (grib.has("typeOfEnsembleForecast")) {
-                        const long typeOfEnsembleForecast = grib.getLong("typeOfEnsembleForecast");
-                        misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
-                    }
-                    else if (grib.has("eps")) {
-                        const long typeOfEnsembleForecast = grib.getLong("eps");
-                        misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
-                    }
-                }
             }
         }
         else if (grib.getString("type") != "me") {
