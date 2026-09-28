@@ -112,6 +112,10 @@ namespace metkit::mars {
 // }
 
 
+MarsRequest::MarsRequest() {
+    req_ = std::make_unique<MarsRawRequest>();
+}
+
 MarsRequest::MarsRequest(Verb verb) {
     req_ = std::make_unique<MarsValidatedRequest>(verb);
 }
@@ -259,7 +263,17 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool pr
 }
 
 void MarsRequest::setValuesTyped(const Type* type, const std::vector<std::string>& values) {
-    req_->setValuesTyped(type->getptr(), values);
+    // `type` may already be owned by a shared_ptr (e.g. Type::finalise() passing `this` for a
+    // Type registered in MarsLanguage's type registry), or may be a freshly-constructed object
+    // with no owner yet (e.g. `request.setValuesTyped(new TypeAny(name), values)`, a supported
+    // external API used by fdb5). Reuse existing ownership when present - getptr()/
+    // shared_from_this() would throw std::bad_weak_ptr otherwise - and adopt it as a new
+    // shared_ptr only when it truly has no owner yet.
+    std::shared_ptr<const Type> owned = type->weak_from_this().lock();
+    if (!owned) {
+        owned = std::shared_ptr<const Type>(type);
+    }
+    req_->setValuesTyped(owned, values);
 }
 
 void MarsRequest::json(eckit::JSON& s, bool array) const {

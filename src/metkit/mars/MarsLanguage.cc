@@ -511,7 +511,8 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
     MarsRequest result(verb_);
 
     try {
-        if (typeid(*(r.req_)) == typeid(MarsRawRequest)) {
+        const MarsBaseRequest& base = *r.req_;
+        if (typeid(base) == typeid(MarsRawRequest)) {
             std::map<Keyword, const std::string> paramSet;
             std::vector<std::string> params;
 

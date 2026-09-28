@@ -125,6 +125,7 @@ class StringParameter : public ParameterBase {
 public:
 
     StringParameter(const Parameter& other) : ParameterBase(other.values()), name_(other.name()) {}
+    StringParameter(const StringParameter&) = default;
     StringParameter& operator=(const StringParameter&);
 
     StringParameter(const std::string& name) : name_(name) {}

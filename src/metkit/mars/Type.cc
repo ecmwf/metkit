@@ -103,7 +103,10 @@ std::unique_ptr<ContextRule> parseRule(std::string name, eckit::Value r) {
 
     std::set<std::string> vals;
 
-    Keyword key = MarsLanguage::keyword(name);
+    // context rules may reference a keyword before its own YAML entry has been parsed
+    // (parsing order across sections/verbs is not guaranteed), so auto-intern rather
+    // than require it to already be registered.
+    Keyword key = MarsLanguage::addKeyword(name);
 
     if (r.isList()) {
         if (r.size() == 0) {
