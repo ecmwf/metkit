@@ -127,6 +127,22 @@ MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, st
     }
 }
 
+
+MarsRequest::MarsRequest(const std::string& s, const eckit::Value& vals) : MarsRequest(s) {
+    eckit::ValueMap vv = vals;
+    for (const auto& [param, value] : vv) {
+        std::string name = param;
+        if (value.isList()) {
+            std::vector<std::string> vals;
+            eckit::fromValue(vals, value);
+            values(name, vals);
+        }
+        else {
+            values(name, std::vector<std::string>(1, value));
+        }
+    }
+}
+
 MarsRequest::MarsRequest(const MarsRequest& request) {
     if (typeid(request.req_.get()) == typeid(MarsValidatedRequest)) {
         req_ = std::make_unique<MarsValidatedRequest>(dynamic_cast<MarsValidatedRequest&>(*request.req_));
@@ -172,6 +188,23 @@ MarsRequest& MarsRequest::operator=(MarsRequest&& other) {
         other.req_ = nullptr;
     }
     return *this;
+}
+
+const std::string& MarsRequest::operator[](const std::string& name) const {
+    auto p = find(name);
+    if (!p) {
+        std::ostringstream oss;
+        oss << "Parameter '" << name << "' is undefined";
+        throw eckit::UserError(oss.str());
+    }
+    const std::vector<std::string>& c = p->values();
+    if (c.size() > 1) {
+        std::ostringstream oss;
+        oss << "Parameter '" << name << "' has more than one value";
+        throw eckit::UserError(oss.str());
+    }
+
+    return c[0];
 }
 
 std::optional<std::reference_wrapper<const std::vector<std::string>>> MarsRequest::get(const std::string& keyword) const {
@@ -443,55 +476,55 @@ size_t MarsRawRequest::count() const {
 //     NOTIMP;
 // }
 
-// // recursively expand along keys in expvalues
-// void expand_along_keys(const MarsRequest& prototype,
-//                        const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
-//                        std::vector<MarsRequest>& requests, size_t i) {
+// recursively expand along keys in expvalues
+void expand_along_keys(const MarsRequest& prototype,
+                       const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
+                       std::vector<MarsRequest>& requests, size_t i) {
 
-//     if (i == expvalues.size()) {
-//         requests.push_back(prototype);
-//         return;
-//     }
+    if (i == expvalues.size()) {
+        requests.push_back(prototype);
+        return;
+    }
 
-//     const std::string& key                 = expvalues[i].first;
-//     const std::vector<std::string>& values = expvalues[i].second;
+    const std::string& key                 = expvalues[i].first;
+    const std::vector<std::string>& values = expvalues[i].second;
 
-//     MarsRequest req(prototype);
-//     for (auto& value : values) {
-//         req.setValue(key, value);
-//         expand_along_keys(req, expvalues, requests, i + 1);
-//     }
-// }
+    MarsRequest req(prototype);
+    for (auto& value : values) {
+        req.setValue(key, value);
+        expand_along_keys(req, expvalues, requests, i + 1);
+    }
+}
 
-// std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys) const {
+std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys) const {
 
-//     size_t n = 1;
+    size_t n = 1;
 
-//     LOG_DEBUG_LIB(LibMetkit) << "Splitting request with keys" << keys << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Splitting request with keys" << keys << std::endl;
 
-//     std::vector<std::pair<std::string, std::vector<std::string>>> expvalues;
-//     for (auto& key : keys) {
-//         std::vector<std::string> v = values(key, true);  // ok to be empty
-//         LOG_DEBUG_LIB(LibMetkit) << "splitting along key " << key << " n values " << v.size() << " values " << v
-//                                  << std::endl;
-//         if (v.empty())
-//             continue;
-//         n *= v.size();
-//         expvalues.emplace_back(std::make_pair(key, v));
-//     }
+    std::vector<std::pair<std::string, std::vector<std::string>>> expvalues;
+    for (auto& key : keys) {
+        std::vector<std::string> v = values(key, true);  // ok to be empty
+        LOG_DEBUG_LIB(LibMetkit) << "splitting along key " << key << " n values " << v.size() << " values " << v
+                                 << std::endl;
+        if (v.empty())
+            continue;
+        n *= v.size();
+        expvalues.emplace_back(std::make_pair(key, v));
+    }
 
-//     std::vector<MarsRequest> requests;
-//     requests.reserve(n);
+    std::vector<MarsRequest> requests;
+    requests.reserve(n);
 
-//     if (n == 1) {
-//         requests.push_back(*this);
-//         return requests;
-//     }
+    if (n == 1) {
+        requests.push_back(*this);
+        return requests;
+    }
 
-//     expand_along_keys(*this, expvalues, requests, 0);
+    expand_along_keys(*this, expvalues, requests, 0);
 
-//     return requests;
-// }
+    return requests;
+}
 
 // std::vector<MarsRequest> MarsRequest::split(const std::string& key) const {
 //     std::vector<std::string> keys = {key};
@@ -514,12 +547,12 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
 //     MarsLanguage::get(verb_);
 // }
 
-// bool MarsRequest::operator<(const MarsRequest& other) const {
-//     if (verb_ != other.verb_) {
-//         return verb_ < other.verb_;
-//     }
-//     return params_ < other.params_;
-// }
+bool MarsRequest::operator<(const MarsRequest& other) const {
+    if (verb() != other.verb()) {
+        return verb() < other.verb();
+    }
+    return parameters() < other.parameters();
+}
 
 // const std::string& MarsRequest::verb() const {
 //     return MarsLanguage::name(verb_);
@@ -581,34 +614,28 @@ MarsRequest MarsRequest::parse(const std::string& s, bool strict) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// TODO split
+bool MarsRawRequest::filter(const MarsRequest& filter) {
+    for (auto& p : parameters()) {
+        if (p.name() == "date") {
+            auto fp = filter.find("day");
+            if (fp) {
+                if (!p.filter("day", fp->values())) {
+                    return false;
+                }
+            }
+        }
 
-// bool MarsRequest::filter(const MarsRequest& filter) {
+        auto fp = filter.find(p.name());
+        if (!fp) {
+            continue;
+        }
 
-//     Keyword date = MarsLanguage::keyword("date");
-//     Keyword day  = MarsLanguage::keyword("day");
-
-//     for (const auto& p : parameters()) {
-//         if (p->id() == date) {
-//             auto fp = filter.find("day");
-//             if (fp) {
-//                 if (!p->filter(day, fp->values())) {
-//                     return false;
-//                 }
-//             }
-//         }
-
-//         auto fp = filter.find(p->id());
-//         if (!fp) {
-//             continue;
-//         }
-
-//         if (!p->filter(fp->values())) {
-//             return false;
-//         }
-//     }
-//     return true;
-// }
+        if (!p.filter(fp->values())) {
+            return false;
+        }
+    }
+    return true;
+}
 
 bool MarsRawRequest::matches(const MarsRequest& matches) const {
     for (const auto& p : matches.parameters()) {
@@ -933,6 +960,34 @@ void MarsValidatedRequest::setValuesTyped(std::shared_ptr<const Type> type, cons
     }
     paramMap_[type->id()] = params_.size();
     params_.emplace_back(std::make_unique<TypeParameter>(values, type));
+}
+
+
+bool MarsValidatedRequest::filter(const MarsRequest& filter) {
+
+    Keyword date = MarsLanguage::keyword("date");
+    Keyword day  = MarsLanguage::keyword("day");
+
+    for (auto& p : parameters()) {
+        if (p.id() == date) {
+            auto fp = filter.find(day);
+            if (fp) {
+                if (!p.filter(day, fp->values())) {
+                    return false;
+                }
+            }
+        }
+
+        auto fp = filter.find(p.id());
+        if (!fp) {
+            continue;
+        }
+
+        if (!p.filter(fp->values())) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool MarsValidatedRequest::matches(const MarsRequest& filter) const {

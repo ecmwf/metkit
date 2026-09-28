@@ -20,6 +20,7 @@ namespace metkit::mars {
 
 
 TypeAny::TypeAny(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {}
+TypeAny::TypeAny(const std::string& name) : Type(MarsLanguage::addKeyword(name), eckit::Value()) {}
 
 std::shared_ptr<TypeAny> TypeAny::create(Keyword keyword, const eckit::Value& settings) {
     return std::shared_ptr<TypeAny>(new TypeAny(keyword, settings));

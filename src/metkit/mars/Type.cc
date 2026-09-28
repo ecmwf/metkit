@@ -147,7 +147,9 @@ std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
 Keyword Context::maxAxisIndex() const {
     Keyword maxIndex = 0;
     for (const auto& r : rules_) {
-        maxIndex = std::max(maxIndex, r->key());
+        if (r->key() < MarsLanguage::maxDataKeyword()) {
+            maxIndex = std::max(maxIndex, r->key());
+        }
     }
     return maxIndex;
 }

@@ -56,13 +56,13 @@ public:
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter);
-    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter);
+    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter) = 0;
     virtual bool matches(const std::vector<std::string>& matches) const;
 
     void merge(const Parameter& p);
 
     virtual size_t count() const;
-    
+
     virtual const Type& type() const { NOTIMP; }
 
     virtual void print(std::ostream&) const = 0;
@@ -84,6 +84,7 @@ public:
     // Parameter(std::vector<std::string>&& values) : values_(std::move(values)) {}
 
     Parameter& operator=(Parameter&& other) = default;
+    bool operator<(const Parameter&) const;
 
     Keyword id() const { return impl_->id(); }
     const std::string& name() const { return impl_->name(); }
@@ -95,6 +96,7 @@ public:
 
     bool filter(const std::vector<std::string>& filter) { return impl_->filter(filter); }
     bool filter(Keyword keyword, const std::vector<std::string>& filter) { return impl_->filter(keyword, filter); }
+    bool filter(const std::string& name, const std::vector<std::string>& filter);
     bool matches(const std::vector<std::string>& matches) const { return impl_->matches(matches); }
 
     void merge(const Parameter& p) { impl_->merge(p); }
@@ -129,6 +131,8 @@ public:
 
     Keyword id() const override;
     const std::string& name() const override { return name_; }
+
+    bool filter(Keyword keyword, const std::vector<std::string>& filter) override;
 
     void print(std::ostream&) const override;
 

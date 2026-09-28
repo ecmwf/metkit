@@ -99,6 +99,7 @@ public:  // methods
     virtual const std::vector<std::string>& values(Keyword, bool emptyOk = false) const = 0;
     virtual const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const = 0;
 
+    std::vector<Parameter>& parameters() { return params_; }
     const std::vector<Parameter>& parameters() const { return params_; }
 
     virtual void values(Keyword, const std::vector<std::string>&) = 0;
@@ -107,10 +108,6 @@ public:  // methods
     virtual void erase(Keyword) = 0;
     virtual void erase(const std::string&) = 0;
 
-    // /// Splits a MARS request into multiple requests along the provided key
-    // std::vector<MarsRequest> split(const std::string& keys) const;
-    // /// Splits a MARS request into multiple requests along the indicated keys
-    // std::vector<MarsRequest> split(const std::vector<std::string>& keys) const;
 
     /// Merges one MarsRequest into another
     // parameters existing in the other request but not present in the current request will be ignored
@@ -123,7 +120,7 @@ public:  // methods
 
     virtual void setValuesTyped(std::shared_ptr<const Type>, const std::vector<std::string>&) = 0;
 
-    bool filter(const MarsRequest& filter);
+    virtual bool filter(const MarsRequest& filter) = 0;
     virtual bool matches(const MarsRequest& filter) const = 0;
     bool empty() const { return params_.empty(); }
 
@@ -145,12 +142,14 @@ public:  // methods
     MarsRequest(Verb verb);
     MarsRequest(const std::string& verb);
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
+    MarsRequest(const std::string&, const eckit::Value&);
     MarsRequest(const MarsRequest& request);
     MarsRequest(MarsRequest&& other);
     explicit MarsRequest(eckit::Stream& s, bool validate = false, bool lowercase = false);
 
     MarsRequest& operator=(const MarsRequest& other);
     MarsRequest& operator=(MarsRequest&& other);
+    const std::string& operator[](const std::string&) const;
 
     Verb verbId() const { return req_->verbId(); }
     const std::string& verb() const { return req_->verb(); }
@@ -178,6 +177,7 @@ public:  // methods
 
     std::vector<std::string> params() const;
 
+    std::vector<Parameter>& parameters() { return req_->parameters(); }
     const std::vector<Parameter>& parameters() const { return req_->parameters(); }
 
     template <class T>
@@ -193,6 +193,11 @@ public:  // methods
 
     void erase(Keyword key) { req_->erase(key); }
     void erase(const std::string& name) { req_->erase(name); }
+
+    // /// Splits a MARS request into multiple requests along the provided key
+    // std::vector<MarsRequest> split(const std::string& keys) const;
+    /// Splits a MARS request into multiple requests along the indicated keys
+    std::vector<MarsRequest> split(const std::vector<std::string>& keys) const;
 
     /// Merges one MarsRequest into another
     // parameters existing in the other request but not present in the current request will be ignored
@@ -213,6 +218,8 @@ public:  // methods
     bool filter(const MarsRequest& filter) { return req_->filter(filter); }
     bool matches(const MarsRequest& other) const { return req_->matches(other); }
     bool empty() const { return req_->empty(); }
+
+    bool operator<(const MarsRequest& other) const;
 
     size_t count() const { return req_->count(); }
 
@@ -341,6 +348,7 @@ public:
     
     void setValuesTyped(std::shared_ptr<const Type>, const std::vector<std::string>&) override;
     
+    bool filter(const MarsRequest& filter) override;
     bool matches(const MarsRequest& filter) const override;
 
     const Parameter* find(Keyword) const override;
@@ -396,6 +404,7 @@ public:
 
     void setValuesTyped(std::shared_ptr<const Type>, const std::vector<std::string>&) override;
 
+    bool filter(const MarsRequest& filter) override;
     bool matches(const MarsRequest& filter) const override;
 
     const Parameter* find(Keyword) const override;

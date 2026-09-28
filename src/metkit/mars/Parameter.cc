@@ -99,6 +99,17 @@ Parameter::Parameter(std::unique_ptr<ParameterBase>&& param) {
     impl_ = std::move(param);
 }
 
+bool Parameter::operator<(const Parameter& other) const {
+    if (name() != other.name()) {
+        return name() < other.name();
+    }
+    return values() < other.values();
+}
+
+bool Parameter::filter(const std::string& name, const std::vector<std::string>& filter) {
+    return impl_->filter(MarsLanguage::keyword(name), filter);
+}
+
 // Parameter& Parameter::operator=(Parameter&& other) {
 //     impl_ = std::move(other.impl_);
 //     return *this;
@@ -120,6 +131,13 @@ StringParameter& StringParameter::operator=(const StringParameter& other) {
 Keyword StringParameter::id() const {
     return MarsLanguage::keyword(name_);
 }
+
+bool StringParameter::filter(Keyword keyword, const std::vector<std::string>& filter) {
+    NOTIMP;
+    // auto& lang = MarsLanguage::get("retrieve");
+    // return lang.type(name_)->filter(keyword, filter, values_);
+}
+
 
 void StringParameter::print(std::ostream& s) const {
     s << "StringParameter[name=" << name_ << ",values=" << values_ << "]";

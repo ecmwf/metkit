@@ -25,6 +25,7 @@ class TypeAny : public Type {
 
 public:  // methods
     TypeAny(Keyword keyword, const eckit::Value& settings);
+    TypeAny(const std::string& name);
 
     // // Everyone else has to use this factory function, hence all Type objects will be contained in shared_ptr
     static std::shared_ptr<TypeAny> create(Keyword keyword, const eckit::Value& settings = eckit::Value());

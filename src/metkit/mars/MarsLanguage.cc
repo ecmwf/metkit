@@ -103,9 +103,11 @@ void MarsLanguage::init() {
         keywords_.add(a);
     }
     maxDataKeyword_ = keywords_.size();
-    std::cout << "Keywords: " << keywords_ << std::endl << "Max data keyword index: " << maxDataKeyword_ << std::endl;
     keywords_.add("day");
-    verbs_.add("filter");
+    keywords_.add("output");
+    keywords_.add("pseudodate");
+
+    // verbs_.add("filter");
     verbs_.add("verb");
     verbs_.add("environ");
 }
@@ -129,8 +131,7 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
 
             auto it = types_.find(key);
             if (it != types_.end()) {
-                ASSERT(it->second->category() != Category::Data ||
-                       maxIndex <= metkit::hypercube::AxisOrder::instance().index(keywords_.name(key)));
+                ASSERT(it->second->category() != Category::Data || maxIndex <= key);
 
                 if (typ == ModifierType::UNSET) {
                     it->second->unset(ctx);

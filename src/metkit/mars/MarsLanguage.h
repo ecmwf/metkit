@@ -113,6 +113,7 @@ public:  // class methods
     static Keyword addKeyword(const std::string& name);
     static Keyword hasKeyword(const std::string& name);
     static Keyword keyword(const std::string& name);
+    static Keyword maxDataKeyword() { return maxDataKeyword_; }
     static const std::string& name(Keyword keyword);
 
     static void init();
