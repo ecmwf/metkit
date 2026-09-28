@@ -346,18 +346,6 @@ impl<S: RequestState> MarsRequest<S> {
         }
     }
 
-    /// Extract parameters by category (e.g. `"postproc"`).
-    ///
-    /// Returns a new request containing only the extracted parameters,
-    /// keeping the expansion state. Mirrors C++ `MarsRequest::extract()`.
-    pub fn extract(&self, category: &str) -> Result<Self> {
-        let inner = self.inner.extract(category).map_err(crate::Error::from)?;
-        Ok(Self {
-            inner,
-            _state: PhantomData,
-        })
-    }
-
     /// Serialize the parameters to JSON, in metkit's own format.
     ///
     /// Mirrors eckit's `JSON << MarsRequest`: the object holds only the
