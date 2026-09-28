@@ -202,11 +202,6 @@ class Roundtrip : public eckit::Tool {
                 while (codes_keys_iterator_next(kiter) != 0) {
                     const auto* key = codes_keys_iterator_get_name(kiter);
 
-                    // Ignore key radius until ECC-2339 is resolved
-                    if (std::strcmp(key, "radius") == 0) {
-                        continue;
-                    }
-
                     auto err = codes_compare_key(g, h2, key, 0);
                     if (err != CODES_SUCCESS && err != CODES_NOT_IMPLEMENTED /*key doesn't support comparison*/) {
                         out << "Key differs: '" << key << "' (" << codes_get_error_message(err) << ")" << std::endl;
