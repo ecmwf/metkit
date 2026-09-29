@@ -11,7 +11,7 @@
 
 ///
 /// @file grib-to-mtg2.cc
-/// @brief CLI tool for converting GRIB1 to MTG2 compliant GRIB2 files.
+/// @brief CLI tool for converting (pre-MTG2) GRIB to MTG2-compliant GRIB2 files.
 ///
 
 #include <cstddef>
@@ -47,11 +47,11 @@ using namespace eckit::option;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Grib1ToGrib2Tool final : public eckit::EckitTool {
+class GribToMtg2Tool final : public eckit::EckitTool {
 public:
 
-    Grib1ToGrib2Tool(int argc, char** argv);
-    ~Grib1ToGrib2Tool() override = default;
+    GribToMtg2Tool(int argc, char** argv);
+    ~GribToMtg2Tool() override = default;
 
 private:
 
@@ -68,7 +68,7 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Grib1ToGrib2Tool::Grib1ToGrib2Tool(int argc, char** argv) : eckit::EckitTool(argc, argv) {
+GribToMtg2Tool::GribToMtg2Tool(int argc, char** argv) : eckit::EckitTool(argc, argv) {
     options_.push_back(new eckit::option::SimpleOption<bool>("help", "Print this help message"));
 
     // Input handling
@@ -84,7 +84,7 @@ Grib1ToGrib2Tool::Grib1ToGrib2Tool(int argc, char** argv) : eckit::EckitTool(arg
         new eckit::option::SimpleOption<long>("generatingProcessIdentifier", "Override generatingProcessIdentifier"));
 }
 
-void Grib1ToGrib2Tool::init(const CmdArgs& args) {
+void GribToMtg2Tool::init(const CmdArgs& args) {
     skipDiscipline192_ = args.has("skip-discipline-192");
     skipSection3_      = args.has("skip-section-3");
 
@@ -101,10 +101,10 @@ void Grib1ToGrib2Tool::init(const CmdArgs& args) {
     }
 }
 
-void Grib1ToGrib2Tool::usage(const std::string& tool) const {
+void GribToMtg2Tool::usage(const std::string& tool) const {
     Log::info() << "Usage: " << tool << " [options] input output" << std::endl
                 << std::endl
-                << "Convert (pre-MTG2) GRIB1 to (post-MTG2) GRIB2" << std::endl
+                << "Convert (pre-MTG2) GRIB to (post-MTG2) GRIB2" << std::endl
                 << std::endl;
 }
 
@@ -392,7 +392,7 @@ bool skipStepZero(const long param) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
+void GribToMtg2Tool::execute(const CmdArgs& args) {
 
     // Handles to conversion libraries
     metkit::grib2mars::Grib2Mars grib2mars{{"skipSection3", skipSection3_}};
@@ -462,6 +462,6 @@ void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
 //----------------------------------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-    Grib1ToGrib2Tool tool(argc, argv);
+    GribToMtg2Tool tool(argc, argv);
     return tool.start();
 }
