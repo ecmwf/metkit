@@ -31,3 +31,17 @@ ecbuild_add_test(
         eckit
         metkit
 )
+
+ecbuild_add_test(
+    TARGET
+        mars2mars-test-03
+
+    SOURCES
+        mars2mars-test-03.cc
+
+    NO_AS_NEEDED
+
+    LIBS
+        eckit
+        metkit
+)

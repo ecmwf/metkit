@@ -244,7 +244,8 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
             if constexpr ((Section == SecProductDefinitionSection) && (Variant == ReferenceTimeType::Reforecast)) {
 
                 // Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {60L, 61L, 152, 153});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out,
+                                                                           {60L, 61L, 140L, 142L, 152L, 153L});
 
                 // Model-version date/time is the resolved ProductTimeSpec
                 // reference datetime.
