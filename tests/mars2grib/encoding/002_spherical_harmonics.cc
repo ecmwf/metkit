@@ -43,7 +43,14 @@ CASE("encoding") {
         long J;   // truncation (J = K = M)
         long JS;  // subSetTruncation (JS = KS = MS)
     } tests[]{
-        {"T1279/20", 1279, 20}, {"T1279/42", 1279, 42}, {"T20/10", 20, 10}, {"T20/20", 20, 20}, {"T1/1", 1, 1},
+        {"T1279/42", 1279, 42},  //
+        {"T1279/20", 1279, 20},  //
+        {"T1279", 1279, -1},     // (default subset)
+        {"T20/20", 20, 20},      //
+        {"T20/10", 20, 10},      //
+        {"T20", 20, -1},         // (default subset)
+        {"T1/1", 1, 1},          //
+        {"T1", 1, -1},           // (default subset)
     };
 
     for (const auto& [label, J, JS] : tests) {
@@ -70,13 +77,14 @@ CASE("encoding") {
                 mars.set("truncation", J);
             }
 
+            const auto S = JS >= 0 ? JS : default_sub_set_truncation(J);
             eckit::LocalConfiguration misc;
             misc.set("subSetTruncation", JS);
 
 
             // GRIB
             const std::vector<double> vals(number_of_real_coefficients(J), 273.15);
-            const auto handle = Mars2Grib().encode(vals, mars, misc);
+            const auto handle = JS >= 0 ? Mars2Grib().encode(vals, mars, misc) : Mars2Grib().encode(vals, mars);
             ASSERT(handle);
 
             if (useGridSpec) {
@@ -94,12 +102,12 @@ CASE("encoding") {
             EXPECT(handle->getLong("J") == J);
             EXPECT(handle->getLong("K") == J);
             EXPECT(handle->getLong("M") == J);
-            EXPECT(handle->getLong("JS") == JS);
-            EXPECT(handle->getLong("KS") == JS);
-            EXPECT(handle->getLong("MS") == JS);
+            EXPECT(handle->getLong("JS") == S);
+            EXPECT(handle->getLong("KS") == S);
+            EXPECT(handle->getLong("MS") == S);
 
             EXPECT(handle->getLong("numberOfDataPoints") == number_of_real_coefficients(J));
-            EXPECT(handle->getLong("TS") == number_of_real_coefficients(JS));
+            EXPECT(handle->getLong("TS") == number_of_real_coefficients(S));
 
             if (JS == J) {
                 // no coefficients are packed, these are unused
