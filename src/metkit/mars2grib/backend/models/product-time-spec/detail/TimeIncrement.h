@@ -163,7 +163,7 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals forecastTypeOfTim
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return TypeOfTimeIntervals::SameForecastTimeStartIncremented;
+        return TypeOfTimeIntervals::SameStartTimeForecastIncremented;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `forecastTypeOfTimeIncrement`", Here()));
@@ -180,7 +180,7 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals analysisTypeOfTim
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+        return TypeOfTimeIntervals::SameForecastTimeStartIncremented;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `analysisTypeOfTimeIncrement`", Here()));

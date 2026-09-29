@@ -30,15 +30,18 @@ CASE("SEAS6 Statistics Encoding Failure") {
     mars.set("levelist", 0);
     mars.set("date", 2001'05'01);
     mars.set("time", 00'00);
-    mars.set("step", 744);
+    // mars.set("step", 744);
+    mars.set("fcmonth", 1);
     mars.set("timespan", 24);
     mars.set("number", 0);
     mars.set("system", 0);
     mars.set("method", 1);
+    eckit::LocalConfiguration misc;
+    misc.set("timeIncrementInSeconds", 600);
 
     std::vector<double> vals(167200, 0);
 
-    const auto handle = encoder.encode(vals, mars);
+    const auto handle = encoder.encode(vals, mars, misc);
 
     // MARS
     EXPECT_EQUAL(handle->getLong("step"), 744);

@@ -178,7 +178,13 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 set_or_throw<long>(out, "hourOfEndOfOverallTimeInterval", end.time().hours());
                 set_or_throw<long>(out, "minuteOfEndOfOverallTimeInterval", end.time().minutes());
                 set_or_throw<long>(out, "secondOfEndOfOverallTimeInterval", end.time().seconds());
+
+
+                std::cerr << "TimeSpec:: " << spec.to_json() << std::endl;
+
             }
+
+
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(statistics, "Unable to set `statistics` concept...");
