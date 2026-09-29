@@ -37,7 +37,7 @@ eckit::LocalConfiguration waveRequest(const std::string& stream, const std::stri
     if (type == "pf") {
         mars.set("number", 4L);
     }
-    if (stream == "enwh") {
+    if (stream == "enwh" || stream == "weeh") {
         mars.set("hdate", 20201001L);
     }
     return mars;
@@ -77,10 +77,32 @@ CASE("enwh cf is converted to enfh") {
     EXPECT_EQUAL(convertedStream(waveRequest("enwh", "cf")), "enfh");
 }
 
+CASE("weef is converted to eefo") {
+    EXPECT_EQUAL(convertedStream(waveRequest("weef", "pf")), "eefo");
+    EXPECT_EQUAL(convertedStream(waveRequest("weef", "cf")), "eefo");
+}
+
+CASE("weeh is converted to eefh, keeping hdate and number") {
+    const auto in        = waveRequest("weeh", "pf");
+    const auto converted = metkit::mars2mars::Mars2Mars{}.convert(in).mars;
+
+    EXPECT_EQUAL(converted.getString("stream"), "eefh");
+    EXPECT_EQUAL(converted.getString("type"), "pf");
+    EXPECT_EQUAL(converted.getLong("hdate"), 20201001L);
+    EXPECT_EQUAL(converted.getLong("number"), 4L);
+    EXPECT_EQUAL(converted.getLong("param"), 140229L);
+}
+
+CASE("weeh cf is converted to eefh") {
+    EXPECT_EQUAL(convertedStream(waveRequest("weeh", "cf")), "eefh");
+}
+
 CASE("atmospheric streams are unchanged") {
     EXPECT_EQUAL(convertedStream(waveRequest("oper", "fc")), "oper");
     EXPECT_EQUAL(convertedStream(waveRequest("enfo", "pf")), "enfo");
     EXPECT_EQUAL(convertedStream(waveRequest("enfh", "pf")), "enfh");
+    EXPECT_EQUAL(convertedStream(waveRequest("eefo", "pf")), "eefo");
+    EXPECT_EQUAL(convertedStream(waveRequest("eefh", "pf")), "eefh");
 }
 
 int main(int argc, char** argv) {
