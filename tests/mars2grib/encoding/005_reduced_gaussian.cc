@@ -17,6 +17,7 @@
 #include "eckit/geo/Grid.h"
 #include "eckit/geo/Point.h"
 #include "eckit/geo/Projection.h"
+#include "eckit/log/Log.h"
 #include "eckit/testing/Test.h"
 #include "eckit/types/FloatCompare.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
@@ -245,6 +246,11 @@ CASE("O1280") {
 }
 
 CASE("O80 (rotated)") {
+    if (!useGridSpec) {
+        eckit::Log::warning() << "rotated grids require gridSpec (ECCODES_ECKIT_GEO), test skipped" << std::endl;
+        return;
+    }
+
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     // the grid of ecCodes' gridType=reduced_rotated_gg.grib (third message)
@@ -253,8 +259,7 @@ CASE("O80 (rotated)") {
     mars.set("stream", "oper");
     mars.set("type", "fc");
     mars.set("expver", "test");
-    mars.set("grid", "O80");
-    mars.set("rotation", std::vector<double>{30, 30});
+    mars.set("grid", R"({"grid":"O80","rotation":[30,30]})");
     mars.set("packing", "ccsds");
     mars.set("param", 130);
     mars.set("levtype", "pl");
@@ -291,27 +296,25 @@ CASE("O80 (rotated)") {
 
     EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 28480);
 
-    if (useGridSpec) {
-        // coordinates of the first points, from a grid built from the encoded gridSpec
-        const std::vector<eckit::geo::PointLonLat> points_ref{
-            {-150.00000000000000, -29.14151942646109}, {-150.30384489745967, -29.18318764253491},
-            {-150.57863834893357, -29.30420953577266}, {-150.79791950179472, -29.49299204833164},
-            {-150.94024317792739, -29.73137429450929}, {-150.99126325558376, -29.99628694451165},
-            {-150.94528301220487, -30.26190855703454}, {-150.80607488769962, -30.50214705912438},
-            {-150.58679467788403, -30.69322436612787}, {-150.30888625761696, -30.81610305894176},
-        };
+    // coordinates of the first points, from a grid built from the encoded gridSpec
+    const std::vector<eckit::geo::PointLonLat> points_ref{
+        {-150.00000000000000, -29.14151942646109}, {-150.30384489745967, -29.18318764253491},
+        {-150.57863834893357, -29.30420953577266}, {-150.79791950179472, -29.49299204833164},
+        {-150.94024317792739, -29.73137429450929}, {-150.99126325558376, -29.99628694451165},
+        {-150.94528301220487, -30.26190855703454}, {-150.80607488769962, -30.50214705912438},
+        {-150.58679467788403, -30.69322436612787}, {-150.30888625761696, -30.81610305894176},
+    };
 
-        std::unique_ptr<const eckit::geo::Grid> grid(
-            eckit::geo::GridFactory::make_from_string(handle->getString("gridSpec")));
-        ASSERT(grid);
+    std::unique_ptr<const eckit::geo::Grid> grid(
+        eckit::geo::GridFactory::make_from_string(handle->getString("gridSpec")));
+    ASSERT(grid);
 
-        EXPECT(grid->projection().type() == "rotation");
-        EXPECT(grid->size() == 28480);
+    EXPECT(grid->projection().type() == "rotation");
+    EXPECT(grid->size() == 28480);
 
-        const auto points = grid->to_points();
-        for (size_t i = 0; i < points_ref.size(); ++i) {
-            EXPECT(eckit::geo::points_equal(points[i], points_ref[i], EPS));
-        }
+    const auto points = grid->to_points();
+    for (size_t i = 0; i < points_ref.size(); ++i) {
+        EXPECT(eckit::geo::points_equal(points[i], points_ref[i], EPS));
     }
 }
 
