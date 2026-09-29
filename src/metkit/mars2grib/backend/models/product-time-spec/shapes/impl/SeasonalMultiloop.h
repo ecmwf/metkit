@@ -72,7 +72,7 @@ inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input) {
 
     try {
         const bool hasSeasonalClass    = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
-        const bool hasSeasonalStream   = input.marsStream == "sfmd" || input.marsStream == "shmd";
+        const bool hasSeasonalStream   = input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd";
         const bool hasNoStep           = !input.step.has_value();
         const bool hasFcmonth          = input.marsFcmonth.has_value();
         const bool isForecast          = input.simulationType == SimulationType::Forecast;

@@ -66,7 +66,7 @@ inline bool match_FromStartForecast_Domain(const ProductTimeSpecInput& input) {
         const bool isNotSynoptic = !input.isSynoptic;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
-            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+            (input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd");
         const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
         const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
         const bool isForecast               = input.simulationType == SimulationType::Forecast;
