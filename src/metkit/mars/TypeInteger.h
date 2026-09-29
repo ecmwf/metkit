@@ -29,7 +29,9 @@ class TypeInteger : public Type {
 
 public:  // methods
 
-    TypeInteger(const std::string& name, const eckit::Value& settings);
+    TypeInteger(Keyword keyword, const eckit::Value& settings);
+
+    ~TypeInteger() noexcept override = default;
 
 protected:
 

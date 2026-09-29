@@ -19,6 +19,7 @@
 #include "eckit/testing/Test.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypeDate.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -42,16 +43,12 @@ CASE("test_build") {
     eckit::ValueMap settings;
     settings["type"] = "date";
 
-    Type* t1(TypesFactory::build("abcd", eckit::Value(settings)));
+    auto t1 = TypesFactory::build(MarsLanguage::addKeyword("abcd"), eckit::Value(settings));
 
     EXPECT(t1 != 0);
-    t1->attach();
 
     // Check that we have obtained the correct type
-    EXPECT(dynamic_cast<TypeDate*>(t1) != 0);
-
-    // Clean up, taking into account that ~Type is protected.
-    t1->detach();
+    EXPECT(dynamic_cast<TypeDate*>(t1.get()) != 0);
 }
 
 }  // namespace metkit::mars::test

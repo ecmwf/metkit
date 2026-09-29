@@ -31,6 +31,7 @@ public:
 
     static uint16_t binaryFilesVersion() { return 1; }
 
+    static eckit::PathName languageBinaryFile();
     static eckit::PathName languageYamlFile();
     static std::vector<eckit::PathName> modifiersYamlFiles();
     static eckit::PathName paramYamlFile();

@@ -23,6 +23,7 @@ list( APPEND metkit_srcs
     mars/ClientTask.h
     mars/DHSProtocol.cc
     mars/DHSProtocol.h
+    mars/Dictionary.h
     mars/Matcher.cc
     mars/Matcher.h
     mars/MarsExpansion.cc
@@ -31,8 +32,8 @@ list( APPEND metkit_srcs
     mars/MarsHandle.h
     mars/MarsLanguage.cc
     mars/MarsLanguage.h
-    mars/MarsLocation.cc
-    mars/MarsLocation.h
+    # mars/MarsLocation.cc
+    # mars/MarsLocation.h
     mars/MarsParsedRequest.cc
     mars/MarsParsedRequest.h
     mars/MarsParser.cc

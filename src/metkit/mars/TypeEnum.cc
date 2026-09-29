@@ -25,7 +25,7 @@ void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicate
     std::string value = eckit::StringTools::lower(vv);
     if (!allowDuplicates && values_.find(value) != values_.end()) {
         std::ostringstream oss;
-        oss << "Redefined enum value '" << value << "' while parsing " << name_;
+        oss << "Redefined enum value '" << value << "' while parsing " << name();
         throw eckit::SeriousBug(oss.str());
     }
     values_[value] = idx;
@@ -89,9 +89,9 @@ void TypeEnum::readValuesFile() const {
     }
 }
 
-TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+TypeEnum::TypeEnum(Keyword keyword, const eckit::Value& settings) : Type(keyword, settings) {
 
-    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name() << " settings=" << settings << std::endl;
 
     eckit::Value values = settings["values"];
     if (settings.contains("uppercase")) {
@@ -109,7 +109,7 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
 }
 
 void TypeEnum::print(std::ostream& out) const {
-    out << "TypeEnum[name=" << name_ << "]";
+    out << "TypeEnum[name=" << name() << "]";
 }
 
 bool TypeEnum::expand(std::string& value, const MarsRequest& request) const {

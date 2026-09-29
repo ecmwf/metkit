@@ -55,6 +55,9 @@ eckit::PathName LibMetkit::configFile(const std::string& filename) {
     return eckit::PathName{"~metkit/share/metkit"} / filename;
 }
 
+eckit::PathName LibMetkit::languageBinaryFile() {
+    return LibMetkit::configFile("language.bin");
+}
 eckit::PathName LibMetkit::languageYamlFile() {
     return LibMetkit::configFile("language.yaml");
 }

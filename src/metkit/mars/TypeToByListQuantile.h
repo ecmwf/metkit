@@ -22,9 +22,9 @@ namespace metkit::mars {
 
 class TypeToByListQuantile : public Type {
 
-public:  // methods
+public:
 
-    TypeToByListQuantile(const std::string& name, const eckit::Value& settings);
+    TypeToByListQuantile(Keyword keyword, const eckit::Value& settings);
 
     ~TypeToByListQuantile() noexcept override = default;
 

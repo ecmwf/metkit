@@ -27,16 +27,16 @@ class TypeMixed : public Type {
 
 public:  // methods
 
-    TypeMixed(const std::string& name, const eckit::Value& settings);
+    TypeMixed(Keyword keyword, const eckit::Value& settings);
 
-    ~TypeMixed() noexcept override;
+    ~TypeMixed() noexcept override = default;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
     bool expand(std::string& value, const MarsRequest& request) const override;
 
-    std::vector<std::pair<std::unique_ptr<Context>, Type*>> types_;
+    std::vector<std::pair<std::unique_ptr<Context>, std::shared_ptr<Type>>> types_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -25,7 +25,8 @@ class TypeAny : public Type {
 
 public:  // methods
 
-    TypeAny(const std::string& name, const eckit::Value& settings = eckit::Value());
+    TypeAny(Keyword keyword, const eckit::Value& settings);
+    TypeAny(const std::string& name);
 
     ~TypeAny() noexcept override = default;
 

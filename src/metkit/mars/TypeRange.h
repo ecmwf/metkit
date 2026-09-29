@@ -26,7 +26,7 @@ class TypeRange : public Type {
 
 public:  // methods
 
-    TypeRange(const std::string& name, const eckit::Value& settings);
+    TypeRange(Keyword keyword, const eckit::Value& settings);
 
     ~TypeRange() noexcept override = default;
 
