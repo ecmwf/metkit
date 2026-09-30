@@ -179,9 +179,6 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 set_or_throw<long>(out, "minuteOfEndOfOverallTimeInterval", end.time().minutes());
                 set_or_throw<long>(out, "secondOfEndOfOverallTimeInterval", end.time().seconds());
 
-
-                std::cerr << "TimeSpec:: " << spec.to_json() << std::endl;
-
             }
 
 
