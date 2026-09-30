@@ -97,12 +97,20 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
     const MarsDict_t& mars, const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt) {
 
     using metkit::mars2grib::backend::tables::TypeOfGeneratingProcess;
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     // N.B. Sometimes this is overwritten by eccodes as a side effect of setting `param`
     try {
+
+        const auto model = get_opt<std::string>(mars, "model");
+
+        // AIFS Single is a non-ensemble forecast
+        if (model && *model == "aifs-single") {
+            return TypeOfGeneratingProcess::Forecast;
+        }
 
         // Retrieve mandatory type from MARS dictionary
         std::string marsTypeVal = get_or_throw<std::string>(mars, "type");

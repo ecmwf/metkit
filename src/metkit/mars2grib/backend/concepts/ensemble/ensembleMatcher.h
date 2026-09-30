@@ -71,6 +71,12 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         const auto stream = get_opt<std::string>(mars, "stream");
         const auto type   = get_opt<std::string>(mars, "type");
+        const auto model  = get_opt<std::string>(mars, "model");
+
+        // AIFS Single is a non-ensemble forecast
+        if (model && *model == "aifs-single") {
+            return compile_time_registry_engine::MISSING;
+        }
 
         // Control forecasts carry no MARS `number`; it is implied to be 0, and they are encoded as ensemble member 0
         // rather than as deterministic fields

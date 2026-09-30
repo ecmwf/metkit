@@ -10,6 +10,7 @@ list( APPEND MARS2GRIB_ENCODING_TESTS
     009_enfh_chemical_reforecast
     010_oper_enfo_chemical
     011_aifs_fs_accumulation
+    012_aifs-single_as_non_ensemble
 )
 
 list( SORT MARS2GRIB_ENCODING_TESTS )
