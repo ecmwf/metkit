@@ -37,7 +37,7 @@ CASE("SEAS6 Statistics Encoding Failure") {
     mars.set("system", 0);
     mars.set("method", 1);
     eckit::LocalConfiguration misc;
-    misc.set("timeIncrementInSeconds", 600);
+    // misc.set("timeIncrementInSeconds", 600);
 
     std::vector<double> vals(167200, 0);
 

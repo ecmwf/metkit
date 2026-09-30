@@ -214,12 +214,14 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals typeOfTimeIncreme
         const bool isOneHourInnermostAnalysisLoop =
             isAnalysis && isMultiLoop && isInnermost && isOneHour(input, timeRange);
 
+        // TODO: This really has to be reviewed
         // if (isForecast || isOneHourInnermostAnalysisLoop) {
-        return forecastTypeOfTimeIncrement();
-        //}
-        // if (isAnalysis) {
-        //    return analysisTypeOfTimeIncrement();
-        //}
+        if (isForecast) {
+            return forecastTypeOfTimeIncrement();
+        }
+        if (isAnalysis) {
+            return analysisTypeOfTimeIncrement();
+        }
 
         throw Mars2GribModelException("typeOfTimeIncrement cannot be assigned to AnalysisOrForecast::Other",
                                       input.to_json(), Here());
