@@ -10,6 +10,7 @@ list( APPEND MARS2GRIB_ENCODING_TESTS
     009_enfh_chemical_reforecast
     010_oper_enfo_chemical
     011_enfh_wave_reforecast
+    011_seas6_stat_failure
 )
 
 list( SORT MARS2GRIB_ENCODING_TESTS )
