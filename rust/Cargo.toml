@@ -18,10 +18,10 @@ metkit-sys = { version = "1.22", path = "crates/metkit-sys", default-features = 
 metkit = { version = "1.22", path = "crates/metkit" }
 
 # Foundation crates
-eckit-sys = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop", default-features = false }
-eccodes-sys = { git = "ssh://git@github.com/ecmwf/rust-wrappers-playground.git", rev = "1c0e477", default-features = false }
+eckit-sys = { version = "2.3", default-features = false }
+eccodes-sys = { version = "2.49", default-features = false }
 # High-level wrappers
-eckit = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop", default-features = false }
+eckit = { version = "2.3", default-features = false }
 
 # Build tools
 bindman = { git = "ssh://git@github.com/ecmwf/bindman.git", rev = "25726ab" }
