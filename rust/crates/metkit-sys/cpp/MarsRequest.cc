@@ -83,10 +83,6 @@ void MarsRequestWrapper::unset_values(rust::Str key) {
     request_.unsetValues(std::string(key));
 }
 
-std::unique_ptr<MarsRequestWrapper> MarsRequestWrapper::extract(rust::Str category) const {
-    return std::make_unique<MarsRequestWrapper>(request_.extract(std::string(category)));
-}
-
 std::unique_ptr<MarsRequestWrapper> MarsRequestWrapper::expand(bool inherit, bool strict) const {
     metkit::mars::ExpansionContext ctx;
     auto expanded = metkit::mars::MarsLanguage::get(request_.verb()).expand(request_, ctx, inherit, strict);

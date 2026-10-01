@@ -237,6 +237,12 @@ fn build_vendored() -> std::path::PathBuf {
         .arg("--")
         .arg(&metkit_src)
         .arg(format!("-DCMAKE_PREFIX_PATH={cmake_prefix_path}"))
+        // Explicit rpath: dep prefixes inside an in-tree target dir (as in CI)
+        // are dropped by INSTALL_RPATH_USE_LINK_PATH, breaking build-tree tools.
+        .arg(bindman_utils::install_rpath_arg(&[
+            &eckit_root,
+            &eccodes_root,
+        ]))
         .arg(format!(
             "-DCMAKE_BUILD_TYPE={}",
             bindman_utils::cmake_build_type()
