@@ -75,7 +75,8 @@ inline bool match_SeasonalSingleLoop_Shape(const ProductTimeSpecInput& input) {
 
     try {
         const bool hasSeasonalClass  = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
-        const bool hasSeasonalStream = input.marsStream == "sfmd" || input.marsStream == "shmd";
+        const bool hasSeasonalStream =
+            input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd";
         const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
         const bool isForecast               = input.simulationType == SimulationType::Forecast;
         const bool isNotSynoptic            = !input.isSynoptic;
