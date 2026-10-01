@@ -336,13 +336,15 @@ CASE("Test generic has missing") {
 
 CASE("Test generic typed has valid") {
 
-#define TEST_TYPED_HAS_VALID(TYPE, TYPENAME_STRING, KEY)                                         \
-    {SECTION("has<" TYPENAME_STRING "> valid"){using metkit::mars2grib::utils::dict_traits::has; \
-    EXPECT_NO_THROW({                                                                            \
-        bool actual_has = has<TYPE>(cfg, (KEY));                                                 \
-        EXPECT(actual_has);                                                                      \
-    });                                                                                          \
-    }                                                                                            \
+#define TEST_TYPED_HAS_VALID(TYPE, TYPENAME_STRING, KEY)      \
+    {                                                         \
+        SECTION("has<" TYPENAME_STRING "> valid") {           \
+            using metkit::mars2grib::utils::dict_traits::has; \
+            EXPECT_NO_THROW({                                 \
+                bool actual_has = has<TYPE>(cfg, (KEY));      \
+                EXPECT(actual_has);                           \
+            });                                               \
+        }                                                     \
     }
 
     // Prepare a custom dictionary to test long
