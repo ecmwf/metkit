@@ -40,8 +40,12 @@
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
+// Deductions
+#include "metkit/mars2grib/backend/deductions/numberOfAdditionalParametersForReferencePeriod.h"
+
 // Utils
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -111,6 +115,7 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
     static_cast<void>(opt);
     static_cast<void>(out);
 
+    using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
     if constexpr (referencePeriodApplicable<Stage, Section, Variant>()) {
@@ -125,12 +130,15 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
             if constexpr (Stage == StageAllocate) {
 
                 // Set the number of additional parameters for the reference period
-                long numAdditionalParametersForReferencePeriod = deductions::resolve_numberOfAdditionalParametersForReferencePeriod_or_throw( mars, par, opt );
-                // TODO: long numberOfReferencePeriodTimeRanges = deductions::resolve_numberOfReferencePeriodTimeRanges_or_throw( mars, par, opt );
+                long numAdditionalParametersForReferencePeriod =
+                    deductions::resolve_numberOfAdditionalParametersForReferencePeriod_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "numberOfAdditionalParametersForReferencePeriod",
+                                   numAdditionalParametersForReferencePeriod);
 
-                set_or_throw(out, "numberOfAdditionalParametersForReferencePeriod", numAdditionalParametersForReferencePeriod);
-                set_or_throw(out, "numberOfReferencePeriodTimeRanges", numberOfReferencePeriodTimeRanges);
-
+                // TODO: long numberOfReferencePeriodTimeRanges =
+                //           deductions::resolve_numberOfReferencePeriodTimeRanges_or_throw(mars, par, opt);
+                // TODO: set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges",
+                // numberOfReferencePeriodTimeRanges);
             }
 
             if constexpr (Stage == StagePreset) {
@@ -147,28 +155,30 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
                 // sampleSizeOfReferencePeriod = 1980;
 
                 // No idea for the moment
-                // 86        typeOfStatisticalProcessingForTimeRangeForReferencePeriod = 255 [Missing (grib2/tables/34/4.102.table) ]
-                // 87        indicatorOfUnitForTimeRangeForReferencePeriod = 4 [Year (grib2/tables/34/4.4.table) ]
-                // 88-91     lengthOfTimeRangeForReferencePeriod = 20
-                // 92        typeOfStatisticalProcessingForTimeRangeForReferencePeriod = 255 [Missing (grib2/tables/34/4.102.table) ]
-                // 93        indicatorOfUnitForTimeRangeForReferencePeriod = 2 [Day (grib2/tables/34/4.4.table) ]
-                // 94-97     lengthOfTimeRangeForReferencePeriod = 35
+                // 86        typeOfStatisticalProcessingForTimeRangeForReferencePeriod = 255 [Missing
+                // (grib2/tables/34/4.102.table) ] 87        indicatorOfUnitForTimeRangeForReferencePeriod = 4 [Year
+                // (grib2/tables/34/4.4.table) ] 88-91     lengthOfTimeRangeForReferencePeriod = 20 92
+                // typeOfStatisticalProcessingForTimeRangeForReferencePeriod = 255 [Missing
+                // (grib2/tables/34/4.102.table) ] 93        indicatorOfUnitForTimeRangeForReferencePeriod = 2 [Day
+                // (grib2/tables/34/4.4.table) ] 94-97     lengthOfTimeRangeForReferencePeriod = 35
 
                 // 90-99:100
                 // <A[-B]>:<C>
-                // TODO: std::vector<long> scaleFactorOfAdditionalParameterForReferencePeriod = deductions::resolve_scaleFactorOfAdditionalParameterForReferencePeriod_or_throw( mars, par, opt );
-                // TODO: std::vector<long> scaledValueOfAdditionalParameterForReferencePeriod = deductions::resolve_scaledValueOfAdditionalParameterForReferencePeriod_or_throw( mars, par, opt );
+                // TODO: std::vector<long> scaleFactorOfAdditionalParameterForReferencePeriod =
+                // deductions::resolve_scaleFactorOfAdditionalParameterForReferencePeriod_or_throw( mars, par, opt );
+                // TODO: std::vector<long> scaledValueOfAdditionalParameterForReferencePeriod =
+                // deductions::resolve_scaledValueOfAdditionalParameterForReferencePeriod_or_throw( mars, par, opt );
 
-                set_or_throw( out, "scaleFactorOfAdditionalParameterForReferencePeriod", scaleFactorOfAdditionalParameterForReferencePeriod );
-                set_or_throw( out, "scaledValueOfAdditionalParameterForReferencePeriod", scaledValueOfAdditionalParameterForReferencePeriod );
+                // TODO: set_or_throw<std::vector<long>>(out, "scaleFactorOfAdditionalParameterForReferencePeriod",
+                //                                      scaleFactorOfAdditionalParameterForReferencePeriod);
+                // TODO: set_or_throw<std::vector<long>>(out, "scaledValueOfAdditionalParameterForReferencePeriod",
+                //                                      scaledValueOfAdditionalParameterForReferencePeriod);
 
                 // 64        scaleFactorOfAdditionalParameterForReferencePeriod = 0
                 // 65-68     scaledValueOfAdditionalParameterForReferencePeriod = 90
                 // 69        scaleFactorOfAdditionalParameterForReferencePeriod = 0
                 // 70-73     scaledValueOfAdditionalParameterForReferencePeriod = 99
-
             }
-
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(referencePeriod, "Unable to set `referencePeriod` concept...");
