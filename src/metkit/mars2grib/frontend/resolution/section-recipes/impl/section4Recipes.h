@@ -342,6 +342,27 @@ inline const Recipe S4_R107 =
         Select<ReferencePeriodConcept>
     >();
 
+inline const Recipe S4_R112a =
+    make_recipe<112,
+        Select<GeneratingProcessConcept>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
+        Select<ProbabilityConcept, ProbabilityType::StandardisedAnomaly>,
+        Select<ParamConcept>,
+        Select<ReferencePeriodConcept>
+    >();
+
+
+inline const Recipe S4_R112b =
+    make_recipe<112,
+        Select<GeneratingProcessConcept>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
+        Select<ProbabilityConcept, ProbabilityType::Anomaly>,
+        Select<ParamConcept>,
+        Select<ReferencePeriodConcept>
+    >();
+
 inline const Recipe S4_R121 =
     make_recipe<121,
         Select<GeneratingProcessConcept>,
@@ -425,7 +446,7 @@ inline const Recipes Section4Recipes{ 4,
         &S4_R60, &S4_R61,
         &S4_R76, &S4_R77, &S4_R78, &S4_R79, &S4_R80,
         &S4_R99, &S4_R100,
-        &S4_R103, &S4_R104, &S4_R107,
+        &S4_R103, &S4_R104, &S4_R107, &S4_R112a, &S4_R112b,
         &S4_R121, &S4_R122, &S4_R131, &S4_R132, &S4_R134,
         &S4_R142, &S4_R143,
         &S4_R144, &S4_R145
