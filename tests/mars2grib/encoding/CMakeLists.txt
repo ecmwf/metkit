@@ -14,8 +14,8 @@ foreach( _src
         013_aifs-single_as_non_ensemble.cc
         014_seas6_ensemble.cc
         012_enfo_pfc_quantile.cc
-        011_seas6_stat_failure.cc
         013_enfo_index_products.cc
+        014_enfo_probabilities.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 
