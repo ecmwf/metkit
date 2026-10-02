@@ -42,6 +42,12 @@ inline void convertWaveStreams(const InDict_t& in, OutDict_t& out, eckit::LocalC
         else if (get_or_throw<std::string>(in, "stream") == "enwh") {
             set_or_throw<std::string>(out, "stream", "enfh");
         }
+        else if (get_or_throw<std::string>(in, "stream") == "weef") {
+            set_or_throw<std::string>(out, "stream", "eefo");
+        }
+        else if (get_or_throw<std::string>(in, "stream") == "weeh") {
+            set_or_throw<std::string>(out, "stream", "eefh");
+        }
     }
     catch (...) {
         // Rethrow nested exceptions
