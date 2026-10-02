@@ -71,15 +71,15 @@ inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool hasSeasonalClass    = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
+        const bool hasSeasonalClass = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
         const bool hasSeasonalStream =
             input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd";
-        const bool hasNoStep           = !input.step.has_value();
-        const bool hasFcmonth          = input.marsFcmonth.has_value();
-        const bool isForecast          = input.simulationType == SimulationType::Forecast;
-        const bool isNotSynoptic       = !input.isSynoptic;
-        const bool hasDurationTimespan = input.timespan.kind == TimespanKind::Duration;
-        const bool hasTimespanDuration = input.timespan.duration.has_value();
+        const bool hasNoStep              = !input.step.has_value();
+        const bool hasFcmonth             = input.marsFcmonth.has_value();
+        const bool isForecast             = input.simulationType == SimulationType::Forecast;
+        const bool isNotSynoptic          = !input.isSynoptic;
+        const bool hasDurationTimespan    = input.timespan.kind == TimespanKind::Duration;
+        const bool hasTimespanDuration    = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks = !input.stattype.empty();
 
         return hasSeasonalClass && hasSeasonalStream && hasNoStep && hasFcmonth && isForecast && isNotSynoptic &&
