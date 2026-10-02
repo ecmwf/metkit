@@ -137,8 +137,8 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
 
                 // TODO: long numberOfReferencePeriodTimeRanges =
                 //           deductions::resolve_numberOfReferencePeriodTimeRanges_or_throw(mars, par, opt);
-                // TODO: set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges",
-                // numberOfReferencePeriodTimeRanges);
+                // TODO: set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", numberOfReferencePeriodTimeRanges);
+
             }
 
             if constexpr (Stage == StagePreset) {
