@@ -59,6 +59,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
