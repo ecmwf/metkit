@@ -1,0 +1,325 @@
+schema_version: 1
+
+feature:
+  id: representative-surface-fields
+  title: Representative deterministic surface fields
+  status: proposed
+  description: >
+    High-level specification of instantaneous 2 metre temperature and
+    accumulated total precipitation, with composable seasonal metadata rules.
+  projects:
+    - subseasonal
+  notes:
+    - Project ownership and impact must be confirmed by product owners.
+
+messages:
+  - id: instantaneous-2m-temperature
+    description: >
+      Deterministic point-in-time parameter 167 encoded at 2 metres above
+      ground.
+
+    mars:
+      required:
+        - class
+        - stream
+        - type
+        - expver
+        - param
+        - levtype
+        - date
+        - time
+        - step
+      absent:
+        - number
+        - stattype
+      match:
+        param: 167
+        levtype: sfc
+        timespan: none
+      example:
+        class: od
+        stream: oper
+        type: fc
+        expver: "0001"
+        param: 167
+        levtype: sfc
+        date: 20261002
+        time: 0
+        step: 24
+        timespan: none
+
+    concepts:
+      expected:
+        generatingProcess:
+          variant: Default
+          change: existing
+        pointInTime:
+          variant: Default
+          change: existing
+        level:
+          variant: HeightAboveGroundAt2M
+          change: existing
+        param:
+          variant: ParamId
+          change: existing
+      inactive:
+        - statistics
+        - ensemble
+
+    structure:
+      sections:
+        4:
+          template: 0
+          recipe:
+            - generatingProcess
+            - pointInTime
+            - level
+            - param
+
+    matching_logic:
+      - Parameter 167 activates the pointInTime concept.
+      - Parameter 167 with levtype sfc selects HeightAboveGroundAt2M.
+      - Absence of number keeps the ensemble concept inactive.
+      - The resulting Section 4 concept signature selects PDT 4.0.
+
+    encoding:
+      - grib_keys: [paramId]
+        source: mars.param
+        transform: direct
+        expected: 167
+      - grib_keys: [typeOfLevel, level]
+        source: level.HeightAboveGroundAt2M
+        transform: fixed
+        expected:
+          typeOfLevel: heightAboveGround
+          level: 2
+      - grib_keys: [indicatorOfUnitOfTimeRange]
+        source: pointInTime
+        transform: fixed
+        expected: hour
+      - grib_keys: [forecastTime]
+        source: mars.step
+        transform: normalized-to-hours
+
+    verification:
+      active_concepts:
+        pointInTime: Default
+        level: HeightAboveGroundAt2M
+        param: ParamId
+      grib_keys:
+        productDefinitionTemplateNumber: 0
+        paramId: 167
+        typeOfLevel: heightAboveGround
+        level: 2
+      invariants:
+        - The statistics concept is inactive.
+        - The statistics concept does not encode numberOfTimeRanges.
+
+    implementation:
+      expected_change: none
+      source_references:
+        - backend/concepts/point-in-time/pointInTimeMatcher.h:68
+        - backend/concepts/level/levelMatcher.h:113
+        - frontend/resolution/section-recipes/impl/section4Recipes.h:20
+        - backend/concepts/level/levelEncoding.h:293
+        - backend/concepts/point-in-time/pointInTimeEncoding.h:175
+      open_questions: []
+
+  - id: accumulated-total-precipitation
+    description: >
+      Deterministic accumulated parameter 228 over a forecast interval.
+
+    mars:
+      required:
+        - class
+        - stream
+        - type
+        - expver
+        - param
+        - levtype
+        - date
+        - time
+        - step
+        - timespan
+      absent:
+        - number
+      match:
+        param: 228
+        levtype: sfc
+        timespan: fs
+      example:
+        class: od
+        stream: oper
+        type: fc
+        expver: "0001"
+        param: 228
+        levtype: sfc
+        date: 20261002
+        time: 0
+        step: 24
+        timespan: fs
+
+    concepts:
+      expected:
+        generatingProcess:
+          variant: Default
+          change: existing
+        statistics:
+          variant: Accumulation
+          change: existing
+        level:
+          variant: Surface
+          change: existing
+        param:
+          variant: ParamId
+          change: existing
+      inactive:
+        - pointInTime
+        - ensemble
+
+    structure:
+      sections:
+        4:
+          template: 8
+          recipe:
+            - generatingProcess
+            - statistics
+            - level
+            - param
+
+    matching_logic:
+      - Parameter 228 selects Statistics.Accumulation.
+      - Parameter 228 with levtype sfc selects Level.Surface.
+      - timespan fs selects from-start temporal semantics.
+      - Absence of number keeps the ensemble concept inactive.
+      - The resulting Section 4 concept signature selects PDT 4.8.
+
+    encoding:
+      - grib_keys: [paramId]
+        source: mars.param
+        transform: direct
+        expected: 228
+      - grib_keys: [typeOfLevel]
+        source: level.Surface
+        transform: variant-name
+        expected: surface
+      - grib_keys:
+          - numberOfTimeRanges
+          - typeOfStatisticalProcessing
+          - lengthOfTimeRange
+          - timeIncrement
+        source: ProductTimeSpec
+        transform: canonical-statistical-windows
+      - grib_keys:
+          - forecastTime
+          - yearOfEndOfOverallTimeInterval
+          - monthOfEndOfOverallTimeInterval
+          - dayOfEndOfOverallTimeInterval
+        source: ProductTimeSpec
+        transform: derived-from-reference-time-step-and-timespan
+
+    verification:
+      active_concepts:
+        statistics: Accumulation
+        level: Surface
+        param: ParamId
+      grib_keys:
+        productDefinitionTemplateNumber: 8
+        paramId: 228
+        typeOfLevel: surface
+      invariants:
+        - typeOfStatisticalProcessing contains accumulation.
+        - numberOfTimeRanges is at least 1.
+        - The end of the overall time interval is consistent with the forecast interval.
+
+    implementation:
+      expected_change: none
+      source_references:
+        - backend/concepts/statistics/statisticsMatcher.h:71
+        - backend/concepts/level/levelMatcher.h:177
+        - frontend/resolution/section-recipes/impl/section4Recipes.h:46
+        - backend/concepts/statistics/statisticsEncoding.h:125
+      open_questions: []
+
+composable_rules:
+  - id: seasonal-monthly-mean
+    description: >
+      Seasonal metadata and temporal rules that may be composed with a
+      supported statistical field. This rule does not independently select a
+      Section 4 PDT; the field's concepts still determine that recipe.
+
+    mars:
+      required:
+        - class
+        - stream
+        - type
+        - expver
+        - fcmonth
+        - method
+        - system
+        - stattype
+      absent:
+        - step
+      one_of:
+        class: [od, rd, c3]
+        stream: [sfmd, shmd, sfdd]
+
+    concepts:
+      expected:
+        longrange:
+          variant: SeasonalForecastMonthlyMean
+          change: existing
+
+    structure:
+      sections:
+        2:
+          template: 16
+          recipe:
+            - mars
+            - longrange
+
+    matching_logic:
+      - method and system activate the longrange concept.
+      - fcmonth with a seasonal class and stream selects SeasonalForecastMonthlyMean.
+      - fcmonth must be strictly positive.
+      - Exactly one one-month stattype block with timespan none selects SeasonalSingleLoop.
+      - A duration-valued timespan with an outer monthly stattype block selects SeasonalMultiloop.
+      - A SeasonalMultiloop cannot contain a second monthly stattype block.
+
+    encoding:
+      - grib_keys: [methodNumber]
+        source: mars.method
+        transform: direct
+      - grib_keys: [systemNumber]
+        source: mars.system
+        transform: direct
+      - grib_keys:
+          - forecastTime
+          - numberOfTimeRanges
+          - typeOfStatisticalProcessing
+          - lengthOfTimeRange
+          - timeIncrement
+        source: ProductTimeSpec
+        transform: seasonal-calendar-month-model
+
+    verification:
+      active_concepts:
+        longrange: SeasonalForecastMonthlyMean
+      grib_keys:
+        localDefinitionNumber: 16
+      invariants:
+        - methodNumber equals mars.method.
+        - systemNumber equals mars.system.
+        - The seasonal support end is the reference time plus fcmonth calendar months.
+
+    implementation:
+      expected_change: none
+      source_references:
+        - backend/concepts/longrange/longrangeMatcher.h:68
+        - frontend/resolution/section-recipes/impl/section2Recipes.h:28
+        - backend/concepts/longrange/longrangeEncoding.h:149
+        - backend/models/product-time-spec/domains/impl/SeasonalForecastDomain.h:62
+        - backend/models/product-time-spec/shapes/impl/SeasonalSingleLoop.h:70
+        - backend/models/product-time-spec/shapes/impl/SeasonalMultiloop.h:68
+      open_questions:
+        - Confirm whether stream sfdd uses local definition 16 for all intended products.
