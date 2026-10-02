@@ -183,14 +183,15 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                     // validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
 
                     // Deductions
+                    // (the SOT percentile is MARS `quantile`, not `number`: see mars2mars `convertShiftOfTails`)
                     tables::DerivedForecast derivedForecast =
                         deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
-                    // long numberOfForecastsInEnsemble =
-                    //    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
+                    long numberOfForecastsInEnsemble =
+                        deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
 
                     // Encoding
                     set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
-                    // set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                    set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
                 }
             }
         }
