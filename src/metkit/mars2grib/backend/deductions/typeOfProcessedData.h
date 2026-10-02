@@ -51,6 +51,7 @@
 
 // Tables includes
 #include "metkit/mars2grib/backend/tables/typeOfProcessedData.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes

@@ -25,6 +25,7 @@
 #include "metkit/mars2mars/mappings/rules/local2wmo.h"
 #include "metkit/mars2mars/mappings/rules/misc-params.h"
 #include "metkit/mars2mars/mappings/rules/sfc2sol.h"
+#include "metkit/mars2mars/mappings/rules/shiftOfTails.h"
 #include "metkit/mars2mars/mappings/rules/timespan.h"
 #include "metkit/mars2mars/mappings/rules/waveStreams.h"
 #include "metkit/mars2mars/mappings/rules/windspeed.h"
@@ -52,6 +53,7 @@ Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in, const OptDict_t& opts)
         impl::convertChemical(in, *out, *misc, opts);
         impl::convertIncremental(in, *out, *misc, opts);
         impl::convertMiscParams(in, *out, *misc, opts);
+        impl::convertShiftOfTails(in, *out, *misc, opts);
         impl::removeNumber(in, *out, *misc, opts);
 
         return Mars2MarsResult<OutDict_t>{std::move(*out), std::move(*misc)};

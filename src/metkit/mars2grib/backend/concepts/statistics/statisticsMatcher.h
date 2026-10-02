@@ -65,10 +65,30 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
+        using metkit::mars2grib::utils::dict_traits::get_opt;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
         const auto param = get_or_throw<long>(mars, "param");
+
+        // Probabilities that ecCodes defines without a statistic (point in time) but that are also produced over a
+        // time window (GRIB1 timeRangeIndicator=2, ecCodes stepType=max): statistics only when `timespan` is a
+        // duration, see also the `pointInTime` matcher.
+        const auto timespan     = get_opt<std::string>(mars, "timespan");
+        const bool isTimeWindow = timespan && *timespan != "none" && *timespan != "fs";
+        if (matchAny(param, 131068, 131069, 131073, range(131074, 131081), 131089, 131090, 131091)) {
+            return isTimeWindow ? static_cast<std::size_t>(StatisticsType::Maximum)
+                                : compile_time_registry_engine::MISSING;
+        }
+        // Probabilities of standardised anomalies: time means over a window (ECC-2332, stepType=avg)
+        if (matchAny(param, range(133093, 133098))) {
+            return isTimeWindow ? static_cast<std::size_t>(StatisticsType::Average)
+                                : compile_time_registry_engine::MISSING;
+        }
+        // Anomaly (171xxx, 173xxx) and significance (234xxx) parameters: time means (eefo fcmean/taem/pb)
+        if (matchAny(param, range(171000, 171999), range(173000, 173999), range(234000, 234999))) {
+            return static_cast<std::size_t>(StatisticsType::Average);
+        }
 
         if (matchAny(param, 8, 9, 20, 44, 45, 47, 50, 57, 58, range(142, 147), 169, range(175, 182), 189,
                      range(195, 197), 205, range(208, 213), 228, 239, 240, 3062, 3099, range(162100, 162113),
@@ -142,6 +162,15 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         //     throw utils::exceptions::Mars2GribMatcherException("MARS contains `timespan` but
         //     typeOfStatisticalProcessing is defined for param " + std::to_string(param), Here());
         // }
+
+        // Probabilities of anomalies over a time window: 2t, skt, msl (eefo, sfc) and temperature (enfo, pl) means,
+        // tp (eefo, sfc) accumulations
+        if (matchAny(param, range(131001, 131005), 131009, 131010, 131020, 131021)) {
+            return static_cast<std::size_t>(StatisticsType::Average);
+        }
+        if (matchAny(param, range(131006, 131008))) {
+            return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
 
         if (matchAny(param, 132044, 132045, 132049, 132059, 132144, 132165, 132167, 132201, 132202, 132228)) {
             return static_cast<std::size_t>(StatisticsType::IndexProcessing);

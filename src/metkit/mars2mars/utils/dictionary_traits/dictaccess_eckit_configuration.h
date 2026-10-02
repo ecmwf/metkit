@@ -296,10 +296,10 @@ struct DictMissing<eckit::LocalConfiguration> {
 
     static void setMissing(eckit::LocalConfiguration& cfg, std::string_view key) noexcept(false) {
         const std::string k{key};
-        cfg.remove(k);
 
         try {
             cfg.remove(k);
+            return;
         }
         catch (const exceptions::Mars2marsGenericException&) {
             throw;
