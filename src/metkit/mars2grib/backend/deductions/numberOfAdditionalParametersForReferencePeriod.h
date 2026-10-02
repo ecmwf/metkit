@@ -111,7 +111,8 @@ namespace metkit::mars2grib::backend::deductions {
 /// consult GRIB tables or apply semantic constraints.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_numberOfAdditionalParametersForReferencePeriod_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+long resolve_numberOfAdditionalParametersForReferencePeriod_or_throw(const MarsDict_t& mars, const ParDict_t& par,
+                                                                     const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -120,12 +121,14 @@ long resolve_numberOfAdditionalParametersForReferencePeriod_or_throw(const MarsD
     try {
 
         std::string marsType = get_or_throw<std::string>(mars, "type");
-        if ( marsType == "sot" ) {
+        if (marsType == "sot") {
             long numAdditionalParametersForReferencePeriod = 2;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`numberOfAdditionalParametersForReferencePeriod` defaulted for type=sot: value='" + std::to_string(numAdditionalParametersForReferencePeriod) + "'";
+                std::string logMsg =
+                    "`numberOfAdditionalParametersForReferencePeriod` defaulted for type=sot: value='" +
+                    std::to_string(numAdditionalParametersForReferencePeriod) + "'";
                 return logMsg;
             }());
 
@@ -136,11 +139,14 @@ long resolve_numberOfAdditionalParametersForReferencePeriod_or_throw(const MarsD
         // Retrieve mandatory MARS class
         if (has(par, "numberOfAdditionalParametersForReferencePeriod")) {
 
-            long numAdditionalParametersForReferencePeriod = get_or_throw<long>(par, "numberOfAdditionalParametersForReferencePeriod");
+            long numAdditionalParametersForReferencePeriod =
+                get_or_throw<long>(par, "numberOfAdditionalParametersForReferencePeriod");
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`numberOfAdditionalParametersForReferencePeriod` resolved from input dictionaries: value='" + std::to_string(numAdditionalParametersForReferencePeriod) + "'";
+                std::string logMsg =
+                    "`numberOfAdditionalParametersForReferencePeriod` resolved from input dictionaries: value='" +
+                    std::to_string(numAdditionalParametersForReferencePeriod) + "'";
                 return logMsg;
             }());
 
@@ -148,14 +154,18 @@ long resolve_numberOfAdditionalParametersForReferencePeriod_or_throw(const MarsD
             return numAdditionalParametersForReferencePeriod;
         }
         else {
-            throw Mars2GribDeductionException("Missing mandatory key `numberOfAdditionalParametersForReferencePeriod` in parameter dictionary", Here());
+            // No additional parameters (EFI, probabilities of anomalies, anomalies and significance)
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return std::string{"`numberOfAdditionalParametersForReferencePeriod` defaulted: value='0'"};
+            }());
+            return 0;
         }
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(
-            Mars2GribDeductionException("Failed to resolve `numberOfAdditionalParametersForReferencePeriod` from input dictionaries", Here()));
+        std::throw_with_nested(Mars2GribDeductionException(
+            "Failed to resolve `numberOfAdditionalParametersForReferencePeriod` from input dictionaries", Here()));
     };
 
     // Remove compiler warning
