@@ -76,7 +76,7 @@ std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt)
 
         // 171??? -> Anomaly parameters in the 171000 range
         // 234??? -> Significance parameters in the 234000 range
-        if (matchAny(param, range(171000, 171999), range(234000, 234999) ) ) {
+        if (matchAny(param, range(171000, 171999) range(173000, 173999), range(234000, 234999) ) ) {
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 
