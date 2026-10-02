@@ -65,18 +65,23 @@ std::size_t probabilityMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
         const auto param = get_or_throw<long>(mars, "param");
+        const auto marsType = get_or_throw<std::string>(mars, "type");
 
         // Standard Probability
         // TODO: Add probability matching semantics when they are defined.
-        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+        if (marsType == "ep" && matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
             return static_cast<std::size_t>(ProbabilityType::StandardisedAnomaly);
         }
-        else if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
+        else if (marsType == "ep" && matchAny(param, range(131001,131010), range(1310200,131025))) {
+            // Subseasonal
+            return static_cast<std::size_t>(ProbabilityType::Anomaly);
+        }
+        else if (marsType == "ep" && matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
                      131071, 131072, 131073, range(131074, 131077), 131085, 131098, 131099,
                      131100)) {
             return static_cast<std::size_t>(ProbabilityType::StandardProbability);
         }
-        else if ( matchAny(param, 131089, 131090, 131091)) {
+        else if (marsType == "ep" && matchAny(param, 131089, 131090, 131091)) {
             return static_cast<std::size_t>(ProbabilityType::StrikeProbability);
         }
         else {
