@@ -110,29 +110,12 @@ void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
         // Debug output
         MARS2GRIB_LOG_CONCEPT(probability);
 
-        if constexpr (Variant == ProbabilityType::StrikeProbability) {
-            std::cerr << "WARNING:: Probability::StrikeProbability not implemented, stub only" << std::endl;
-        }
-
-        if constexpr (Variant == ProbabilityType::StandardisedAnomaly) {
-            //
-            // 1. probabilityType -> set by paramId
-            // 2. lowerLimitScaleFactor/Values -> set by paramId
-            std::cerr << "WARNING:: Probability::StandardisedAnomaly not implemented, stub only" << std::endl;
-        }
-
-        if constexpr (Variant == ProbabilityType::Anomaly) {
-            //
-            // 1. probabilityType -> set by paramId
-            // 2. lowerLimitScaleFactor/Values -> set by paramId
-            std::cerr << "WARNING:: Probability::Anomaly not implemented, stub only" << std::endl;
-        }
-
-        if constexpr (Variant == ProbabilityType::StandardProbability) {
-            //
-            // 1. probabilityType -> set by paramId
-            // 2. lowerLimitScaleFactor/Values -> set by paramId
-        }
+        // All variants: probabilityType and the lower/upper limits are defined per paramId in ecCodes
+        // (grib2/paramId.def) and set with the `param` concept; for probabilities of standardised anomalies the
+        // paramId also sets typeOfRelationToReferenceDataset (ECC-2332). Nothing else to encode here.
+        //
+        // TODO (Anomaly): ecCodes has no GRIB2 definitions yet for the anomaly probabilities 131001-131010 and
+        //                 131020-131025.
 
         // Successful no-op
         return;

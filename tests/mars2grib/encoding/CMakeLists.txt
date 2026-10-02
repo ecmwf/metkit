@@ -13,6 +13,7 @@ list( APPEND MARS2GRIB_ENCODING_TESTS
     011_seas6_stat_failure
     012_enfo_pfc_quantile
     013_enfo_index_products
+    014_enfo_probabilities
 )
 
 list( SORT MARS2GRIB_ENCODING_TESTS )
