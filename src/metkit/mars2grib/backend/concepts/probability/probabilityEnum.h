@@ -77,12 +77,15 @@ inline constexpr std::string_view probabilityName{"probability"};
 /// Additional variants may be introduced later once the probability
 /// semantics are finalized.
 ///
+/// - `StrikeProbability`:   tropical-cyclone strike probabilities (PDT 4.121/4.122, with large-ensemble metadata)
+/// - `StandardisedAnomaly`: probabilities of standardised anomalies (PDT 4.131/4.112)
+/// - `StandardProbability`: probabilities of a threshold being exceeded (PDT 4.5/4.9)
+/// - `Anomaly`:             probabilities of anomalies against the model climate (PDT 4.131/4.112)
+///
 /// @warning
 /// Do not reorder existing enumerators, as they are used in compile-time
-/// table
-
-
-// TODO: Add StandardProbability
+/// tables and registries.
+///
 enum class ProbabilityType : std::size_t {
     StrikeProbability = 0,
     StandardisedAnomaly,
@@ -105,7 +108,8 @@ enum class ProbabilityType : std::size_t {
 /// for registry construction and diagnostics.
 ///
 using ProbabilityList =
-    ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly, ProbabilityType::StandardProbability, ProbabilityType::Default>;
+    ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly,
+              ProbabilityType::StandardProbability, ProbabilityType::Anomaly, ProbabilityType::Default>;
 
 
 ///

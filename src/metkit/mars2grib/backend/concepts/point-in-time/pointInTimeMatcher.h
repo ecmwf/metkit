@@ -63,6 +63,7 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
+        using metkit::mars2grib::utils::dict_traits::get_opt;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
         const auto param = get_or_throw<long>(mars, "param");
@@ -100,16 +101,17 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 
-        // Strike-probability products
-        if (matchAny(param, 131068, 131069, 131073, range(131074, 131077), 131089, 131090, 131091)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+        // Probabilities defined without a statistic, and probabilities of standardised anomalies: point in time
+        // unless produced over a time window (`timespan` duration), see the `statistics` matcher
+        if (matchAny(param, 131068, 131069, 131073, range(131074, 131081), 131089, 131090, 131091,
+                     range(133093, 133098))) {
+            const auto timespan     = get_opt<std::string>(mars, "timespan");
+            const bool isTimeWindow = timespan && *timespan != "none" && *timespan != "fs";
+            return isTimeWindow ? compile_time_registry_engine::MISSING
+                                : static_cast<std::size_t>(PointInTimeType::Default);
         }
-        // Probability products
-        if (matchAny(param, 131020, 131021, 131022, 131023, 131024, 131025)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
-        }
-
-        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+        // Probability products (131020, 131021 are time means, see the `statistics` matcher)
+        if (matchAny(param, 131022, 131023, 131024, 131025)) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 

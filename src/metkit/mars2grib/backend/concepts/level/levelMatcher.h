@@ -122,6 +122,10 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 132167, 132201, 132202)) {
             return static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
         }
+        // Probabilities of 2 metre temperature anomalies (eefo)
+        if (matchAny(param, range(131001, 131005))) {
+            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+        }
         if (matchAny(param, 140233, 140245, 140249, 141233, 141245, 143233, 143245, 144233, 144245, 145233, 145245)) {
             return static_cast<std::size_t>(LevelType::HeightAboveSeaAt10M);
         }
@@ -147,6 +151,10 @@ inline std::size_t matchSFC(const long param) {
             return static_cast<std::size_t>(LevelType::LowCloudLayer);
         }
         if (matchAny(param, 151, 235151, 237151, 238151, 239151)) {
+            return static_cast<std::size_t>(LevelType::MeanSea);
+        }
+        // Probabilities of mean sea level pressure anomalies (eefo)
+        if (matchAny(param, 131010)) {
             return static_cast<std::size_t>(LevelType::MeanSea);
         }
         if (matchAny(param, 187, 3074)) {
@@ -202,11 +210,15 @@ inline std::size_t matchSFC(const long param) {
         }
         // Strike-probability
         if (matchAny(param, 131022, 131024, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067,
-                     range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099, 133096, 133097)) {
+                     range(131074, 131081), 131085, 131089, 131090, 131091, 131098, 131099, 133096, 133097)) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
         // efi
         if (matchAny(param, 132228, 132144)) {
+            return static_cast<std::size_t>(LevelType::Surface);
+        }
+        // Probabilities of total precipitation and skin temperature anomalies (eefo)
+        if (matchAny(param, range(131006, 131009))) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
 
@@ -672,7 +684,12 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return compile_time_registry_engine::MISSING;
         }
 
-        const auto param   = get_or_throw<long>(mars, "param");
+        // Anomaly (171xxx, 173xxx) and significance (234xxx) parameters are on the level of their base parameter
+        const auto marsParam      = get_or_throw<long>(mars, "param");
+        const bool isAnomalyParam = (171000 <= marsParam && marsParam <= 171999) ||
+                                    (173000 <= marsParam && marsParam <= 173999) ||
+                                    (234000 <= marsParam && marsParam <= 234999);
+        const long param   = isAnomalyParam ? marsParam % 1000 : marsParam;
         const auto levtype = get_or_throw<std::string>(mars, "levtype");
 
         if (levtype == "sfc") {

@@ -40,8 +40,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @brief Match the `referencePeriod` concept variant.
 ///
-/// The `referencePeriod` concept is currently inactive and therefore always
-/// resolves to `compile_time_registry_engine::MISSING`.
+/// The concept is active for products defined in relation to a reference period:
+/// EFI/SOT (`efi`, `efic`, `sot`), probabilities of (standardised) anomalies, and
+/// anomaly and significance parameters.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -49,7 +50,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @param[in] mars MARS input dictionary
 /// @param[in] opt  Options dictionary
 ///
-/// @return `compile_time_registry_engine::MISSING`.
+/// @return Local variant index, or `compile_time_registry_engine::MISSING`.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
@@ -60,26 +61,32 @@ std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt)
     try {
 
         using metkit::mars2grib::util::param_matcher::matchAny;
+        using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
         const auto marsType = get_or_throw<std::string>(mars, "type");
         const auto param    = get_or_throw<long>(mars, "param");
 
+        // EFI / SOT against the model climate
         if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 
-        // Check for standardised anomaly parameters
-        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+        // Probabilities of standardised anomalies
+        if (matchAny(param, range(133093, 133098))) {
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 
-        // 171??? -> Anomaly parameters in the 171000 range
-        // 234??? -> Significance parameters in the 234000 range
-        if (matchAny(param, range(171000, 171999) range(173000, 173999), range(234000, 234999) ) ) {
+        // Probabilities of anomalies (see `Probability::Anomaly`)
+        if (marsType == "ep" && matchAny(param, range(131001, 131010), range(131020, 131025))) {
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 
+        // 171??? / 173??? -> Anomaly parameters
+        // 234???          -> Significance parameters
+        if (matchAny(param, range(171000, 171999), range(173000, 173999), range(234000, 234999))) {
+            return static_cast<std::size_t>(ReferencePeriodType::Default);
+        }
 
         return compile_time_registry_engine::MISSING;
     }

@@ -9,29 +9,27 @@
 #include <cstddef>
 
 #include "metkit/mars2grib/backend/concepts/quantile/quantileEnum.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
-#include "metkit/mars2grib/utils/paramMatcher.h"
 
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-/// Placeholder matcher until quantile variants and activation rules are defined.
+/// The concept is active when the MARS request carries `quantile`, except for `type=sot`: its `quantile`
+/// (`90-99:100`) holds the two percentiles of the reference period, see the `referencePeriod` concept.
 template <class MarsDict_t, class OptDict_t>
 std::size_t quantileMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
-    (void)mars;
     (void)opt;
 
     try {
 
-        using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
         const auto marsType = get_or_throw<std::string>(mars, "type");
-        const auto param    = get_or_throw<long>(mars, "param");
 
-        if ( has<std::string>(mars, "quantile") && marsType != "sot") {
+        if (has(mars, "quantile") && marsType != "sot") {
             return static_cast<std::size_t>(QuantileType::Default);
         }
 
