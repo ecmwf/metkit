@@ -12,6 +12,7 @@ list( APPEND MARS2GRIB_ENCODING_TESTS
     011_enfh_wave_reforecast
     011_seas6_stat_failure
     012_enfo_pfc_quantile
+    013_enfo_index_products
 )
 
 list( SORT MARS2GRIB_ENCODING_TESTS )
