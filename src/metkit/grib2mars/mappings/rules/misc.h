@@ -46,7 +46,7 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
             // Ensemble size and model climate of the index products (GRIB1 local definition 19).
             // `efiOrder` is the outer SOT percentile (99 for SOT90, 1 for SOT10).
             for (const char* key : {"numberOfForecastsInEnsemble", "efiOrder", "numberOfReforecastYearsInModelClimate",
-                                    "sampleSizeOfModelClimate"}) {
+                                    "numberOfDaysInClimateSamplingWindow", "sampleSizeOfModelClimate"}) {
                 if (grib.has(key)) {
                     misc.set(key, grib.getLong(key));
                 }
