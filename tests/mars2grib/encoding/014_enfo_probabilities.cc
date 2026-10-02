@@ -62,6 +62,7 @@ CASE("tp probability over 24h (PDT 9), probability keys from the paramId") {
             metkit::mars2grib::Mars2Grib().encode(std::vector<double>(200, 0.5), epRequest(131060, "sfc", 24, "24h"));
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 9);
         EXPECT_EQUAL(handle->getLong("paramId"), 131060);
+        EXPECT_EQUAL(handle->getLong("typeOfGeneratingProcess"), 5);
         EXPECT_EQUAL(handle->getLong("probabilityType"), 3);
         EXPECT_EQUAL(handle->getLong("typeOfStatisticalProcessing"), 1);
         EXPECT_EQUAL(handle->getLong("lengthOfTimeRange"), 24);

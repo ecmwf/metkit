@@ -237,6 +237,22 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
+        else if (marsTypeVal == "ep") {
+
+            // Ensemble probabilities
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::ProbabilityForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=" + marsTypeVal + ")";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
         else if (marsTypeVal == "gbf") {
 
             // GRIB best forecast (gbf) fields. Generated as part of the forecast
