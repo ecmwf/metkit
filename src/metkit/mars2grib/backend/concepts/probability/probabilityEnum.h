@@ -79,11 +79,14 @@ inline constexpr std::string_view probabilityName{"probability"};
 ///
 /// @warning
 /// Do not reorder existing enumerators, as they are used in compile-time
-/// tables and registries.
-///
+/// table
+
+
+// TODO: Add StandardProbability
 enum class ProbabilityType : std::size_t {
     StrikeProbability = 0,
     StandardisedAnomaly,
+    StandardProbability,
     Default
 };
 
@@ -101,7 +104,7 @@ enum class ProbabilityType : std::size_t {
 /// for registry construction and diagnostics.
 ///
 using ProbabilityList =
-    ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly, ProbabilityType::Default>;
+    ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly, ProbabilityType::StandardProbability, ProbabilityType::Default>;
 
 
 ///
@@ -133,6 +136,7 @@ constexpr std::string_view probabilityTypeName();
 
 DEF(ProbabilityType::StrikeProbability, "strikeProbability");
 DEF(ProbabilityType::StandardisedAnomaly, "standardisedAnomaly");
+DEF(ProbabilityType::StandardProbability, "standardProbability");
 DEF(ProbabilityType::Default, "default");
 
 #undef DEF

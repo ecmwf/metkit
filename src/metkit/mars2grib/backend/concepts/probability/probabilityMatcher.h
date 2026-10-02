@@ -71,11 +71,12 @@ std::size_t probabilityMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
             return static_cast<std::size_t>(ProbabilityType::StandardisedAnomaly);
         }
-
-        // Strike Probability
-        if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
-                     131071, 131072, 131073, range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099,
+        else if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
+                     131071, 131072, 131073, range(131074, 131077), 131085, 131098, 131099,
                      131100)) {
+            return static_cast<std::size_t>(ProbabilityType::StandardProbability);
+        }
+        else if ( matchAny(param, 131089, 131090, 131091)) {
             return static_cast<std::size_t>(ProbabilityType::StrikeProbability);
         }
         else {
