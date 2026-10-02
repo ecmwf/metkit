@@ -1,0 +1,29 @@
+{# SPDX-FileCopyrightText: 2005- European Centre for Medium-Range Weather Forecasts (ECMWF)
+   SPDX-License-Identifier: Apache-2.0 #}
+{% extends "ci-infrastructure/cmake-atos.sh.j2" %}
+{% block sbatch %}
+#SBATCH --qos=nf
+#SBATCH --nodes=1
+#SBATCH --ntasks={{ ntasks }}
+{% if cpus_per_task %}
+#SBATCH --cpus-per-task={{ cpus_per_task }}
+{% endif %}
+{% if mem %}
+#SBATCH --mem={{ mem }}
+{% endif %}
+#SBATCH --gres=ssdtmp:{{ ssdtmp }}
+#SBATCH --time={{ time }}
+{% endblock %}
+{% block preflight %}
+    echo "Using: $(command -v {{ cc | sh }}) ($({{ cc | sh }} --version | head -1))"
+    echo "Using: $(command -v {{ cxx | sh }}) ($({{ cxx | sh }} --version | head -1))"
+    {% if fc %}
+    echo "Using: $(command -v {{ fc | sh }}) ($({{ fc | sh }} --version | head -1))"
+    {% endif %}
+    echo "Using: $(command -v cmake) ($(cmake --version | head -1))"
+    VENV="${TMPDIR:-/tmp}/metkit-venv"
+    uv venv "$VENV"
+    source "$VENV/bin/activate"
+    uv pip install -r "python/requirements-build.txt"
+{% endblock %}
+
