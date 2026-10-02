@@ -1549,8 +1549,8 @@ _postproc: &_postproc
     values:
       - [linear]
       - [bilinear]
-      - [nearest-lsm, nlsm, nearest lsm]
-      - [nearest-neighbour, nn, nearest neighbour]
+      - [nearest-lsm, nlsm, nearest_lsm, nearest lsm]
+      - [nearest-neighbour, nn, nearest_neighbour, nearest neighbour]
       - [grid-box-average, average]
 
   packing:
@@ -1558,7 +1558,7 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-      - [so, second order]
+      - [so, second-order, second_order,second order]
       - [av]
       - [complex, co]
       - [simple, si]

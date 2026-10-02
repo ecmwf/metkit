@@ -22,8 +22,11 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/TypesFactory.h"
 
+#include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <limits>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -223,6 +226,9 @@ class Rule {
     std::unordered_set<uint32_t> values_;
     mutable std::map<std::string, std::string> mapping_;
 
+    // bare param number (no table) -> paramId of the only table holding that number in this context
+    std::map<uint32_t, uint32_t> bareIds_;
+
     static std::unordered_set<uint32_t> defaultValues_;
     static std::map<std::string, std::string> defaultMapping_;
 
@@ -232,6 +238,10 @@ public:
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
     std::string lookup(const std::string& s) const;
+
+    void setBareIds(const eckit::Value& contextIds);
+    bool hasBareIds() const { return !bareIds_.empty(); }
+    bool resolveBareId(std::string& s) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const ParamIdAliases& ids);
     Rule(std::ifstream& file);
@@ -389,6 +399,60 @@ Rule::Rule(std::ifstream& file) {
         auto key = readString(file);
         mapping_.emplace(std::move(key), readString(file));
     }
+    uint16_t numBareIds = read16(file);
+    for (uint16_t i = 0; i < numBareIds; ++i) {
+        const uint32_t number = read16(file);
+        bareIds_.emplace(number, read32(file));
+    }
+}
+
+/// Like MARS, a param number given without a table (e.g. 246) that no table-128 param of this context has is
+/// read from the only other table of the context holding that number (e.g. 246 at levtype=sfc is 228246).
+/// When several other tables hold the number, table 228 takes precedence (e.g. 227 at levtype=sfc is 228227,
+/// not 260227); any other ambiguity is left to the default lookup.
+void Rule::setBareIds(const eckit::Value& contextIds) {
+    std::unordered_set<uint32_t> ids;
+    for (size_t i = 0; i < contextIds.size(); ++i) {
+        ids.insert(static_cast<uint32_t>(std::stoul(std::string(contextIds[i]))));
+    }
+
+    std::map<uint32_t, std::vector<uint32_t>> candidates;
+    for (const auto id : ids) {
+        const uint32_t table  = id / 1000;
+        const uint32_t number = id % 1000;
+        if (table != 0 && table != 128 && number != 0) {
+            candidates[number].push_back(id);
+        }
+    }
+
+    for (const auto& [number, tableIds] : candidates) {
+        if (ids.find(number) != ids.end()) {
+            continue;
+        }
+        if (tableIds.size() == 1) {
+            bareIds_.emplace(number, tableIds.front());
+            continue;
+        }
+        const auto table228 = std::find(tableIds.begin(), tableIds.end(), 228000 + number);
+        if (table228 != tableIds.end()) {
+            bareIds_.emplace(number, *table228);
+        }
+    }
+}
+
+bool Rule::resolveBareId(std::string& s) const {
+    if (s.empty() || s.size() > 3 ||
+        !std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isdigit(c); })) {
+        return false;
+    }
+
+    const auto it = bareIds_.find(static_cast<uint32_t>(std::stoul(s)));
+    if (it == bareIds_.end()) {
+        return false;
+    }
+
+    s = std::to_string(it->second);
+    return true;
 }
 
 
@@ -497,6 +561,11 @@ void Rule::write(std::ofstream& out) const {
         writeString(out, name);
         writeString(out, id);
     }
+    write16(out, bareIds_.size());
+    for (const auto& [number, id] : bareIds_) {
+        write16(out, static_cast<uint16_t>(number));
+        write32(out, id);
+    }
 }
 
 void Rule::print(std::ostream& out) const {
@@ -519,9 +588,45 @@ void Rule::print(std::ostream& out) const {
         sep = ",";
     }
     out << "]";
+    if (!bareIds_.empty()) {
+        out << ",bareIds=[";
+        sep = "";
+        for (const auto& [number, id] : bareIds_) {
+            out << sep << number << "->" << id;
+            sep = ",";
+        }
+        out << "]";
+    }
 }
 
 static std::vector<Rule>* rules = nullptr;
+
+// Rules resolving bare param numbers, one per fully specified context (class, levtype, stream, type), so that at
+// most one matches a request. Kept apart from `rules`, whose first match selects the shortname context.
+static std::vector<Rule>* bareIdRules = nullptr;
+
+bool isFullContext(const eckit::Value& matchers) {
+    static const std::set<std::string> fullContext{"class", "levtype", "stream", "type"};
+    const eckit::Value keys = matchers.keys();
+    std::set<std::string> names;
+    for (size_t i = 0; i < keys.size(); ++i) {
+        names.insert(keys[i]);
+    }
+    return names == fullContext;
+}
+
+void addBareIdRules(const eckit::ValueMap& contexts) {
+    for (const auto& [matchers, ids] : contexts) {
+        if (!isFullContext(matchers)) {
+            continue;
+        }
+        Rule rule{matchers, eckit::Value::makeList(), ParamIdAliases{}};
+        rule.setBareIds(ids);
+        if (rule.hasBareIds()) {
+            bareIdRules->push_back(std::move(rule));
+        }
+    }
+}
 
 }  // namespace
 
@@ -534,6 +639,7 @@ void Rule::init() {
 
     local_mutex = new eckit::Mutex();
     rules       = new std::vector<Rule>();
+    bareIdRules = new std::vector<Rule>();
 
     if (!metkitForceBinfileCreation && !metkitLegacyParamCheck && !metkitRawParam) {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
@@ -569,6 +675,12 @@ void Rule::init() {
                     for (uint32_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
                         rules->emplace_back(file);
                     }
+                    // read bareIdRules
+                    uint32_t numBareIdRules = read32(file);
+                    bareIdRules->reserve(numBareIdRules);
+                    for (uint32_t ruleIdx = 0; ruleIdx < numBareIdRules; ruleIdx++) {
+                        bareIdRules->emplace_back(file);
+                    }
                     size_t filesize = file.tellg();     // current position is supposed to be the end of the file
                     file.seekg(0, std::ios_base::end);  // go to end of the file
                     size_t endpos = file.tellg();
@@ -591,6 +703,7 @@ void Rule::init() {
                 defaultMapping_.clear();
                 defaultMapping_.clear();
                 rules->clear();
+                bareIdRules->clear();
                 eckit::Log::error() << "Error reading parameter binary file '" << paramBinFile.asString()
                                     << "': " << e.what() << " - using slow config file parsing" << std::endl;
             }
@@ -665,6 +778,7 @@ void Rule::init() {
         for (auto it = merge.begin(); it != merge.end(); it++) {
             (*rules).push_back(Rule(it->first, it->second, ids));
         }
+        addBareIdRules(merge);
         return;
     }
 
@@ -710,6 +824,8 @@ void Rule::init() {
 
     (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), ParamIdAliases{}});
 
+    addBareIdRules(merge);
+
     if (metkitForceBinfileCreation && !metkitLegacyParamCheck && !metkitRawParam) {  // creating the binary file
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
         if (!paramBinFile.exists()) {
@@ -743,6 +859,10 @@ void Rule::init() {
                         }
                         write32(file, rules->size());
                         for (const auto& r : *rules) {
+                            r.write(file);
+                        }
+                        write32(file, bareIdRules->size());
+                        for (const auto& r : *bareIdRules) {
                             r.write(file);
                         }
                         file.flush();
@@ -822,8 +942,19 @@ void TypeParam::pass2(MarsRequest& request) const {
     }
 
 
+    const Rule* bareIdRule = nullptr;
+    for (const auto& r : *bareIdRules) {
+        if (r.match(request)) {
+            bareIdRule = &r;
+            break;
+        }
+    }
+
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
+        if (bareIdRule && bareIdRule->resolveBareId(s)) {
+            continue;
+        }
         try {
             s = rule->lookup(s);
         }
