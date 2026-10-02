@@ -193,11 +193,13 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "est" || marsTypeVal == "es" || marsTypeVal == "em" || marsTypeVal == "ses") {
+        else if (marsTypeVal == "est" || marsTypeVal == "es" || marsTypeVal == "em" || marsTypeVal == "ses" ||
+                 marsTypeVal == "efi" || marsTypeVal == "efic" || marsTypeVal == "sot") {
 
             // Ensemble-derived statistical products (ensemble statistics,
             // ensemble standard deviation, ensemble mean, ensemble spread
-            // of estimation). No dedicated code table entry exists for
+            // of estimation, and the EFI/SOT indices against the model climate).
+            // No dedicated code table entry exists for
             // "ensemble-derived analysis"; EnsembleForecast (4) is the
             // established convention to signal ensemble provenance.
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
@@ -280,6 +282,22 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
                 logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
                 logMsg += "' (type=ssd)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (marsTypeVal == "pfc") {
+
+            // Post-processed quantile forecasts (ecPoint)
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=" + marsTypeVal + ")";
                 return logMsg;
             }());
 
