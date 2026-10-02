@@ -80,6 +80,7 @@ enum class ProbabilityType : std::size_t {
     StrikeProbability = 0,
     StandardisedAnomaly,
     StandardProbability,
+    Anomaly,
     Default
 };
 
@@ -130,6 +131,7 @@ constexpr std::string_view probabilityTypeName();
 DEF(ProbabilityType::StrikeProbability, "strikeProbability");
 DEF(ProbabilityType::StandardisedAnomaly, "standardisedAnomaly");
 DEF(ProbabilityType::StandardProbability, "standardProbability");
+DEF(ProbabilityType::Anomaly, "anomaly");
 DEF(ProbabilityType::Default, "default");
 
 #undef DEF
