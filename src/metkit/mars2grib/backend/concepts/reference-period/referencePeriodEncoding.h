@@ -118,6 +118,57 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
         try {
 
             MARS2GRIB_LOG_CONCEPT(referencePeriod);
+
+            // =============================================================
+            // StageAllocate
+            // =============================================================
+            if constexpr (Stage == StageAllocate) {
+
+                // Set the number of additional parameters for the reference period
+                long numAdditionalParametersForReferencePeriod = deductions::resolve_numberOfAdditionalParametersForReferencePeriod_or_throw( mars, par, opt );
+                // TODO: long numberOfReferencePeriodTimeRanges = deductions::resolve_numberOfReferencePeriodTimeRanges_or_throw( mars, par, opt );
+
+                set_or_throw(out, "numberOfAdditionalParametersForReferencePeriod", numAdditionalParametersForReferencePeriod);
+                set_or_throw(out, "numberOfReferencePeriodTimeRanges", numberOfReferencePeriodTimeRanges);
+
+            }
+
+            if constexpr (Stage == StagePreset) {
+
+                // Somehow derived from mars.date,mars.time
+                // 74-75     yearOfStartOfReferencePeriod = 2005
+                // 76        monthOfStartOfReferencePeriod = 12
+                // 77        dayOfStartOfReferencePeriod = 13
+                // 78        hourOfStartOfReferencePeriod = 0
+                // 79        minuteOfStartOfReferencePeriod = 0
+                // 80        secondOfStartOfReferencePeriod = 0
+
+                // Somehow derived from mars.stream
+                // sampleSizeOfReferencePeriod = 1980;
+
+                // No idea for the moment
+                // 86        typeOfStatisticalProcessingForTimeRangeForReferencePeriod = 255 [Missing (grib2/tables/34/4.102.table) ]
+                // 87        indicatorOfUnitForTimeRangeForReferencePeriod = 4 [Year (grib2/tables/34/4.4.table) ]
+                // 88-91     lengthOfTimeRangeForReferencePeriod = 20
+                // 92        typeOfStatisticalProcessingForTimeRangeForReferencePeriod = 255 [Missing (grib2/tables/34/4.102.table) ]
+                // 93        indicatorOfUnitForTimeRangeForReferencePeriod = 2 [Day (grib2/tables/34/4.4.table) ]
+                // 94-97     lengthOfTimeRangeForReferencePeriod = 35
+
+                // 90-99:100
+                // <A[-B]>:<C>
+                // TODO: std::vector<long> scaleFactorOfAdditionalParameterForReferencePeriod = deductions::resolve_scaleFactorOfAdditionalParameterForReferencePeriod_or_throw( mars, par, opt );
+                // TODO: std::vector<long> scaledValueOfAdditionalParameterForReferencePeriod = deductions::resolve_scaledValueOfAdditionalParameterForReferencePeriod_or_throw( mars, par, opt );
+
+                set_or_throw( out, "scaleFactorOfAdditionalParameterForReferencePeriod", scaleFactorOfAdditionalParameterForReferencePeriod );
+                set_or_throw( out, "scaledValueOfAdditionalParameterForReferencePeriod", scaledValueOfAdditionalParameterForReferencePeriod );
+
+                // 64        scaleFactorOfAdditionalParameterForReferencePeriod = 0
+                // 65-68     scaledValueOfAdditionalParameterForReferencePeriod = 90
+                // 69        scaleFactorOfAdditionalParameterForReferencePeriod = 0
+                // 70-73     scaledValueOfAdditionalParameterForReferencePeriod = 99
+
+            }
+
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(referencePeriod, "Unable to set `referencePeriod` concept...");
