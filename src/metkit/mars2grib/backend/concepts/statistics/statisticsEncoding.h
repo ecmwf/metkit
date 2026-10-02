@@ -152,8 +152,6 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
 
                 set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", pts.typeOfStatisticalProcessing);
                 set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", pts.typeOfTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", pts.indicatorOfUnitForTimeRange);
-                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
                 set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeIncrement",
                                                 pts.indicatorOfUnitForTimeIncrement);
                 set_or_throw<std::vector<long>>(out, "timeIncrement", pts.lengthOfTimeIncrement);
@@ -169,6 +167,8 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                                                                              mars, par, opt);
                 const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
+                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", pts.indicatorOfUnitForTimeRange);
+                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
                 set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
 
                 const eckit::DateTime& end = pts.endOfOverallTimeInterval;
