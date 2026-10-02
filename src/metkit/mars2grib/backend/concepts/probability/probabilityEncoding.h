@@ -115,7 +115,16 @@ void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
         }
 
         if constexpr (Variant == ProbabilityType::StandardisedAnomaly) {
+            //
+            // 1. probabilityType -> set by paramId
+            // 2. lowerLimitScaleFactor/Values -> set by paramId
             std::cerr << "WARNING:: Probability::StandardisedAnomaly not implemented, stub only" << std::endl;
+        }
+
+        if constexpr (Variant == ProbabilityType::StandardProbability) {
+            //
+            // 1. probabilityType -> set by paramId
+            // 2. lowerLimitScaleFactor/Values -> set by paramId
         }
 
         // Successful no-op
