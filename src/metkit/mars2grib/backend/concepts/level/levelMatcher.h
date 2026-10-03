@@ -217,6 +217,10 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 132228, 132144)) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
+        // CAMS (class=mc): temperature at the surface, fire injection height (WMO discipline 2)
+        if (matchAny(param, 130, 210060)) {
+            return static_cast<std::size_t>(LevelType::Surface);
+        }
         // Probabilities of total precipitation and skin temperature anomalies (eefo)
         if (matchAny(param, range(131006, 131009))) {
             return static_cast<std::size_t>(LevelType::Surface);

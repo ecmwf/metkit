@@ -92,6 +92,11 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 
+        // CAMS fire injection height (WMO discipline 2)
+        if (matchAny(param, 210060)) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
+
         // Satellite products
         if (matchAny(param, 194, range(260510, 260512))) {
             return static_cast<std::size_t>(PointInTimeType::Default);
