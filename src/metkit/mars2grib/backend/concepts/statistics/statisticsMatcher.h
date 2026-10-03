@@ -153,6 +153,10 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         // Note: In range 4xxxxy the following typeOfStatisticalProduct can be derived from the last digit:
         //       y == 1 -> mean; 2 -> accumulation; 3 -> maximum; 4 -> minimum; 5 -> standard deviation
         //       If the last digit is 0, the param is point-in-time.
+        // Exceptions to the last-digit rule (ecCodes grib2/paramId.chemsplit.def): accumulated deposition mass fluxes
+        if (matchAny(param, 444000, 445000)) {
+            return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
         if (matchAny(param, range(400000, 499999))) {
             switch (param % 10) {
                 case 0:
