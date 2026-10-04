@@ -20,6 +20,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <ostream>
 #include <shared_mutex>
 #include <sstream>
