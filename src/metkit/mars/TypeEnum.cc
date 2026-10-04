@@ -29,8 +29,8 @@ void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicate
         oss << "Redefined enum value '" << value << "' while parsing " << name();
         throw eckit::SeriousBug(oss.str());
     }
-    // skip descriptions: and strings too long or containing blanks
-    if (value.size() < 20 && value.find(" ") == std::string::npos) {
+    // skip descriptions (strings containing blanks)
+    if (value.find(" ") == std::string::npos) {
         values_[value] = idx;
     }
 }

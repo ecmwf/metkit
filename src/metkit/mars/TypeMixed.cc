@@ -51,7 +51,7 @@ TypeMixed::TypeMixed(const std::string& typeName, Keyword key, const eckit::Valu
 TypeMixed::TypeMixed(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
     uint8_t numSubtypes = file.read8();
     for (uint8_t i = 0; i < numSubtypes; ++i) {
-        uint8_t ctxId = file.read8();
+        uint16_t ctxId = file.read16();
         std::string nestedTypeName{file.readString()};
         Keyword nestedTypeKey = file.read16();
         auto type             = TypesFactory::build(nestedTypeName, nestedTypeKey, file);
@@ -64,7 +64,7 @@ void TypeMixed::write(std::ofstream& file) const {
     Type::write(file);
     write8(file, types_.size());
     for (const auto& [ctx, type] : types_) {
-        write8(file, ctx.get().id());
+        write16(file, ctx.get().id());
         type->write(file);
     }
 }

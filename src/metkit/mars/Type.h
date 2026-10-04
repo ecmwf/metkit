@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <bitset>
 #include <fstream>
 #include <functional>
 #include <iosfwd>

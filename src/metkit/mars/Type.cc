@@ -280,7 +280,7 @@ Type::Type(const std::string& name, Keyword keyword, const eckit::Value& setting
     flags_[2] = settings.contains("duplicates") ? bool(settings["duplicates"]) : true;
     flags_[3] = settings.contains("uppercase") ? bool(settings["uppercase"]) : false;
     flags_[4] = settings.contains("first_rule") ? bool(settings["first_rule"]) : false;
-    flags_[5] = false;  // ??????
+    flags_[5] = false;  // has groups
 
     category_ = Category::None;
     if (settings.contains("category")) {
