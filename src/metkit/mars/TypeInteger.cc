@@ -16,6 +16,8 @@
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
+#include <cstdint>
+#include <cstring>
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
