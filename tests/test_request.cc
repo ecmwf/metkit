@@ -235,8 +235,8 @@ CASE("test_raw_request_stream_roundtrip") {
     EXPECT_EQUAL(decoded.params().size(), 2u);
 }
 
-CASE("test_validated_request_unknown_names") {
-    MarsRequest r(MarsLanguage::verb("retrieve"));
+CASE("test_request_unknown_names") {
+    MarsRequest r("retrieve");
     r.setValue("class", "od");
 
     // queries about a name that is not a keyword are not errors
@@ -247,9 +247,148 @@ CASE("test_validated_request_unknown_names") {
     EXPECT(r.values("not_a_keyword", true).empty());
     EXPECT_NO_THROW(r.unsetValues("not_a_keyword"));
 
-    // ... but asking for the values of a missing parameter, or setting an unknown keyword, is the user's error
+    // ... but asking for the values of a missing parameter is the user's error
     EXPECT_THROWS_AS(r.values("not_a_keyword"), eckit::UserError);
-    EXPECT_THROWS_AS(r.setValue("not_a_keyword", "x"), eckit::UserError);
+
+    // a request accepts any keyword: it is validated when it is expanded
+    EXPECT_NO_THROW(r.setValue("not_a_keyword", "x"));
+    EXPECT(r.has("not_a_keyword"));
+    EXPECT_EQUAL(r["not_a_keyword"], "x");
+    EXPECT_THROWS_AS(MarsExpansion{true}.expand(r), eckit::UserError);
+
+    r.unsetValues("not_a_keyword");
+    EXPECT(!r.has("not_a_keyword"));
+    EXPECT_EQUAL(r.params().size(), 1u);
+}
+
+CASE("test_request_untyped_parameters") {
+    MarsRequest r("retrieve");
+    r.values("custom", std::vector<std::string>{"a", "b"});
+    r.setValue("class", "od");
+
+    // an untyped parameter keeps all its values, and accepts several
+    const Parameter* custom = r.find("custom");
+    EXPECT(custom != nullptr);
+    EXPECT(!custom->typed());
+    EXPECT(custom->multiple());
+    EXPECT_EQUAL(custom->count(), 2u);
+    EXPECT_THROWS_AS(custom->type(), eckit::SeriousBug);
+
+    // the parameters of registered keywords are found by name and by keyword, and are not duplicated
+    Keyword klass = MarsLanguage::keyword("class");
+    EXPECT(r.has(klass));
+    EXPECT_EQUAL(r.values(klass).at(0), "od");
+    r.setValue(klass, "rd");
+    EXPECT_EQUAL(r["class"], "rd");
+    EXPECT_EQUAL(r.params().size(), 2u);
+
+    // the parameters keep the order they were added in
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"custom", "class"}));
+
+    r.erase(klass);
+    EXPECT(!r.has("class"));
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"custom"}));
+}
+
+CASE("test_request_typed_parameters") {
+    MarsRequest r = MarsRequest::parse(
+        "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/12,type=fcmean,levtype=sfc,step=24,number=1/"
+        "to/2,param=mucin/mucape/tprate,area=12/13/14/15,grid=.1/.1");
+
+    // expanded parameters are typed, and are found by keyword or by name, whatever the case of the name
+    Keyword klass      = MarsLanguage::keyword("class");
+    const Parameter* p = r.find("class");
+    EXPECT(p != nullptr);
+    EXPECT(p->typed());
+    EXPECT_EQUAL(p->id(), klass);
+    EXPECT(r.find(klass) == p);
+    EXPECT(r.find("CLASS") == p);
+    EXPECT(r.has("Class"));
+
+    EXPECT_EQUAL(r.countValues("param"), 3u);
+    EXPECT_EQUAL(r.countValues("number"), 2u);
+    EXPECT(r.find("param")->multiple());
+    EXPECT(!r.find("class")->multiple());
+
+    // modifying the values keeps the type
+    r.setValue("step", "48");
+    EXPECT(r.find("step")->typed());
+    EXPECT_EQUAL(r["step"], "48");
+
+    // an expanded request is a request like any other
+    r.setValue("custom", "x");
+    EXPECT(!r.find("custom")->typed());
+    r.erase(klass);
+    EXPECT(!r.has("class"));
+    EXPECT(r.has("custom"));
+}
+
+CASE("test_request_copy_and_move") {
+    MarsRequest a("retrieve");
+    a.setValue("class", "od");
+
+    // copies are independent
+    MarsRequest b(a);
+    b.setValue("class", "rd");
+    b.setValue("type", "an");
+    EXPECT_EQUAL(a["class"], "od");
+    EXPECT(!a.has("type"));
+    EXPECT_EQUAL(b["class"], "rd");
+
+    MarsRequest c(std::move(b));
+    EXPECT_EQUAL(c["class"], "rd");
+    EXPECT_EQUAL(c["type"], "an");
+    EXPECT_EQUAL(c.verb(), "retrieve");
+
+    // and a moved-from request can be used again
+    b = a;
+    EXPECT_EQUAL(b["class"], "od");
+
+    // a vector of requests can grow: the requests are moved (and must not be lost)
+    std::vector<MarsRequest> requests;
+    for (int i = 0; i < 100; ++i) {
+        MarsRequest r("retrieve");
+        r.setValue("step", i);
+        requests.push_back(std::move(r));
+    }
+    for (int i = 0; i < 100; ++i) {
+        EXPECT_EQUAL(requests[i]["step"], std::to_string(i));
+    }
+}
+
+CASE("test_request_stream_validate") {
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.setValue("type", "an");
+
+    eckit::Buffer buffer(4096);
+    eckit::ResizableMemoryStream out(buffer);
+    out << r;
+
+    // validating the request types the parameters
+    eckit::MemoryStream in(buffer);
+    MarsRequest decoded(in, true);
+    EXPECT(decoded.find("class")->typed());
+    EXPECT(decoded.find("type")->typed());
+    EXPECT_EQUAL(decoded["class"], "od");
+
+    // ... and rejects the keywords that are not in the language
+    MarsRequest custom("retrieve");
+    custom.setValue("not_a_keyword", "x");
+    eckit::ResizableMemoryStream out2(buffer);
+    out2 << custom;
+    eckit::MemoryStream in2(buffer);
+    EXPECT_THROWS_AS(MarsRequest(in2, true), eckit::UserError);
+
+    // the case of the names can be normalised
+    MarsRequest upper("RETRIEVE");
+    upper.setValue("CLASS", "od");
+    eckit::ResizableMemoryStream out3(buffer);
+    out3 << upper;
+    eckit::MemoryStream in3(buffer);
+    MarsRequest lower(in3, false, true);
+    EXPECT_EQUAL(lower.verb(), "retrieve");
+    EXPECT(lower.find("class") != nullptr);
 }
 
 CASE("test_raw_request_matches") {

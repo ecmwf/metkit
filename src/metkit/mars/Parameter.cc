@@ -10,6 +10,9 @@
 
 #include <algorithm>
 #include <iterator>
+#include <ostream>
+
+#include "eckit/exception/Exceptions.h"
 
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Parameter.h"
@@ -19,99 +22,44 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// class UndefinedType : public Type {
-//     void print(std::ostream& out) const override { out << "<undefined type>"; }
+Parameter::Parameter(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {}
 
-//     bool expand(std::string&, const MarsRequest&) const override { NOTIMP; }
+Parameter::Parameter(const std::string& name, std::vector<std::string>&& values) :
+    name_(name), values_(std::move(values)) {}
 
-// public:
-
-//     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
-// };
-
-
-// static UndefinedType undefined;
-
-ParameterBase::ParameterBase(const Parameter& other) {
-    values_ = other.values();
+Parameter::Parameter(std::shared_ptr<const Type> type, const std::vector<std::string>& values) :
+    values_(values), type_(std::move(type)) {
+    ASSERT(type_);
 }
 
-void ParameterBase::values(const std::vector<std::string>& values) {
-    values_ = values;
+Parameter::Parameter(std::shared_ptr<const Type> type, std::vector<std::string>&& values) :
+    values_(std::move(values)), type_(std::move(type)) {
+    ASSERT(type_);
 }
 
-size_t ParameterBase::count() const {
-    return values_.size();
+Keyword Parameter::id() const {
+    // An untyped parameter may carry an arbitrary custom key that is not in the language definition: do not register
+    // it, the dictionary is global, never shrinks and its size is limited, so user-provided names must not fill it.
+    // A name that is not registered has no id (0), which no keyword has.
+    return type_ ? type_->id() : MarsLanguage::hasKeyword(name_);
 }
 
-bool ParameterBase::multiple() const {
-    return true;
+const std::string& Parameter::name() const {
+    return type_ ? type_->name() : name_;
 }
 
-
-bool ParameterBase::filter(const std::vector<std::string>& filter) {
-    NotInSet not_in_set(filter);
-
-    values_.erase(std::remove_if(values_.begin(), values_.end(), not_in_set), values_.end());
-
-    return !values_.empty();
-}
-
-bool ParameterBase::filter(Keyword keyword, const std::vector<std::string>& f) {
-    if (keyword != id()) {
-        // raw (untyped) parameters have no Type-specific knowledge of keyword-based filters
-        // (e.g. filtering "date" by "day"), so - like the old TypeAny/undefined-type path - treat
-        // an unsupported filter keyword as "no match" rather than as an error.
-        return false;
+bool Parameter::is(Keyword key) const {
+    if (type_) {
+        return type_->id() == key;
     }
-    return filter(f);
+    return key != 0 && name_ == MarsLanguage::name(key);
 }
 
-bool ParameterBase::matches(const std::vector<std::string>& match) const {
-    // same semantics as Type::matches(): at least one of the values is among the ones to match
-    return std::any_of(values_.begin(), values_.end(), [&match](const std::string& v) {
-        return std::find(match.begin(), match.end(), v) != match.end();
-    });
-}
-
-
-void ParameterBase::merge(const Parameter& p) {
-    ASSERT(name() == p.name());
-
-    /// @note this isn't optimal O(N^2) but it respects the order
-
-    std::vector<std::string> diff;
-    for (auto& o : p.values()) {
-        bool found = false;
-        for (auto& v : values()) {
-            if (v == o) {
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-            diff.push_back(o);
+const Type& Parameter::type() const {
+    if (!type_) {
+        throw eckit::SeriousBug("Parameter '" + name_ + "' is untyped", Here());
     }
-
-    values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
-}
-
-Parameter::Parameter(const std::string& name, const std::vector<std::string>& values) {
-    impl_ = std::make_unique<StringParameter>(name, values);
-}
-
-
-Parameter::Parameter(const Parameter& other) : impl_(other.impl_ ? other.impl_->clone() : nullptr) {}
-
-Parameter& Parameter::operator=(const Parameter& other) {
-    if (this != &other) {
-        impl_ = other.impl_ ? other.impl_->clone() : nullptr;
-    }
-    return *this;
-}
-
-Parameter::Parameter(std::unique_ptr<ParameterBase>&& param) {
-    impl_ = std::move(param);
+    return *type_;
 }
 
 bool Parameter::operator<(const Parameter& other) const {
@@ -121,103 +69,78 @@ bool Parameter::operator<(const Parameter& other) const {
     return values() < other.values();
 }
 
-bool Parameter::filter(const std::string& name, const std::vector<std::string>& filter) {
-    return impl_->filter(MarsLanguage::keyword(name), filter);
+bool Parameter::multiple() const {
+    return !type_ || type_->multiple();
 }
 
-// Parameter& Parameter::operator=(Parameter&& other) {
-//     impl_ = std::move(other.impl_);
-//     return *this;
-// }
-
-// Parameter& Parameter::operator=(std::unique_ptr<ParameterBase>&& other) {
-//     impl_ = std::move(other);
-//     return *this;
-// }
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
-StringParameter& StringParameter::operator=(const StringParameter& other) {
-    name_   = other.name_;
-    values_ = other.values_;
-    return *this;
+size_t Parameter::count() const {
+    return type_ ? type_->count(values_) : values_.size();
 }
 
-Keyword StringParameter::id() const {
-    // raw (unvalidated) parameters may carry arbitrary custom keys that are not in the language definition. Do not
-    // intern them: the dictionary is global, never shrinks and its keys are limited, so user-provided names must not
-    // be able to fill it. A keyword that is not registered has no id (0), which no validated request can contain.
-    return MarsLanguage::hasKeyword(name_);
-}
-
-void StringParameter::print(std::ostream& s) const {
-    s << "StringParameter[name=" << name_ << ",values=" << values_ << "]";
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
-// TypeParameter::TypeParameter() : type_(&undefined) {
-//     type_->attach();
-// }
-
-TypeParameter::~TypeParameter() = default;
-
-TypeParameter::TypeParameter(const std::vector<std::string>& values, std::shared_ptr<const Type> type) :
-    ParameterBase(values), type_(type) {}
-//     // if (!type) {
-//     //     type_ = &undefined;
-//     // }
-//     type_->attach();
-// }
-
-
-TypeParameter::TypeParameter(const TypeParameter& other) : ParameterBase(other.values_), type_(other.type_) {}
-
-TypeParameter& TypeParameter::operator=(const TypeParameter& other) {
-    type_   = other.type_;
-    values_ = other.values_;
-    return *this;
-}
-
-Keyword TypeParameter::id() const {
-    return type_->id();
-}
-
-const std::string& TypeParameter::name() const {
-    return type_->name();
-}
-
-bool TypeParameter::multiple() const {
-    return type_->multiple();
-}
-
-bool TypeParameter::filter(const std::vector<std::string>& filter) {
-    return type_->filter(filter, values_);
-}
-
-bool TypeParameter::filter(Keyword keyword, const std::vector<std::string>& filter) {
-    return type_->filter(keyword, filter, values_);
-}
-
-bool TypeParameter::matches(const std::vector<std::string>& match) const {
-    return type_->matches(match, values_);
-}
-
-size_t TypeParameter::count() const {
-    return type_->count(values_);
-}
-
-void TypeParameter::print(std::ostream& s) const {
-    s << "TypeParameter[type=" << *type_ << ",values=" << values_ << "]";
-}
-
-bool TypeParameter::operator<(const TypeParameter& other) const {
-    if (id() != other.id()) {
-        return id() < other.id();
+bool Parameter::filter(const std::vector<std::string>& filter) {
+    if (type_) {
+        return type_->filter(filter, values_);
     }
-    return values_ < other.values_;
+
+    NotInSet not_in_set(filter);
+    values_.erase(std::remove_if(values_.begin(), values_.end(), not_in_set), values_.end());
+    return !values_.empty();
+}
+
+bool Parameter::filter(Keyword keyword, const std::vector<std::string>& f) {
+    if (type_) {
+        return type_->filter(keyword, f, values_);
+    }
+
+    // an untyped parameter has no knowledge of filters by another keyword (e.g. filtering a date by day): it can only
+    // be filtered by its own keyword, anything else is a "no match" and not an error
+    return keyword == id() && filter(f);
+}
+
+bool Parameter::filter(const std::string& name, const std::vector<std::string>& f) {
+    return filter(MarsLanguage::keyword(name), f);
+}
+
+bool Parameter::matches(const std::vector<std::string>& match) const {
+    if (type_) {
+        return type_->matches(match, values_);
+    }
+
+    // same semantics as Type::matches(): at least one of the values is among the ones to match
+    return std::any_of(values_.begin(), values_.end(), [&match](const std::string& v) {
+        return std::find(match.begin(), match.end(), v) != match.end();
+    });
+}
+
+void Parameter::merge(const Parameter& p) {
+    ASSERT(name() == p.name());
+
+    /// @note this isn't optimal O(N^2) but it respects the order
+
+    std::vector<std::string> diff;
+    for (const auto& o : p.values()) {
+        if (std::find(values_.begin(), values_.end(), o) == values_.end()) {
+            diff.push_back(o);
+        }
+    }
+
+    values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
+}
+
+void Parameter::print(std::ostream& s) const {
+    if (type_) {
+        s << "Parameter[type=" << *type_;
+    }
+    else {
+        s << "Parameter[name=" << name_;
+    }
+    s << ",values=[";
+    const char* separator = "";
+    for (const auto& v : values_) {
+        s << separator << v;
+        separator = ",";
+    }
+    s << "]]";
 }
 
 //----------------------------------------------------------------------------------------------------------------------

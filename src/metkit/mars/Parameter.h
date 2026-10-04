@@ -22,6 +22,11 @@
 #include "eckit/utils/Translator.h"
 #include "eckit/value/Value.h"
 
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "metkit/mars/Dictionary.h"
 
 namespace eckit {
@@ -32,156 +37,80 @@ class MD5;
 namespace metkit::mars {
 
 class Type;
-class MarsRequest;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Parameter;
-class ParameterBase {
-public:
-
-    ParameterBase() = default;
-    ParameterBase(const Parameter& other);
-    ParameterBase(const std::vector<std::string>& values) : values_(values) {}
-    ParameterBase(std::vector<std::string>&& values) : values_(std::move(values)) {}
-
-    virtual ~ParameterBase() = default;
-
-    virtual std::unique_ptr<ParameterBase> clone() const = 0;
-
-    virtual Keyword id() const              = 0;
-    virtual const std::string& name() const = 0;
-
-    const std::vector<std::string>& values() const { return values_; }
-    void values(const std::vector<std::string>& values);
-
-    virtual bool multiple() const;
-
-    virtual bool filter(const std::vector<std::string>& filter);
-    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter);
-    virtual bool matches(const std::vector<std::string>& matches) const;
-
-    void merge(const Parameter& p);
-
-    virtual size_t count() const;
-
-    virtual const Type& type() const { NOTIMP; }
-
-    virtual void print(std::ostream&) const = 0;
-
-protected:
-
-    std::vector<std::string> values_;
-};
-
-
+/// A keyword of a request, with its values.
+///
+/// A parameter is either:
+///  - *untyped*: it only knows the name it was created with and its values. Its keyword does not need to be
+///    registered in the language (e.g. custom keys), and nothing is looked up when it is created. It behaves like a
+///    generic keyword: all the values are used, and several values are accepted.
+///  - *typed*: it refers to the Type of the keyword in a language, which defines how the values are counted, filtered
+///    and matched. Requests produced by the expansion hold typed parameters.
+///
+/// This is a plain value class: copying and moving are cheap and never allocate beyond the values themselves.
 class Parameter {
-public:
+public:  // methods
 
     Parameter() = default;
-    Parameter(const Parameter& other);
-    // Parameter(const std::vector<std::string>& values) : im(values) {}
-    Parameter(const std::string& name, const std::vector<std::string>& values);
-    Parameter(std::unique_ptr<ParameterBase>&& param);
-    // Parameter(std::vector<std::string>&& values) : values_(std::move(values)) {}
 
-    // a user-declared copy constructor suppresses the implicit move constructor: without these, growing a
-    // std::vector<Parameter> would deep-copy (clone) every parameter instead of moving it
-    Parameter(Parameter&& other) noexcept            = default;
-    Parameter& operator=(Parameter&& other) noexcept = default;
-    Parameter& operator=(const Parameter& other);
+    /// Untyped parameter
+    Parameter(const std::string& name, const std::vector<std::string>& values);
+    Parameter(const std::string& name, std::vector<std::string>&& values);
+
+    /// Typed parameter
+    Parameter(std::shared_ptr<const Type> type, const std::vector<std::string>& values);
+    Parameter(std::shared_ptr<const Type> type, std::vector<std::string>&& values);
+
+    /// Parameters are ordered by name (and then by values): the ids of the keywords depend on the order in which the
+    /// languages are loaded, so they cannot be used to order parameters in a way that is stable across processes.
     bool operator<(const Parameter&) const;
 
-    Keyword id() const { return impl_->id(); }
-    const std::string& name() const { return impl_->name(); }
+    /// @return the id of the keyword, or 0 if the name is not a registered keyword. It does not register anything.
+    Keyword id() const;
+    const std::string& name() const;
 
-    const std::vector<std::string>& values() const { return impl_->values(); }
-    void values(const std::vector<std::string>& values) { impl_->values(values); }
+    /// @return true if the id of the keyword is @p key (the name is compared if the parameter is untyped)
+    bool is(Keyword key) const;
 
-    bool multiple() const { return impl_->multiple(); }
+    const std::vector<std::string>& values() const { return values_; }
+    void values(const std::vector<std::string>& values) { values_ = values; }
 
-    bool filter(const std::vector<std::string>& filter) { return impl_->filter(filter); }
-    bool filter(Keyword keyword, const std::vector<std::string>& filter) { return impl_->filter(keyword, filter); }
+    bool typed() const { return type_ != nullptr; }
+    /// @throws SeriousBug if the parameter is untyped
+    const Type& type() const;
+    const std::shared_ptr<const Type>& typePtr() const { return type_; }
+
+    bool multiple() const;
+    size_t count() const;
+
+    /// Keeps only the values that are in @p filter. @return true if some value is left
+    bool filter(const std::vector<std::string>& filter);
+    /// Filters by another keyword, e.g. a date by day. @return false if this keyword does not support it
+    bool filter(Keyword keyword, const std::vector<std::string>& filter);
     bool filter(const std::string& name, const std::vector<std::string>& filter);
-    bool matches(const std::vector<std::string>& matches) const { return impl_->matches(matches); }
 
-    void merge(const Parameter& p) { impl_->merge(p); }
+    /// @return true if at least one of the values is in @p matches
+    bool matches(const std::vector<std::string>& matches) const;
 
-    size_t count() const { return impl_->count(); }
-
-    const Type& type() const { return impl_->type(); }
+    /// Adds the values of @p p that are not already there (the order is respected)
+    void merge(const Parameter& p);
 
 protected:
 
-    void print(std::ostream& s) const { impl_->print(s); }
+    void print(std::ostream& s) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Parameter& p) {
         p.print(s);
         return s;
     }
 
-private:
-
-    std::unique_ptr<ParameterBase> impl_;
-};
-
-class StringParameter : public ParameterBase {
-
-public:
-
-    StringParameter(const Parameter& other) : ParameterBase(other.values()), name_(other.name()) {}
-    StringParameter(const StringParameter&) = default;
-    StringParameter& operator=(const StringParameter&);
-
-    StringParameter(const std::string& name) : name_(name) {}
-    StringParameter(const std::string& name, const std::vector<std::string>& values) :
-        ParameterBase(values), name_(name) {}
-    StringParameter(const std::string& name, std::vector<std::string>&& values) :
-        ParameterBase(std::move(values)), name_(name) {}
-
-    std::unique_ptr<ParameterBase> clone() const override { return std::make_unique<StringParameter>(*this); }
-
-    Keyword id() const override;
-    const std::string& name() const override { return name_; }
-
-    void print(std::ostream&) const override;
-
 private:  // members
 
-    std::string name_;
-};
-
-class TypeParameter : public ParameterBase {
-public:  // methods
-
-    TypeParameter();
-    TypeParameter(const std::vector<std::string>& values, std::shared_ptr<const Type> = 0);
-    TypeParameter(const TypeParameter&);
-    ~TypeParameter() override;
-
-    TypeParameter& operator=(const TypeParameter&);
-    bool operator<(const TypeParameter&) const;
-
-    std::unique_ptr<ParameterBase> clone() const override { return std::make_unique<TypeParameter>(*this); }
-
-    Keyword id() const override;
-    const std::string& name() const override;
-
-    bool multiple() const override;
-
-    bool filter(const std::vector<std::string>& filter) override;
-    bool filter(Keyword keyword, const std::vector<std::string>& filter) override;
-    bool matches(const std::vector<std::string>& matches) const override;
-
-    size_t count() const override;
-
-    const Type& type() const override { return *type_; }
-
-    void print(std::ostream&) const override;
-
-private:  // members
-
-    std::shared_ptr<const Type> type_;
+    std::string name_;  // the name of an untyped parameter. Empty if the parameter is typed, the type knows its name
+    std::vector<std::string> values_;
+    std::shared_ptr<const Type> type_;  // null if the parameter is untyped
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -643,68 +643,46 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
     MarsRequest result(verb_);
 
     try {
-        const MarsBaseRequest& base = *r.req_;
-        if (typeid(base) == typeid(MarsRawRequest)) {
-            std::map<Keyword, const Parameter*> paramSet;
+        // Resolve the keywords of the request in this language. They are processed sorted by keyword (axes first,
+        // in axis order), so the order of the parameters in the request does not matter.
+        std::map<Keyword, const Parameter*> paramSet;
 
-            for (const auto& param : r.req_->parameters()) {
+        for (const auto& param : r.parameters()) {
+            // a typed parameter that is already a keyword of this language does not need to be looked up
+            Keyword key = param.typed() ? param.id() : 0;
+            if (!key || types_.find(key) == types_.end()) {
                 std::string p = eckit::StringTools::lower(param.name());
-                Keyword key   = keywords_->exist(p);
+                key           = keywords_->exist(p);
                 if (!key || types_.find(key) == types_.end()) {
                     // not a keyword of this language (the dictionary is shared by all the verbs):
                     // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
                     p   = bestMatch(p, keywordList_, true, false, true, aliases_);
                     key = keywords_->exist(p);
                 }
-                paramSet.emplace(key, &param);
             }
-
-            for (const auto& [k, param] : paramSet) {
-                std::vector<std::string> values = param->values();  // copy the values to expand in place
-
-                if (values.size() == 1) {
-                    const std::string& s = eckit::StringTools::lower(values[0]);
-                    if (s == "off") {
-                        result.erase(k);
-                        ctx.unset(k);
-                        continue;
-                    }
-                    if (s == "all" && type(k)->multiple()) {
-                        result.setValue(k, "all");
-                        continue;
-                    }
-                }
-
-                auto t = type(k);
-                t->expand(values, result);
-                result.setValuesTyped(t, values);
-                t->check(values);
-            }
+            paramSet.emplace(key, &param);
         }
-        else {
-            const auto* validated = dynamic_cast<const MarsValidatedRequest*>(r.req_.get());
-            ASSERT(validated);
-            for (const auto& [k, idx] : validated->paramMap_) {
-                const auto& param               = r.req_->parameters()[idx];
-                std::vector<std::string> values = param.values();
 
-                if (values.size() == 1) {
-                    if (values[0] == "off") {
-                        result.erase(k);
-                        ctx.unset(k);
-                        continue;
-                    }
-                    if (values[0] == "all" && type(k)->multiple()) {
-                        result.setValue(k, "all");
-                        continue;
-                    }
+        for (const auto& [k, param] : paramSet) {
+            std::vector<std::string> values = param->values();  // copy the values to expand in place
+
+            if (values.size() == 1) {
+                const std::string s = eckit::StringTools::lower(values[0]);
+                if (s == "off") {
+                    result.erase(k);
+                    ctx.unset(k);
+                    continue;
                 }
-
-                auto t = type(k);
-                t->expand(values, result);
-                result.setValuesTyped(t, values);
-                t->check(values);
+                if (s == "all" && type(k)->multiple()) {
+                    result.setValuesTyped(type(k), std::vector<std::string>{"all"});
+                    continue;
+                }
             }
+
+            auto t = type(k);
+            t->expand(values, result);
+            result.setValuesTyped(t, values);
+            t->check(values);
         }
 
         if (inherit) {
@@ -720,8 +698,15 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
             }
         }
 
+        // pass2 modifies the request: go through a snapshot of the types, not through the parameters being modified
+        std::vector<std::shared_ptr<const Type>> expanded;
+        expanded.reserve(result.parameters().size());
         for (const auto& param : result.parameters()) {
-            param.type().pass2(result);
+            expanded.push_back(param.typePtr());
+        }
+        for (const auto& t : expanded) {
+            ASSERT(t);
+            t->pass2(result);
         }
 
         for (const auto& [k, t] : types_) {
