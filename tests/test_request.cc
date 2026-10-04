@@ -12,7 +12,10 @@
 /// @date   Jul 2024
 /// @author Emanuele Danovaro
 
+#include "eckit/io/Buffer.h"
 #include "eckit/log/JSON.h"
+#include "eckit/serialisation/MemoryStream.h"
+#include "eckit/serialisation/ResizableMemoryStream.h"
 #include "eckit/types/Date.h"
 
 #include "metkit/mars/MarsExpansion.h"
@@ -209,6 +212,72 @@ CASE("test_request_count_single_level_params") {
         MarsRequest r = MarsRequest::parse(text);
         EXPECT_EQUAL(54, r.count());
     }
+}
+
+CASE("test_raw_request_stream_roundtrip") {
+    // a request decoded from a stream must be fully usable: lookups go through the parameter index
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.values("param", std::vector<std::string>{"t", "z"});
+
+    eckit::Buffer buffer(4096);
+    eckit::ResizableMemoryStream out(buffer);
+    out << r;
+
+    eckit::MemoryStream in(buffer);
+    MarsRequest decoded(in);
+
+    EXPECT_EQUAL(decoded.verb(), "retrieve");
+    EXPECT(decoded.has("class"));
+    EXPECT(decoded.find("param") != nullptr);
+    EXPECT_EQUAL(decoded["class"], "od");
+    EXPECT_EQUAL(decoded.values("param").size(), 2u);
+    EXPECT_EQUAL(decoded.params().size(), 2u);
+}
+
+CASE("test_validated_request_unknown_names") {
+    MarsRequest r(MarsLanguage::verb("retrieve"));
+    r.setValue("class", "od");
+
+    // queries about a name that is not a keyword are not errors
+    EXPECT(r.has("class"));
+    EXPECT(!r.has("not_a_keyword"));
+    EXPECT(r.find("not_a_keyword") == nullptr);
+    EXPECT_EQUAL(r.countValues("not_a_keyword"), 0u);
+    EXPECT(r.values("not_a_keyword", true).empty());
+    EXPECT_NO_THROW(r.unsetValues("not_a_keyword"));
+
+    // ... but asking for the values of a missing parameter, or setting an unknown keyword, is the user's error
+    EXPECT_THROWS_AS(r.values("not_a_keyword"), eckit::UserError);
+    EXPECT_THROWS_AS(r.setValue("not_a_keyword", "x"), eckit::UserError);
+}
+
+CASE("test_raw_request_matches") {
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.values("param", std::vector<std::string>{"t", "z"});
+
+    MarsRequest filter("retrieve");
+    filter.values("param", std::vector<std::string>{"z"});
+    EXPECT(r.matches(filter));
+
+    MarsRequest other("retrieve");
+    other.values("param", std::vector<std::string>{"u"});
+    EXPECT(!r.matches(other));
+
+    MarsRequest missing("retrieve");
+    missing.setValue("levtype", "sfc");
+    EXPECT(!r.matches(missing));
+}
+
+CASE("test_language_verbs") {
+    // verbs are case insensitive, and aliases are resolved
+    EXPECT_EQUAL(&MarsLanguage::get("RETRIEVE"), &MarsLanguage::get("retrieve"));
+    EXPECT_EQUAL(&MarsLanguage::get("ret"), &MarsLanguage::get("retrieve"));
+
+    // an unknown verb is an error of the user
+    EXPECT_THROWS_AS(MarsLanguage::get("not_a_verb"), eckit::UserError);
+    EXPECT_THROWS_AS(MarsLanguage::expandVerb("not_a_verb"), eckit::UserError);
 }
 
 //-----------------------------------------------------------------------------

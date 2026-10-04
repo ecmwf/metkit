@@ -47,7 +47,10 @@ void initLanguage() {
 
 ExpansionContext::ExpansionContext(const MarsRequest& request) {
     for (const auto& param : request.parameters()) {
-        values_[MarsLanguage::keyword(param.name())] = param.values();
+        Keyword key = param.id();
+        if (key) {  // a parameter that is not a registered keyword cannot be inherited by any language
+            values_[key] = param.values();
+        }
     }
 }
 
@@ -85,60 +88,92 @@ std::set<Context*, ContextPtrComparator> MarsLanguage::contextsSet_{};
 std::vector<std::unique_ptr<Context>> MarsLanguage::contexts_{};
 MemFile MarsLanguage::langFile_;
 
-void MarsLanguage::init() {
+void MarsLanguage::loadYaml() {
+    static std::once_flag loaded;
+    std::call_once(loaded, [] {
+        languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+        for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
+            modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
+        }
+    });
+}
+
+void MarsLanguage::resetBinaryState() {
+    verbs_.reset();
+    keywords_.reset();
+    maxDataKeyword_ = 0;
+    langOffsets_.clear();
+    {
+        std::unique_lock lock(contextsMutex_);
+        contextsSet_.clear();
+        contexts_.clear();
+    }
+    langFile_ = MemFile{};  // releases the mapping
+}
+
+bool MarsLanguage::loadBinary() {
     static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
 
-    if (!metkitForceBinfileCreation) {
-        eckit::PathName languageBinFile = LibMetkit::languageBinaryFile();
-        if (languageBinFile.exists()) {
-            langFile_ = MemFile{languageBinFile.localPath()};
-
-            try {
-                std::string header{langFile_.readString(4)};
-                uint16_t version = langFile_.read16();
-
-                LOG_DEBUG_LIB(LibMetkit) << "Reading language binary file header: " << header << " version: " << version
-                                         << std::endl;
-
-                if ("LANG" == header && version == LibMetkit::binaryFilesVersion()) {
-
-                    readDictionaries(langFile_);
-
-                    uint8_t numVerbs = langFile_.read8();
-                    for (uint8_t u = 0; u < numVerbs; ++u) {
-                        Verb vv         = langFile_.read8();
-                        uint32_t offset = langFile_.read32();
-                        langOffsets_.emplace(vv, offset);
-                    }
-                    ASSERT(langOffsets_.size() == numVerbs);
-
-                    return;
-                }
-
-                eckit::Log::error() << "Incompatible version of language binary file '" << languageBinFile.asString()
-                                    << "' - version expected: " << LibMetkit::binaryFilesVersion()
-                                    << " found: " << version << " - using slow config file parsing" << std::endl;
-            }
-            catch (const std::exception& e) {
-                verbs_.reset();
-                keywords_.reset();
-                eckit::Log::error() << "Error reading language binary file '" << languageBinFile.asString()
-                                    << "': " << e.what() << " - using slow config file parsing" << std::endl;
-            }
-        }
-        else {
-            eckit::Log::error() << "Language binary file '" << languageBinFile.asString()
-                                << "' missing - using slow config file parsing" << std::endl;
-        }
+    if (metkitForceBinfileCreation) {
+        return false;
     }
 
-
-    languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
-    for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
-        modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
+    eckit::PathName languageBinFile = LibMetkit::languageBinaryFile();
+    if (!languageBinFile.exists()) {
+        eckit::Log::info() << "Language binary file '" << languageBinFile.asString()
+                           << "' missing - using slow config file parsing" << std::endl;
+        return false;
     }
 
-    verbs_                   = std::make_unique<Dictionary<Verb>>();
+    try {
+        langFile_ = MemFile{languageBinFile.localPath()};
+
+        std::string header{langFile_.readString(4)};
+        uint16_t version = langFile_.read16();
+
+        LOG_DEBUG_LIB(LibMetkit) << "Reading language binary file header: " << header << " version: " << version
+                                 << std::endl;
+
+        if ("LANG" == header && version == LibMetkit::binaryFilesVersion()) {
+
+            readDictionaries(langFile_);
+
+            uint8_t numVerbs = langFile_.read8();
+            for (uint8_t u = 0; u < numVerbs; ++u) {
+                Verb vv         = langFile_.read8();
+                uint32_t offset = langFile_.read32();
+                langOffsets_.emplace(vv, offset);
+            }
+            ASSERT(langOffsets_.size() == numVerbs);
+
+            // the contexts follow the verb offsets table and are shared by all the languages
+            readContexts(langFile_);
+
+            return true;
+        }
+
+        eckit::Log::warning() << "Incompatible language binary file '" << languageBinFile.asString()
+                              << "' - expected header LANG version " << LibMetkit::binaryFilesVersion() << ", found "
+                              << header << " version " << version << " - using slow config file parsing" << std::endl;
+    }
+    catch (const std::exception& e) {
+        eckit::Log::warning() << "Error reading language binary file '" << languageBinFile.asString()
+                              << "': " << e.what() << " - using slow config file parsing" << std::endl;
+    }
+
+    // do not leave a half-loaded state behind: the YAML parsing below starts from scratch
+    resetBinaryState();
+    return false;
+}
+
+void MarsLanguage::init() {
+    if (loadBinary()) {
+        return;
+    }
+
+    loadYaml();
+
+    verbs_                   = std::make_unique<Dictionary<Verb>>("verb");
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         std::string verb  = verbs[i];
@@ -153,7 +188,7 @@ void MarsLanguage::init() {
             }
         }
     }
-    keywords_ = std::make_unique<Dictionary<Keyword>>();
+    keywords_ = std::make_unique<Dictionary<Keyword>>("keyword");
     keywords_->add(std::string{"_verb"});
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
         keywords_->add(a);
@@ -240,7 +275,7 @@ const Context& MarsLanguage::addContext(eckit::Value& val) {
 
 MarsLanguage::MarsLanguage(const std::string& verb) {
     pthread_once(&once, initLanguage);
-    verb_ = verbs_->keyword(verb);
+    verb_ = verbs_->keyword(eckit::StringTools::lower(verb));
     parse(verb_);
 }
 
@@ -251,24 +286,25 @@ MarsLanguage::MarsLanguage(Verb verb) : verb_(verb) {
 
 MarsLanguage::MarsLanguage(Verb verb, MemFile& file) {
     pthread_once(&once, initLanguage);
-    if (contexts_.empty()) {
-        readContexts(file);
-    }
-    langFile_.seek(langOffsets_[verb]);
-    verb_ = langFile_.read8();
+
+    auto offset = langOffsets_.find(verb);
+    ASSERT(offset != langOffsets_.end());
+    file.seek(offset->second);
+    verb_ = file.read8();
     ASSERT(verb_ == verb);
 
-    uint16_t numTypes = langFile_.read16();
+    uint16_t numTypes = file.read16();
     for (uint16_t i = 0; i < numTypes; ++i) {
-        std::string typeName{langFile_.readString()};
-        Keyword keyword = langFile_.read16();
-        auto type       = TypesFactory::build(typeName, keyword, langFile_);
+        std::string typeName{file.readString()};
+        Keyword keyword = file.read16();
+        auto type       = TypesFactory::build(typeName, keyword, file);
         types_.emplace(keyword, type);
-        typesByAxisOrder_.emplace_back(keyword, type);
     }
 }
 
 void MarsLanguage::parse(Verb verb) {
+
+    loadYaml();  // not loaded yet if the binary file is used for the other verbs
 
     eckit::Value lang    = languages_[verbs_->name(verb)];
     eckit::Value params  = lang.keys();
@@ -303,8 +339,10 @@ void MarsLanguage::parse(Verb verb) {
         }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
-                aliases_[(*aliases)[j]] = keyword;
-                keywords_->alias((*aliases)[j], keyword);
+                std::string alias = (*aliases)[j];
+                aliases_[alias]   = keywordStr;  // alias name -> keyword name
+                keywordList_.push_back(alias);   // aliases take part in the fuzzy matching, as before
+                keywords_->alias(alias, keyword);
             }
         }
     }
@@ -334,27 +372,10 @@ void MarsLanguage::parse(Verb verb) {
     if (lang.contains("_clear_defaults")) {
         const auto& keywords = lang["_clear_defaults"];
         for (auto i = 0; i < keywords.size(); ++i) {
-            Keyword key = keywords_->keyword(keywords[i]);
-            if (auto iter = types_.find(key); iter != types_.end()) {
+            Keyword key = keywords_->exist(keywords[i]);
+            if (auto iter = types_.find(key); key && iter != types_.end()) {
                 iter->second->clearDefaults();
             }
-        }
-    }
-
-    for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
-        std::shared_ptr<Type> t = nullptr;
-        Keyword key             = keywords_->exist(a);
-        if (key) {
-            auto it = types_.find(key);
-            if (it != types_.end()) {
-                t = it->second;
-            }
-            typesByAxisOrder_.emplace_back(key, t);
-        }
-    }
-    for (auto& [k, t] : types_) {
-        if (t->category() != Category::Data) {
-            typesByAxisOrder_.emplace_back(k, t);
         }
     }
 }
@@ -364,7 +385,7 @@ Category MarsLanguage::category(Keyword keyword) const {
     if (it != types_.end()) {
         return it->second->category();
     }
-    throw eckit::UserError("Cannot find keyword: " + std::to_string(keyword));
+    throw eckit::UserError("Cannot find keyword: " + keywords_->name(keyword));
 }
 
 bool MarsLanguage::isData(Keyword k) const {
@@ -422,7 +443,7 @@ const MarsLanguage& MarsLanguage::get(Verb verb) {
 
 const MarsLanguage& MarsLanguage::get(const std::string& verb) {
     pthread_once(&once, initLanguage);
-    return get(verbs_->keyword(verb));
+    return get(verbs_->keyword(eckit::StringTools::lower(verb)));
 }
 
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
@@ -599,22 +620,23 @@ public:
 const Type* MarsLanguage::type(Keyword key) const {
     auto it = types_.find(key);
     if (it == types_.end()) {
-        throw eckit::SeriousBug("Cannot find a type for '" + keywords_->name(key) + "'");
+        throw eckit::UserError("Keyword '" + keywords_->name(key) + "' is not valid for verb '" + verbs_->name(verb_) +
+                               "'");
     }
     return it->second.get();
 }
 
 const Type* MarsLanguage::type(const std::string& name) const {
-    static const TypeHidden hidden{};
     Keyword key = keywords_->exist(name);
-    if (key) {
-        return type(keywords_->keyword(name));
+    if (key && types_.find(key) != types_.end()) {
+        return type(key);
     }
-    if ((name)[0] == '_') {
+    if (!name.empty() && name[0] == '_') {  // internal keywords (e.g. _verb) are known, but have no type in a language
+        static const TypeHidden hidden{};
         return &hidden;
     }
 
-    throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
+    throw eckit::UserError("Cannot find a type for '" + name + "'");
 }
 
 MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
@@ -623,22 +645,22 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
     try {
         const MarsBaseRequest& base = *r.req_;
         if (typeid(base) == typeid(MarsRawRequest)) {
-            std::map<Keyword, const std::string> paramSet;
-            std::vector<std::string> params;
+            std::map<Keyword, const Parameter*> paramSet;
 
             for (const auto& param : r.req_->parameters()) {
                 std::string p = eckit::StringTools::lower(param.name());
                 Keyword key   = keywords_->exist(p);
-                if (!key) {
+                if (!key || types_.find(key) == types_.end()) {
+                    // not a keyword of this language (the dictionary is shared by all the verbs):
                     // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
                     p   = bestMatch(p, keywordList_, true, false, true, aliases_);
                     key = keywords_->exist(p);
                 }
-                paramSet.emplace(key, param.name());
+                paramSet.emplace(key, &param);
             }
 
-            for (const auto& [k, PP] : paramSet) {
-                std::vector<std::string> values = r.req_->values(PP);  // copy the values to expand in place
+            for (const auto& [k, param] : paramSet) {
+                std::vector<std::string> values = param->values();  // copy the values to expand in place
 
                 if (values.size() == 1) {
                     const std::string& s = eckit::StringTools::lower(values[0]);
@@ -660,7 +682,9 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
             }
         }
         else {
-            for (const auto& [k, idx] : dynamic_cast<MarsValidatedRequest*>(r.req_.get())->paramMap_) {
+            const auto* validated = dynamic_cast<const MarsValidatedRequest*>(r.req_.get());
+            ASSERT(validated);
+            for (const auto& [k, idx] : validated->paramMap_) {
                 const auto& param               = r.req_->parameters()[idx];
                 std::vector<std::string> values = param.values();
 
@@ -684,8 +708,8 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
         }
 
         if (inherit) {
-            for (const auto& [k, t] : typesByAxisOrder_) {
-                if (t != nullptr && result.countValues(k) == 0) {
+            for (const auto& [k, t] : types_) {
+                if (isOrdered(k, *t) && result.countValues(k) == 0) {
                     if (ctx.has(k)) {
                         result.setValuesTyped(t, ctx.values(k));
                     }
@@ -700,9 +724,10 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
             param.type().pass2(result);
         }
 
-        for (const auto& [k, t] : typesByAxisOrder_) {
-            if (t != nullptr)
+        for (const auto& [k, t] : types_) {
+            if (isOrdered(k, *t)) {
                 t->finalise(result, strict);
+            }
         }
     }
     catch (std::exception& e) {
@@ -716,16 +741,17 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
     return result;
 }
 
-void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
+void MarsLanguage::flatten(const MarsRequest& request, const std::vector<Keyword>& params, size_t i,
                            MarsRequest& result, FlattenCallback& callback) const {
     if (i == params.size()) {
         callback(result);
         return;
     }
 
-    const std::string& param = params[i];
+    Keyword param = params[i];
 
-    const Type* t = type(param);
+    // internal keywords (e.g. _verb) are registered, but have no type in the language: look them up by name
+    const Type* t = types_.find(param) != types_.end() ? type(param) : type(name(param));
     if (!t->flatten()) {
         flatten(request, params, i + 1, result, callback);
         return;
@@ -741,9 +767,13 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
 
 void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
     MarsRequest result(request);
-    std::vector<std::string> params;
+    std::vector<Keyword> params;
     for (const auto& p : request.parameters()) {
-        params.push_back(p.name());
+        Keyword key = p.id();
+        if (!key) {
+            throw eckit::UserError("Cannot flatten a request with an unknown keyword '" + p.name() + "'");
+        }
+        params.push_back(key);
     }
     flatten(request, params, 0, result, callback);
 }

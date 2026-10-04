@@ -422,8 +422,9 @@ void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& va
     // Special case: inheritance from another key.
     // If the value is of the form _key, then copy values from that key
     if (values.size() == 1 && values[0][0] == '_') {
-        std::string key = values[0].substr(1);
-        if (request.has(key)) {
+        // the key comes from the configuration: if it is not a registered keyword the request cannot hold it
+        Keyword key = MarsLanguage::hasKeyword(values[0].substr(1));
+        if (key && request.has(key)) {
             request.setValuesTyped(this, request.values(key));
         }
     }
@@ -560,7 +561,7 @@ void Type::setDefaults(MarsRequest& request) const {
 }
 
 const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) const {
-    return request.values(name());
+    return request.values(id_);
 }
 
 void Type::clearDefaults() {
@@ -583,21 +584,20 @@ void Type::pass2(MarsRequest& request) const {}
 
 void Type::finalise(MarsRequest& request, bool strict) const {
 
-    auto nn                                = MarsLanguage::name(id_);
-    const std::vector<std::string>& values = request.values(nn, true);
+    const std::vector<std::string>& values = request.values(id_, true);
     if (values.size() == 1 && values[0] == "off") {
-        request.unsetValues(nn);
+        request.erase(id_);
     }
     else {
         if (values.size() > 0) {
             for (const auto& ctx : unsets_) {
                 if (ctx.get().matches(request)) {
-                    if (strict && request.has(nn)) {
+                    if (strict && request.has(id_)) {
                         std::ostringstream oss;
                         oss << *this << ": Key [" << name() << "] not acceptable with context: " << ctx.get();
                         throw eckit::UserError(oss.str());
                     }
-                    request.unsetValues(nn);
+                    request.erase(id_);
                 }
             }
         }
@@ -605,7 +605,7 @@ void Type::finalise(MarsRequest& request, bool strict) const {
         if (request.verb() != "list") {
             for (const auto& [ctx, values] : sets_) {
                 if (ctx.get().matches(request)) {
-                    if (strict && !request.has(nn)) {
+                    if (strict && !request.has(id_)) {
                         std::ostringstream oss;
                         oss << *this << ": missing Key [" << name() << "] - required with context: " << ctx.get();
                         throw eckit::UserError(oss.str());

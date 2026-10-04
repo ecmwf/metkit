@@ -130,7 +130,7 @@ TypeDate::TypeDate(const std::string& type, Keyword key, MemFile& file) : Type(t
 }
 
 void TypeDate::pass2(MarsRequest& request) const {
-    std::vector<std::string> values = request.values(MarsLanguage::name(id_), true);
+    std::vector<std::string> values = request.values(id_, true);
     if (values.size() == 1 && values[0] == "-1") {
         Type::expand(values, request);
         request.setValuesTyped(this, values);

@@ -22,15 +22,16 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicates) const {
+void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicates, bool canonical) const {
     std::string value = eckit::StringTools::lower(vv);
     if (!allowDuplicates && values_.find(value) != values_.end()) {
         std::ostringstream oss;
         oss << "Redefined enum value '" << value << "' while parsing " << name();
         throw eckit::SeriousBug(oss.str());
     }
-    // skip descriptions (strings containing blanks)
-    if (value.find(" ") == std::string::npos) {
+    // Only aliases containing blanks are descriptions (e.g. [bc, boundary conditions]) and are skipped. The primary
+    // name is always a valid value, even if it contains a blank (e.g. 'monthly run').
+    if (canonical || value.find(' ') == std::string::npos) {
         values_[value] = idx;
     }
 }
@@ -38,10 +39,10 @@ void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicate
 uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicates) const {
     std::string firstName = names.isList() ? names[0] : names;
     uint16_t idx          = groups_.size();
-    addValue(firstName, idx, allowDuplicates);
+    addValue(firstName, idx, allowDuplicates, true);
     if (names.isList()) {
         for (size_t i = 1; i < names.size(); ++i) {
-            addValue(names[i], idx, allowDuplicates);
+            addValue(names[i], idx, allowDuplicates, false);
         }
     }
     if (flags_[3]) {

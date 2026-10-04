@@ -136,11 +136,12 @@ public:  // methods
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
     MarsRequest(const std::string&, const eckit::Value&);
     MarsRequest(const MarsRequest& request);
-    MarsRequest(MarsRequest&& other);
+    /// @note a moved-from request is left without content: it can only be destroyed or assigned to
+    MarsRequest(MarsRequest&& other) noexcept;
     explicit MarsRequest(eckit::Stream& s, bool validate = false, bool lowercase = false);
 
     MarsRequest& operator=(const MarsRequest& other);
-    MarsRequest& operator=(MarsRequest&& other);
+    MarsRequest& operator=(MarsRequest&& other) noexcept;
     const std::string& operator[](const std::string&) const;
 
     Verb verbId() const { return req_->verbId(); }
@@ -172,6 +173,9 @@ public:  // methods
     }
 
     std::vector<std::string> params() const;
+
+    /// @deprecated use params()
+    void getParams(std::vector<std::string>& p) const { p = params(); }
 
     std::vector<Parameter>& parameters() { return req_->parameters(); }
     const std::vector<Parameter>& parameters() const { return req_->parameters(); }

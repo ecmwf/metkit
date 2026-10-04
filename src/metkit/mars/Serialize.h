@@ -13,18 +13,30 @@
 
 #pragma once
 
+#include <sys/types.h>
+
+#include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <set>
+#include <string>
+#include <string_view>
 #include <vector>
 
+/// Read-only memory mapped file, read sequentially (little endian). Strings are returned as views into the mapping:
+/// they are valid as long as the MemFile is alive (and not moved from, or assigned to).
 class MemFile {
 public:
 
     MemFile() = default;
-    MemFile(std::string filename);
-    ~MemFile();
+    explicit MemFile(const std::string& filename);
 
-    MemFile& operator=(MemFile&&);
+    MemFile(const MemFile&)            = delete;
+    MemFile& operator=(const MemFile&) = delete;
+    MemFile(MemFile&& other) noexcept;
+    MemFile& operator=(MemFile&& other) noexcept;
+
+    ~MemFile();
 
     uint8_t read8();
     uint16_t read16();
@@ -36,11 +48,16 @@ public:
 
     void seek(off_t pos);
 
+    /// true if everything has been read
+    bool atEnd() const { return pos_ == size_; }
+
 private:
 
-    uint8_t* data_;
-    size_t size_;
-    off_t pos_;
+    void release() noexcept;
+
+    const uint8_t* data_ = nullptr;
+    size_t size_         = 0;
+    size_t pos_          = 0;
 };
 
 void writeBool(std::ofstream& file, bool val);

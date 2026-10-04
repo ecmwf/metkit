@@ -85,7 +85,11 @@ public:
     Parameter(std::unique_ptr<ParameterBase>&& param);
     // Parameter(std::vector<std::string>&& values) : values_(std::move(values)) {}
 
-    Parameter& operator=(Parameter&& other) = default;
+    // a user-declared copy constructor suppresses the implicit move constructor: without these, growing a
+    // std::vector<Parameter> would deep-copy (clone) every parameter instead of moving it
+    Parameter(Parameter&& other) noexcept            = default;
+    Parameter& operator=(Parameter&& other) noexcept = default;
+    Parameter& operator=(const Parameter& other);
     bool operator<(const Parameter&) const;
 
     Keyword id() const { return impl_->id(); }

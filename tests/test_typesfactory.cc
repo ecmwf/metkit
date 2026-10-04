@@ -51,6 +51,37 @@ CASE("test_build") {
     EXPECT(dynamic_cast<TypeDate*>(t1.get()) != 0);
 }
 
+CASE("test_enum_values") {
+
+    // [name, alias...]: aliases containing blanks are descriptions and are not values, the name always is a value
+    eckit::ValueList values;
+    values.push_back(eckit::Value(eckit::ValueList{eckit::Value("on-demand-extremes-dt"),
+                                                   eckit::Value("On-demand weather and geophysical extremes twin")}));
+    values.push_back(eckit::Value(eckit::ValueList{eckit::Value("monthly run")}));
+    values.push_back(eckit::Value(eckit::ValueList{eckit::Value("bc"), eckit::Value("boundary conditions")}));
+
+    eckit::ValueMap settings;
+    settings["type"]   = "enum";
+    settings["values"] = eckit::Value(values);
+
+    auto t = TypesFactory::build(MarsLanguage::addKeyword("testenum"), eckit::Value(settings));
+    MarsRequest request;
+
+    auto expand = [&](std::string value) {
+        bool ok = t->expand(value, request);
+        return std::make_pair(ok, value);
+    };
+
+    // long names are values (there is no limit on the length)
+    EXPECT(expand("on-demand-extremes-dt") == std::make_pair(true, std::string("on-demand-extremes-dt")));
+    // a name containing a blank is still a value, and matching is case insensitive
+    EXPECT(expand("Monthly Run") == std::make_pair(true, std::string("monthly run")));
+    EXPECT(expand("bc") == std::make_pair(true, std::string("bc")));
+    // descriptions are not
+    EXPECT(!expand("boundary conditions").first);
+    EXPECT(!expand("not-a-value").first);
+}
+
 }  // namespace metkit::mars::test
 
 

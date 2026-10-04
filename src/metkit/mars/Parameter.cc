@@ -68,7 +68,10 @@ bool ParameterBase::filter(Keyword keyword, const std::vector<std::string>& f) {
 }
 
 bool ParameterBase::matches(const std::vector<std::string>& match) const {
-    NOTIMP;
+    // same semantics as Type::matches(): at least one of the values is among the ones to match
+    return std::any_of(values_.begin(), values_.end(), [&match](const std::string& v) {
+        return std::find(match.begin(), match.end(), v) != match.end();
+    });
 }
 
 
@@ -98,7 +101,14 @@ Parameter::Parameter(const std::string& name, const std::vector<std::string>& va
 }
 
 
-Parameter::Parameter(const Parameter& other) : impl_(other.impl_->clone()) {}
+Parameter::Parameter(const Parameter& other) : impl_(other.impl_ ? other.impl_->clone() : nullptr) {}
+
+Parameter& Parameter::operator=(const Parameter& other) {
+    if (this != &other) {
+        impl_ = other.impl_ ? other.impl_->clone() : nullptr;
+    }
+    return *this;
+}
 
 Parameter::Parameter(std::unique_ptr<ParameterBase>&& param) {
     impl_ = std::move(param);
@@ -135,10 +145,10 @@ StringParameter& StringParameter::operator=(const StringParameter& other) {
 }
 
 Keyword StringParameter::id() const {
-    // raw (unvalidated) parameters may carry arbitrary custom keys not in the language
-    // definition, so auto-intern rather than throw - matching how TypeAny handled this
-    // before the split into StringParameter/TypeParameter.
-    return MarsLanguage::addKeyword(name_);
+    // raw (unvalidated) parameters may carry arbitrary custom keys that are not in the language definition. Do not
+    // intern them: the dictionary is global, never shrinks and its keys are limited, so user-provided names must not
+    // be able to fill it. A keyword that is not registered has no id (0), which no validated request can contain.
+    return MarsLanguage::hasKeyword(name_);
 }
 
 void StringParameter::print(std::ostream& s) const {

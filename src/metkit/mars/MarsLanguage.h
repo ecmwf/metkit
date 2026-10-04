@@ -129,8 +129,8 @@ public:  // class methods
         write16(file, maxDataKeyword_);
     }
     static void readDictionaries(MemFile& file) {
-        verbs_          = std::make_unique<Dictionary<Verb>>(file);
-        keywords_       = std::make_unique<Dictionary<Keyword>>(file);
+        verbs_          = std::make_unique<Dictionary<Verb>>(file, "verb");
+        keywords_       = std::make_unique<Dictionary<Keyword>>(file, "keyword");
         maxDataKeyword_ = file.read16();
     }
     static void writeContexts(std::ofstream& file) {
@@ -169,8 +169,19 @@ private:  // methods
 
     void parse(Verb verb);
 
+    static bool loadBinary();  // true if the language was loaded from the binary file
+    static void loadYaml();
+    static void resetBinaryState();
+
+    /// Whether a type takes part in the defaults and finalisation steps of the expansion, which process the types in
+    /// the order of types_: the axes and all the types that are not data. Data keywords that are not axes (e.g. tile)
+    /// do not.
+    bool isOrdered(Keyword key, const Type& type) const {
+        return key < maxDataKeyword_ || type.category() != Category::Data;
+    }
+
     Category category(Keyword keyword) const;
-    void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
+    void flatten(const MarsRequest& request, const std::vector<Keyword>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback) const;
     void parseModifier(ModifierType typ, const Context& ctx, size_t maxIndex, const eckit::Value& mod);
     static const Context& context(size_t ctxId);
@@ -190,8 +201,9 @@ private:  // members
     static MemFile langFile_;
 
     Verb verb_;
+    /// The types of the language, sorted by keyword. The keywords of the axes are registered following the AxisOrder
+    /// (see init()), so iterating over the types visits the axes in axis order, followed by all the other keywords.
     std::map<Keyword, std::shared_ptr<Type>> types_;
-    std::vector<std::pair<Keyword, std::shared_ptr<Type>>> typesByAxisOrder_;
 
     // for bestMatch - to be removed as we turn off fuzzy matching
     std::vector<std::string> keywordList_;

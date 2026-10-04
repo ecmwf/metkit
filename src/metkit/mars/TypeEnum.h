@@ -46,7 +46,7 @@ private:  // methods
 
     std::vector<std::string> parseEnumValue(const eckit::Value& val, bool allowDuplicates = false) const;
 
-    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates) const;
+    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates, bool canonical) const;
     uint16_t parseValueNames(const eckit::Value& names, bool allowDuplicates) const;
 
     void readValuesFile() const;

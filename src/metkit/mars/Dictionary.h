@@ -14,11 +14,18 @@
 
 #pragma once
 
+#include <cstdint>
 #include <fstream>
+#include <functional>
+#include <limits>
+#include <map>
 #include <memory>
 #include <ostream>
 #include <shared_mutex>
+#include <sstream>
 #include <string>
+#include <tuple>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -36,11 +43,12 @@ template <typename K>
 class Dictionary {
 public:
 
-    Dictionary() {
+    /// @param kind what the dictionary holds ("keyword", "verb"): only used in error messages
+    explicit Dictionary(std::string kind = "keyword") : kind_(std::move(kind)) {
         static const std::string empty{};
-        names_.push_back(empty);
+        names_.push_back(empty);  // index 0 is reserved: it means "not found"
     }
-    Dictionary(MemFile& file);
+    explicit Dictionary(MemFile& file, std::string kind = "keyword");
 
     K add(const std::string& name);
     void alias(const std::string& name, K key);
@@ -58,6 +66,7 @@ private:
 
     void print(std::ostream&) const;
 
+    std::string kind_;
     mutable std::shared_mutex mutex_;
     std::vector<std::reference_wrapper<const std::string>> names_;
     std::unordered_map<std::string, K> map_;
@@ -69,7 +78,7 @@ private:
 };
 
 template <typename K>
-Dictionary<K>::Dictionary(MemFile& file) {
+Dictionary<K>::Dictionary(MemFile& file, std::string kind) : kind_(std::move(kind)) {
     static const std::string empty{};
     names_.push_back(empty);
     size_t num = file.read32();
@@ -88,14 +97,26 @@ template <typename K>
 K Dictionary<K>::add(const std::string& name) {
     static_assert(std::is_integral_v<K> == true);
 
+    // fast path: most calls are lookups of names that are already registered, avoid the exclusive lock
+    if (K key = exist(name)) {
+        return key;
+    }
+
     std::unique_lock lock(mutex_);
 
     auto it = map_.find(name);
-    if (it != map_.end()) {
+    if (it != map_.end()) {  // someone else registered it between the two locks
         return it->second;
     }
+    // the largest index must stay representable as K (and size() must not wrap around to 0)
+    if (names_.size() >= static_cast<size_t>(std::numeric_limits<K>::max())) {
+        std::ostringstream ss;
+        ss << "Cannot register " << kind_ << " '" << name << "': dictionary is full (max "
+           << static_cast<size_t>(std::numeric_limits<K>::max()) - 1 << " entries)";
+        throw eckit::SeriousBug(ss.str(), Here());
+    }
     bool inserted;
-    K key                  = names_.size();
+    K key                  = static_cast<K>(names_.size());
     std::tie(it, inserted) = map_.emplace(name, key);
     ASSERT(inserted);
     names_.push_back(it->first);
@@ -105,6 +126,11 @@ K Dictionary<K>::add(const std::string& name) {
 template <typename K>
 void Dictionary<K>::alias(const std::string& name, K key) {
     std::unique_lock lock(mutex_);
+    if (key == 0 || key >= names_.size()) {
+        std::ostringstream ss;
+        ss << "Alias '" << name << "' refers to an invalid " << kind_ << " index " << static_cast<size_t>(key);
+        throw eckit::SeriousBug(ss.str(), Here());
+    }
     auto it = map_.find(name);
     if (it != map_.end()) {
         if (it->second != key) {
@@ -134,15 +160,8 @@ K Dictionary<K>::keyword(const std::string& name) const {
     if (key) {
         return key;
     }
-    std::shared_lock lock(mutex_);
-    std::ostringstream ss;
-    ss << "Unknown keyword '" << name << "'";
-    ss << " (valid keywords are: ";
-    for (const auto& k : names_) {
-        ss << k.get() << " ";
-    }
-    ss << ")";
-    throw eckit::SeriousBug(ss.str(), Here());
+    // an unknown name comes from the user (a typo, a keyword that does not exist): not an internal error
+    throw eckit::UserError("Unknown " + kind_ + " '" + name + "'", Here());
 }
 
 template <typename K>
@@ -152,7 +171,7 @@ const std::string& Dictionary<K>::name(K key) const {
     std::shared_lock lock(mutex_);
     if (key == 0 || key >= names_.size()) {
         std::ostringstream ss;
-        ss << "Invalid keyword index " << key;
+        ss << "Invalid " << kind_ << " index " << static_cast<size_t>(key);
         throw eckit::SeriousBug(ss.str(), Here());
     }
     return names_[key].get();
@@ -178,11 +197,11 @@ K Dictionary<K>::size() const {
 
 template <typename K>
 void Dictionary<K>::serialize(std::ofstream& file) const {
+    std::shared_lock lock(mutex_);  // taken before copying map_, which is shared with concurrent add() calls
     std::map<std::string, K> map(map_.begin(), map_.end());
 
-    std::shared_lock lock(mutex_);
     write32(file, names_.size() - 1);
-    for (int i = 1; i < names_.size(); ++i) {
+    for (size_t i = 1; i < names_.size(); ++i) {
         writeString(file, names_[i]);
         map.erase(names_[i]);
     }

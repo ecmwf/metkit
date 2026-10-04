@@ -89,9 +89,17 @@ HyperCube::HyperCube(const mars::MarsRequest& request) : verb_(request.verbId())
 
     std::vector<eckit::Ordinal> dimensions;
 
-    for (auto& name : AxisOrder::instance().axes()) {
-        mars::Keyword key               = mars::MarsLanguage::keyword(name);
-        std::vector<std::string> values = request.values(key, true);
+    // the axes are fixed by the configuration: convert their names to keywords only once
+    static const std::vector<mars::Keyword> axisKeys = [] {
+        std::vector<mars::Keyword> keys;
+        for (const auto& name : AxisOrder::instance().axes()) {
+            keys.push_back(mars::MarsLanguage::keyword(name));
+        }
+        return keys;
+    }();
+
+    for (mars::Keyword key : axisKeys) {
+        const std::vector<std::string>& values = request.values(key, true);
 
         if (!values.empty()) {
             Axis* a = new Axis(key, values);

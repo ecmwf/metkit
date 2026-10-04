@@ -63,7 +63,7 @@ MarsRequest::MarsRequest(const std::string& s, const eckit::Value& vals) : MarsR
 
 MarsRequest::MarsRequest(const MarsRequest& request) : req_(request.req_->clone()) {}
 
-MarsRequest::MarsRequest(MarsRequest&& request) : req_(std::move(request.req_)) {}
+MarsRequest::MarsRequest(MarsRequest&& request) noexcept : req_(std::move(request.req_)) {}
 
 MarsRequest::MarsRequest(eckit::Stream& s, bool validate, bool lowercase) {
     if (validate) {
@@ -81,7 +81,7 @@ MarsRequest& MarsRequest::operator=(const MarsRequest& other) {
     return *this;
 }
 
-MarsRequest& MarsRequest::operator=(MarsRequest&& other) {
+MarsRequest& MarsRequest::operator=(MarsRequest&& other) noexcept {
     if (this != &other) {
         req_       = std::move(other.req_);
         other.req_ = nullptr;
@@ -420,6 +420,7 @@ MarsRawRequest::MarsRawRequest(eckit::Stream& s, bool lowercase) {
         verb_ = eckit::StringTools::lower(verb_);
 
     s >> size;
+    ASSERT(size >= 0);
     for (int i = 0; i < size; i++) {
         std::string param;
         int count;
@@ -428,6 +429,7 @@ MarsRawRequest::MarsRawRequest(eckit::Stream& s, bool lowercase) {
         if (lowercase)
             param = eckit::StringTools::lower(param);
         s >> count;
+        ASSERT(count >= 0);
 
         std::vector<std::string> v;
         v.reserve(count);
@@ -438,7 +440,8 @@ MarsRawRequest::MarsRawRequest(eckit::Stream& s, bool lowercase) {
             v.push_back(value);
         }
 
-        params_.emplace_back(param, v);
+        // go through values() so that paramMap_ stays in sync with params_ (a repeated parameter overrides)
+        values(param, v);
     }
 }
 
@@ -604,16 +607,17 @@ size_t MarsValidatedRequest::countValues(Keyword key) const {
     return 0;
 }
 size_t MarsValidatedRequest::countValues(const std::string& name) const {
-    // might throw if keyword name is not valid
-    return countValues(MarsLanguage::keyword(name));
+    // queries about a name that is not a known keyword are not errors: the request cannot hold it
+    Keyword key = MarsLanguage::hasKeyword(name);
+    return key ? countValues(key) : 0;
 }
 
 bool MarsValidatedRequest::has(Keyword key) const {
     return paramMap_.find(key) != paramMap_.end();
 }
 bool MarsValidatedRequest::has(const std::string& name) const {
-    // might throw if keyword name is not valid
-    return has(MarsLanguage::keyword(name));
+    Keyword key = MarsLanguage::hasKeyword(name);
+    return key && has(key);
 }
 
 const std::vector<std::string>& MarsValidatedRequest::values(Keyword key, bool emptyOk) const {
@@ -631,8 +635,15 @@ const std::vector<std::string>& MarsValidatedRequest::values(Keyword key, bool e
     throw eckit::UserError(oss.str());
 }
 const std::vector<std::string>& MarsValidatedRequest::values(const std::string& name, bool emptyOk) const {
-    // might throw if keyword name is not valid
-    return values(MarsLanguage::keyword(name), emptyOk);
+    Keyword key = MarsLanguage::hasKeyword(name);
+    if (key) {
+        return values(key, emptyOk);
+    }
+    if (emptyOk) {
+        static const std::vector<std::string> empty;
+        return empty;
+    }
+    throw eckit::UserError("No parameter called '" + name + "'");
 }
 
 void MarsValidatedRequest::values(Keyword key, const std::vector<std::string>& vals) {
@@ -647,7 +658,7 @@ void MarsValidatedRequest::values(Keyword key, const std::vector<std::string>& v
     }
 }
 void MarsValidatedRequest::values(const std::string& name, const std::vector<std::string>& vals) {
-    // might throw if keyword name is not valid
+    // setting a value for a name that is not a known keyword is a user error (throws UserError)
     values(MarsLanguage::keyword(name), vals);
 }
 
@@ -662,8 +673,11 @@ void MarsValidatedRequest::erase(Keyword key) {
     }
 }
 void MarsValidatedRequest::erase(const std::string& name) {
-    // might throw if keyword name is not valid
-    erase(MarsLanguage::keyword(name));
+    // erasing something that cannot be in the request is a no-op
+    Keyword key = MarsLanguage::hasKeyword(name);
+    if (key) {
+        erase(key);
+    }
 }
 
 void MarsValidatedRequest::merge(const MarsRequest& other) {
@@ -689,8 +703,8 @@ void MarsValidatedRequest::setValuesTyped(std::shared_ptr<const Type> type, cons
 
 bool MarsValidatedRequest::filter(const MarsRequest& filter) {
 
-    Keyword date = MarsLanguage::keyword("date");
-    Keyword day  = MarsLanguage::keyword("day");
+    static const Keyword date = MarsLanguage::keyword("date");
+    static const Keyword day  = MarsLanguage::keyword("day");
 
     for (auto& p : parameters()) {
         if (p.id() == date) {
@@ -736,8 +750,8 @@ const Parameter* MarsValidatedRequest::find(Keyword key) const {
     return nullptr;
 }
 const Parameter* MarsValidatedRequest::find(const std::string& name) const {
-    // might throw if keyword name is not valid
-    return find(MarsLanguage::keyword(name));
+    Keyword key = MarsLanguage::hasKeyword(name);
+    return key ? find(key) : nullptr;
 }
 
 size_t MarsValidatedRequest::count() const {

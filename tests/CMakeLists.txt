@@ -70,6 +70,7 @@ foreach( test
         c_api
         context
         date
+        dictionary
         expand
         filter
         hypercube

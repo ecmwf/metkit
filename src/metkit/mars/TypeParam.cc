@@ -43,6 +43,7 @@ static pthread_once_t once       = PTHREAD_ONCE_INIT;
 class Matcher {
 
     std::string name_;
+    metkit::mars::Keyword key_;  // the keyword of name_, to look the values up in a request without converting the name
     std::vector<std::string> values_;
 
     friend class Rule;
@@ -64,10 +65,11 @@ public:
 };
 
 Matcher::Matcher(const std::string& name, std::vector<std::string>&& values) :
-    name_(name), values_(std::move(values)) {}
+    name_(name), key_(metkit::mars::MarsLanguage::addKeyword(name)), values_(std::move(values)) {}
 
 Matcher::Matcher(MemFile& file) {
     name_             = file.readString();
+    key_              = metkit::mars::MarsLanguage::addKeyword(name_);
     uint8_t numValues = file.read8();
     values_.reserve(numValues);
     for (uint32_t i = 0; i < numValues; i++) {
@@ -77,8 +79,8 @@ Matcher::Matcher(MemFile& file) {
 
 bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) const {
 
-    std::vector<std::string> vals = request.values(name_, true);
-    if (vals.size() == 0) {
+    const std::vector<std::string>& vals = request.values(key_, true);
+    if (vals.empty()) {
         return partial;
     }
 
@@ -458,6 +460,11 @@ void Rule::init() {
                     for (uint32_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
                         rules->emplace_back(file);
                     }
+                    if (!file.atEnd()) {  // the whole file must have been consumed, or the format does not match
+                        std::ostringstream ss;
+                        ss << "Error reading parameter binary file: " << paramBinFile << " - File not fully read";
+                        throw eckit::SeriousBug(ss.str(), Here());
+                    }
                     return;
                 }
 
@@ -466,7 +473,7 @@ void Rule::init() {
                                     << " found: " << version << " - using slow config file parsing" << std::endl;
             }
             catch (const std::exception& e) {
-                defaultMapping_.clear();
+                defaultValues_.clear();
                 defaultMapping_.clear();
                 rules->clear();
                 eckit::Log::error() << "Error reading parameter binary file '" << paramBinFile.asString()
@@ -656,7 +663,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     pthread_once(&once, initRules);
 
     const Rule* rule                = 0;
-    std::vector<std::string> values = request.values(MarsLanguage::name(id_), true);
+    std::vector<std::string> values = request.values(id_, true);
 
     if (values.size() == 1 && values[0] == "all") {
         return;
