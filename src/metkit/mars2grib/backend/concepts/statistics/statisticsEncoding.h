@@ -91,7 +91,51 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant>
 constexpr bool statisticsApplicable() {
-    return (Section == SecProductDefinitionSection && Variant != StatisticsType::IndexProcessing);
+    return (Section == SecProductDefinitionSection);
+}
+
+///
+/// @brief Innermost type of statistical processing passed to the ProductTimeSpec model.
+///
+/// For all variants but `IndexProcessing` this is the variant itself. Index products
+/// (EFI, SOT, ...) have two time ranges, `typeOfStatisticalProcessing = [102, X]`: the
+/// ProductTimeSpec model adds the outer `IndexProcessing` (102) range itself (shape
+/// `IFSFakeSingleLoopDoubleLoop`), and X is the statistic of the underlying field, as in
+/// the ecCodes parameter definitions (`grib2/paramId.def`).
+///
+template <StatisticsType Variant, class MarsDict_t>
+tables::TypeOfStatisticalProcessing innerTypeOfStatisticalProcessing_or_throw(const MarsDict_t& mars) {
+
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+    using tables::TypeOfStatisticalProcessing;
+
+    if constexpr (Variant != StatisticsType::IndexProcessing) {
+        static_cast<void>(mars);
+        return typeOfStatisticalProcessingEnum<Variant>();
+    }
+    else {
+        const long param = get_or_throw<long>(mars, "param");
+        switch (param) {
+            case 132045:  // Water vapour flux index
+            case 132165:  // 10 metre speed index
+            case 132167:  // 2 metre temperature index
+                return TypeOfStatisticalProcessing::Average;
+            case 132144:  // Snowfall index
+            case 132228:  // Total precipitation index
+                return TypeOfStatisticalProcessing::Accumulation;
+            case 132044:  // Convective available potential energy shear index
+            case 132049:  // 10 metre wind gust index
+            case 132059:  // Convective available potential energy index
+            case 132201:  // Maximum temperature at 2 metres index
+                return TypeOfStatisticalProcessing::Maximum;
+            case 132202:  // Minimum temperature at 2 metres index
+                return TypeOfStatisticalProcessing::Minimum;
+            default:
+                throw Mars2GribGenericException(
+                    "No inner type of statistical processing for index param " + std::to_string(param), Here());
+        }
+    }
 }
 
 
@@ -124,9 +168,9 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StageAllocate) {
 
-                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
-                                                                             mars, par, opt);
-                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                const auto inner = innerTypeOfStatisticalProcessing_or_throw<Variant>(mars);
+                const auto spec  = models::product_time_spec::ProductTimeSpec(inner, mars, par, opt);
+                const auto pts   = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 // Checks/Validation
                 validation::check_StatisticsProductDefinitionSection_or_throw(opt, out);
@@ -146,9 +190,9 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StagePreset) {
 
-                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
-                                                                             mars, par, opt);
-                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                const auto inner = innerTypeOfStatisticalProcessing_or_throw<Variant>(mars);
+                const auto spec  = models::product_time_spec::ProductTimeSpec(inner, mars, par, opt);
+                const auto pts   = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", pts.typeOfStatisticalProcessing);
                 set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", pts.typeOfTimeIncrement);
@@ -165,9 +209,9 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // Time-dependent keys: forecastTime and end-of-interval date/time.
             // =============================================================
             if constexpr (Stage == StageRuntime) {
-                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
-                                                                             mars, par, opt);
-                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                const auto inner = innerTypeOfStatisticalProcessing_or_throw<Variant>(mars);
+                const auto spec  = models::product_time_spec::ProductTimeSpec(inner, mars, par, opt);
+                const auto pts   = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
 

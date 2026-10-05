@@ -36,6 +36,7 @@
 #include "metkit/grib2mars/mappings/rules/origin.h"
 #include "metkit/grib2mars/mappings/rules/packing.h"
 #include "metkit/grib2mars/mappings/rules/param.h"
+#include "metkit/grib2mars/mappings/rules/quantile.h"
 #include "metkit/grib2mars/mappings/rules/resolution.h"
 #include "metkit/grib2mars/mappings/rules/stattype.h"
 #include "metkit/grib2mars/mappings/rules/step.h"
@@ -73,6 +74,7 @@ const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict, OptDict_
         {"_leg_number", extractLegNumber<MarsDict, MiscDict, OptDict_t>},
         {"anoffset", extractAnoffset<MarsDict, MiscDict, OptDict_t>},
         {"number", extractNumber<MarsDict, MiscDict, OptDict_t>},
+        {"quantile", extractQuantile<MarsDict, MiscDict, OptDict_t>},
         {"grid", extractGrid<MarsDict, MiscDict, OptDict_t>},
         {"truncation", extractTruncation<MarsDict, MiscDict, OptDict_t>},
         {"packing", extractPacking<MarsDict, MiscDict, OptDict_t>},
