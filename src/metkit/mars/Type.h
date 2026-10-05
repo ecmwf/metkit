@@ -277,13 +277,13 @@ protected:  // members
 
     Keyword id_;
 
-    mutable std::bitset<8> flags_;
+    std::bitset<8> flags_;
     // flags_[0] --> flatten
     // flags_[1] --> multiple
     // flags_[2] --> duplicates
     // flags_[3] --> uppercase (enum/regex)
     // flags_[4] --> firstRule (param)
-    // flags_[5] --> hasGroups (enum) ????
+    // flags_[5] --> hasGroups: only meaningful in the binary file, use hasGroups() at runtime
 
     Category category_;
 

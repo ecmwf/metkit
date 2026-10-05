@@ -10,10 +10,27 @@
 
 #include "metkit/mars/TypeEnum.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <fstream>
+#include <functional>
+#include <map>
+#include <mutex>
+#include <optional>
+#include <ostream>
+#include <set>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "eckit/exception/Exceptions.h"
+#include "eckit/log/Log.h"
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Serialize.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -55,7 +72,7 @@ uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicat
 std::vector<std::string> TypeEnum::parseEnumValue(const eckit::Value& val, bool allowDuplicates) const {
 
     if (val.isMap()) {
-        flags_[5] = true;
+        hasGroups_ = true;
 
         ASSERT(val.contains("name"));
         uint16_t idx = parseValueNames(val["name"], allowDuplicates);
@@ -110,7 +127,7 @@ TypeEnum::TypeEnum(const std::string& type, Keyword key, const eckit::Value& val
     }
 }
 
-TypeEnum::TypeEnum(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+TypeEnum::TypeEnum(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file), hasGroups_{flags_[5]} {
 
     uint16_t numGroups = file.read16();
     for (uint16_t i = 0; i < numGroups; ++i) {
@@ -174,7 +191,7 @@ std::map<std::string, uint16_t>::const_iterator TypeEnum::find(const std::string
 }
 
 std::optional<std::reference_wrapper<const std::vector<std::string>>> TypeEnum::group(const std::string& value) const {
-    ASSERT(flags_[5]);
+    ASSERT(hasGroups());
 
     auto it = find(value);
     if (it != values_.end()) {
