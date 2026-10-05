@@ -82,6 +82,7 @@ foreach( test
         obstype
         param_axis
         request
+        serialize
         step
         steprange_axis
         time

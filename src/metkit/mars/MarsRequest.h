@@ -38,6 +38,41 @@ class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class MarsID {
+public:
+
+    const std::string& get(Keyword key) const;
+    void set(Keyword key, const std::string& value);
+    void unset(Keyword key);
+    bool has(Keyword key) const;
+    const std::unordered_map<Keyword, std::string>& values() const;
+
+private:
+
+    std::unordered_map<Keyword, std::string> values_;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class MarsDataCube {
+public:  // methods
+
+    const std::vector<std::string>& get(Keyword key) const;
+    void set(Keyword key, const std::vector<std::string>& value);
+    void unset(Keyword key);
+    bool has(Keyword key) const;
+    void add(const MarsID& id);
+    void merge(const MarsDataCube& other);
+    const std::unordered_map<Keyword, std::vector<std::string>>& values() const;
+
+private:
+
+    std::unordered_map<Keyword, std::vector<std::string>> values_;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /// A MARS request: a verb and a list of parameters (keywords and their values), in the order they were added.
 ///
 /// The parameters of a request that was just parsed or created are untyped. The expansion (see MarsLanguage and

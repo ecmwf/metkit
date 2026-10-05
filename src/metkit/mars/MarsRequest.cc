@@ -464,7 +464,7 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
     MarsRequest req(verb());
     for (const auto& p : parameters()) {
         if (keys.find(p.name()) != keys.end()) {
-            req.values(p.name(), p.values());
+            req.params_.push_back(p);
         }
     }
     return req;

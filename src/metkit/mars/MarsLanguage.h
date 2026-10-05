@@ -83,6 +83,8 @@ public:  // methods
     MarsLanguage& operator=(const MarsLanguage&) = delete;
     MarsLanguage& operator=(MarsLanguage&&)      = delete;
 
+    void write(std::ofstream& file) const;
+
     MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
@@ -123,44 +125,11 @@ public:  // class methods
 
     static void init();
 
-    static void writeDictionaries(std::ofstream& file) {
-        verbs_->serialize(file);
-        keywords_->serialize(file);
-        write16(file, maxDataKeyword_);
-    }
-    static void readDictionaries(MemFile& file) {
-        verbs_          = std::make_unique<Dictionary<Verb>>(file, "verb");
-        keywords_       = std::make_unique<Dictionary<Keyword>>(file, "keyword");
-        maxDataKeyword_ = file.read16();
-    }
-    static void writeContexts(std::ofstream& file) {
-        write16(file, contexts_.size());
-        for (const auto& context : contexts_) {
-            context->write(file);
-        }
-    }
-    static void readContexts(MemFile& file) {
-        size_t size = file.read16();
-        for (size_t i = 0; i < size; ++i) {
-            auto context = std::make_unique<Context>(i, file);
-            contextsSet_.insert(context.get());
-            contexts_.push_back(std::move(context));
-        }
-    }
-    void write(std::ofstream& file) const {
-        // write one language
+    static void writeDictionaries(std::ofstream& file);
+    static void readDictionaries(MemFile& file);
 
-        // write the verb identifier at the beginning of the language block
-        write8(file, verb_);
-        // write the number of types
-        write16(file, types_.size());
-        for (const auto& [keyword, type] : types_) {
-            // delegate writing of the type to the type itself
-            type->write(file);
-        }
-
-        // let's ignore data structures supporting bestMatch
-    }
+    static void writeContexts(std::ofstream& file);
+    static void readContexts(MemFile& file);
 
 private:  // methods
 
@@ -171,7 +140,6 @@ private:  // methods
 
     static bool loadBinary();  // true if the language was loaded from the binary file
     static void loadYaml();
-    static void resetBinaryState();
 
     /// Whether a type takes part in the defaults and finalisation steps of the expansion, which process the types in
     /// the order of types_: the axes and all the types that are not data. Data keywords that are not axes (e.g. tile)

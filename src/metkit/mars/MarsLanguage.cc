@@ -98,19 +98,6 @@ void MarsLanguage::loadYaml() {
     });
 }
 
-void MarsLanguage::resetBinaryState() {
-    verbs_.reset();
-    keywords_.reset();
-    maxDataKeyword_ = 0;
-    langOffsets_.clear();
-    {
-        std::unique_lock lock(contextsMutex_);
-        contextsSet_.clear();
-        contexts_.clear();
-    }
-    langFile_ = MemFile{};  // releases the mapping
-}
-
 bool MarsLanguage::loadBinary() {
     static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
 
@@ -162,7 +149,16 @@ bool MarsLanguage::loadBinary() {
     }
 
     // do not leave a half-loaded state behind: the YAML parsing below starts from scratch
-    resetBinaryState();
+    verbs_.reset();
+    keywords_.reset();
+    maxDataKeyword_ = 0;
+    langOffsets_.clear();
+    {
+        std::unique_lock lock(contextsMutex_);
+        contextsSet_.clear();
+        contexts_.clear();
+    }
+    langFile_ = MemFile{};  // releases the mapping
     return false;
 }
 
@@ -203,6 +199,56 @@ void MarsLanguage::init() {
 
     auto emptyValue = eckit::Value{};
     addContext(emptyValue);
+}
+
+void MarsLanguage::writeDictionaries(std::ofstream& file) {
+    verbs_->serialize(file);
+    keywords_->serialize(file);
+    write16(file, maxDataKeyword_);
+}
+void MarsLanguage::readDictionaries(MemFile& file) {
+    verbs_          = std::make_unique<Dictionary<Verb>>(file, "verb");
+    keywords_       = std::make_unique<Dictionary<Keyword>>(file, "keyword");
+    maxDataKeyword_ = file.read16();
+}
+
+void MarsLanguage::writeContexts(std::ofstream& file) {
+    write16(file, contexts_.size());
+    for (const auto& context : contexts_) {
+        context->write(file);
+    }
+}
+void MarsLanguage::readContexts(MemFile& file) {
+    size_t size = file.read16();
+    for (size_t i = 0; i < size; ++i) {
+        auto context = std::make_unique<Context>(i, file);
+        contextsSet_.insert(context.get());
+        contexts_.push_back(std::move(context));
+    }
+}
+
+void MarsLanguage::write(std::ofstream& file) const {
+    // write one language
+
+    // write the verb identifier at the beginning of the language block
+    write8(file, verb_);
+    // write the number of types
+    write16(file, types_.size());
+    for (const auto& [keyword, type] : types_) {
+        // delegate writing of the type to the type itself
+        type->write(file);
+    }
+
+    // data structures supporting bestMatch (counts are 16 bits: the lists can exceed 255 entries)
+    write16(file, keywordList_.size());
+    for (const auto& keyword : keywordList_) {
+        writeString(file, keyword);
+    }
+    write16(file, aliases_.size());
+    for (const auto& [alias, keyword] : aliases_) {
+        writeString(file, alias);
+        writeString(file, keyword);
+    }
 }
 
 void MarsLanguage::parseModifier(ModifierType typ, const Context& ctx, size_t maxIndex, const eckit::Value& mod) {
@@ -299,6 +345,19 @@ MarsLanguage::MarsLanguage(Verb verb, MemFile& file) {
         Keyword keyword = file.read16();
         auto type       = TypesFactory::build(typeName, keyword, file);
         types_.emplace(keyword, type);
+    }
+
+    uint16_t numKeywords = file.read16();
+    keywordList_.reserve(numKeywords);
+    for (uint16_t i = 0; i < numKeywords; ++i) {
+        keywordList_.emplace_back(file.readString());
+    }
+
+    uint16_t numAliases = file.read16();
+    for (uint16_t i = 0; i < numAliases; ++i) {
+        std::string alias{file.readString()};
+        std::string keyword{file.readString()};
+        aliases_.emplace(std::move(alias), std::move(keyword));
     }
 }
 
