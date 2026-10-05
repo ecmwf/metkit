@@ -87,6 +87,7 @@ foreach( test
         steprange_axis
         time
         type_levelist
+        type_threads
         typesfactory )
     ecbuild_add_test( TARGET       "metkit_test_${test}"
                       SOURCES      "test_${test}.cc"
