@@ -14,7 +14,6 @@
 #include <unistd.h>
 
 #include <cstdint>
-#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <set>
@@ -24,6 +23,7 @@
 #include <vector>
 
 #include "eckit/exception/Exceptions.h"
+#include "eckit/filesystem/PathName.h"
 #include "eckit/testing/Test.h"
 
 #include "metkit/mars/Serialize.h"
@@ -36,25 +36,20 @@ namespace {
 class TempFile {
 public:
 
-    explicit TempFile(const std::string& name) :
-        path_(std::filesystem::temp_directory_path() /
-              ("metkit_test_serialize_" + std::to_string(::getpid()) + "_" + name)) {}
+    explicit TempFile(const std::string& name) { path_ = eckit::PathName::unique("metkit_test_serialize_" + name); }
 
-    ~TempFile() {
-        std::error_code ec;
-        std::filesystem::remove(path_, ec);
-    }
+    ~TempFile() { path_.unlink(); }
 
     TempFile(const TempFile&)            = delete;
     TempFile& operator=(const TempFile&) = delete;
 
-    std::string path() const { return path_.string(); }
+    std::string path() const { return path_.asString(); }
 
     std::ofstream open() const { return std::ofstream(path_, std::ios::binary | std::ios::trunc); }
 
 private:
 
-    std::filesystem::path path_;
+    eckit::PathName path_;
 };
 
 }  // namespace
