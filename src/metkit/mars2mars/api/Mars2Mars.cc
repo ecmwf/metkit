@@ -21,6 +21,7 @@
 #include "Mars2Mars.h"
 
 #include <cstdlib>
+#include <string>
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
@@ -50,14 +51,8 @@ namespace {
 /// variable.
 Options checkEnvironment(Options opts) {
     const auto eccodesEckitGeoValue = []() {
-        const auto* eccodesEckitGeo = ::getenv("ECCODES_ECKIT_GEO");
-        if (eccodesEckitGeo) {
-            const std::string eccodesEckitGeoValue(eccodesEckitGeo);
-            if (eccodesEckitGeoValue == "1" || eccodesEckitGeoValue == "2") {
-                return true;
-            }
-        }
-        return false;
+        const auto* value = ::getenv("ECCODES_ECKIT_GEO");
+        return value != nullptr && std::stol(value) != 0L;
     }();
 
     if (opts.skipSection3 && !eccodesEckitGeoValue) {
