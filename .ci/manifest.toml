@@ -27,11 +27,14 @@ package = "stack-deps"
 ref = "master"
 compiler-inputs = ["cxx-compiler"]
 
+# metkit[eckit-geo] is built against eccodes[eckit-geo]: GRIB2MARS and
+# MARS2GRIB need it, and mir needs them.
 [[deps]]
 repo = "ecmwf/eccodes"
 package = "eccodes"
 ref = "develop"
 compiler-inputs = ["cxx-compiler"]
+options-input = "options"
 
 [[deps]]
 repo = "ecmwf/eckit"
@@ -57,6 +60,13 @@ platform = "ubuntu-24.04"
 [[matrix.build.include]]
 cxx-compiler = "g++-13"
 c-compiler = "gcc-13"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13:latest"
+platform = "ubuntu-24.04"
+
+[[matrix.build.include]]
+cxx-compiler = "g++-13"
+c-compiler = "gcc-13"
+options = "eckit-geo"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13:latest"
 platform = "ubuntu-24.04"
 
@@ -110,8 +120,6 @@ triggers = ["upstream-change", "rebuild-request"]
 
 [matrix.build-hpc.defaults]
 job-script = "./.ci/hpc/build.sh.j2"
-
-[[matrix.build-hpc.include]]
 cxx-compiler = "g++-8"
 build-type = "RelWithDebInfo"
 runs-on = "hpc-submit"
@@ -125,3 +133,8 @@ c_compiler_binary = "gcc"
 cxx_compiler_binary = "g++"
 time = "00:40:00"
 
+[[matrix.build-hpc.include]]
+options = ""
+
+[[matrix.build-hpc.include]]
+options = "eckit-geo"
