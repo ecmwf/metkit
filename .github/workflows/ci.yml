@@ -95,11 +95,14 @@ jobs:
           deps-json: ${{ toJSON(matrix._resolved.deps) }}
           token: ${{ steps.mint.outputs.token }}
 
-      - name: Build metkit
-        id: build
+      - name: Set up Python
+        if: matrix.python-version
         uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Build metkit
+        id: build
         uses: ecmwf/ci-infrastructure/actions/run-job-script@main
         with:
           job-script: ${{ matrix.job-script }}
