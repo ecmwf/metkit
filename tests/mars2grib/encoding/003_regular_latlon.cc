@@ -8,20 +8,48 @@
  * does it submit to any jurisdiction.
  */
 
+#include <algorithm>
+#include <cmath>
 #include <cstdlib>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/geo/Grid.h"
+#include "eckit/geo/Point.h"
+#include "eckit/geo/Projection.h"
+#include "eckit/log/Log.h"
 #include "eckit/testing/Test.h"
+#include "eckit/types/FloatCompare.h"
+#include "metkit/codes/api/CodesAPI.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
 
-CASE("1/1") {
-    auto encoder = metkit::mars2grib::Mars2Grib();
 
+namespace metkit::mars2grib::test {
+
+
+static const bool useGridSpec = []() {
+    const auto* value = ::getenv("ECCODES_ECKIT_GEO");
+    return value != nullptr && std::stol(value) != 0L;
+}();
+
+
+constexpr double EPS = 1e-6;  // [degree] GRIB2 angles are encoded in 10^-6 degree
+
+
+bool approx(double a, double b) {
+    return eckit::types::is_approximately_equal(a, b, EPS);
+}
+
+
+eckit::LocalConfiguration mars_request(const std::string& grid) {
     eckit::LocalConfiguration mars;
     mars.set("class", "od");
     mars.set("stream", "oper");
     mars.set("type", "fc");
     mars.set("expver", "test");
-    mars.set("grid", "1/1");
+    mars.set("grid", grid);
     mars.set("packing", "ccsds");
     mars.set("param", 130);
     mars.set("levtype", "pl");
@@ -29,189 +57,133 @@ CASE("1/1") {
     mars.set("date", 2026'09'10);
     mars.set("time", 00'00);
     mars.set("step", 0);
-
-    std::vector<double> vals(65160, 237.15);
-
-    const auto handle = encoder.encode(vals, mars);
-
-    // GRIB
-    EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 0L);  // Latitude/longitude
-
-    EXPECT_EQUAL(handle->getLong("shapeOfTheEarth"), 6L);  // Spherical Earth with radius = 6371229.0 m
-    EXPECT(handle->isMissing("scaleFactorOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaledValueOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMinorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMinorAxis"));
-
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAParallel"), 360L);  // (Ni)
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), 181L);  // (Nj)
-    EXPECT_EQUAL(handle->getLong("basicAngleOfTheInitialProductionDomain"), 0L);
-    EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
-
-    EXPECT_EQUAL(handle->getLong("latitudeOfFirstGridPoint"), 90'000000L);   // Unit 10^-6 degrees (La1)
-    EXPECT_EQUAL(handle->getLong("longitudeOfFirstGridPoint"), 0'000000L);   // Unit 10^-6 degrees (Lo1)
-    EXPECT_EQUAL(handle->getLong("resolutionAndComponentFlags"), 48L);       // 0011 0000  Di and Dj given
-    EXPECT_EQUAL(handle->getLong("latitudeOfLastGridPoint"), -90'000000L);   // Unit 10^-6 degrees (La2)
-    EXPECT_EQUAL(handle->getLong("longitudeOfLastGridPoint"), 359'000000L);  // Unit 10^-6 degrees (Lo2)
-    EXPECT_EQUAL(handle->getLong("iDirectionIncrement"), 1'000000L);         // Unit 10^-6 degrees (Di)
-    EXPECT_EQUAL(handle->getLong("jDirectionIncrement"), 1'000000L);         // Unit 10^-6 degrees (Dj)
-
-    EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
-
-    EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 65160);
+    return mars;
 }
 
-CASE("0.25/0.25") {
-    auto encoder = metkit::mars2grib::Mars2Grib();
 
-    eckit::LocalConfiguration mars;
-    mars.set("class", "od");
-    mars.set("stream", "oper");
-    mars.set("type", "fc");
-    mars.set("expver", "test");
-    mars.set("grid", "0.25/0.25");
-    mars.set("packing", "ccsds");
-    mars.set("param", 130);
-    mars.set("levtype", "pl");
-    mars.set("levelist", 1000);
-    mars.set("date", 2026'09'10);
-    mars.set("time", 00'00);
-    mars.set("step", 0);
+CASE("encoding") {
+    struct test_t {
+        std::string grid;  // MARS grid (west-east/south-north increments)
+        double dx;         // west-east increment [degree]
+        double dy;         // south-north increment [degree]
+    } tests[]{
+        {"1/1", 1., 1.},
+        {"0.25/0.25", 0.25, 0.25},
+        {"0.1/0.1", 0.1, 0.1},
+        {"2/1", 2., 1.},
+    };
 
-    std::vector<double> vals(1038240, 237.15);
+    for (const auto& [grid, dx, dy] : tests) {
+        SECTION(grid) {
+            // global, including both poles
+            const long Ni = std::lround(360. / dx);
+            const long Nj = std::lround(180. / dy) + 1;
 
-    const auto handle = encoder.encode(vals, mars);
+            const std::vector<double> vals(Ni * Nj, 273.15);
+            const auto handle = Mars2Grib().encode(vals, mars_request(grid));
+            ASSERT(handle);
 
-    // GRIB
-    EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 0L);  // Latitude/longitude
+            if (useGridSpec) {
+                auto increments = grid;
+                std::replace(increments.begin(), increments.end(), '/', ',');
+                EXPECT(handle->getString("gridSpec") == R"({"grid":[)" + increments + "]}");
+            }
 
-    EXPECT_EQUAL(handle->getLong("shapeOfTheEarth"), 6L);  // Spherical Earth with radius = 6371229.0 m
-    EXPECT(handle->isMissing("scaleFactorOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaledValueOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMinorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMinorAxis"));
+            EXPECT(handle->getLong("gridDefinitionTemplateNumber") == 0L);  // Latitude/longitude
 
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAParallel"), 1440L);  // (Ni)
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), 721L);   // (Nj)
-    EXPECT_EQUAL(handle->getLong("basicAngleOfTheInitialProductionDomain"), 0L);
-    EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
+            EXPECT(handle->getLong("shapeOfTheEarth") == 6L);  // Spherical Earth with radius = 6371229.0 m
+            EXPECT(handle->isMissing("scaleFactorOfRadiusOfSphericalEarth"));
+            EXPECT(handle->isMissing("scaledValueOfRadiusOfSphericalEarth"));
+            EXPECT(handle->isMissing("scaleFactorOfEarthMajorAxis"));
+            EXPECT(handle->isMissing("scaledValueOfEarthMajorAxis"));
+            EXPECT(handle->isMissing("scaleFactorOfEarthMinorAxis"));
+            EXPECT(handle->isMissing("scaledValueOfEarthMinorAxis"));
 
-    EXPECT_EQUAL(handle->getLong("latitudeOfFirstGridPoint"), 90'000000L);   // Unit 10^-6 degrees (La1)
-    EXPECT_EQUAL(handle->getLong("longitudeOfFirstGridPoint"), 0'000000L);   // Unit 10^-6 degrees (Lo1)
-    EXPECT_EQUAL(handle->getLong("resolutionAndComponentFlags"), 48L);       // 0011 0000  Di and Dj given
-    EXPECT_EQUAL(handle->getLong("latitudeOfLastGridPoint"), -90'000000L);   // Unit 10^-6 degrees (La2)
-    EXPECT_EQUAL(handle->getLong("longitudeOfLastGridPoint"), 359'750000L);  // Unit 10^-6 degrees (Lo2)
-    EXPECT_EQUAL(handle->getLong("iDirectionIncrement"), 250000L);           // Unit 10^-6 degrees (Di)
-    EXPECT_EQUAL(handle->getLong("jDirectionIncrement"), 250000L);           // Unit 10^-6 degrees (Dj)
+            EXPECT(handle->getLong("Ni") == Ni);
+            EXPECT(handle->getLong("numberOfPointsAlongAParallel") == Ni);
+            EXPECT(handle->getLong("Nj") == Nj);
+            EXPECT(handle->getLong("numberOfPointsAlongAMeridian") == Nj);
+            EXPECT(handle->getLong("basicAngleOfTheInitialProductionDomain") == 0L);
+            EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
 
-    EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
+            EXPECT(approx(handle->getDouble("latitudeOfFirstGridPointInDegrees"), 90.));
+            EXPECT(approx(handle->getDouble("longitudeOfFirstGridPointInDegrees"), 0.));
+            EXPECT(handle->getLong("resolutionAndComponentFlags") == 48L);  // 0011 0000 (Di and Dj given)
+            EXPECT(approx(handle->getDouble("latitudeOfLastGridPointInDegrees"), -90.));
+            EXPECT(approx(handle->getDouble("longitudeOfLastGridPointInDegrees"), 360. - dx));
+            EXPECT(approx(handle->getDouble("iDirectionIncrementInDegrees"), dx));
+            EXPECT(approx(handle->getDouble("jDirectionIncrementInDegrees"), dy));
+            EXPECT(handle->getLong("scanningMode") == 0L);  // 0000 0000
 
-    EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1038240);
+            EXPECT(handle->getLong("numberOfDataPoints") == Ni * Nj);
+        }
+    }
 }
 
-CASE("0.1/0.1") {
-    auto encoder = metkit::mars2grib::Mars2Grib();
 
-    eckit::LocalConfiguration mars;
-    mars.set("class", "od");
-    mars.set("stream", "oper");
-    mars.set("type", "fc");
-    mars.set("expver", "test");
-    mars.set("grid", "0.1/0.1");
-    mars.set("packing", "ccsds");
-    mars.set("param", 130);
-    mars.set("levtype", "pl");
-    mars.set("levelist", 1000);
-    mars.set("date", 2026'09'10);
-    mars.set("time", 00'00);
-    mars.set("step", 0);
+CASE("encoding (rotated)") {
+    if (!useGridSpec) {
+        eckit::Log::warning() << "rotated grids require gridSpec (ECCODES_ECKIT_GEO), test skipped" << std::endl;
+        return;
+    }
 
-    std::vector<double> vals(1639680, 237.15);
+    // the grid of ecCodes' constant_field.grib2 (see also eckit/tests/geo/grid_regular_ll.cc)
+    const auto mars = mars_request(R"({"area":[26.65,5.75,-13.25,30.45],"grid":[0.1,0.1],"rotation":[-22,320]})");
 
-    const auto handle = encoder.encode(vals, mars);
+    const long Ni = 248;
+    const long Nj = 400;
 
-    // GRIB
-    EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 0L);  // Latitude/longitude
+    const std::vector<double> vals(Ni * Nj, 273.15);
+    const auto handle = Mars2Grib().encode(vals, mars);
+    ASSERT(handle);
 
-    EXPECT_EQUAL(handle->getLong("shapeOfTheEarth"), 6L);  // Spherical Earth with radius = 6371229.0 m
-    EXPECT(handle->isMissing("scaleFactorOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaledValueOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMinorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMinorAxis"));
+    EXPECT(handle->getLong("gridDefinitionTemplateNumber") == 1L);  // Rotated latitude/longitude
 
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAParallel"), 360'0L);  // (Ni)
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), 180'1L);  // (Nj)
-    EXPECT_EQUAL(handle->getLong("basicAngleOfTheInitialProductionDomain"), 0L);
-    EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
+    EXPECT(handle->getLong("Ni") == Ni);
+    EXPECT(handle->getLong("numberOfPointsAlongAParallel") == Ni);
+    EXPECT(handle->getLong("Nj") == Nj);
+    EXPECT(handle->getLong("numberOfPointsAlongAMeridian") == Nj);
 
-    EXPECT_EQUAL(handle->getLong("latitudeOfFirstGridPoint"), 90'000000L);   // Unit 10^-6 degrees (La1)
-    EXPECT_EQUAL(handle->getLong("longitudeOfFirstGridPoint"), 0'000000L);   // Unit 10^-6 degrees (Lo1)
-    EXPECT_EQUAL(handle->getLong("resolutionAndComponentFlags"), 48L);       // 0011 0000  Di and Dj given
-    EXPECT_EQUAL(handle->getLong("latitudeOfLastGridPoint"), -90'000000L);   // Unit 10^-6 degrees (La2)
-    EXPECT_EQUAL(handle->getLong("longitudeOfLastGridPoint"), 359'900000L);  // Unit 10^-6 degrees (Lo2)
-    EXPECT_EQUAL(handle->getLong("iDirectionIncrement"), 100000L);           // Unit 10^-6 degrees (Di)
-    EXPECT_EQUAL(handle->getLong("jDirectionIncrement"), 100000L);           // Unit 10^-6 degrees (Dj)
+    // first/last grid points, in the rotated frame
+    EXPECT(approx(handle->getDouble("latitudeOfFirstGridPointInDegrees"), 26.65));
+    EXPECT(approx(handle->getDouble("longitudeOfFirstGridPointInDegrees"), 5.75));
+    EXPECT(approx(handle->getDouble("latitudeOfLastGridPointInDegrees"), -13.25));
+    EXPECT(approx(handle->getDouble("longitudeOfLastGridPointInDegrees"), 30.45));
+    EXPECT(approx(handle->getDouble("iDirectionIncrementInDegrees"), 0.1));
+    EXPECT(approx(handle->getDouble("jDirectionIncrementInDegrees"), 0.1));
+    EXPECT(handle->getLong("scanningMode") == 0L);  // 0000 0000
 
-    EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
+    EXPECT(approx(handle->getDouble("latitudeOfSouthernPoleInDegrees"), -22.));
+    EXPECT(approx(handle->getDouble("longitudeOfSouthernPoleInDegrees"), 320.));
+    EXPECT(approx(handle->getDouble("angleOfRotationInDegrees"), 0.));
 
-    EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1639680);
+    EXPECT(handle->getLong("numberOfDataPoints") == Ni * Nj);
+
+    // coordinates of the southernmost row (the last, as scanned), from a grid built from the encoded gridSpec
+    const std::vector<eckit::geo::PointLonLat> points_ref{
+        {-30.37923437901262, 54.30167983367708}, {-30.21461696695217, 54.28605285392668},
+        {-30.05013625049183, 54.27016346802356}, {-29.88579431820473, 54.25401202651201},
+        {-29.72159324673793, 54.23759888507955}, {-29.55753510066738, 54.22092440451927},
+        {-29.39362193235515, 54.20398895069178}, {-29.22985578180936, 54.18679289448672},
+        {-29.06623867654653, 54.16933661178392}, {-28.90277263145643, 54.15162048341411},
+    };
+
+    std::unique_ptr<const eckit::geo::Grid> grid(
+        eckit::geo::GridFactory::make_from_string(handle->getString("gridSpec")));
+    ASSERT(grid);
+
+    EXPECT(grid->projection().type() == "rotation");
+    EXPECT(grid->size() == static_cast<size_t>(Ni * Nj));
+
+    const auto points = grid->to_points();
+    for (size_t i = 0; i < points_ref.size(); ++i) {
+        EXPECT(eckit::geo::points_equal(points[(Nj - 1) * Ni + i], points_ref[i], EPS));
+    }
 }
 
-CASE("2/1 (square earth)") {
-    auto encoder = metkit::mars2grib::Mars2Grib();
 
-    eckit::LocalConfiguration mars;
-    mars.set("class", "od");
-    mars.set("stream", "oper");
-    mars.set("type", "fc");
-    mars.set("expver", "test");
-    mars.set("grid", "2/1");
-    mars.set("packing", "ccsds");
-    mars.set("param", 130);
-    mars.set("levtype", "pl");
-    mars.set("levelist", 1000);
-    mars.set("date", 2026'09'10);
-    mars.set("time", 00'00);
-    mars.set("step", 0);
+}  // namespace metkit::mars2grib::test
 
-    std::vector<double> vals(32580, 237.15);
-
-    const auto handle = encoder.encode(vals, mars);
-
-    // GRIB
-    EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 0L);  // Latitude/longitude
-
-    EXPECT_EQUAL(handle->getLong("shapeOfTheEarth"), 6L);  // Spherical Earth with radius = 6371229.0 m
-    EXPECT(handle->isMissing("scaleFactorOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaledValueOfRadiusOfSphericalEarth"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMajorAxis"));
-    EXPECT(handle->isMissing("scaleFactorOfEarthMinorAxis"));
-    EXPECT(handle->isMissing("scaledValueOfEarthMinorAxis"));
-
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAParallel"), 180L);  // (Ni)
-    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), 181L);  // (Nj)
-    EXPECT_EQUAL(handle->getLong("basicAngleOfTheInitialProductionDomain"), 0L);
-    EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
-
-    EXPECT_EQUAL(handle->getLong("latitudeOfFirstGridPoint"), 90'000000L);   // Unit 10^-6 degrees (La1)
-    EXPECT_EQUAL(handle->getLong("longitudeOfFirstGridPoint"), 0'000000L);   // Unit 10^-6 degrees (Lo1)
-    EXPECT_EQUAL(handle->getLong("resolutionAndComponentFlags"), 48L);       // 0011 0000  Di and Dj given
-    EXPECT_EQUAL(handle->getLong("latitudeOfLastGridPoint"), -90'000000L);   // Unit 10^-6 degrees (La2)
-    EXPECT_EQUAL(handle->getLong("longitudeOfLastGridPoint"), 358'000000L);  // Unit 10^-6 degrees (Lo2)
-    EXPECT_EQUAL(handle->getLong("iDirectionIncrement"), 2'000000L);         // Unit 10^-6 degrees (Di)
-    EXPECT_EQUAL(handle->getLong("jDirectionIncrement"), 1'000000L);         // Unit 10^-6 degrees (Dj)
-
-    EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
-
-    EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 32580);
-}
 
 int main(int argc, char** argv) {
     return eckit::testing::run_tests(argc, argv);
