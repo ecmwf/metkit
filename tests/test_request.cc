@@ -21,6 +21,7 @@
 #include "eckit/serialisation/MemoryStream.h"
 #include "eckit/serialisation/ResizableMemoryStream.h"
 
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
