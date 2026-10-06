@@ -429,7 +429,7 @@ inline const std::unordered_map<std::string, ToLong>& toLongConverters() {
 
 inline const std::unordered_map<std::string, FromLong>& fromLongConverters() {
     static const std::unordered_map<std::string, FromLong> converters = {
-        {"param", plainLongString}, {"levelist", plainLongString}, {"chem", plainLongString}, {"step", longToHours},
+        {"param", plainLongString}, {"levelist", plainLongString}, {"chem", plainLongString}, {"step", plainLongString},
         {"timespan", longToHours},  {"date", longToMarsDate},      {"hdate", longToMarsDate}, {"time", longToMarsTime},
     };
 

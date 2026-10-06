@@ -1,0 +1,3 @@
+retrieve,class=od,expver=0001,date=20260901,time=0000,stream=oper,type=fc,levtype=sfc,param=167/228,step=6,grid=1/1,target="a.grib"
+retrieve,param=165/143,step=12
+retrieve,param=130,levtype=pl,levelist=500,grid=off
