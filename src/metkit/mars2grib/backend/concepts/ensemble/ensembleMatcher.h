@@ -79,8 +79,7 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
 
-        if (has(mars, "number") &&
-            !(type == "me" || type == "eme" || type == "efi" || type == "efic" || type == "sot")) {
+        if (has(mars, "number") && !(type == "me" || type == "efi" || type == "efic" || type == "sot")) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
         else if (type == "ep") {
