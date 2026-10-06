@@ -12,8 +12,7 @@
 /// @author Tiago Quintino
 /// @date   August 2016
 
-#ifndef mir_LibMetkit_H
-#define mir_LibMetkit_H
+#pragma once
 
 #include "eckit/filesystem/PathName.h"
 #include "eckit/system/Library.h"
@@ -55,5 +54,3 @@ protected:
 }  // namespace metkit
 
 //----------------------------------------------------------------------------------------------------------------------
-
-#endif
