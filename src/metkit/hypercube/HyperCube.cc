@@ -48,11 +48,11 @@ AxisOrder& AxisOrder::instance() {
 class Axis {
 public:
 
-    Axis(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {}
+    Axis(mars::Keyword key, const std::vector<std::string>& values) : key_(key), values_(values) {}
 
     size_t size() const { return values_.size(); }
 
-    const std::string& name() const { return name_; }
+    mars::Keyword key() const { return key_; }
 
     int indexOf(const std::string& v) const {
         auto j = std::find(values_.begin(), values_.end(), v);
@@ -65,14 +65,14 @@ public:
     const std::string& valueOf(size_t index) const {
         if (values_.size() <= index) {
             std::ostringstream oss;
-            oss << "Axis::valueOf no value for [axis=" << name() << ",index=" << index << "]";
+            oss << "Axis::valueOf no value for [axis=" << mars::MarsLanguage::name(key_) << ",index=" << index << "]";
             throw eckit::UserError(oss.str());
         }
         return values_[index];
     }
 
     friend std::ostream& operator<<(std::ostream& s, const Axis& a) {
-        s << "Axis[" << a.name_ << "]:";
+        s << "Axis[" << mars::MarsLanguage::name(a.key_) << "]:";
         for (size_t i = 0; i < a.values_.size(); ++i) {
             s << " " << a.values_[i];
         }
@@ -81,22 +81,30 @@ public:
 
 private:
 
-    std::string name_;
+    mars::Keyword key_;
     std::vector<std::string> values_;
 };
 
-HyperCube::HyperCube(const metkit::mars::MarsRequest& request) :
-    verb_(request.verb()), cube_(std::vector<eckit::Ordinal>()) {
+HyperCube::HyperCube(const mars::MarsRequest& request) : verb_(request.verbId()), cube_(std::vector<eckit::Ordinal>()) {
 
     std::vector<eckit::Ordinal> dimensions;
 
-    for (auto& name : AxisOrder::instance().axes()) {
-        std::vector<std::string> values = request.values(name, true);
+    // the axes are fixed by the configuration: convert their names to keywords only once
+    static const std::vector<mars::Keyword> axisKeys = [] {
+        std::vector<mars::Keyword> keys;
+        for (const auto& name : AxisOrder::instance().axes()) {
+            keys.push_back(mars::MarsLanguage::keyword(name));
+        }
+        return keys;
+    }();
+
+    for (mars::Keyword key : axisKeys) {
+        const std::vector<std::string>& values = request.values(key, true);
 
         if (!values.empty()) {
-            Axis* a = new Axis(name, values);
+            Axis* a = new Axis(key, values);
             axes_.push_back(a);
-            axesByName_[name] = a;
+            axesByName_[key] = a;
             dimensions.push_back(values.size());
         }
     }
@@ -112,7 +120,7 @@ HyperCube::~HyperCube() {
     }
 }
 
-bool HyperCube::contains(const metkit::mars::MarsRequest& r) const {
+bool HyperCube::contains(const mars::MarsRequest& r) const {
     int idx = indexOf(r);
     return (idx >= 0) and set_[idx];
 }
@@ -126,26 +134,27 @@ bool HyperCube::clear(int idx) {
     count_--;
     return true;
 }
-bool HyperCube::clear(const metkit::mars::MarsRequest& r) {
+bool HyperCube::clear(const mars::MarsRequest& r) {
     int idx = indexOf(r);
     return clear(idx);
 }
 
-int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
+int HyperCube::indexOf(const mars::MarsRequest& r) const {
 
     std::vector<eckit::Ordinal> coords;
 
     for (auto& a : axes_) {
-        const std::vector<std::string>& values = r.values(a->name(), true);
+        const std::vector<std::string>& values = r.values(a->key(), true);
         if (values.size() == 0) {
             std::ostringstream oss;
-            oss << "HyperCube::indexOf no value for [" << a->name() << "] in request " << r;
+            oss << "HyperCube::indexOf no value for [" << mars::MarsLanguage::name(a->key()) << "] in request " << r;
             throw eckit::UserError(oss.str());
         }
 
         if (values.size() > 1) {
             std::ostringstream oss;
-            oss << "HyperCube::indexOf too many values for [" << a->name() << "] in request " << r;
+            oss << "HyperCube::indexOf too many values for [" << mars::MarsLanguage::name(a->key()) << "] in request "
+                << r;
             throw eckit::UserError(oss.str());
         }
 
@@ -166,10 +175,10 @@ enum requestRelation {
     DISJOINT
 };
 
-requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t& baseSize,
-                            const metkit::mars::MarsRequest& additional, const size_t additionalSize) {
+requestRelation getRelation(const mars::MarsRequest& base, const size_t& baseSize, const mars::MarsRequest& additional,
+                            const size_t additionalSize) {
 
-    metkit::mars::MarsRequest tmp(base);
+    mars::MarsRequest tmp(base);
     tmp.merge(additional);  // creates the bounding box request
 
     /// @todo: building a hypercube *JUST* to get the size? Seems like we can do better
@@ -221,7 +230,7 @@ bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& reques
     return false;
 }
 
-std::vector<std::pair<mars::MarsRequest, std::size_t>> HyperCube::request(const std::set<std::size_t>& idxs) const {
+std::vector<std::pair<mars::MarsRequest, size_t>> HyperCube::request(const std::set<size_t>& idxs) const {
 
     using IndexSet = std::set<std::size_t>;
 
@@ -306,7 +315,7 @@ metkit::mars::MarsRequest HyperCube::requestOf(size_t index) const {
 
     cube_.coordinates(index, coords);
     for (size_t i = 0; i < axes_.size(); i++) {
-        request.setValue(axes_[i]->name(), axes_[i]->valueOf(coords[i]));
+        request.setValue(axes_[i]->key(), axes_[i]->valueOf(coords[i]));
     }
     return request;
 }

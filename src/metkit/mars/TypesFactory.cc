@@ -8,15 +8,15 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/TypesFactory.h"
+
 #include "eckit/exception/Exceptions.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/MarsLanguage.h"
 
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ TypesFactory::~TypesFactory() {
     TypesRegistry::instance().remove(name_);
 }
 
-Type* TypesRegistry::build(const std::string& keyword, const eckit::Value& settings) {
+std::shared_ptr<Type> TypesRegistry::build(Keyword keyword, const eckit::Value& settings) {
     std::string name;
 
     if (settings["type"].isList()) {
@@ -50,7 +50,33 @@ Type* TypesRegistry::build(const std::string& keyword, const eckit::Value& setti
         throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
     }
 
-    return (*j).second->make(keyword, settings);
+    return std::shared_ptr<Type>((*j).second->make(keyword, settings));
+}
+
+std::shared_ptr<Type> TypesRegistry::build(const std::string& name, Keyword key, MemFile& file) {
+
+    //     // read type name
+    //     std::string typeName = file.readString();
+    //     Keyword keyword = file.read8();
+    //     if (keyword != key) {
+    //         std::ostringstream ss;
+    //         ss << "TypesRegistry::build type: " << typeName << " - expecting keyword " << MarsLanguage::name(key) <<
+    //         "(" << key << ") found " << keyword; throw eckit::SeriousBug(ss.str(), Here());
+    //     }
+
+    eckit::AutoLock<eckit::Mutex> lock(mutex_);
+
+    std::map<std::string, TypesFactory*>::const_iterator j = m_.find(name);
+
+    if (j == m_.end()) {
+        eckit::Log::error() << "No TypesFactory for [" << name << "]" << std::endl;
+        eckit::Log::error() << "KeywordTypes are:" << std::endl;
+        for (j = m_.begin(); j != m_.end(); ++j)
+            eckit::Log::error() << "   " << (*j).first << std::endl;
+        throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
+    }
+
+    return std::shared_ptr<Type>((*j).second->make(key, file));
 }
 
 void TypesRegistry::list(std::ostream& s) {
@@ -70,8 +96,12 @@ void TypesRegistry::list(std::ostream& s) {
     s << "]";
 }
 
-Type* TypesFactory::build(const std::string& keyword, const eckit::Value& settings) {
-    return TypesRegistry::instance().build(keyword, settings);
+std::shared_ptr<Type> TypesFactory::build(Keyword key, const eckit::Value& val) {
+    return TypesRegistry::instance().build(key, val);
+}
+
+std::shared_ptr<Type> TypesFactory::build(const std::string& name, Keyword key, MemFile& file) {
+    return TypesRegistry::instance().build(name, key, file);
 }
 
 void TypesFactory::list(std::ostream& s) {
@@ -97,5 +127,4 @@ void TypesRegistry::remove(const std::string& name) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

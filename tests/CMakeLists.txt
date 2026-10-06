@@ -70,6 +70,7 @@ foreach( test
         c_api
         context
         date
+        dictionary
         expand
         filter
         hypercube
@@ -81,6 +82,7 @@ foreach( test
         obstype
         param_axis
         request
+        serialize
         step
         steprange_axis
         time

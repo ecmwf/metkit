@@ -18,6 +18,7 @@
 #include "eckit/utils/StringTools.h"
 #include "eckit/utils/Translator.h"
 
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
@@ -29,14 +30,17 @@ class TypeToByList : public ITypeToByList {
 private:  // members
 
     const Type& type_;
-    const std::string by_;
+    std::string by_;
 
 public:  // methods
 
     TypeToByList(const Type& type, const eckit::Value& settings) :
         type_(type), by_(settings.contains("by") ? settings["by"] : "1") {}
+    TypeToByList(const Type& type, MemFile& file) : type_(type) { by_ = file.readString(); }
 
     virtual ~TypeToByList() = default;
+
+    void write(std::ofstream& file) const override { writeString(file, by_); }
 
     void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const override {
 

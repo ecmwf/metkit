@@ -25,15 +25,17 @@ namespace metkit::mars {
 
 class TypeEnum : public Type {
 
-public:  // methods
+public:
 
-    TypeEnum(const std::string& name, const eckit::Value& settings);
-
+    TypeEnum(const std::string& type, Keyword key, const eckit::Value& val);
+    TypeEnum(const std::string& type, Keyword key, MemFile& file);
     ~TypeEnum() noexcept override = default;
+
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
-    bool hasGroups() const override { return hasGroups_; }
+    bool hasGroups() const override { return flags_[5]; }
     std::optional<std::reference_wrapper<const std::vector<std::string>>> group(
         const std::string& value) const override;
 
@@ -44,7 +46,7 @@ private:  // methods
 
     std::vector<std::string> parseEnumValue(const eckit::Value& val, bool allowDuplicates = false) const;
 
-    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates) const;
+    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates, bool canonical) const;
     uint16_t parseValueNames(const eckit::Value& names, bool allowDuplicates) const;
 
     void readValuesFile() const;
@@ -53,8 +55,6 @@ private:  // members
 
     std::string valuesFile_;
 
-    bool uppercase_         = false;
-    mutable bool hasGroups_ = false;
     mutable std::vector<std::pair<std::string, std::vector<std::string>>> groups_;
     mutable std::map<std::string, uint16_t> values_;  // map of acceptable values (included aliases)
 

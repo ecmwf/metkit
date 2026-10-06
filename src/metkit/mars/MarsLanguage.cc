@@ -14,6 +14,7 @@
 #include <fstream>
 #include <mutex>
 #include <optional>
+#include <shared_mutex>
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
@@ -32,37 +33,24 @@
 
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
+
 static eckit::Value languages_;
 static std::vector<eckit::Value> modifiers_{};
-static std::set<std::string> verbs_;
-static std::map<std::string, std::string> verbAliases_;
-
-static void init() {
-    languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
-    for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
-        modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
-    }
-    const eckit::Value verbs = languages_.keys();
-    for (size_t i = 0; i < verbs.size(); ++i) {
-        verbs_.insert(verbs[i]);
-        eckit::Value lang = languages_[verbs[i]];
-        if (lang.contains("_aliases")) {
-            eckit::Value aliases = lang["_aliases"];
-            ASSERT(aliases.isList());
-            for (size_t j = 0; j < aliases.size(); ++j) {
-                verbAliases_.emplace(aliases[j], verbs[i]);
-            }
-        }
-    }
-}
 
 namespace metkit::mars {
+
+void initLanguage() {
+    MarsLanguage::init();
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
 ExpansionContext::ExpansionContext(const MarsRequest& request) {
     for (const auto& param : request.parameters()) {
-        values_[param.name()] = param.values();
+        Keyword key = param.id();
+        if (key) {  // a parameter that is not a registered keyword cannot be inherited by any language
+            values_[key] = param.values();
+        }
     }
 }
 
@@ -71,11 +59,11 @@ ExpansionContext& ExpansionContext::operator=(ExpansionContext&& other) {
     return *this;
 }
 
-bool ExpansionContext::has(const std::string& key) const {
+bool ExpansionContext::has(Keyword key) const {
     return values_.find(key) != values_.end();
 }
 
-const std::vector<std::string>& ExpansionContext::values(const std::string& key) const {
+const std::vector<std::string>& ExpansionContext::values(Keyword key) const {
     static const std::vector<std::string> empty;
     auto it = values_.find(key);
     if (it != values_.end()) {
@@ -84,12 +72,186 @@ const std::vector<std::string>& ExpansionContext::values(const std::string& key)
     return empty;
 }
 
-void ExpansionContext::unset(const std::string& key) {
+void ExpansionContext::unset(Keyword key) {
     values_.erase(key);
 }
 
-void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
-                                 const eckit::Value& mod) {
+//----------------------------------------------------------------------------------------------------------------------
+
+// static members of MarsLanguage
+std::unique_ptr<Dictionary<Verb>> MarsLanguage::verbs_{};
+std::unique_ptr<Dictionary<Keyword>> MarsLanguage::keywords_{};
+Keyword MarsLanguage::maxDataKeyword_ = 0;
+std::shared_mutex MarsLanguage::contextsMutex_;
+std::map<Keyword, size_t> MarsLanguage::langOffsets_{};
+std::set<Context*, ContextPtrComparator> MarsLanguage::contextsSet_{};
+std::vector<std::unique_ptr<Context>> MarsLanguage::contexts_{};
+MemFile MarsLanguage::langFile_;
+
+void MarsLanguage::loadYaml() {
+    static std::once_flag loaded;
+    std::call_once(loaded, [] {
+        languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+        for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
+            modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
+        }
+    });
+}
+
+bool MarsLanguage::loadBinary() {
+    static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
+
+    if (metkitForceBinfileCreation) {
+        return false;
+    }
+
+    eckit::PathName languageBinFile = LibMetkit::languageBinaryFile();
+    if (!languageBinFile.exists()) {
+        eckit::Log::info() << "Language binary file '" << languageBinFile.asString()
+                           << "' missing - using slow config file parsing" << std::endl;
+        return false;
+    }
+
+    try {
+        langFile_ = MemFile{languageBinFile.localPath()};
+
+        std::string header{langFile_.readString(4)};
+        uint16_t version = langFile_.read16();
+
+        LOG_DEBUG_LIB(LibMetkit) << "Reading language binary file header: " << header << " version: " << version
+                                 << std::endl;
+
+        if ("LANG" == header && version == LibMetkit::binaryFilesVersion()) {
+
+            readDictionaries(langFile_);
+
+            uint8_t numVerbs = langFile_.read8();
+            for (uint8_t u = 0; u < numVerbs; ++u) {
+                Verb vv         = langFile_.read8();
+                uint32_t offset = langFile_.read32();
+                langOffsets_.emplace(vv, offset);
+            }
+            ASSERT(langOffsets_.size() == numVerbs);
+
+            // the contexts follow the verb offsets table and are shared by all the languages
+            readContexts(langFile_);
+
+            return true;
+        }
+
+        eckit::Log::warning() << "Incompatible language binary file '" << languageBinFile.asString()
+                              << "' - expected header LANG version " << LibMetkit::binaryFilesVersion() << ", found "
+                              << header << " version " << version << " - using slow config file parsing" << std::endl;
+    }
+    catch (const std::exception& e) {
+        eckit::Log::warning() << "Error reading language binary file '" << languageBinFile.asString()
+                              << "': " << e.what() << " - using slow config file parsing" << std::endl;
+    }
+
+    // do not leave a half-loaded state behind: the YAML parsing below starts from scratch
+    verbs_.reset();
+    keywords_.reset();
+    maxDataKeyword_ = 0;
+    langOffsets_.clear();
+    {
+        std::unique_lock lock(contextsMutex_);
+        contextsSet_.clear();
+        contexts_.clear();
+    }
+    langFile_ = MemFile{};  // releases the mapping
+    return false;
+}
+
+void MarsLanguage::init() {
+    if (loadBinary()) {
+        return;
+    }
+
+    loadYaml();
+
+    verbs_                   = std::make_unique<Dictionary<Verb>>("verb");
+    const eckit::Value verbs = languages_.keys();
+    for (size_t i = 0; i < verbs.size(); ++i) {
+        std::string verb  = verbs[i];
+        auto k            = verbs_->add(verb);
+        eckit::Value lang = languages_[verb];
+        if (lang.contains("_aliases")) {
+            eckit::Value aliases = lang["_aliases"];
+            ASSERT(aliases.isList());
+            for (size_t j = 0; j < aliases.size(); ++j) {
+                std::string alias = aliases[j];
+                verbs_->alias(alias, k);
+            }
+        }
+    }
+    keywords_ = std::make_unique<Dictionary<Keyword>>("keyword");
+    keywords_->add(std::string{"_verb"});
+    for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
+        keywords_->add(a);
+    }
+    maxDataKeyword_ = keywords_->size();
+    keywords_->add(std::string{"day"});
+    keywords_->add(std::string{"output"});
+    keywords_->add(std::string{"pseudodate"});
+
+    verbs_->add(std::string{"verb"});
+    verbs_->add(std::string{"environ"});
+
+    auto emptyValue = eckit::Value{};
+    addContext(emptyValue);
+}
+
+void MarsLanguage::writeDictionaries(std::ofstream& file) {
+    verbs_->serialize(file);
+    keywords_->serialize(file);
+    write16(file, maxDataKeyword_);
+}
+void MarsLanguage::readDictionaries(MemFile& file) {
+    verbs_          = std::make_unique<Dictionary<Verb>>(file, "verb");
+    keywords_       = std::make_unique<Dictionary<Keyword>>(file, "keyword");
+    maxDataKeyword_ = file.read16();
+}
+
+void MarsLanguage::writeContexts(std::ofstream& file) {
+    write16(file, contexts_.size());
+    for (const auto& context : contexts_) {
+        context->write(file);
+    }
+}
+void MarsLanguage::readContexts(MemFile& file) {
+    size_t size = file.read16();
+    for (size_t i = 0; i < size; ++i) {
+        auto context = std::make_unique<Context>(i, file);
+        contextsSet_.insert(context.get());
+        contexts_.push_back(std::move(context));
+    }
+}
+
+void MarsLanguage::write(std::ofstream& file) const {
+    // write one language
+
+    // write the verb identifier at the beginning of the language block
+    write8(file, verb_);
+    // write the number of types
+    write16(file, types_.size());
+    for (const auto& [keyword, type] : types_) {
+        // delegate writing of the type to the type itself
+        type->write(file);
+    }
+
+    // data structures supporting bestMatch (counts are 16 bits: the lists can exceed 255 entries)
+    write16(file, keywordList_.size());
+    for (const auto& keyword : keywordList_) {
+        writeString(file, keyword);
+    }
+    write16(file, aliases_.size());
+    for (const auto& [alias, keyword] : aliases_) {
+        writeString(file, alias);
+        writeString(file, keyword);
+    }
+}
+
+void MarsLanguage::parseModifier(ModifierType typ, const Context& ctx, size_t maxIndex, const eckit::Value& mod) {
     eckit::Value keys;
     if (typ == ModifierType::UNSET) {
         ASSERT(mod.isList());
@@ -100,64 +262,135 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
         keys = mod.keys();
     }
     for (size_t j = 0; j < keys.size(); ++j) {
-        std::string key = keys[j];
+        std::string keyStr = keys[j];
+        Keyword key        = keywords_->exist(keyStr);
+        if (key) {  // a keyword in the modifier might apply only to a language for another verb
+            keyStr = keywords_->name(key);
 
-        auto it = types_.find(key);
-        if (it != types_.end()) {
-            ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+            auto it = types_.find(key);
+            if (it != types_.end()) {
+                ASSERT(it->second->category() != Category::Data || maxIndex <= key);
 
-            if (typ == ModifierType::UNSET) {
-                it->second->unset(ctx);
-            }
-            else {
-                eckit::Value vv = mod[key];
-                std::vector<std::string> vals;
-                if (vv.isList()) {
-                    for (size_t k = 0; k < vv.size(); ++k) {
-                        vals.push_back(vv[k]);
-                    }
+                if (typ == ModifierType::UNSET) {
+                    it->second->unset(ctx);
                 }
                 else {
-                    vals.push_back(vv);
-                }
+                    eckit::Value vv = mod[keyStr];
+                    std::vector<std::string> vals;
+                    if (vv.isList()) {
+                        for (size_t k = 0; k < vv.size(); ++k) {
+                            vals.push_back(vv[k]);
+                        }
+                    }
+                    else {
+                        vals.push_back(vv);
+                    }
 
-                if (typ == ModifierType::DEFAULT)
-                    it->second->defaults(ctx, vals);
-                else if (typ == ModifierType::SET)
-                    it->second->set(ctx, vals);
+                    if (typ == ModifierType::DEFAULT) {
+                        it->second->defaults(ctx, vals);
+                    }
+                    else if (typ == ModifierType::SET) {
+                        it->second->set(ctx, vals);
+                    }
+                }
             }
         }
     }
 }
 
-MarsLanguage::MarsLanguage(const std::string& verb) {
-    pthread_once(&once, init);
+const Context& MarsLanguage::context(size_t ctxId) {
+    std::shared_lock lock(contextsMutex_);
+    ASSERT(ctxId < contexts_.size());
+    const auto& ctx = contexts_[ctxId];
+    ASSERT(ctx != nullptr);
+    return *ctx;
+}
 
-    verb_                = MarsLanguage::expandVerb(verb);
-    eckit::Value lang    = languages_[verb_];
+const Context& MarsLanguage::addContext(eckit::Value& val) {
+    std::unique_lock lock(contextsMutex_);
+    auto ctx = std::make_unique<Context>(contexts_.size(), val);
+    auto it  = contextsSet_.find(ctx.get());
+    if (it != contextsSet_.end()) {
+        return *(*it);
+    }
+    contexts_.push_back(std::move(ctx));
+    contextsSet_.insert(contexts_.back().get());
+    return *(contexts_.back());
+}
+
+
+MarsLanguage::MarsLanguage(const std::string& verb) {
+    pthread_once(&once, initLanguage);
+    verb_ = verbs_->keyword(eckit::StringTools::lower(verb));
+    parse(verb_);
+}
+
+MarsLanguage::MarsLanguage(Verb verb) : verb_(verb) {
+    pthread_once(&once, initLanguage);
+    parse(verb_);
+}
+
+MarsLanguage::MarsLanguage(Verb verb, MemFile& file) {
+    pthread_once(&once, initLanguage);
+
+    auto offset = langOffsets_.find(verb);
+    ASSERT(offset != langOffsets_.end());
+    file.seek(offset->second);
+    verb_ = file.read8();
+    ASSERT(verb_ == verb);
+
+    uint16_t numTypes = file.read16();
+    for (uint16_t i = 0; i < numTypes; ++i) {
+        std::string typeName{file.readString()};
+        Keyword keyword = file.read16();
+        auto type       = TypesFactory::build(typeName, keyword, file);
+        types_.emplace(keyword, type);
+    }
+
+    uint16_t numKeywords = file.read16();
+    keywordList_.reserve(numKeywords);
+    for (uint16_t i = 0; i < numKeywords; ++i) {
+        keywordList_.emplace_back(file.readString());
+    }
+
+    uint16_t numAliases = file.read16();
+    for (uint16_t i = 0; i < numAliases; ++i) {
+        std::string alias{file.readString()};
+        std::string keyword{file.readString()};
+        aliases_.emplace(std::move(alias), std::move(keyword));
+    }
+}
+
+void MarsLanguage::parse(Verb verb) {
+
+    loadYaml();  // not loaded yet if the binary file is used for the other verbs
+
+    eckit::Value lang    = languages_[verbs_->name(verb)];
     eckit::Value params  = lang.keys();
     eckit::Value options = lang["_options"];
 
     for (size_t i = 0; i < params.size(); ++i) {
-        std::string keyword   = params[i];
-        eckit::Value settings = lang[keyword];
-
-        if (keyword[0] == '_') {
+        std::string keywordStr = params[i];
+        if (keywordStr[0] == '_') {
             continue;
         }
 
+        Keyword keyword = keywords_->add(keywordStr);
+        keywordList_.push_back(keywordStr);
+
         ASSERT(types_.find(keyword) == types_.end());
 
-        if (options.contains(keyword)) {
-            eckit::ValueMap m = options[keyword];
+        eckit::Value settings = lang[keywordStr];
+
+        if (options.contains(keywordStr)) {
+            eckit::ValueMap m = options[keywordStr];
             for (auto j = m.begin(); j != m.end(); ++j) {
                 settings[(*j).first] = (*j).second;
             }
         }
 
         auto [it, success] = types_.emplace(keyword, TypesFactory::build(keyword, settings));
-        it->second->attach();
-        keywords_.push_back(keyword);
+        ASSERT(success);
 
         std::optional<eckit::Value> aliases;
         if (settings.contains("aliases")) {
@@ -165,8 +398,10 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
         }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
-                aliases_[(*aliases)[j]] = keyword;
-                keywords_.push_back((*aliases)[j]);
+                std::string alias = (*aliases)[j];
+                aliases_[alias]   = keywordStr;  // alias name -> keyword name
+                keywordList_.push_back(alias);   // aliases take part in the fuzzy matching, as before
+                keywords_->alias(alias, keyword);
             }
         }
     }
@@ -178,8 +413,9 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
             eckit::Value mod = modifierFile[i];
             ASSERT(mod.isMap());
             ASSERT(mod.contains("context"));
-            std::shared_ptr<Context> ctx = Context::parseContext(mod["context"]);
-            size_t maxIndex              = ctx->maxAxisIndex();
+
+            const Context& ctx = addContext(mod["context"]);
+            size_t maxIndex    = ctx.maxAxisIndex();
             if (mod.contains("defaults")) {
                 parseModifier(ModifierType::DEFAULT, ctx, maxIndex, mod["defaults"]);
             }
@@ -195,61 +431,57 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
     if (lang.contains("_clear_defaults")) {
         const auto& keywords = lang["_clear_defaults"];
         for (auto i = 0; i < keywords.size(); ++i) {
-            if (auto iter = types_.find(keywords[i]); iter != types_.end()) {
+            Keyword key = keywords_->exist(keywords[i]);
+            if (auto iter = types_.find(key); key && iter != types_.end()) {
                 iter->second->clearDefaults();
             }
         }
     }
-
-    for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
-        Type* t = nullptr;
-        auto it = types_.find(a);
-        if (it != types_.end()) {
-            t = it->second;
-        }
-        typesByAxisOrder_.emplace_back(a, t);
-    }
-    for (auto& [k, t] : types_) {
-        if (t->category() != Category::Data) {
-            typesByAxisOrder_.emplace_back(k, t);
-        }
-    }
 }
 
-Category MarsLanguage::category(const std::string& keyword) const {
+Category MarsLanguage::category(Keyword keyword) const {
     auto it = types_.find(keyword);
     if (it != types_.end()) {
         return it->second->category();
     }
-    throw eckit::UserError("Cannot find keyword: " + keyword);
-}
-
-bool MarsLanguage::isData(const std::string& k) const {
-    return category(k) == Category::Data;
-}
-bool MarsLanguage::isDerived(const std::string& k) const {
-    return category(k) == Category::Derived;
-}
-bool MarsLanguage::isPostProc(const std::string& k) const {
-    return category(k) == Category::PostProc;
-}
-bool MarsLanguage::isSink(const std::string& k) const {
-    return category(k) == Category::Sink;
+    throw eckit::UserError("Cannot find keyword: " + keywords_->name(keyword));
 }
 
 bool MarsLanguage::isKeyword(const std::string& keyword) const {
-    return types_.find(keyword) != types_.end() || aliases_.find(keyword) != aliases_.end();
+    return keywords_->exist(keyword) != 0;
 }
 
-MarsLanguage::~MarsLanguage() {
-    for (auto& [k, t] : types_) {
-        t->detach();
-    }
+bool MarsLanguage::isData(Keyword k) const {
+    return category(k) == Category::Data;
+}
+bool MarsLanguage::isDerived(Keyword k) const {
+    return category(k) == Category::Derived;
+}
+bool MarsLanguage::isPostProc(Keyword k) const {
+    return category(k) == Category::PostProc;
+}
+bool MarsLanguage::isSink(Keyword k) const {
+    return category(k) == Category::Sink;
 }
 
-const MarsLanguage& MarsLanguage::get(const std::string& verb) {
+bool MarsLanguage::isData(const std::string& k) const {
+    return category(keywords_->keyword(k)) == Category::Data;
+}
+bool MarsLanguage::isDerived(const std::string& k) const {
+    return category(keywords_->keyword(k)) == Category::Derived;
+}
+bool MarsLanguage::isPostProc(const std::string& k) const {
+    return category(keywords_->keyword(k)) == Category::PostProc;
+}
+bool MarsLanguage::isSink(const std::string& k) const {
+    return category(keywords_->keyword(k)) == Category::Sink;
+}
+
+const MarsLanguage& MarsLanguage::get(Verb verb) {
     static std::mutex mutex;
-    static std::map<std::string, MarsLanguage*> instances;
+    static std::map<Verb, MarsLanguage*> instances;
+
+    static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
 
     std::lock_guard lock(mutex);
     auto it = instances.find(verb);
@@ -257,15 +489,24 @@ const MarsLanguage& MarsLanguage::get(const std::string& verb) {
         return *(it->second);
     }
 
-    auto v = expandVerb(verb);
-    it     = instances.find(v);
-    if (it != instances.end()) {
-        return *(it->second);
-    }
+    // load / parse the language for the given verb
+    if (!metkitForceBinfileCreation && !langOffsets_.empty()) {
+        auto it = langOffsets_.find(verb);
+        if (it != langOffsets_.end()) {
 
-    auto [newIt, inserted] = instances.emplace(v, new MarsLanguage(v));
+            auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb, langFile_));
+            ASSERT(inserted);
+            return *(newIt->second);
+        }
+    }
+    auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb));
     ASSERT(inserted);
     return *(newIt->second);
+}
+
+const MarsLanguage& MarsLanguage::get(const std::string& verb) {
+    pthread_once(&once, initLanguage);
+    return get(verbs_->keyword(eckit::StringTools::lower(verb)));
 }
 
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
@@ -423,21 +664,9 @@ std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<s
     throw eckit::UserError(oss.str());
 }
 
-std::string MarsLanguage::expandVerb(const std::string& verb) {
-    pthread_once(&once, init);
-    std::string v = eckit::StringTools::lower(verb);
-    auto vv       = verbs_.find(v);
-    if (vv != verbs_.end()) {
-        return v;
-    }
-    auto aa = verbAliases_.find(v);
-    if (aa != verbAliases_.end()) {
-        return aa->second;
-    }
-
-    std::ostringstream oss;
-    oss << "Verb " << v << " is not supported";
-    throw eckit::UserError(oss.str());
+const std::string& MarsLanguage::expandVerb(const std::string& verb) {
+    pthread_once(&once, initLanguage);
+    return verbs_->name(verbs_->keyword(eckit::StringTools::lower(verb)));
 }
 
 class TypeHidden : public Type {
@@ -447,88 +676,81 @@ class TypeHidden : public Type {
 
 public:
 
-    TypeHidden() : Type("hidden", eckit::Value()) { attach(); }
+    TypeHidden() : Type("hidden", MarsLanguage::addKeyword("hidden"), eckit::Value()) {}
+    ~TypeHidden() override = default;
 };
 
-const Type* MarsLanguage::type(const std::string& name) const {
-    auto k = types_.find(name);
-    if (k == types_.end()) {
-        if (name[0] == '_') {
-            static TypeHidden hidden;
-            return &hidden;
-        }
-
-        throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
+const Type* MarsLanguage::type(Keyword key) const {
+    auto it = types_.find(key);
+    if (it == types_.end()) {
+        throw eckit::UserError("Keyword '" + keywords_->name(key) + "' is not valid for verb '" + verbs_->name(verb_) +
+                               "'");
     }
-    return k->second;
+    return it->second.get();
+}
+
+const Type* MarsLanguage::type(const std::string& name) const {
+    Keyword key = keywords_->exist(name);
+    if (key && types_.find(key) != types_.end()) {
+        return type(key);
+    }
+    if (!name.empty() && name[0] == '_') {  // internal keywords (e.g. _verb) are known, but have no type in a language
+        static const TypeHidden hidden{};
+        return &hidden;
+    }
+
+    throw eckit::UserError("Cannot find a type for '" + name + "'");
 }
 
 MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
     MarsRequest result(verb_);
 
     try {
-        std::vector<std::pair<std::string, std::string>> sortedParams;
-        std::map<std::string, std::string> paramSet;
-        std::vector<std::string> params;
+        // Resolve the keywords of the request in this language. They are processed sorted by keyword (axes first,
+        // in axis order), so the order of the parameters in the request does not matter.
+        std::map<Keyword, const Parameter*> paramSet;
 
-        for (const auto& PP : r.params()) {
-            std::string p = eckit::StringTools::lower(PP);
-            bool found    = false;
-            auto it       = types_.find(p);
-            if (it != types_.end()) {
-                found = true;
-            }
-            else {
-                auto itAlias = aliases_.find(p);
-                if (itAlias != aliases_.end()) {
-                    p     = itAlias->second;
-                    found = true;
+        for (const auto& param : r.parameters()) {
+            // a typed parameter that is already a keyword of this language does not need to be looked up
+            Keyword key = param.typed() ? param.id() : 0;
+            if (!key || types_.find(key) == types_.end()) {
+                std::string p = eckit::StringTools::lower(param.name());
+                key           = keywords_->exist(p);
+                if (!key || types_.find(key) == types_.end()) {
+                    // not a keyword of this language (the dictionary is shared by all the verbs):
+                    // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
+                    p   = bestMatch(p, keywordList_, true, false, true, aliases_);
+                    key = keywords_->exist(p);
                 }
             }
-            if (!found) {
-                // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
-                p = bestMatch(p, keywords_, true, false, true, aliases_);
-            }
-            paramSet.emplace(p, PP);
-        }
-        {  // sort the parameters, following the AxisOrder
-            for (const auto& k : metkit::hypercube::AxisOrder::instance().axes()) {
-                auto it = paramSet.find(k);
-                if (it != paramSet.end()) {
-                    sortedParams.emplace_back(k, it->second);
-                    paramSet.erase(it);
-                }
-            }
-            for (const auto& [k, PP] : paramSet) {
-                sortedParams.emplace_back(k, PP);
-            }
+            paramSet.emplace(key, &param);
         }
 
-        for (const auto& [p, PP] : sortedParams) {
-            std::vector<std::string> values = r.values(PP);
+        for (const auto& [k, param] : paramSet) {
+            std::vector<std::string> values = param->values();  // copy the values to expand in place
 
             if (values.size() == 1) {
-                const std::string& s = eckit::StringTools::lower(values[0]);
+                const std::string s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
-                    result.unsetValues(p);
-                    ctx.unset(p);
+                    result.erase(k);
+                    ctx.unset(k);
                     continue;
                 }
-                if (s == "all" && type(p)->multiple()) {
-                    result.setValue(p, "all");
+                if (s == "all" && type(k)->multiple()) {
+                    result.setValuesTyped(type(k), std::vector<std::string>{"all"});
                     continue;
                 }
             }
 
-            auto t = type(p);
+            auto t = type(k);
             t->expand(values, result);
             result.setValuesTyped(t, values);
             t->check(values);
         }
 
         if (inherit) {
-            for (const auto& [k, t] : typesByAxisOrder_) {
-                if (t != nullptr && result.countValues(k) == 0) {
+            for (const auto& [k, t] : types_) {
+                if (isOrdered(k, *t) && result.countValues(k) == 0) {
                     if (ctx.has(k)) {
                         result.setValuesTyped(t, ctx.values(k));
                     }
@@ -539,15 +761,21 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
             }
         }
 
-        result.getParams(params);
-
-        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->pass2(result);
+        // pass2 modifies the request: go through a snapshot of the types, not through the parameters being modified
+        std::vector<std::shared_ptr<const Type>> expanded;
+        expanded.reserve(result.parameters().size());
+        for (const auto& param : result.parameters()) {
+            expanded.push_back(param.typePtr());
+        }
+        for (const auto& t : expanded) {
+            ASSERT(t);
+            t->pass2(result);
         }
 
-        for (const auto& [k, t] : typesByAxisOrder_) {
-            if (t != nullptr)
+        for (const auto& [k, t] : types_) {
+            if (isOrdered(k, *t)) {
                 t->finalise(result, strict);
+            }
         }
     }
     catch (std::exception& e) {
@@ -561,20 +789,17 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
     return result;
 }
 
-const std::string& MarsLanguage::verb() const {
-    return verb_;
-}
-
-void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
+void MarsLanguage::flatten(const MarsRequest& request, const std::vector<Keyword>& params, size_t i,
                            MarsRequest& result, FlattenCallback& callback) const {
     if (i == params.size()) {
         callback(result);
         return;
     }
 
-    const std::string& param = params[i];
+    Keyword param = params[i];
 
-    const Type* t = type(param);
+    // internal keywords (e.g. _verb) are registered, but have no type in the language: look them up by name
+    const Type* t = types_.find(param) != types_.end() ? type(param) : type(name(param));
     if (!t->flatten()) {
         flatten(request, params, i + 1, result, callback);
         return;
@@ -589,11 +814,42 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
 }
 
 void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
-    std::vector<std::string> params;
-    request.getParams(params);
-
     MarsRequest result(request);
+    std::vector<Keyword> params;
+    for (const auto& p : request.parameters()) {
+        Keyword key = p.id();
+        if (!key) {
+            throw eckit::UserError("Cannot flatten a request with an unknown keyword '" + p.name() + "'");
+        }
+        params.push_back(key);
+    }
     flatten(request, params, 0, result, callback);
+}
+
+Verb MarsLanguage::verb(const std::string& name) {
+    pthread_once(&once, initLanguage);
+    return verbs_->keyword(eckit::StringTools::lower(name));
+}
+const std::string& MarsLanguage::name(Verb verb) {
+    pthread_once(&once, initLanguage);
+    return verbs_->name(verb);
+}
+
+Keyword MarsLanguage::addKeyword(const std::string& name) {
+    pthread_once(&once, initLanguage);
+    return keywords_->add(eckit::StringTools::lower(name));
+}
+Keyword MarsLanguage::hasKeyword(const std::string& name) {
+    pthread_once(&once, initLanguage);
+    return keywords_->exist(eckit::StringTools::lower(name));
+}
+Keyword MarsLanguage::keyword(const std::string& name) {
+    pthread_once(&once, initLanguage);
+    return keywords_->keyword(eckit::StringTools::lower(name));
+}
+const std::string& MarsLanguage::name(Keyword keyword) {
+    pthread_once(&once, initLanguage);
+    return keywords_->name(keyword);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

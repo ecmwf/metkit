@@ -36,14 +36,17 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRange::TypeRange(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
-
-    toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, settings);
-    multiple_ = true;
+TypeRange::TypeRange(const std::string& type, Keyword key, const eckit::Value& vals) : Type(type, key, vals) {
+    toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, vals);
+    flags_[1] = true;
+}
+TypeRange::TypeRange(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+    toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, file);
+    flags_[1] = true;
 }
 
 void TypeRange::print(std::ostream& out) const {
-    out << "TypeRange[name=" << name_ << "]";
+    out << "TypeRange[name=" << name() << "]";
 }
 
 bool TypeRange::expand(std::string& value, const MarsRequest&) const {

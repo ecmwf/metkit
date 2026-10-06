@@ -18,6 +18,7 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Quantile.h"
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -25,10 +26,10 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit::Value& settings) :
-    Type(name, settings) {
+TypeToByListQuantile::TypeToByListQuantile(const std::string& type, Keyword key, const eckit::Value& vals) :
+    Type(type, key, vals) {
 
-    eckit::Value values = settings["denominators"];
+    eckit::Value values = vals["denominators"];
 
     if (!values.isList()) {
         values = MarsLanguage::jsonFile(values);
@@ -51,14 +52,34 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit:
         }
     }
 
-    LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name << " denominators " << denominators_ << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name() << " denominators " << denominators_
+                             << std::endl;
 
-    toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, settings);
-    multiple_ = true;
+    toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, vals);
+    flags_[1] = true;
+}
+
+TypeToByListQuantile::TypeToByListQuantile(const std::string& type, Keyword key, MemFile& file) :
+    Type(type, key, file) {
+    toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, file);
+    flags_[1] = true;
+
+    uint8_t numDenominators = file.read8();
+    for (uint8_t i = 0; i < numDenominators; ++i) {
+        denominators_.emplace(file.read32());
+    }
+}
+
+void TypeToByListQuantile::write(std::ofstream& file) const {
+    Type::write(file);
+    write8(file, denominators_.size());
+    for (const auto& d : denominators_) {
+        write32(file, d);
+    }
 }
 
 void TypeToByListQuantile::print(std::ostream& out) const {
-    out << "TypeToByListQuantile[name=" << name_ << "]";
+    out << "TypeToByListQuantile[name=" << name() << "]";
 }
 
 bool TypeToByListQuantile::expand(std::string& value, const MarsRequest&) const {
@@ -66,7 +87,7 @@ bool TypeToByListQuantile::expand(std::string& value, const MarsRequest&) const 
     Quantile q(value);
     if (denominators_.find(q.den()) == denominators_.end()) {
         std::ostringstream oss;
-        oss << name_ << ": " << q.den() << "-quantile not supported.";
+        oss << name() << ": " << q.den() << "-quantile not supported.";
         throw eckit::BadValue(oss.str());
     }
     return true;

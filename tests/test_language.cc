@@ -79,6 +79,9 @@ void expect_mars(const std::string& text, const Expected& expected, bool strict 
 // -----------------------------------------------------------------------------
 
 CASE("grid: regular Gaussian grids") {
+
+    MarsLanguage::get("retrieve");
+
     const Sequence F{16,  24,  32,  48,  64,  80,  96,   128,  160,  192,  200,  256,  320,
                      400, 512, 576, 640, 800, 912, 1024, 1280, 1600, 2000, 2560, 4000, 8000};
 
@@ -333,8 +336,8 @@ CASE("check some types") {
         const auto* type = language.type("resol");
         EXPECT(dynamic_cast<const TypeAny*>(type) != nullptr);
 
-        EXPECT_THROWS_AS(language.type("grid"), eckit::SeriousBug);
-        EXPECT_THROWS_AS(language.type("area"), eckit::SeriousBug);
+        EXPECT_THROWS_AS(language.type("grid"), eckit::UserError);
+        EXPECT_THROWS_AS(language.type("area"), eckit::UserError);
     }
 }
 

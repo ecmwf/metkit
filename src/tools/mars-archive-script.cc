@@ -148,8 +148,7 @@ MarsArchiveScript::OverridesDict MarsArchiveScript::extractOverrides(MarsRequest
 
     OverridesDict ret;
 
-    std::vector<std::string> keys;
-    request.getParams(keys);
+    std::vector<std::string> keys = request.params();
 
     for (const auto& k : keys) {
         int pos = k.find('@');

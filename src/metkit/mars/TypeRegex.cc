@@ -21,13 +21,9 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRegex::TypeRegex(const std::string& name, const eckit::Value& settings) : Type(name, settings), uppercase_(false) {
+TypeRegex::TypeRegex(const std::string& type, Keyword key, const eckit::Value& vals) : Type(type, key, vals) {
 
-    if (settings.contains("uppercase")) {
-        uppercase_ = settings["uppercase"];
-    }
-
-    eckit::Value r = settings["regex"];
+    eckit::Value r = vals["regex"];
 
     if (r.isList()) {
         for (size_t i = 0; i < r.size(); ++i) {
@@ -38,12 +34,28 @@ TypeRegex::TypeRegex(const std::string& name, const eckit::Value& settings) : Ty
         regex_.push_back(std::string(r));
     }
 }
+TypeRegex::TypeRegex(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+    uint8_t numRegex = file.read8();
+    for (uint8_t i = 0; i < numRegex; ++i) {
+        regex_.emplace_back(std::string{file.readString()});
+    }
+}
+
+void TypeRegex::write(std::ofstream& file) const {
+    Type::write(file);
+    write8(file, regex_.size());
+    for (const auto& r : regex_) {
+        // the pattern itself, not operator<< which wraps it in slashes
+        writeString(file, static_cast<const std::string&>(r));
+    }
+}
+
 
 bool TypeRegex::expand(std::string& value, const MarsRequest&) const {
 
     for (std::vector<eckit::Regex>::const_iterator j = regex_.begin(); j != regex_.end(); ++j) {
         if ((*j).match(value)) {
-            if (uppercase_) {
+            if (flags_[3]) {
                 value = eckit::StringTools::upper(value);
             }
             return true;
@@ -55,7 +67,7 @@ bool TypeRegex::expand(std::string& value, const MarsRequest&) const {
 
 
 void TypeRegex::print(std::ostream& out) const {
-    out << "TypeRegex[name=" << name_ << "]";
+    out << "TypeRegex[name=" << name() << "]";
 }
 
 
