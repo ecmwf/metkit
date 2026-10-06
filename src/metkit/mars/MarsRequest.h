@@ -87,8 +87,8 @@ class MarsRequest {
 public:  // methods
 
     MarsRequest() = default;
-    MarsRequest(Verb verb);
-    MarsRequest(const std::string& verb);
+    explicit MarsRequest(Verb verb);
+    explicit MarsRequest(const std::string& verb);
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
     MarsRequest(const std::string&, const eckit::Value&);
 
