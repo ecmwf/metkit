@@ -224,13 +224,12 @@ class Rule {
     std::vector<Matcher> matchers_;
 
     std::unordered_set<uint32_t> values_;
-    mutable std::map<std::string, std::string> mapping_;
-
-    // bare param number (no table) -> paramId of the only table holding that number in this context
-    std::map<uint32_t, uint32_t> bareIds_;
+    std::map<std::string, uint32_t> name2paramid_;
+    // short param number (no table) -> paramId of the only table holding that number in this context
+    std::map<uint32_t, uint32_t> param2paramid_;
 
     static std::unordered_set<uint32_t> defaultValues_;
-    static std::map<std::string, std::string> defaultMapping_;
+    static std::map<std::string, uint32_t> defaultMapping_;
 
 public:
 
@@ -239,11 +238,8 @@ public:
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
     std::string lookup(const std::string& s) const;
 
-    void setBareIds(const eckit::Value& contextIds);
-    bool hasBareIds() const { return !bareIds_.empty(); }
-    bool resolveBareId(std::string& s) const;
-
-    Rule(const eckit::Value& matchers, const eckit::Value& setters, const ParamIdAliases& ids);
+    Rule(const eckit::Value& matchers, const ParamIdAliases& ids, const std::vector<uint32_t>& values = {},
+         const std::map<uint32_t, uint32_t>& param2paramid = {});
     Rule(std::ifstream& file);
 
     static void setDefault(const eckit::Value& setters, const ParamIdAliases& ids);
@@ -262,7 +258,7 @@ static void initRules() {
 }
 
 std::unordered_set<uint32_t> Rule::defaultValues_;
-std::map<std::string, std::string> Rule::defaultMapping_;
+std::map<std::string, uint32_t> Rule::defaultMapping_;
 
 void Rule::setDefault(const eckit::Value& values, const ParamIdAliases& ids) {
 
@@ -287,20 +283,20 @@ void Rule::setDefault(const eckit::Value& values, const ParamIdAliases& ids) {
         for (size_t j = 0; j < it->second.size(); ++j) {
             std::string v = it->second.at(j);
 
-            if (defaultMapping_.find(v) != defaultMapping_.end()) {
+            auto defIt = defaultMapping_.find(v);
+            if (defIt != defaultMapping_.end()) {
 
                 if (precedence[v] <= j) {
 
-                    LOG_DEBUG_LIB(LibMetkit)
-                        << "Redefinition ignored: param " << v << "='" << first << "', keeping previous value of '"
-                        << defaultMapping_[v] << "' " << std::endl;
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param " << v << "='" << first
+                                             << "', keeping previous value of '" << defIt->second << "' " << std::endl;
                     continue;
                 }
                 else {
 
                     LOG_DEBUG_LIB(LibMetkit)
                         << "Redefinition of param " << v << "='" << first << "', overriding previous value of '"
-                        << defaultMapping_[v] << "' " << std::endl;
+                        << defIt->second << "' " << std::endl;
 
                     precedence[v] = j;
                 }
@@ -308,13 +304,14 @@ void Rule::setDefault(const eckit::Value& values, const ParamIdAliases& ids) {
             else {
                 precedence[v] = j;
             }
-
-            defaultMapping_[v] = first;
+            defaultMapping_[v] = paramid;
         }
     }
 }
 
-Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const ParamIdAliases& ids) {
+Rule::Rule(const eckit::Value& matchers, const ParamIdAliases& ids, const std::vector<uint32_t>& values,
+           const std::map<uint32_t, uint32_t>& param2paramid) :
+    values_(values.begin(), values.end()), param2paramid_(param2paramid) {
 
     std::map<std::string, size_t> precedence;
 
@@ -337,18 +334,13 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const Param
         matchers_.emplace_back(name, std::move(mvalues));
     }
 
-    for (size_t i = 0; i < values.size(); ++i) {
-
-        const eckit::Value& id = values[i];
-
-        std::string first = id;
-        uint32_t paramid  = static_cast<uint32_t>(std::stoul(first));
-        values_.insert(paramid);
+    // the order of the values decides which paramid wins when several share an alias at the same position
+    for (uint32_t paramid : values) {
 
         auto it = ids.find(paramid);
         if (it == ids.end() || it->second.empty()) {
 
-            LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << " " << *this << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << paramid << " " << *this << std::endl;
             continue;
         }
         const auto& aliases = it->second;
@@ -357,20 +349,21 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const Param
         for (size_t j = 0; j < aliases.size(); ++j) {
             const std::string& v = aliases[j];
 
-            if (mapping_.find(v) != mapping_.end()) {
+            auto nameIt = name2paramid_.find(v);
+            if (nameIt != name2paramid_.end()) {
 
                 if (precedence[v] <= j) {
 
                     LOG_DEBUG_LIB(LibMetkit)
-                        << "Redefinition ignored: param " << v << "='" << first << "', keeping previous value of '"
-                        << mapping_[v] << "' " << *this << std::endl;
+                        << "Redefinition ignored: param " << v << "='" << paramid << "', keeping previous value of '"
+                        << nameIt->second << "' " << *this << std::endl;
                     continue;
                 }
                 else {
 
                     LOG_DEBUG_LIB(LibMetkit)
-                        << "Redefinition of param " << v << "='" << first << "', overriding previous value of '"
-                        << mapping_[v] << "' " << *this << std::endl;
+                        << "Redefinition of param " << v << "='" << paramid << "', overriding previous value of '"
+                        << nameIt->second << "' " << *this << std::endl;
 
                     precedence[v] = j;
                 }
@@ -378,8 +371,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const Param
             else {
                 precedence[v] = j;
             }
-
-            mapping_[v] = first;
+            name2paramid_[v] = paramid;
         }
     }
 }
@@ -397,64 +389,14 @@ Rule::Rule(std::ifstream& file) {
     uint16_t numMappings = read16(file);
     for (uint16_t i = 0; i < numMappings; ++i) {
         auto key = readString(file);
-        mapping_.emplace(std::move(key), readString(file));
+        name2paramid_.emplace(std::move(key), read32(file));
     }
     uint16_t numBareIds = read16(file);
     for (uint16_t i = 0; i < numBareIds; ++i) {
         const uint32_t number = read16(file);
-        bareIds_.emplace(number, read32(file));
+        param2paramid_.emplace(number, read32(file));
     }
 }
-
-/// Like MARS, a param number given without a table (e.g. 246) that no table-128 param of this context has is
-/// read from the only other table of the context holding that number (e.g. 246 at levtype=sfc is 228246).
-/// When several other tables hold the number, table 228 takes precedence (e.g. 227 at levtype=sfc is 228227,
-/// not 260227); any other ambiguity is left to the default lookup.
-void Rule::setBareIds(const eckit::Value& contextIds) {
-    std::unordered_set<uint32_t> ids;
-    for (size_t i = 0; i < contextIds.size(); ++i) {
-        ids.insert(static_cast<uint32_t>(std::stoul(std::string(contextIds[i]))));
-    }
-
-    std::map<uint32_t, std::vector<uint32_t>> candidates;
-    for (const auto id : ids) {
-        const uint32_t table  = id / 1000;
-        const uint32_t number = id % 1000;
-        if (table != 0 && table != 128 && number != 0) {
-            candidates[number].push_back(id);
-        }
-    }
-
-    for (const auto& [number, tableIds] : candidates) {
-        if (ids.find(number) != ids.end()) {
-            continue;
-        }
-        if (tableIds.size() == 1) {
-            bareIds_.emplace(number, tableIds.front());
-            continue;
-        }
-        const auto table228 = std::find(tableIds.begin(), tableIds.end(), 228000 + number);
-        if (table228 != tableIds.end()) {
-            bareIds_.emplace(number, *table228);
-        }
-    }
-}
-
-bool Rule::resolveBareId(std::string& s) const {
-    if (s.empty() || s.size() > 3 ||
-        !std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isdigit(c); })) {
-        return false;
-    }
-
-    const auto it = bareIds_.find(static_cast<uint32_t>(std::stoul(s)));
-    if (it == bareIds_.end()) {
-        return false;
-    }
-
-    s = std::to_string(it->second);
-    return true;
-}
-
 
 bool Rule::match(const metkit::mars::MarsRequest& request, bool partial) const {
     for (std::vector<Matcher>::const_iterator j = matchers_.begin(); j != matchers_.end(); ++j) {
@@ -518,6 +460,14 @@ std::string Rule::lookup(const std::string& s) const {
         }
         uint32_t pp = static_cast<uint32_t>(table * 1000 + param);
 
+        // a bare number: no explicit table given
+        if (pp < 1000 && n == &param) {
+            const auto it = param2paramid_.find(pp);
+            if (it != param2paramid_.end()) {
+                return std::to_string(it->second);
+            }
+        }
+
         auto it = values_.find(pp);
         if (it == values_.end()) {
             it = defaultValues_.find(pp);
@@ -528,22 +478,20 @@ std::string Rule::lookup(const std::string& s) const {
             }
         }
 
-        std::ostringstream ss;
-        ss << pp;
-        return ss.str();
+        return std::to_string(pp);
     }
 
     std::string pp = eckit::StringTools::lower(s);
 
     // not numeric: check the aliases (shortnames) - we do not accept fuzzy matching in the list of params
-    auto it = mapping_.find(pp);
-    if (it == mapping_.end()) {
+    auto it = name2paramid_.find(pp);
+    if (it == name2paramid_.end()) {
         it = defaultMapping_.find(pp);
         if (it == defaultMapping_.end()) {
             throw eckit::UserError("Cannot match parameter " + s, Here());
         }
     }
-    return it->second;
+    return std::to_string(it->second);
 }
 
 void Rule::write(std::ofstream& out) const {
@@ -556,13 +504,13 @@ void Rule::write(std::ofstream& out) const {
     for (const auto& v : values_) {
         write32(out, v);
     }
-    write16(out, mapping_.size());
-    for (const auto& [name, id] : mapping_) {
+    write16(out, name2paramid_.size());
+    for (const auto& [name, id] : name2paramid_) {
         writeString(out, name);
-        writeString(out, id);
+        write32(out, id);
     }
-    write16(out, bareIds_.size());
-    for (const auto& [number, id] : bareIds_) {
+    write16(out, param2paramid_.size());
+    for (const auto& [number, id] : param2paramid_) {
         write16(out, static_cast<uint16_t>(number));
         write32(out, id);
     }
@@ -583,15 +531,15 @@ void Rule::print(std::ostream& out) const {
     }
     out << "],aliases=[";
     sep = "";
-    for (const auto& [s, k] : mapping_) {
+    for (const auto& [s, k] : name2paramid_) {
         out << sep << s << "->" << k;
         sep = ",";
     }
     out << "]";
-    if (!bareIds_.empty()) {
+    if (!param2paramid_.empty()) {
         out << ",bareIds=[";
         sep = "";
-        for (const auto& [number, id] : bareIds_) {
+        for (const auto& [number, id] : param2paramid_) {
             out << sep << number << "->" << id;
             sep = ",";
         }
@@ -601,33 +549,36 @@ void Rule::print(std::ostream& out) const {
 
 static std::vector<Rule>* rules = nullptr;
 
-// Rules resolving bare param numbers, one per fully specified context (class, levtype, stream, type), so that at
-// most one matches a request. Kept apart from `rules`, whose first match selects the shortname context.
-static std::vector<Rule>* bareIdRules = nullptr;
-
-bool isFullContext(const eckit::Value& matchers) {
-    static const std::set<std::string> fullContext{"class", "levtype", "stream", "type"};
-    const eckit::Value keys = matchers.keys();
-    std::set<std::string> names;
-    for (size_t i = 0; i < keys.size(); ++i) {
-        names.insert(keys[i]);
+/// Like MARS, a param number given without a table (e.g. 246) that no table-128 param of this context has is
+/// read from the only other table of the context holding that number (e.g. 246 at levtype=sfc is 228246).
+/// When several other tables hold the number, table 228 takes precedence (e.g. 227 at levtype=sfc is 228227,
+/// not 260227); any other ambiguity is left to the default lookup.
+std::map<uint32_t, uint32_t> computeParam2ParamId(const std::unordered_set<uint32_t>& ids) {
+    std::map<uint32_t, std::vector<uint32_t>> candidates;
+    for (const auto id : ids) {
+        const uint32_t table  = id / 1000;
+        const uint32_t number = id % 1000;
+        if (table != 0 && table != 128 && number != 0) {
+            candidates[number].push_back(id);
+        }
     }
-    return names == fullContext;
-}
 
-void addBareIdRules(const eckit::ValueMap& contexts) {
-    for (const auto& [matchers, ids] : contexts) {
-        if (!isFullContext(matchers)) {
+    std::map<uint32_t, uint32_t> param2paramid;
+    for (const auto& [number, paramids] : candidates) {
+        if (ids.find(number) != ids.end()) {
             continue;
         }
-        Rule rule{matchers, eckit::Value::makeList(), ParamIdAliases{}};
-        rule.setBareIds(ids);
-        if (rule.hasBareIds()) {
-            bareIdRules->push_back(std::move(rule));
+        if (paramids.size() == 1) {
+            param2paramid.emplace(number, paramids.front());
+            continue;
+        }
+        const auto table228 = std::find(paramids.begin(), paramids.end(), 228000 + number);
+        if (table228 != paramids.end()) {
+            param2paramid.emplace(number, *table228);
         }
     }
+    return param2paramid;
 }
-
 }  // namespace
 
 void Rule::init() {
@@ -639,7 +590,6 @@ void Rule::init() {
 
     local_mutex = new eckit::Mutex();
     rules       = new std::vector<Rule>();
-    bareIdRules = new std::vector<Rule>();
 
     if (!metkitForceBinfileCreation && !metkitLegacyParamCheck && !metkitRawParam) {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
@@ -667,19 +617,13 @@ void Rule::init() {
                     uint32_t numDefaultMappings = read32(file);
                     for (uint32_t i = 0; i < numDefaultMappings; i++) {
                         auto key = readString(file);
-                        defaultMapping_.emplace(std::move(key), readString(file));
+                        defaultMapping_.emplace(std::move(key), read32(file));
                     }
                     // read rules
                     uint32_t numRules = read32(file);
                     rules->reserve(numRules);
                     for (uint32_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
                         rules->emplace_back(file);
-                    }
-                    // read bareIdRules
-                    uint32_t numBareIdRules = read32(file);
-                    bareIdRules->reserve(numBareIdRules);
-                    for (uint32_t ruleIdx = 0; ruleIdx < numBareIdRules; ruleIdx++) {
-                        bareIdRules->emplace_back(file);
                     }
                     size_t filesize = file.tellg();     // current position is supposed to be the end of the file
                     file.seekg(0, std::ios_base::end);  // go to end of the file
@@ -701,9 +645,8 @@ void Rule::init() {
             }
             catch (const std::exception& e) {
                 defaultMapping_.clear();
-                defaultMapping_.clear();
+                defaultValues_.clear();
                 rules->clear();
-                bareIdRules->clear();
                 eckit::Log::error() << "Error reading parameter binary file '" << paramBinFile.asString()
                                     << "': " << e.what() << " - using slow config file parsing" << std::endl;
             }
@@ -775,10 +718,13 @@ void Rule::init() {
     }
 
     if (metkitLegacyParamCheck) {
-        for (auto it = merge.begin(); it != merge.end(); it++) {
-            (*rules).push_back(Rule(it->first, it->second, ids));
+        for (const auto& [matcher, values] : merge) {
+            std::vector<uint32_t> vv;
+            for (size_t i = 0; i < values.size(); ++i) {
+                vv.push_back(static_cast<uint32_t>(std::stoul(std::string(values[i]))));
+            }
+            (*rules).push_back(Rule(matcher, ids, vv, computeParam2ParamId({vv.begin(), vv.end()})));
         }
-        addBareIdRules(merge);
         return;
     }
 
@@ -786,12 +732,12 @@ void Rule::init() {
 
     if (metkitRawParam) {
         // empty rule, to enable default
-        (*rules).push_back(Rule(eckit::Value::makeMap(), eckit::Value::makeList(), ParamIdAliases{}));
+        (*rules).push_back(Rule(eckit::Value::makeMap(), ParamIdAliases{}));
         return;
     }
 
     std::set<std::string> shortnames;
-    std::set<std::string> associatedIDs;
+    std::unordered_set<uint32_t> associatedIDs;
 
     const eckit::Value pc = eckit::YAMLParser::decodeFile(LibMetkit::shortnameContextYamlFile());
     ASSERT(pc.isList());
@@ -804,27 +750,35 @@ void Rule::init() {
         auto el = rawIds.element(keys[i]);
         for (size_t j = 0; j < el.size(); j++) {
             if (shortnames.find(el[j]) != shortnames.end()) {
-                associatedIDs.emplace(keys[i]);
+                associatedIDs.emplace(std::stoul(std::string(keys[i])));
             }
         }
     }
 
-    for (auto it = merge.begin(); it != merge.end(); it++) {
-        auto listIDs = eckit::Value::makeList();
+    for (const auto& [matcher, values] : merge) {
+        std::vector<uint32_t> listIDs;
 
-        for (size_t j = 0; j < it->second.size(); j++) {
-            if (associatedIDs.find(it->second[j]) != associatedIDs.end()) {
-                listIDs.append(it->second[j]);
+        // values to uint32_t, keeping their order
+        std::vector<uint32_t> vv;
+        for (size_t i = 0; i < values.size(); ++i) {
+            vv.push_back(static_cast<uint32_t>(std::stoul(std::string(values[i]))));
+        }
+
+        // filter values based on associatedIDs (not unique shortname -> paramId mapping)
+        for (const auto id : vv) {
+            if (associatedIDs.find(id) != associatedIDs.end()) {
+                listIDs.push_back(id);
             }
         }
-        if (listIDs.size() > 0) {
-            (*rules).push_back(Rule{it->first, listIDs, ids});
+
+        const std::map<uint32_t, uint32_t> param2paramid = computeParam2ParamId({vv.begin(), vv.end()});
+
+        if (listIDs.size() > 0 || param2paramid.size() > 0) {
+            (*rules).push_back(Rule{matcher, ids, listIDs, param2paramid});
         }
     }
 
-    (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), ParamIdAliases{}});
-
-    addBareIdRules(merge);
+    (*rules).push_back(Rule{eckit::Value::makeMap(), ParamIdAliases{}});
 
     if (metkitForceBinfileCreation && !metkitLegacyParamCheck && !metkitRawParam) {  // creating the binary file
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
@@ -855,14 +809,10 @@ void Rule::init() {
                         write32(file, Rule::defaultMapping_.size());
                         for (const auto& [name, id] : defaultMapping_) {
                             writeString(file, name);
-                            writeString(file, id);
+                            write32(file, id);
                         }
                         write32(file, rules->size());
                         for (const auto& r : *rules) {
-                            r.write(file);
-                        }
-                        write32(file, bareIdRules->size());
-                        for (const auto& r : *bareIdRules) {
                             r.write(file);
                         }
                         file.flush();
@@ -899,7 +849,7 @@ void TypeParam::pass2(MarsRequest& request) const {
 
     pthread_once(&once, initRules);
 
-    const Rule* rule                = 0;
+    const Rule* rule                = nullptr;
     std::vector<std::string> values = request.values(name_, true);
 
     if (values.size() == 1 && values[0] == "all") {
@@ -908,9 +858,11 @@ void TypeParam::pass2(MarsRequest& request) const {
 
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
     for (const auto& r : *rules) {
-        if (r.match(request)) {
+        if (!r.match(request)) {
+            continue;
+        }
+        if (!rule) {
             rule = &r;
-            break;
         }
     }
 
@@ -942,19 +894,8 @@ void TypeParam::pass2(MarsRequest& request) const {
     }
 
 
-    const Rule* bareIdRule = nullptr;
-    for (const auto& r : *bareIdRules) {
-        if (r.match(request)) {
-            bareIdRule = &r;
-            break;
-        }
-    }
-
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
-        if (bareIdRule && bareIdRule->resolveBareId(s)) {
-            continue;
-        }
         try {
             s = rule->lookup(s);
         }

@@ -55,7 +55,7 @@ const std::vector<std::string>& ruleKeys() {
 /// The rules only read levelist for surface-like levtypes (sfc2sol), so levelist is not flattened for
 /// multi-level levtypes.
 bool flattenLevelist(const MarsRequest& request) {
-    static const std::set<std::string> multiLevel{"pl", "ml", "pt", "pv", "hl", "o3d"};
+    static const std::set<std::string> multiLevel{"pl", "ml", "fl", "pt", "pv", "hl", "o3d"};
     return !(request.countValues("levtype") == 1 && multiLevel.count(request.values("levtype").front()) > 0);
 }
 
