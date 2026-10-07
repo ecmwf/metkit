@@ -70,7 +70,7 @@ jobs:
 
   build:
     needs: [ci-approval, resolve]
-    name: build+test (${{ matrix._resolved['job-name'] }})
+    name: build+test (${{ matrix._resolved['job-name'] }} ${{ matrix.python-version || '' }})
     runs-on: ${{ matrix['runs-on'] }}
     container:
       image: ${{ matrix.container || '' }}
@@ -95,12 +95,6 @@ jobs:
           deps-json: ${{ toJSON(matrix._resolved.deps) }}
           token: ${{ steps.mint.outputs.token }}
 
-      - name: Set up Python
-        if: matrix.python-version
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: Build metkit
         id: build
         uses: ecmwf/ci-infrastructure/actions/run-job-script@main
@@ -124,7 +118,7 @@ jobs:
 
   build-hpc:
     needs: [ci-approval, resolve]
-    name: build-hpc (${{ matrix._resolved['job-name'] }})
+    name: build-hpc (${{ matrix._resolved['job-name'] }}  ${{ matrix.python-version }})
     runs-on: ${{ matrix['runs-on'] }}
     container:
       image: ${{ matrix.container }}

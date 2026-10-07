@@ -3,7 +3,7 @@
 {% extends "ci-infrastructure/cmake-atos.sh.j2" %}
 {% block set_environment %}
   VENV="${TMPDIR:-/tmp}/metkit-venv-atos"
-  uv venv "$VENV" --python "python"python_version
+  uv venv "$VENV" --python {{ python_version }}
   source "$VENV/bin/activate"
   uv pip install -r "python/requirements-build.txt"
 {% endblock %}
