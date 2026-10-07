@@ -35,6 +35,11 @@ Quantile::Quantile(const std::string& value) {
     }
 
     try {
+        if (result[0].empty() || result[0].front() == '-') {
+            std::ostringstream oss;
+            oss << "Quantile " << value << " must be in the form <integer>[-<integer>]:<integer>";
+            throw eckit::BadValue(oss.str());
+        }
         if (result[0].find('-') != std::string::npos) {
             std::vector<std::string> minmax;
             Tokenizer parseMinMax("-");

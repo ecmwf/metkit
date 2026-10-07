@@ -54,6 +54,9 @@ long TypeInteger::parse(const std::string& value, bool acceptNegative) {
             case '7':
             case '8':
             case '9':
+                if (n > (std::numeric_limits<long>::max() - ((*j) - '0')) / 10) {
+                    throw std::invalid_argument("Integer value out of range");
+                }
                 n *= 10;
                 n += (*j) - '0';
                 break;
