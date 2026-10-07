@@ -49,7 +49,7 @@ triggers = ["upstream-change", "rebuild-request"]
 job-script = "./.ci/runner/build.sh.j2"
 build-type = "RelWithDebInfo"
 runs-on = "arc-runner-very-large"
-python-version = 3.11
+python-version = "3.11"
 
 [[matrix.build.include]]
 cxx-compiler = "clang++-18"
@@ -81,35 +81,28 @@ cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
 platform = "ubuntu-26.04"
-python-version = 3.11
+python-version = "3.12"
 
 [[matrix.build.include]]
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
 platform = "ubuntu-26.04"
-python-version = 3.12
+python-version = "3.13"
 
 [[matrix.build.include]]
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
 platform = "ubuntu-26.04"
-python-version = 3.13
+python-version = "3.14"
 
 [[matrix.build.include]]
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
 platform = "ubuntu-26.04"
-python-version = 3.14
-
-[[matrix.build.include]]
-cxx-compiler = "g++-15"
-c-compiler = "gcc-15"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04"
-python-version = 3.15
+python-version = "3.15"
 
 [[matrix.build.include]]
 cxx-compiler = "g++-8"
@@ -163,7 +156,8 @@ site = "hpc-batch"
 platform = "hpc-atos-gnu"
 # gcc/old, not a version number: as of now gives you 8.5.0
 # `module avail gcc` lists no 8.5.0 to pin directly.
-modules = ["load prgenv/gnu", "unload gcc", "load gcc/old", "load cmake", "load ninja", "load uv"]
+modules = ["load prgenv/gnu", "unload gcc", "load gcc/old", "load cmake", "load ninja", "load uv", "load python3/3.11.8-01"]
+python-version = "3.11"
 c_compiler_binary = "gcc"
 cxx_compiler_binary = "g++"
 time = "00:40:00"

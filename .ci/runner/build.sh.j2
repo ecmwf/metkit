@@ -1,15 +1,8 @@
 {# SPDX-FileCopyrightText: 2005- European Centre for Medium-Range Weather Forecasts (ECMWF)
    SPDX-License-Identifier: Apache-2.0 #}
 {% extends "ci-infrastructure/cmake-runner.sh.j2" %}
+{% import "ci-infrastructure/python.j2" as py %}
 {% block set_environment %}
-    VENV="${TMPDIR:-/tmp}/uv-venv"
-    python3 -m venv $VENV
-    source $VENV/bin/activate
-    python3 -m pip install uv
-    VENV="${TMPDIR:-/tmp}/metkit-venv"
-    uv venv "$VENV" --python {{ python_version }}
-    source "$VENV"/bin/activate
-    python3 -m pip install uv
-    uv pip install -r "python/requirements-build.txt"
+{{ py.get_python_via_uv(python_version) }}
+uv pip install -r "python/requirements-build.txt"
 {% endblock %}
-
