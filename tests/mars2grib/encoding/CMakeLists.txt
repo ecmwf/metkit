@@ -12,6 +12,7 @@ foreach( _src
         011_enfh_wave_reforecast.cc
         012_seas6_stat_failure.cc
         013_aifs-single_as_non_ensemble.cc
+        014_seas6_ensemble.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 
