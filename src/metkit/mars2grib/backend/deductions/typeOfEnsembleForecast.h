@@ -133,12 +133,29 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
             const auto type = get_or_throw<std::string>(mars, "type");
 
             if (type == "fc") {
+                const auto klass              = get_or_throw<std::string>(mars, "class");
+                const auto stream             = get_or_throw<std::string>(mars, "stream");
                 const auto perturbationNumber = resolve_PerturbationNumber_or_throw(mars, par, opt);
-                if (perturbationNumber == 0) {
-                    return typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Unperturbed;
+
+                const bool isSeasonalEnsemble = (klass == "od" || klass == "rd" || klass == "c3") &&
+                                                (stream == "sfdd" || stream == "sfmd" || stream == "shdd" ||
+                                                 stream == "shmd" || stream == "sfdp" || stream == "shdp");
+
+                if (isSeasonalEnsemble) {
+                    if (perturbationNumber == 0) {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::ModelPhysicsPerturbations;
+                    }
+                    else {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::InitialAndModelPhysicsPerturbations;
+                    }
                 }
                 else {
-                    return tables::TypeOfEnsembleForecast::Perturbed;
+                    if (perturbationNumber == 0) {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Unperturbed;
+                    }
+                    else {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
+                    }
                 }
             }
             else if (type == "cf") {

@@ -146,6 +146,14 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             const auto klass  = get_or_throw<std::string>(mars, "class");
             const auto stream = get_or_throw<std::string>(mars, "stream");
 
+            const bool isSeasonalEnsemble = (klass == "od" || klass == "rd" || klass == "c3") &&
+                                            (stream == "sfdd" || stream == "sfmd" || stream == "shdd" ||
+                                             stream == "shmd" || stream == "sfdp" || stream == "shdp");
+
+            if (isSeasonalEnsemble) {
+                return TypeOfGeneratingProcess::EnsembleForecast;
+            }
+
             // Note: class=od,stream=oper,type=fc is a control forecast, but may not have other evidence of an ensemble
             if (klass == "od" && stream == "oper" /* && type == "fc" */) {
                 return TypeOfGeneratingProcess::EnsembleForecast;
