@@ -24,7 +24,7 @@ TypeFloat::TypeFloat(const std::string& name, const eckit::Value& settings) : Ty
 
 bool TypeFloat::expand(std::string& value, const MarsRequest&) const {
 
-    bool dot = false;
+    uint dot = 0;
 
     for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
@@ -41,7 +41,9 @@ bool TypeFloat::expand(std::string& value, const MarsRequest&) const {
             case '-':
                 break;
             case '.':
-                dot = true;
+                dot++;
+                if (dot > 1)
+                    return false;
                 break;
             default:
                 return false;

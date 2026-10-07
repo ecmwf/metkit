@@ -541,8 +541,11 @@ CASE("test_metkit_expand_11_quantile") {
     quantileThrows({"0:-5"});
     quantileThrows({"6:5"});
     quantileThrows({"0:12"});
+    quantileThrows({"2a:5"});
+    quantileThrows({"2:5b"});
     quantileThrows({"2-1:12"});
     quantileThrows({"-3-1:12"});
+    quantileThrows({"6--8:12"});
     quantileThrows({"6-4:12"});
     quantileThrows({"6-14:12"});
     quantile({"2:5"}, {"2:5"});

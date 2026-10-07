@@ -8,12 +8,14 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/Quantile.h"
+
 #include <stdexcept>
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/utils/Tokenizer.h"
 
-#include "metkit/mars/Quantile.h"
+#include "metkit/mars/TypeInteger.h"
 
 using namespace eckit;
 
@@ -40,13 +42,13 @@ Quantile::Quantile(const std::string& value) {
             if (minmax.size() != 2) {
                 throw eckit::BadValue("Quantile " + value + " must be in the form <integer>-<integer>:<integer>");
             }
-            min_ = std::stol(minmax[0]);
-            max_ = std::stol(minmax[1]);
+            min_ = mars::TypeInteger::parse(minmax[0], false);
+            max_ = mars::TypeInteger::parse(minmax[1], false);
         }
         else {
-            min_ = max_ = std::stol(result[0]);
+            min_ = max_ = mars::TypeInteger::parse(result[0], false);
         }
-        den_ = std::stol(result[1]);
+        den_ = mars::TypeInteger::parse(result[1], false);
     }
     catch (const std::invalid_argument& e) {
         std::ostringstream oss;
