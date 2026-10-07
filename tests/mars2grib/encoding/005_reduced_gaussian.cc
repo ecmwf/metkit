@@ -9,9 +9,29 @@
  */
 
 #include <cstdlib>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/geo/Grid.h"
+#include "eckit/geo/Point.h"
+#include "eckit/geo/Projection.h"
+#include "eckit/log/Log.h"
 #include "eckit/testing/Test.h"
+#include "eckit/types/FloatCompare.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
+
+static const bool useGridSpec = []() {
+    const auto* value = ::getenv("ECCODES_ECKIT_GEO");
+    return value != nullptr && std::stol(value) != 0L;
+}();
+
+constexpr double EPS = 1e-6;  // [degree] GRIB2 angles are encoded in 10^-6 degree
+
+bool approx(double a, double b) {
+    return eckit::types::is_approximately_equal(a, b, EPS);
+}
 
 CASE("N32") {
     auto encoder = metkit::mars2grib::Mars2Grib();
@@ -223,6 +243,79 @@ CASE("O1280") {
     EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
 
     EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 6599680);
+}
+
+CASE("O80 (rotated)") {
+    if (!useGridSpec) {
+        eckit::Log::warning() << "rotated grids require gridSpec (ECCODES_ECKIT_GEO), test skipped" << std::endl;
+        return;
+    }
+
+    auto encoder = metkit::mars2grib::Mars2Grib();
+
+    // the grid of ecCodes' gridType=reduced_rotated_gg.grib (third message)
+    eckit::LocalConfiguration mars;
+    mars.set("class", "od");
+    mars.set("stream", "oper");
+    mars.set("type", "fc");
+    mars.set("expver", "test");
+    mars.set("grid", R"({"grid":"O80","rotation":[30,30]})");
+    mars.set("packing", "ccsds");
+    mars.set("param", 130);
+    mars.set("levtype", "pl");
+    mars.set("levelist", 1000);
+    mars.set("date", 2026'09'14);
+    mars.set("time", 00'00);
+    mars.set("step", 0);
+
+    std::vector<double> vals(28480, 237.15);
+
+    const auto handle = encoder.encode(vals, mars);
+
+    // GRIB
+    EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 41L);  // Rotated Gaussian latitude/longitude
+
+    EXPECT(handle->isMissing("Ni"));  // Missing for reduced gaussian grids
+    EXPECT(handle->isMissing("numberOfPointsAlongAParallel"));
+    EXPECT_EQUAL(handle->getLong("Nj"), 160L);
+    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), 160L);
+    EXPECT_EQUAL(handle->getLong("N"), 80);
+    EXPECT_EQUAL(handle->getLong("numberOfParallelsBetweenAPoleAndTheEquator"), 80);
+
+    EXPECT(approx(handle->getDouble("latitudeOfFirstGridPointInDegrees"), 89.141519));
+    EXPECT(approx(handle->getDouble("longitudeOfFirstGridPointInDegrees"), 0.));
+    EXPECT(approx(handle->getDouble("latitudeOfLastGridPointInDegrees"), -89.141519));
+    EXPECT(approx(handle->getDouble("longitudeOfLastGridPointInDegrees"), 358.928571));
+    EXPECT(handle->isMissing("iDirectionIncrement"));  // Missing for reduced gaussian grids
+
+    EXPECT(approx(handle->getDouble("latitudeOfSouthernPoleInDegrees"), 30.));
+    EXPECT(approx(handle->getDouble("longitudeOfSouthernPoleInDegrees"), 30.));
+    EXPECT(approx(handle->getDouble("angleOfRotationInDegrees"), 0.));
+
+    EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
+
+    EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 28480);
+
+    // coordinates of the first points, from a grid built from the encoded gridSpec
+    const std::vector<eckit::geo::PointLonLat> points_ref{
+        {-150.00000000000000, -29.14151942646109}, {-150.30384489745967, -29.18318764253491},
+        {-150.57863834893357, -29.30420953577266}, {-150.79791950179472, -29.49299204833164},
+        {-150.94024317792739, -29.73137429450929}, {-150.99126325558376, -29.99628694451165},
+        {-150.94528301220487, -30.26190855703454}, {-150.80607488769962, -30.50214705912438},
+        {-150.58679467788403, -30.69322436612787}, {-150.30888625761696, -30.81610305894176},
+    };
+
+    std::unique_ptr<const eckit::geo::Grid> grid(
+        eckit::geo::GridFactory::make_from_string(handle->getString("gridSpec")));
+    ASSERT(grid);
+
+    EXPECT(grid->projection().type() == "rotation");
+    EXPECT(grid->size() == 28480);
+
+    const auto points = grid->to_points();
+    for (size_t i = 0; i < points_ref.size(); ++i) {
+        EXPECT(eckit::geo::points_equal(points[i], points_ref[i], EPS));
+    }
 }
 
 int main(int argc, char** argv) {

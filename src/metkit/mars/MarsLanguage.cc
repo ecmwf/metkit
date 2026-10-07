@@ -447,6 +447,10 @@ Category MarsLanguage::category(Keyword keyword) const {
     throw eckit::UserError("Cannot find keyword: " + keywords_->name(keyword));
 }
 
+bool MarsLanguage::isKeyword(const std::string& keyword) const {
+    return keywords_->exist(keyword) != 0;
+}
+
 bool MarsLanguage::isData(Keyword k) const {
     return category(k) == Category::Data;
 }
