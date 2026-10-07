@@ -42,7 +42,8 @@ Quantile::Quantile(const std::string& value) {
             }
             min_ = std::stol(minmax[0]);
             max_ = std::stol(minmax[1]);
-        } else {
+        }
+        else {
             min_ = max_ = std::stol(result[0]);
         }
         den_ = std::stol(result[1]);
@@ -96,7 +97,8 @@ Quantile::operator std::string() {
     std::ostringstream oss;
     if (min_ == max_) {
         oss << min_ << ':' << den_;
-    } else {
+    }
+    else {
         oss << min_ << '-' << max_ << ':' << den_;
     }
     return oss.str();
@@ -105,7 +107,8 @@ Quantile::operator std::string() {
 void Quantile::print(std::ostream& s) const {
     if (min_ == max_) {
         s << min_ << ':' << den_;
-    } else {
+    }
+    else {
         s << min_ << '-' << max_ << ':' << den_;
     }
 }
