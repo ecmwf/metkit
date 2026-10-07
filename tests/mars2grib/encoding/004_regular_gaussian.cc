@@ -104,8 +104,7 @@ CASE("encoding") {
             EXPECT(handle->getLong("basicAngleOfTheInitialProductionDomain") == 0L);
             EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
 
-            // ECC-2336: i/jDirectionIncrementGiven flags are currently not correctly encoded in eccodes with gridSpec
-            // EXPECT(handle->getLong("resolutionAndComponentFlags") == 32L);  // 0010 0000 (Di given)
+            EXPECT(handle->getLong("resolutionAndComponentFlags") == 32L);  // 0010 0000 (Di given)
             EXPECT(approx(handle->getDouble("latitudeOfFirstGridPointInDegrees"), lat1));
             EXPECT(approx(handle->getDouble("longitudeOfFirstGridPointInDegrees"), 0.));
             EXPECT(approx(handle->getDouble("latitudeOfLastGridPointInDegrees"), -lat1));
