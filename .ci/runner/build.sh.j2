@@ -3,7 +3,8 @@
 {% extends "ci-infrastructure/cmake-runner.sh.j2" %}
 {% block set_environment %}
     VENV="${TMPDIR:-/tmp}/metkit-venv"
-    python3 -m venv "$VENV"
+    python3 -m pip uv
+    uv venv "$VENV" --python "python"python_version
     source "$VENV/bin/activate"
     pip install uv
     uv pip install -r "python/requirements-build.txt"
