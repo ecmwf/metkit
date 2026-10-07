@@ -80,35 +80,35 @@ platform = "ubuntu-26.04"
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04,python-3.11"
+platform = "ubuntu-26.04"
 python-version = 3.11
 
 [[matrix.build.include]]
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04,python-3.12"
+platform = "ubuntu-26.04"
 python-version = 3.12
 
 [[matrix.build.include]]
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04,python-3.13"
+platform = "ubuntu-26.04"
 python-version = 3.13
 
 [[matrix.build.include]]
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04,python-3.14"
+platform = "ubuntu-26.04"
 python-version = 3.14
 
 [[matrix.build.include]]
 cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04,python-3.15"
+platform = "ubuntu-26.04"
 python-version = 3.15
 
 [[matrix.build.include]]
