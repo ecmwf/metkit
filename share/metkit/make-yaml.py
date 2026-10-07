@@ -16,6 +16,7 @@ import mysql.connector
 import yaml
 import re
 import os
+import pint
 
 connectionDetails = dict(
 	host = "webapps-db-prod",
@@ -48,12 +49,34 @@ def ids(cursor, prefix, asList, lowercase):
 				# Convert list of lists to dictionary
 				IDS = {item[0]: item[1:] for item in IDS}
 
+	UNITS = {}
+	good = 0
+	err = 0
+
+	if prefix == "param":
+		ureg = pint.UnitRegistry()
+		cursor.execute("select id,name from units order by id")
+		for data in cursor.fetchall():
+			try:
+				print (f"{int(data[0]):3d}: {data[1].ljust(25)}  =>  {ureg.parse_units(data[1])}")
+				UNITS[int(data[0])] = data[1]
+			except Exception as e:
+				print (f"{int(data[0]):3d}: {data[1].ljust(25)}  =>  ERROR {e}")
+				UNITS[int(data[0])] = data[1]
+				err += 1
+
+	print("Found {} units, with {} errors".format(len(UNITS), err))
 	cursor.execute("select * from " + prefix)
 
 	for data in cursor.fetchall():
-		paramid, abbr, longname = int(data[0]), data[1], data[2]
+		paramid, abbr, longname, unit_id = int(data[0]), data[1], data[2], data[3]
 		if lowercase:
 			abbr = abbr.lower()
+
+		# if prefix == "param":
+		# 	print(paramid, abbr, UNITS[int(unit_id)] if unit_id in UNITS else "ERROR")
+		# else:
+		# 	print(abbr, longname)
 
 		abbr = re.sub(r"\W", "_", abbr)
 		abbr = re.sub(r"_+", "_", abbr)
@@ -65,15 +88,15 @@ def ids(cursor, prefix, asList, lowercase):
 
 		entry = [abbr.strip(), longname.strip()]
 
-		if paramid in PRODGEN:
-			pgen = [str(x).lower() for x in PRODGEN[paramid]]
-			p = []
-			for n in pgen:
-				if (
-					n not in entry
-				):  #  and (' ' not in n) and ('.' not in n): #  and ('-' not in n):
-					entry.append(n)
-					p.append(n)
+		# if paramid in PRODGEN:
+		# 	pgen = [str(x).lower() for x in PRODGEN[paramid]]
+		# 	p = []
+		# 	for n in pgen:
+		# 		if (
+		# 			n not in entry
+		# 		):  #  and (' ' not in n) and ('.' not in n): #  and ('-' not in n):
+		# 			entry.append(n)
+		# 			p.append(n)
 
 		entry = tuple(entry)
 
@@ -93,10 +116,10 @@ def ids(cursor, prefix, asList, lowercase):
 			print("new {}id: {} {}".format(prefix, paramid, entry))
 			IDS[paramid] = list(entry)
 
-	for paramid, entry in PRODGEN.items():
-		if paramid not in IDS:
-			print("WARNING! adding pseudo-{}id: {},  {}".format(prefix, paramid, tuple(entry)))
-			IDS[paramid] = entry
+	# for paramid, entry in PRODGEN.items():
+	# 	if paramid not in IDS:
+	# 		print("WARNING! adding pseudo-{}id: {},  {}".format(prefix, paramid, tuple(entry)))
+	# 		IDS[paramid] = entry
 
 	if asList:
 		# Sort by key and convert to list of lists
@@ -148,12 +171,12 @@ def main():
 			content = execute("param", ids, o, True, False)
 			with open(o + "ids.yaml", "w") as f:
 				header(f, o)
-				yaml.safe_dump(content, f, default_flow_style=None)
+				yaml.safe_dump(content, f, default_flow_style=None, width=150)
 		case 'param':
 			content = execute("param", ids, o)
 			with open(o + "ids.yaml", "w") as f:
 				header(f, o)
-				yaml.safe_dump(content, f, default_flow_style=False)
+				yaml.safe_dump(content, f, default_flow_style=False, width=150)
 		case 'reportype':
 			with open("reportype.yaml", "w") as f:
 				header(f, o)
