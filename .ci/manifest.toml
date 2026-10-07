@@ -98,13 +98,6 @@ platform = "ubuntu-26.04"
 python-version = "3.14"
 
 [[matrix.build.include]]
-cxx-compiler = "g++-15"
-c-compiler = "gcc-15"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04"
-python-version = "3.15"
-
-[[matrix.build.include]]
 cxx-compiler = "g++-8"
 c-compiler = "gcc-8"
 container = "eccr.ecmwf.int/public-ci-images/rocky8-gcc8-gfortran8"
