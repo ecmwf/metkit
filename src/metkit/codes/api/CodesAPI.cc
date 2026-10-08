@@ -11,6 +11,9 @@
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/codes/api/CodesTypes.h"
 
+#include <cstdlib>
+#include <vector>
+
 #include "eckit/log/CodeLocation.h"
 
 #include "eccodes.h"
@@ -63,6 +66,24 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details, c
             throw CodesException(msg, l);
         }
     }
+};
+
+/// Frees the strings of an array allocated by eccodes with malloc (e.g. by codes_get_string_array)
+class CStringArrayGuard {
+public:
+
+    explicit CStringArrayGuard(std::vector<char*>& strings) : strings_{strings} {}
+    CStringArrayGuard(const CStringArrayGuard&)            = delete;
+    CStringArrayGuard& operator=(const CStringArrayGuard&) = delete;
+    ~CStringArrayGuard() {
+        for (char* str : strings_) {
+            std::free(str);
+        }
+    }
+
+private:
+
+    std::vector<char*>& strings_;
 };
 
 /// Concrete implementation of CodesHandle.
@@ -429,9 +450,10 @@ std::vector<float> ConcreteCodesHandle::getFloatArray(const std::string& key) co
     return ret;
 }
 std::vector<std::string> ConcreteCodesHandle::getStringArray(const std::string& key) const {
-    std::vector<char*> cstrings;
     std::size_t ksize = size(key);
-    cstrings.resize(ksize);
+    std::vector<char*> cstrings(ksize, nullptr);
+    CStringArrayGuard stringsGuard{cstrings};
+
     throwOnError(codes_get_string_array(raw(), key.c_str(), cstrings.data(), &ksize), Here(),
                  "CodesHandle::getStringArray(string)", key);
     cstrings.resize(ksize);
@@ -439,7 +461,7 @@ std::vector<std::string> ConcreteCodesHandle::getStringArray(const std::string& 
     std::vector<std::string> ret;
     ret.reserve(cstrings.size());
     for (char* cstr : cstrings) {
-        ret.push_back(cstr);
+        ret.emplace_back(cstr);
     }
     return ret;
 }
