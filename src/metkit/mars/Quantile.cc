@@ -40,15 +40,10 @@ Quantile::Quantile(const std::string& value) {
             oss << "Quantile " << value << " must be in the form <integer>[-<integer>]:<integer>";
             throw eckit::BadValue(oss.str());
         }
-        if (result[0].find('-') != std::string::npos) {
-            std::vector<std::string> minmax;
-            Tokenizer parseMinMax("-");
-            parseMinMax(result[0], minmax);
-            if (minmax.size() != 2) {
-                throw eckit::BadValue("Quantile " + value + " must be in the form <integer>-<integer>:<integer>");
-            }
-            min_ = mars::TypeInteger::parse(minmax[0], false);
-            max_ = mars::TypeInteger::parse(minmax[1], false);
+        size_t dashPos = result[0].find('-');
+        if (dashPos != std::string::npos) {
+            min_ = mars::TypeInteger::parse(std::string_view(result[0]).substr(0, dashPos), false);
+            max_ = mars::TypeInteger::parse(std::string_view(result[0]).substr(dashPos + 1), false);
         }
         else {
             min_ = max_ = mars::TypeInteger::parse(result[0], false);

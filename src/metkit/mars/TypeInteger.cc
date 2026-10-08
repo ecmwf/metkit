@@ -30,10 +30,10 @@ void TypeInteger::print(std::ostream& out) const {
     out << "TypeInteger[name=" << name() << "]";
 }
 
-long TypeInteger::parse(const std::string& value, bool acceptNegative) {
+long TypeInteger::parse(const std::string_view value, bool acceptNegative) {
     long n    = 0;
     long sign = 1;
-    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+    for (auto j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
             case '-':
                 if (j == value.begin() && acceptNegative) {

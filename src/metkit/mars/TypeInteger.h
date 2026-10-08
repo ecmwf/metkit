@@ -31,7 +31,7 @@ public:  // methods
 
     TypeInteger(const std::string& name, const eckit::Value& settings);
 
-    static long parse(const std::string& value, bool acceptNegative = true);
+    static long parse(const std::string_view value, bool acceptNegative = true);
 
 protected:
 
