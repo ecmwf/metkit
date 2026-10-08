@@ -38,7 +38,6 @@ private:  // methods
         const std::string& value) const override;
 
     void print(std::ostream& out) const override;
-    void reset() override;
 
     bool expand(std::string& value, const MarsRequest& request) const override;
     std::map<std::string, uint16_t>::const_iterator find(const std::string& value) const;

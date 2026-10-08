@@ -182,6 +182,16 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum class Category : uint8_t {
+    None = 0,
+    Data,
+    Derived,
+    PostProc,
+    Sink
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class Type : public eckit::Counted {
 public:  // methods
 
@@ -194,16 +204,14 @@ public:  // methods
 
     std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
 
-    virtual void setDefaults(MarsRequest& request);
-    virtual void setInheritance(const std::vector<std::string>& inheritance);
+    virtual void setDefaults(MarsRequest& request) const;
     virtual void check(const std::vector<std::string>& values) const;
     virtual void clearDefaults();
-    virtual void reset();
 
-    virtual void pass2(MarsRequest& request);
-    virtual void finalise(MarsRequest& request, bool strict);
+    virtual void pass2(MarsRequest& request) const;
+    virtual void finalise(MarsRequest& request, bool strict) const;
 
-    virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
+    virtual const std::vector<std::string>& flattenValues(const MarsRequest& request) const;
     virtual bool flatten() const;
     virtual bool multiple() const;
 
@@ -213,7 +221,7 @@ public:  // methods
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
-    const std::string& category() const;
+    const Category& category() const;
 
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
 
@@ -235,17 +243,15 @@ protected:  // methods
 protected:  // members
 
     std::string name_;
-    std::string category_;
 
     bool flatten_;
     bool multiple_;
     bool duplicates_;
+    Category category_;
 
     std::map<std::shared_ptr<Context>, std::vector<std::string>> defaults_;
     std::map<std::shared_ptr<Context>, std::vector<std::string>> sets_;
     std::set<std::shared_ptr<Context>> unsets_;
-
-    std::optional<std::vector<std::string>> inheritance_;
 
     std::unique_ptr<ITypeToByList> toByList_;
 
@@ -254,7 +260,7 @@ protected:  // members
 private:  // methods
 
     virtual void print(std::ostream& out) const = 0;
-    void patchRequest(MarsRequest& request, const std::vector<std::string>& values);
+    void patchRequest(MarsRequest& request, const std::vector<std::string>& values) const;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

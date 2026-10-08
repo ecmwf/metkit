@@ -420,9 +420,8 @@ inline std::string longToMarsTime(long value) {
 
 inline const std::unordered_map<std::string, ToLong>& toLongConverters() {
     static const std::unordered_map<std::string, ToLong> converters = {
-        {"param", paramToLong},    {"levelist", plainLong},  {"chem", plainLong},
-        {"step", hoursLong},       {"timespan", hoursLong},  {"date", marsDateToLong},
-        {"hdate", marsDateToLong}, {"time", marsTimeToLong}, {"htime", marsTimeToLong},
+        {"param", paramToLong},  {"levelist", plainLong},  {"chem", plainLong},       {"step", hoursLong},
+        {"timespan", hoursLong}, {"date", marsDateToLong}, {"hdate", marsDateToLong}, {"time", marsTimeToLong},
     };
 
     return converters;
@@ -430,9 +429,8 @@ inline const std::unordered_map<std::string, ToLong>& toLongConverters() {
 
 inline const std::unordered_map<std::string, FromLong>& fromLongConverters() {
     static const std::unordered_map<std::string, FromLong> converters = {
-        {"param", plainLongString}, {"levelist", plainLongString}, {"chem", plainLongString},
-        {"step", longToHours},      {"timespan", longToHours},     {"date", longToMarsDate},
-        {"hdate", longToMarsDate},  {"time", longToMarsTime},      {"htime", longToMarsTime},
+        {"param", plainLongString}, {"levelist", plainLongString}, {"chem", plainLongString}, {"step", longToHours},
+        {"timespan", longToHours},  {"date", longToMarsDate},      {"hdate", longToMarsDate}, {"time", longToMarsTime},
     };
 
     return converters;

@@ -171,7 +171,7 @@
 
 - context:
     class: ['!', to, dt]
-  unset: [leadtim, opttime]
+  unset: [leadtime, opttime]
 - context:
     stream: ['!', seap]
   unset: [leadtime, opttime]

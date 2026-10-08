@@ -31,12 +31,10 @@ public:  // methods
 
 private:  // methods
 
-    eckit::ValueMap expandWith_;
     bool firstRule_;
 
     void print(std::ostream& out) const override;
-    void reset() override;
-    void pass2(MarsRequest& request) override;
+    void pass2(MarsRequest& request) const override;
     bool expand(std::string& value, const MarsRequest& request) const override;
 };
 

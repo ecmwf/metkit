@@ -76,8 +76,8 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
-    std::string keyword   = eckit::StringTools::lower(mapitr->second);
-    metkit::mars::Type* t = language.type(keyword);
+    std::string keyword         = eckit::StringTools::lower(mapitr->second);
+    const metkit::mars::Type* t = language.type(keyword);
 
     ASSERT(options_.valueRepresentation == eckit::message::ValueRepresentation::String);
 
@@ -94,7 +94,7 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
 OdbMetadataDecoder::OdbMetadataDecoder(eckit::message::MetadataGatherer& gather,
                                        const eckit::message::GetMetadataOptions& options,
-                                       metkit::mars::MarsLanguage& language) :
+                                       const metkit::mars::MarsLanguage& language) :
     language_(language), gather_(gather), options_(options) {}
 
 void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<long>& vals) {

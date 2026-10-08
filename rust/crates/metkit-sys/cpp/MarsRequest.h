@@ -39,9 +39,6 @@ public:
     void set_value_long(rust::Str key, int64_t value);
     void unset_values(rust::Str key);
 
-    // Extract parameters by category
-    std::unique_ptr<MarsRequestWrapper> extract(rust::Str category) const;
-
     // Expansion
     std::unique_ptr<MarsRequestWrapper> expand(bool inherit, bool strict) const;
 

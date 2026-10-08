@@ -69,7 +69,8 @@ std::size_t longrangeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         const auto marsClass  = get_or_throw<std::string>(mars, "class");
 
         auto isSeasonal = [](const std::string& klass, const std::string& stream) {
-            return (klass == "od" || klass == "rd" || klass == "c3") && (stream == "sfmd" || stream == "shmd");
+            return (klass == "od" || klass == "rd" || klass == "c3") &&
+                   (stream == "sfmd" || stream == "shmd" || stream == "sfdd");
         };
 
         if (has(mars, "method") && has(mars, "system")) {

@@ -10,8 +10,8 @@
  */
 
 ///
-/// @file grib1-to-grib2.cc
-/// @brief CLI tool for converting grib1 to grib2 files.
+/// @file grib-to-product-time.cc
+/// @brief CLI tool that writes the post-MTG2 MARS/misc and ProductTimeSpec of GRIB messages as JSON.
 ///
 
 #include <cstddef>
@@ -108,10 +108,12 @@ void GribToProductTime::init(const CmdArgs& args) {
 }
 
 void GribToProductTime::usage(const std::string& tool) const {
-    Log::info() << "Usage: " << tool << " [options] input output" << std::endl
-                << std::endl
-                << "Convert (pre-MTG2) GRIB1 to (post-MTG2) GRIB2" << std::endl
-                << std::endl;
+    Log::info()
+        << "Usage: " << tool << " [options] input output" << std::endl
+        << std::endl
+        << "Write the post-MTG2 MARS/misc dictionaries and the ProductTimeSpec of each GRIB message as a JSON array"
+        << std::endl
+        << std::endl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -129,32 +131,6 @@ std::unique_ptr<metkit::codes::CodesHandle> readCodesHandle(eckit::message::Mess
     const auto size  = static_cast<std::size_t>(memoryHandle->size());
 
     return metkit::codes::codesHandleFromMessageCopy(metkit::codes::Span<const uint8_t>(data, size));
-}
-
-eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& base,
-                                            const eckit::LocalConfiguration& overwrite) {
-    eckit::LocalConfiguration result{base};
-    for (const auto& key : overwrite.keys()) {
-        if (overwrite.isString(key)) {
-            result.set(key, overwrite.getString(key));
-        }
-        else if (overwrite.isIntegral(key)) {
-            result.set(key, overwrite.getLong(key));
-        }
-        else if (overwrite.isFloatingPoint(key)) {
-            result.set(key, overwrite.getDouble(key));
-        }
-        else if (overwrite.isBoolean(key)) {
-            result.set(key, overwrite.getBool(key));
-        }
-        else if (overwrite.isFloatingPointList(key)) {
-            result.set(key, overwrite.getDoubleVector(key));
-        }
-        else {
-            throw eckit::NotImplemented("Unexpected type for '" + key + "'", Here());
-        }
-    }
-    return result;
 }
 
 metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing mars2TypeOfStatisticalProcessing(
@@ -263,10 +239,10 @@ void GribToProductTime::execute(const CmdArgs& args) {
         const std::vector<double> values = codesHandle->getDoubleArray("values");
 
         // Apply mappings to convert pre-MTG2 MARS/Misc to post-MTG2 MARS/Misc
-        const auto mappedMarsMisc = mars2mars.convert<eckit::LocalConfiguration>(originalMarsMisc.mars);
+        const auto mappedMarsMisc = mars2mars.convert(originalMarsMisc.mars, originalMarsMisc.misc);
 
         auto mars = mappedMarsMisc.mars;
-        auto misc = mergeLocalConfigs(mappedMarsMisc.misc, originalMarsMisc.misc);
+        auto misc = mappedMarsMisc.misc;
 
         // Override values if specified by the user in the arguments
         if (expver_) {
@@ -280,8 +256,8 @@ void GribToProductTime::execute(const CmdArgs& args) {
         const auto innerTypeOfStatisticalProcessing = mars2TypeOfStatisticalProcessing(mars, opts);
 
         // Generate productTimeSpec
-        auto timeSpec =
-            metkit::mars2grib::backend::models::ProductTimeSpec(innerTypeOfStatisticalProcessing, mars, misc, opts);
+        auto timeSpec = metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpec(
+            innerTypeOfStatisticalProcessing, mars, misc, opts);
 
         // Generate a json out dictionary
         {

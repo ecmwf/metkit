@@ -238,14 +238,14 @@ CASE("check defaults and _clear_defaults") {
 
 CASE("check method: isData()") {
 
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("class"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("date"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("time"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("step"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("number"), true);
+    EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("class"), true);
+    EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("date"), true);
+    EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("time"), true);
+    EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("step"), true);
+    EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("number"), true);
 
-    EXPECT_EQUAL(MarsLanguage("disseminate").isData("accuracy"), false);
-    EXPECT_EQUAL(MarsLanguage("disseminate").isData("grid"), false);
+    EXPECT_EQUAL(MarsLanguage::get("disseminate").isData("accuracy"), false);
+    EXPECT_EQUAL(MarsLanguage::get("disseminate").isData("grid"), false);
 }
 
 CASE("check method: flatten()") {
@@ -262,7 +262,7 @@ CASE("check method: flatten()") {
         "500,date=20250717",
         true);
 
-    MarsLanguage("retrieve").flatten(request, output);
+    MarsLanguage::get("retrieve").flatten(request, output);
 
     EXPECT_EQUAL(output.oss.str(),
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=300,param="
@@ -288,50 +288,50 @@ CASE("check method: flatten()") {
 CASE("check some types") {
 
     {
-        EXPECT_THROWS(MarsLanguage("read").type("unknown"));
+        EXPECT_THROWS(MarsLanguage::get("read").type("unknown"));
 
-        EXPECT_THROWS(MarsLanguage("retrieve").type("unknown"));
+        EXPECT_THROWS(MarsLanguage::get("retrieve").type("unknown"));
 
-        EXPECT_NO_THROW(MarsLanguage("retrieve").type("_hidden"));
+        EXPECT_NO_THROW(MarsLanguage::get("retrieve").type("_hidden"));
     }
 
     {
-        auto language = MarsLanguage("retrieve");
+        const auto& language = MarsLanguage::get("retrieve");
 
-        auto* type = language.type("class");
-        EXPECT(dynamic_cast<TypeEnum*>(type) != nullptr);
+        const auto* type = language.type("class");
+        EXPECT(dynamic_cast<const TypeEnum*>(type) != nullptr);
 
         type = language.type("param");
-        EXPECT(dynamic_cast<TypeParam*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeParam*>(type) != nullptr);
 
         type = language.type("expver");
-        EXPECT(dynamic_cast<TypeExpver*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeExpver*>(type) != nullptr);
 
         type = language.type("domain");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
 
         type = language.type("date");
-        EXPECT(dynamic_cast<TypeDate*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeDate*>(type) != nullptr);
 
         type = language.type("grid");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
         EXPECT_EQUAL(type->multiple(), true);
 
         type = language.type("area");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
         EXPECT_EQUAL(type->multiple(), true);
 
         type = language.type("accuracy");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
 
         type = language.type("resol");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
     }
     {
-        auto language = MarsLanguage("archive");
+        const auto& language = MarsLanguage::get("archive");
 
-        auto* type = language.type("resol");
-        EXPECT(dynamic_cast<TypeAny*>(type) != nullptr);
+        const auto* type = language.type("resol");
+        EXPECT(dynamic_cast<const TypeAny*>(type) != nullptr);
 
         EXPECT_THROWS_AS(language.type("grid"), eckit::SeriousBug);
         EXPECT_THROWS_AS(language.type("area"), eckit::SeriousBug);
