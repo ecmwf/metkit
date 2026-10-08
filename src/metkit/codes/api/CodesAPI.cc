@@ -11,13 +11,27 @@
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/codes/api/CodesTypes.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <exception>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "eckit/log/CodeLocation.h"
+#include "eckit/log/Log.h"
 
 #include "eccodes.h"
 
+#include "metkit/codes/api/GeoIterator.h"
+#include "metkit/codes/api/KeyIterator.h"
 #include "metkit/config/LibMetkit.h"
 
 namespace std {
@@ -49,9 +63,7 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details) {
         if (code == GRIB_WRONG_LENGTH) {
             throw CodesWrongLength(msg, l);
         }
-        else {
-            throw CodesException(msg, l);
-        }
+        throw CodesException(msg, l);
     }
 };
 
@@ -62,9 +74,7 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details, c
         if (code == GRIB_WRONG_LENGTH) {
             throw CodesWrongLength(msg, l);
         }
-        else {
-            throw CodesException(msg, l);
-        }
+        throw CodesException(msg, l);
     }
 };
 
@@ -92,8 +102,7 @@ private:
 class ConcreteCodesHandle : public CodesHandle {
 public:
 
-    virtual ~ConcreteCodesHandle() {};
-
+    ~ConcreteCodesHandle() override = default;
 
     size_t messageSize() const override;
     Span<const uint8_t> messageData() const override;
@@ -143,7 +152,7 @@ public:
     GeoRange values() const override;
 
     /// Release the raw `codes_handle*` - used to pass ownership out of C++ (e.g. python)
-    virtual void* release() override = 0;
+    void* release() override = 0;
 
 protected:
 
@@ -166,7 +175,7 @@ class OwningCodesHandle : public ConcreteCodesHandle {
 public:
 
     OwningCodesHandle(std::unique_ptr<codes_handle> handle) : handle_{std::move(handle)} {};
-    virtual ~OwningCodesHandle() {};
+    ~OwningCodesHandle() override = default;
 
     OwningCodesHandle(OwningCodesHandle&&)            = default;
     OwningCodesHandle& operator=(OwningCodesHandle&&) = default;
@@ -188,7 +197,7 @@ class NonOwningCodesHandle : public ConcreteCodesHandle {
 public:
 
     NonOwningCodesHandle(codes_handle* handle) : handle_{handle} {};
-    virtual ~NonOwningCodesHandle() {};
+    ~NonOwningCodesHandle() override = default;
 
     NonOwningCodesHandle(NonOwningCodesHandle&&)            = default;
     NonOwningCodesHandle& operator=(NonOwningCodesHandle&&) = default;
@@ -513,7 +522,7 @@ public:  // methods
         next();
     }
 
-    virtual ~ConcreteKeyIterator() {}
+    ~ConcreteKeyIterator() override = default;
 
     std::string name() const override { return codes_keys_iterator_get_name(it_.get()); };
 
@@ -826,7 +835,7 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 
 using ReadCBCtx = std::pair<std::reference_wrapper<std::function<int64_t(uint8_t*, int64_t)>>, std::exception_ptr>;
 
-long readCallBack(void* ctx, void* buffer, long len) {
+static long readCallBack(void* ctx, void* buffer, long len) {
     auto& [func, eptr] = *static_cast<ReadCBCtx*>(ctx);
     try {
         auto r = func.get()(static_cast<uint8_t*>(buffer), len);
