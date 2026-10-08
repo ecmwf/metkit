@@ -10,22 +10,43 @@
 
 #include "metkit/mars/MarsLanguage.h"
 
+#include <pthread.h>
+
 #include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <cstdint>
+#include <exception>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <memory>
 #include <mutex>
 #include <optional>
+#include <ostream>
+#include <set>
 #include <shared_mutex>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "eckit/config/Resource.h"
+#include "eckit/exception/Exceptions.h"
+#include "eckit/filesystem/PathName.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/value/Content.h"
 
 #include "metkit/config/LibMetkit.h"
-
 #include "metkit/hypercube/HyperCube.h"
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsExpansion.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Parameter.h"
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"
 

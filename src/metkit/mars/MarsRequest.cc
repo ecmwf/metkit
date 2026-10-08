@@ -8,19 +8,38 @@
  * does it submit to any jurisdiction.
  */
 
+#include "eckit/exception/Exceptions.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <istream>
+#include <map>
+#include <memory>
+#include <optional>
+#include <ostream>
+#include <set>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/value/Content.h"
+#include "eckit/value/Value.h"
 
-#include "eckit/message/Message.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ParamID.h"
+#include "metkit/mars/Parameter.h"
 
 
 namespace metkit::mars {
@@ -35,7 +54,7 @@ MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, st
     }
 }
 
-MarsRequest::MarsRequest(const std::string& s, const eckit::Value& vals) : MarsRequest(s) {
+MarsRequest::MarsRequest(const std::string& verb, const eckit::Value& vals) : MarsRequest(verb) {
     eckit::ValueMap vv = vals;
     for (const auto& [param, value] : vv) {
         std::string name = param;
@@ -302,7 +321,7 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool pr
         s << verb() << ',';
     }
     std::string separator = "";
-    if (parameters().size()) {
+    if (!parameters().empty()) {
         s << separator << cr << tab;
         separator = ",";
 
@@ -411,20 +430,19 @@ size_t MarsRequest::count() const {
 }
 
 // recursively expand along keys in expvalues
-void expand_along_keys(const MarsRequest& prototype,
-                       const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
-                       std::vector<MarsRequest>& requests, size_t i) {
+static void expand_along_keys(const MarsRequest& prototype,
+                              const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
+                              std::vector<MarsRequest>& requests, size_t i) {
 
     if (i == expvalues.size()) {
         requests.push_back(prototype);
         return;
     }
 
-    const std::string& key                 = expvalues[i].first;
-    const std::vector<std::string>& values = expvalues[i].second;
+    const auto& [key, values] = expvalues[i];  // [] -> .at() ?
 
     MarsRequest req(prototype);
-    for (auto& value : values) {
+    for (const auto& value : values) {
         req.setValue(key, value);
         expand_along_keys(req, expvalues, requests, i + 1);
     }
@@ -441,10 +459,11 @@ std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys
         std::vector<std::string> v = values(key, true);  // ok to be empty
         LOG_DEBUG_LIB(LibMetkit) << "splitting along key " << key << " n values " << v.size() << " values " << v
                                  << std::endl;
-        if (v.empty())
+        if (v.empty()) {
             continue;
+        }
         n *= v.size();
-        expvalues.emplace_back(std::make_pair(key, v));
+        expvalues.emplace_back(key, v);
     }
 
     std::vector<MarsRequest> requests;
@@ -527,8 +546,8 @@ bool MarsRequest::filter(const MarsRequest& filter) {
     return true;
 }
 
-bool MarsRequest::matches(const MarsRequest& matches) const {
-    for (const auto& p : matches.parameters()) {
+bool MarsRequest::matches(const MarsRequest& other) const {
+    for (const auto& p : other.parameters()) {
         const Parameter* mp = find(p.name());
         if (!mp) {
             return false;

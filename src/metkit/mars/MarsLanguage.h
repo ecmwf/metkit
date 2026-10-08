@@ -16,17 +16,18 @@
 
 #pragma once
 
+#include <cstddef>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <set>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "metkit/mars/Dictionary.h"
-#include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
