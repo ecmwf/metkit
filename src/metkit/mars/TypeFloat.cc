@@ -41,6 +41,9 @@ bool TypeFloat::expand(std::string& value, const MarsRequest&) const {
             case '-':
                 break;
             case '.':
+                if (dot) {
+                    return false;
+                }
                 dot = true;
                 break;
             default:

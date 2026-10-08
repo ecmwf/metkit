@@ -297,7 +297,7 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
     std::vector<std::string> newvals;
     std::set<std::string> seen;
 
-    for (std::string& val : values) {
+    for (const std::string& val : values) {
         std::string value = val;
         if (!expand(value, request)) {
             std::ostringstream oss;

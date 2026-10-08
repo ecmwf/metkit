@@ -30,17 +30,17 @@ void TypeInteger::print(std::ostream& out) const {
     out << "TypeInteger[name=" << name() << "]";
 }
 
-bool TypeInteger::ok(const std::string& value, long& n) const {
-    n         = 0;
+long TypeInteger::parse(const std::string_view value, bool acceptNegative) {
+    long n    = 0;
     long sign = 1;
-    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+    for (auto j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
             case '-':
-                if (j == value.begin()) {
+                if (j == value.begin() && acceptNegative) {
                     sign = -1;
                 }
                 else {
-                    return false;
+                    throw std::invalid_argument("Invalid integer format");
                 }
                 break;
 
@@ -54,15 +54,29 @@ bool TypeInteger::ok(const std::string& value, long& n) const {
             case '7':
             case '8':
             case '9':
+                if (n > (std::numeric_limits<long>::max() - ((*j) - '0')) / 10) {
+                    throw std::invalid_argument("Integer value out of range");
+                }
                 n *= 10;
                 n += (*j) - '0';
                 break;
 
             default:
-                return false;
+                throw std::invalid_argument("Invalid integer format");
         }
     }
     n *= sign;
+
+    return n;
+}
+
+bool TypeInteger::ok(const std::string& value, long& n) const {
+    try {
+        n = parse(value);
+    }
+    catch (const std::exception& e) {
+        return false;
+    }
 
     return !range_ || (n >= range_->lower_ && n <= range_->upper_);
 }
