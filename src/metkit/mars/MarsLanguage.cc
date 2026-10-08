@@ -75,7 +75,7 @@ ExpansionContext::ExpansionContext(const MarsRequest& request) {
     }
 }
 
-ExpansionContext& ExpansionContext::operator=(ExpansionContext&& other) {
+ExpansionContext& ExpansionContext::operator=(ExpansionContext&& other) noexcept {
     values_ = std::move(other.values_);
     return *this;
 }

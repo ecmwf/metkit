@@ -50,7 +50,7 @@ public:
 
     ExpansionContext() = default;
     ExpansionContext(const MarsRequest& request);
-    ExpansionContext& operator=(ExpansionContext&& other);
+    ExpansionContext& operator=(ExpansionContext&& other) noexcept;
 
     bool has(Keyword key) const;
 
