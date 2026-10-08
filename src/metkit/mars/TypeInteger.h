@@ -35,6 +35,8 @@ public:  // methods
 
     void write(std::ofstream& file) const override;
 
+    static long parse(const std::string_view value, bool acceptNegative = true);
+
 protected:
 
     bool ok(const std::string& value, long& n) const;
