@@ -81,23 +81,24 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return compile_time_registry_engine::MISSING;
         }
 
+        const auto paramInstant  = param - param % 10;
         const auto chem          = get_or_throw<long>(mars, "chem");
         const auto hasWavelength = has(mars, "wavelength");
 
         if (hasWavelength) {
-            if (matchAny(param, 457000)) {
+            if (matchAny(paramInstant, 457000)) {
                 if (matchAny(chem, range(900, 914), 918, 922, 923, range(933, 936))) {
                     return static_cast<std::size_t>(CompositionType::AerosolOptical);
                 }
             }
-            else if (matchAny(param, 458000, 459000, 460000, 461000, 462000, 472000)) {
+            else if (matchAny(paramInstant, 458000, 459000, 460000, 461000, 462000, 472000)) {
                 if (matchAny(chem, 922)) {
                     return static_cast<std::size_t>(CompositionType::AerosolOptical);
                 }
             }
         }
         else {
-            if (matchAny(param, 401000)) {
+            if (matchAny(paramInstant, 401000)) {
                 if (matchAny(chem, range(900, 916))) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
@@ -107,7 +108,7 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(param, 402000)) {
+            else if (matchAny(paramInstant, 402000)) {
                 if (matchAny(chem, range(900, 917), 924)) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
@@ -117,42 +118,42 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(param, 406000, 407000, 410000, 411000, 451000)) {
+            else if (matchAny(paramInstant, 406000, 407000, 410000, 411000, 451000)) {
                 if (matchAny(chem, range(901, 916))) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
             }
-            else if (matchAny(param, 453000)) {
+            else if (matchAny(paramInstant, 453000)) {
                 if (matchAny(chem, range(901, 916), 922)) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
             }
-            else if (matchAny(param, 400000)) {
+            else if (matchAny(paramInstant, 400000)) {
                 if (matchAny(chem, range(929, 931))) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
             }
-            else if (matchAny(param, 444000)) {
+            else if (matchAny(paramInstant, 444000)) {
                 if (matchAny(chem, 6, 8, 13, 15, 17, 19, 26, 27, 33)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(param, 445000)) {
+            else if (matchAny(paramInstant, 445000)) {
                 if (matchAny(chem, 6, 8, 13, 15, 17, 19, 27, 33, 236)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(param, 435000, 435002, 436000, 436002, 437000, 437002)) {
+            else if (matchAny(paramInstant, 435000, 436000, 437000)) {
                 if (matchAny(chem, 25)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(param, 479000)) {
+            else if (matchAny(paramInstant, 479000)) {
                 if (matchAny(chem, 404)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(param, 469000)) {
+            else if (matchAny(paramInstant, 469000)) {
                 if (matchAny(chem, 2, 5, 9, 10, 12, 16, 18, 19, 25, 31, 42, range(45, 49), 52, range(98, 100), 124, 126,
                              129, 199, 224, 226, 233, 311, 334, 404, range(431, 433), range(438, 441), range(443, 446),
                              922, 930, 933, 934, 948, 951)) {
