@@ -142,6 +142,8 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         //       If the last digit is 0, the param is point-in-time.
         if (matchAny(param, range(400000, 499999))) {
             switch (param % 10) {
+                case 0:
+                    return compile_time_registry_engine::MISSING;
                 case 1:
                     return static_cast<std::size_t>(StatisticsType::Average);
                 case 2:
