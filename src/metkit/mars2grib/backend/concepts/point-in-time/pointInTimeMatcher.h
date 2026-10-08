@@ -104,11 +104,7 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         // Chemical products
         if (matchAny(param, range(400000, 499999))) {
             if (param % 10 != 0) {
-                throw utils::exceptions::Mars2GribMatcherException(
-                    "Chemical param " + std::to_string(param) + " with last digit " + std::to_string(param % 10) +
-                        " is not a point-in-time product. Last digit must be 0 for point-in-time products in "
-                        "400000 - 499999 param range.",
-                    Here());
+                return compile_time_registry_engine::MISSING;
             }
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
