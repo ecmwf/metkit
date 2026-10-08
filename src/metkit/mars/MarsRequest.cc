@@ -20,11 +20,10 @@
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ParamID.h"
+#include "metkit/mars/Type.h"
 #include "metkit/mars/TypeAny.h"
 
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -466,6 +465,21 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
     return req;
 }
 
+MarsRequest MarsRequest::extract(const std::string& category) const {
+    Category cat = category == "data" ? Category::Data :
+                   category == "derived" ? Category::Derived :
+                   category == "postproc" ? Category::PostProc :
+                   category == "sink" ? Category::Sink : Category::None;
+
+    MarsRequest req(verb_);
+    for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
+        if (it->type().category() == cat) {
+            req.params_.push_back(*it);
+        }
+    }
+    return req;
+}
+
 void MarsRequest::verb(const std::string& verb) {
     verb_ = verb;
 }
@@ -535,5 +549,4 @@ MarsRequest MarsRequest::parse(const std::string& s, bool strict) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
