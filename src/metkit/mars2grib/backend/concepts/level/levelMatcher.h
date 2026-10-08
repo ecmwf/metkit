@@ -96,8 +96,9 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 228007, 228011)) {
             return static_cast<std::size_t>(LevelType::EntireLake);
         }
-        if (matchAny(param, 49, 123, 165, 166, 207, 228005, 228028, 228029, 228131, 228132, 235165, 235166, 237165,
-                     237166, 237207, 237318, 238165, 238166, 238207, 239165, 239166, 239207, 260260)) {
+        if (matchAny(param, 49, 123, 165, 166, 207, 228005, 228028, 228029, 228131, 228132, 235165, 235166, 235318,
+                     237165, 237166, 237207, 237318, 238165, 238166, 238207, 238318, 239165, 239166, 239207, 239318,
+                     260260)) {
             return static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
         }
         // Strike-probability
@@ -304,7 +305,7 @@ inline std::size_t matchML(const long param) {
         // Multi-level model fields: full vertical column, require allocation
         // and population of the PV array describing the hybrid coordinate.
         if (matchAny(param, 21, 23, range(75, 77), range(130, 133), 135, 138, range(155, 157), 203, range(246, 248),
-                     range(162100, 162113), 260290, 260292, 260293, range(400000, 499999))) {
+                     range(162100, 162113), 260290, 260292, 260293, 300012, range(400000, 499999))) {
             return static_cast<std::size_t>(LevelType::ModelMultipleLevel);
         }
 
@@ -334,7 +335,7 @@ inline std::size_t matchML(const long param) {
 /// If no pressure-level mapping exists. Lower-level exceptions are preserved
 /// through `std::throw_with_nested`.
 ///
-inline std::size_t matchPL(const long param, const long level) {
+inline std::size_t matchPL(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
@@ -342,24 +343,14 @@ inline std::size_t matchPL(const long param, const long level) {
 
         if (matchAny(param, 1, 2, 10, 60, 75, 76, range(129, 135), 138, 152, range(155, 157), 203, range(246, 248),
                      235100, range(235129, 235133), 235135, 235138, 235152, 235155, 235157, 235203, 235246, 260290,
-                     263107, range(400000, 499999))) {
-            if (level >= 100) {
-                return static_cast<std::size_t>(LevelType::IsobaricInHpa);
-            }
-            else {
-                return static_cast<std::size_t>(LevelType::IsobaricInPa);
-            }
+                     263107, 300012, range(400000, 499999))) {
+            return static_cast<std::size_t>(LevelType::IsobaricInPa);
         }
 
         // Strike-probability
         if (matchAny(param, 131020, 131021, 131022, 131023, 131024, 131025, 133093, 133094, 133095, 133096, 133097,
                      133098)) {
-            if (level >= 100) {
-                return static_cast<std::size_t>(LevelType::IsobaricInHpa);
-            }
-            else {
-                return static_cast<std::size_t>(LevelType::IsobaricInPa);
-            }
+            return static_cast<std::size_t>(LevelType::IsobaricInPa);
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -367,9 +358,7 @@ inline std::size_t matchPL(const long param, const long level) {
     }
     catch (...) {
         std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
-            param, "pl",
-            "Unable to match `level` concept for levtype \"pl\" and levelist \"" + std::to_string(level) + "\"",
-            Here()));
+            param, "pl", "Unable to match `level` concept for levtype \"pl\"", Here()));
     }
 }
 
@@ -696,8 +685,7 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return impl::matchML(param);
         }
         if (levtype == "pl") {
-            const auto level = get_or_throw<long>(mars, "levelist");
-            return impl::matchPL(param, level);
+            return impl::matchPL(param);
         }
         if (levtype == "fl") {
             return impl::matchFL(param);

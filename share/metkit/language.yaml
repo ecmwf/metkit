@@ -1041,6 +1041,13 @@ _field: &_field
       - [11, nov, november]
       - [12, dec, december]
 
+  day:
+    category: postproc
+    multiple: true
+    type: to-by-list
+    by: 1
+    range: [1, 31]
+
   hdate:
     category: data
     multiple: true
@@ -1542,8 +1549,8 @@ _postproc: &_postproc
     values:
       - [linear]
       - [bilinear]
-      - [nearest-lsm, nlsm, nearest lsm]
-      - [nearest-neighbour, nn, nearest neighbour]
+      - [nearest-lsm, nlsm, nearest_lsm, nearest lsm]
+      - [nearest-neighbour, nn, nearest_neighbour, nearest neighbour]
       - [grid-box-average, average]
 
   packing:
@@ -1551,7 +1558,7 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-      - [so, second order]
+      - [so, second-order, second_order,second order]
       - [av]
       - [complex, co]
       - [simple, si]
@@ -1636,6 +1643,8 @@ disseminate:
   <<: *_field
   <<: *_postproc
 
+  _aliases: [filter]
+
   requirements:
     type: any
 
@@ -1646,13 +1655,6 @@ disseminate:
   # repres:
   #   category: postproc
   #   type: any
-
-  day:
-    category: postproc
-    multiple: true
-    type: to-by-list
-    by: 1
-    range: [1, 31]
 
   use:
     category: sink
@@ -1877,10 +1879,6 @@ read:
 
   _options:
     param:
-      # expand_with:  # In case not type/stream/levtype is provided
-      #   type: an
-      #   stream: oper
-      #   levtype: pl
       first_rule: true
 ##############################################################
 
@@ -1897,16 +1895,16 @@ flush:
     multiple: false
     type: enum
     values:
-      - [true, yes, y, on, 1]
-      - [false, no, n, off, 0]
+      - ['true', 'yes', 'y', 'on', '1']
+      - ['false', 'no', 'n', 'off', '0']
 
   decache:
     flatten: false
     multiple: false
     type: enum
     values:
-      - [true, yes, y, on, 1]
-      - [false, no, n, off, 0]
+      - ['true', 'yes', 'y', 'on', '1']
+      - ['false', 'no', 'n', 'off', '0']
 
   _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
 
@@ -2028,10 +2026,6 @@ pointdb:
 
   _options:
     param:
-      # expand_with:  # In case not type/stream/levtype is provided
-      #   type: an
-      #   stream: oper
-      #   levtype: pl
       first_rule: true
 
 end: {}

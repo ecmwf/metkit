@@ -72,8 +72,11 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         const auto stream = get_opt<std::string>(mars, "stream");
         const auto type   = get_opt<std::string>(mars, "type");
 
-        // NOTE: oper/fc was previously enfo/cf, number is implied to be 0 here, as it is a control forecast.
-        if (stream && *stream == "oper" && type && *type == "fc") {
+        // Control forecasts carry no MARS `number`; it is implied to be 0, and they are encoded as ensemble member 0
+        // rather than as deterministic fields
+        //  - oper/fc : the operational control forecast (previously enfo/cf)
+        //  - type=cf : any ensemble control forecast (enfo, enfh, eefo, eefh, enwh, ...)
+        if ((stream && *stream == "oper" && type && *type == "fc") || (type && *type == "cf")) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
 

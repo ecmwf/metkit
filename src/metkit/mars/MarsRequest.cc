@@ -205,7 +205,7 @@ void MarsRequest::unsetValues(const std::string& name) {
     }
 }
 
-void MarsRequest::setValuesTyped(Type* type, const std::vector<std::string>& values) {
+void MarsRequest::setValuesTyped(const Type* type, const std::vector<std::string>& values) {
     std::list<Parameter>::iterator i = find(type->name());
     if (i != params_.end()) {
         (*i) = Parameter(values, type);
@@ -460,17 +460,6 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
     MarsRequest req(verb_);
     for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
         if (keys.find(it->name()) != keys.end()) {
-            req.params_.push_back(*it);
-        }
-    }
-    return req;
-}
-
-
-MarsRequest MarsRequest::extract(const std::string& category) const {
-    MarsRequest req(verb_);
-    for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
-        if (it->type().category() == category) {
             req.params_.push_back(*it);
         }
     }

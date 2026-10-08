@@ -26,11 +26,6 @@ void extractGrid(const std::string& keyword, const metkit::codes::CodesHandle& g
             const auto gridSpec = grib.getString("gridSpec");
             set_or_throw<std::string>(mars, "grid", gridSpec);
 
-            if (grib.has("shapeOfTheEarth")) {
-                const long shapeOfTheEarth = grib.getLong("shapeOfTheEarth");
-                misc.set("shapeOfTheEarth", shapeOfTheEarth);
-            }
-
             return;
         }
 
@@ -81,11 +76,6 @@ void extractGrid(const std::string& keyword, const metkit::codes::CodesHandle& g
 
         const std::string gridName = grib.getString("gridName");
         set_or_throw<std::string>(mars, keyword, gridName);
-
-        if (grib.has("shapeOfTheEarth")) {
-            const long shapeOfTheEarth = grib.getLong("shapeOfTheEarth");
-            misc.set("shapeOfTheEarth", shapeOfTheEarth);
-        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));

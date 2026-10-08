@@ -39,12 +39,6 @@ pub mod ffi {
         fn set_value_long(self: Pin<&mut MarsRequestWrapper>, key: &str, value: i64);
         fn unset_values(self: Pin<&mut MarsRequestWrapper>, key: &str);
 
-        // Extract parameters by category (e.g. "postproc")
-        fn extract(
-            self: &MarsRequestWrapper,
-            category: &str,
-        ) -> Result<UniquePtr<MarsRequestWrapper>>;
-
         // Expansion
         fn expand(
             self: &MarsRequestWrapper,

@@ -9,317 +9,120 @@
  */
 
 #include <cstdlib>
-#include <exception>
+#include <string>
+#include <vector>
+
 #include "eckit/config/LocalConfiguration.h"
-#include "eckit/log/CodeLocation.h"
 #include "eckit/testing/Test.h"
+#include "metkit/codes/api/CodesAPI.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
-#include "metkit/mars2grib/utils/mars2gribExceptions.h"
+
+
+namespace metkit::mars2grib::test {
+
 
 static const bool useGridSpec = []() {
     const auto* value = ::getenv("ECCODES_ECKIT_GEO");
-    if (!value) {
-        return false;
-    }
-    const std::string stringValue(value);
-    return stringValue == "1" || stringValue == "2";
+    return value != nullptr && std::stol(value) != 0L;
 }();
 
-CASE("T1279") {
-    try {
-        auto encoder = metkit::mars2grib::Mars2Grib();
 
-        eckit::LocalConfiguration mars;
-        mars.set("class", "od");
-        mars.set("stream", "oper");
-        mars.set("type", "fc");
-        mars.set("expver", "test");
-        if (useGridSpec) {
-            mars.set("grid", "T1279");
+constexpr long number_of_real_coefficients(long T) {
+    return (T + 1) * (T + 2);
+}
+
+
+constexpr long default_sub_set_truncation(long T) {
+    return T >= 213 ? 20L : std::min(10L, T);
+}
+
+
+CASE("encoding") {
+    struct test_t {
+        std::string label;
+        long J;   // truncation (J = K = M)
+        long JS;  // subSetTruncation (JS = KS = MS)
+    } tests[]{
+        {"T1279/42", 1279, 42},  //
+        {"T1279/20", 1279, 20},  //
+        {"T1279", 1279, -1},     // (default subset)
+        {"T20/20", 20, 20},      //
+        {"T20/10", 20, 10},      //
+        {"T20", 20, -1},         // (default subset)
+        {"T1/1", 1, 1},          //
+        {"T1", 1, -1},           // (default subset)
+    };
+
+    for (const auto& [label, J, JS] : tests) {
+        SECTION(label) {
+            // MARS
+            eckit::LocalConfiguration mars;
+            mars.set("class", "od");
+            mars.set("stream", "oper");
+            mars.set("type", "fc");
+            mars.set("expver", "test");
+            mars.set("packing", "complex");
+            mars.set("param", 130);
+            mars.set("levtype", "pl");
+            mars.set("levelist", 1000);
+            mars.set("date", 2026'09'09);
+            mars.set("time", 00'00);
+            mars.set("step", 0);
+
+            const auto grid = std::string("T") + std::to_string(J);
+            if (useGridSpec) {
+                mars.set("grid", grid);
+            }
+            else {
+                mars.set("truncation", J);
+            }
+
+            const auto S = JS >= 0 ? JS : default_sub_set_truncation(J);
+            eckit::LocalConfiguration misc;
+            misc.set("subSetTruncation", JS);
+
+
+            // GRIB
+            const std::vector<double> vals(number_of_real_coefficients(J), 273.15);
+            const auto handle = JS >= 0 ? Mars2Grib().encode(vals, mars, misc) : Mars2Grib().encode(vals, mars);
+            ASSERT(handle);
+
+            if (useGridSpec) {
+                EXPECT(handle->getString("gridSpec") == R"({"grid":")" + grid + R"("})");
+            }
+
+            EXPECT(handle->getLong("gridDefinitionTemplateNumber") == 50L);
+            EXPECT(handle->getLong("dataRepresentationTemplateNumber") == 51L);
+
+            EXPECT(handle->getLong("spectralType") == 1L);
+            EXPECT(handle->getLong("spectralMode") == 1L);
+            EXPECT(handle->getLong("bitsPerValue") == 16L);            // Default
+            EXPECT(handle->getLong("unpackedSubsetPrecision") == 1L);  // IEEE 32-bit
+
+            EXPECT(handle->getLong("J") == J);
+            EXPECT(handle->getLong("K") == J);
+            EXPECT(handle->getLong("M") == J);
+            EXPECT(handle->getLong("JS") == S);
+            EXPECT(handle->getLong("KS") == S);
+            EXPECT(handle->getLong("MS") == S);
+
+            EXPECT(handle->getLong("numberOfDataPoints") == number_of_real_coefficients(J));
+            EXPECT(handle->getLong("TS") == number_of_real_coefficients(S));
+
+            if (JS == J) {
+                // no coefficients are packed, these are unused
+                EXPECT(handle->getLong("referenceValue") == 0L);
+                EXPECT(handle->getLong("binaryScaleFactor") == 0L);
+                EXPECT(handle->getLong("decimalScaleFactor") == 0L);
+                EXPECT(handle->getLong("laplacianScalingFactor") == 0L);
+            }
         }
-        else {
-            mars.set("truncation", 1279);
-        }
-        mars.set("packing", "complex");
-        mars.set("param", 130);
-        mars.set("levtype", "pl");
-        mars.set("levelist", 1000);
-        mars.set("date", 2026'09'09);
-        mars.set("time", 00'00);
-        mars.set("step", 0);
-
-        std::vector<double> vals(1639680, 237.15);
-
-        const auto handle = encoder.encode(vals, mars);
-
-        // MARS
-
-        // GRIB
-        EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
-        // referenceValue
-        // binaryScaleFactor
-        // decimalScaleFactor
-        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);  // Default
-        // laplacianScalingFactor
-        EXPECT_EQUAL(handle->getLong("J"), 1279);
-        EXPECT_EQUAL(handle->getLong("K"), 1279);
-        EXPECT_EQUAL(handle->getLong("M"), 1279);
-        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
-        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
-
-        EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
-        EXPECT_EQUAL(handle->getLong("JS"), 20);
-        EXPECT_EQUAL(handle->getLong("KS"), 20);
-        EXPECT_EQUAL(handle->getLong("MS"), 20);
-        EXPECT_EQUAL(handle->getLong("TS"), 462);
-        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
-
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1639680);
-    }
-    catch (const std::exception& e) {
-        metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
-        std::throw_with_nested(
-            metkit::mars2grib::utils::exceptions::Mars2GribGenericException("ENCODING TEST FAILED", Here()));
     }
 }
 
-CASE("T1279 (custom subset)") {
-    try {
-        auto encoder = metkit::mars2grib::Mars2Grib();
 
-        eckit::LocalConfiguration mars;
-        mars.set("class", "od");
-        mars.set("stream", "oper");
-        mars.set("type", "fc");
-        mars.set("expver", "test");
-        if (useGridSpec) {
-            mars.set("grid", "T1279");
-        }
-        else {
-            mars.set("truncation", 1279);
-        }
-        mars.set("packing", "complex");
-        mars.set("param", 130);
-        mars.set("levtype", "pl");
-        mars.set("levelist", 1000);
-        mars.set("date", 2026'09'09);
-        mars.set("time", 00'00);
-        mars.set("step", 0);
+}  // namespace metkit::mars2grib::test
 
-        eckit::LocalConfiguration misc;
-        misc.set("subSetTruncation", 42);
-
-        std::vector<double> vals(1639680, 237.15);
-
-        const auto handle = encoder.encode(vals, mars, misc);
-
-        // MARS
-
-        // GRIB
-        EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
-        // referenceValue
-        // binaryScaleFactor
-        // decimalScaleFactor
-        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);  // Default
-        // laplacianScalingFactor
-        EXPECT_EQUAL(handle->getLong("J"), 1279);
-        EXPECT_EQUAL(handle->getLong("K"), 1279);
-        EXPECT_EQUAL(handle->getLong("M"), 1279);
-        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
-        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
-
-        EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
-        EXPECT_EQUAL(handle->getLong("JS"), 42);
-        EXPECT_EQUAL(handle->getLong("KS"), 42);
-        EXPECT_EQUAL(handle->getLong("MS"), 42);
-        EXPECT_EQUAL(handle->getLong("TS"), 1892);
-        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
-
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1639680);
-    }
-    catch (const std::exception& e) {
-        metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
-        std::throw_with_nested(
-            metkit::mars2grib::utils::exceptions::Mars2GribGenericException("ENCODING TEST FAILED", Here()));
-    }
-}
-
-CASE("T20") {
-    try {
-        auto encoder = metkit::mars2grib::Mars2Grib();
-
-        eckit::LocalConfiguration mars;
-        mars.set("class", "od");
-        mars.set("stream", "oper");
-        mars.set("type", "fc");
-        mars.set("expver", "test");
-        if (useGridSpec) {
-            mars.set("grid", "T20");
-        }
-        else {
-            mars.set("truncation", 20);
-        }
-        mars.set("packing", "complex");
-        mars.set("param", 130);
-        mars.set("levtype", "pl");
-        mars.set("levelist", 1000);
-        mars.set("date", 2026'09'09);
-        mars.set("time", 00'00);
-        mars.set("step", 0);
-
-        std::vector<double> vals(462, 237.15);
-
-        const auto handle = encoder.encode(vals, mars);
-
-        // MARS
-
-        // GRIB
-        EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
-        // referenceValue
-        // binaryScaleFactor
-        // decimalScaleFactor
-        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);  // Default
-        // laplacianScalingFactor
-        EXPECT_EQUAL(handle->getLong("J"), 20);
-        EXPECT_EQUAL(handle->getLong("K"), 20);
-        EXPECT_EQUAL(handle->getLong("M"), 20);
-        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
-        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
-
-        EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
-        EXPECT_EQUAL(handle->getLong("JS"), 10);
-        EXPECT_EQUAL(handle->getLong("KS"), 10);
-        EXPECT_EQUAL(handle->getLong("MS"), 10);
-        EXPECT_EQUAL(handle->getLong("TS"), 132);
-        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
-
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 462);
-    }
-    catch (const std::exception& e) {
-        metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
-        std::throw_with_nested(
-            metkit::mars2grib::utils::exceptions::Mars2GribGenericException("ENCODING TEST FAILED", Here()));
-    }
-}
-
-CASE("T20 (no subset)") {
-    try {
-        auto encoder = metkit::mars2grib::Mars2Grib();
-
-        eckit::LocalConfiguration mars;
-        mars.set("class", "od");
-        mars.set("stream", "oper");
-        mars.set("type", "fc");
-        mars.set("expver", "test");
-        if (useGridSpec) {
-            mars.set("grid", "T20");
-        }
-        else {
-            mars.set("truncation", 20);
-        }
-        mars.set("packing", "complex");
-        mars.set("param", 130);
-        mars.set("levtype", "pl");
-        mars.set("levelist", 1000);
-        mars.set("date", 2026'09'09);
-        mars.set("time", 00'00);
-        mars.set("step", 0);
-
-        eckit::LocalConfiguration misc;
-        misc.set("subSetTruncation", 20);
-
-        std::vector<double> vals(462, 237.15);
-
-        const auto handle = encoder.encode(vals, mars, misc);
-
-        // MARS
-
-        // GRIB
-        EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
-        EXPECT_EQUAL(handle->getLong("J"), 20);
-        EXPECT_EQUAL(handle->getLong("K"), 20);
-        EXPECT_EQUAL(handle->getLong("M"), 20);
-        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
-        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
-
-        EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
-        EXPECT_EQUAL(handle->getLong("referenceValue"), 0L);                     // Unused
-        EXPECT_EQUAL(handle->getLong("binaryScaleFactor"), 0L);                  // Unused
-        EXPECT_EQUAL(handle->getLong("decimalScaleFactor"), 0L);                 // Unused
-        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);                      // Default
-        EXPECT_EQUAL(handle->getLong("laplacianScalingFactor"), 0L);             // Unused
-        EXPECT_EQUAL(handle->getLong("JS"), 20);
-        EXPECT_EQUAL(handle->getLong("KS"), 20);
-        EXPECT_EQUAL(handle->getLong("MS"), 20);
-        EXPECT_EQUAL(handle->getLong("TS"), 462);
-        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
-
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 462);
-    }
-    catch (const std::exception& e) {
-        metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
-        std::throw_with_nested(
-            metkit::mars2grib::utils::exceptions::Mars2GribGenericException("ENCODING TEST FAILED", Here()));
-    }
-}
-
-CASE("T1 (no subset)") {
-    try {
-        auto encoder = metkit::mars2grib::Mars2Grib();
-
-        eckit::LocalConfiguration mars;
-        mars.set("class", "od");
-        mars.set("stream", "oper");
-        mars.set("type", "fc");
-        mars.set("expver", "test");
-        if (useGridSpec) {
-            mars.set("grid", "T1");
-        }
-        else {
-            mars.set("truncation", 1);
-        }
-        mars.set("packing", "complex");
-        mars.set("param", 130);
-        mars.set("levtype", "pl");
-        mars.set("levelist", 1000);
-        mars.set("date", 2026'09'09);
-        mars.set("time", 00'00);
-        mars.set("step", 0);
-
-        std::vector<double> vals(6, 237.15);
-
-        const auto handle = encoder.encode(vals, mars);
-
-        // MARS
-
-        // GRIB
-        EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
-        EXPECT_EQUAL(handle->getLong("J"), 1);
-        EXPECT_EQUAL(handle->getLong("K"), 1);
-        EXPECT_EQUAL(handle->getLong("M"), 1);
-        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
-        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
-
-        EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
-        EXPECT_EQUAL(handle->getLong("referenceValue"), 0L);                     // Unused
-        EXPECT_EQUAL(handle->getLong("binaryScaleFactor"), 0L);                  // Unused
-        EXPECT_EQUAL(handle->getLong("decimalScaleFactor"), 0L);                 // Unused
-        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);                      // Default
-        EXPECT_EQUAL(handle->getLong("laplacianScalingFactor"), 0L);             // Unused
-        EXPECT_EQUAL(handle->getLong("JS"), 1);
-        EXPECT_EQUAL(handle->getLong("KS"), 1);
-        EXPECT_EQUAL(handle->getLong("MS"), 1);
-        EXPECT_EQUAL(handle->getLong("TS"), 6);
-        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
-
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 6);
-    }
-    catch (const std::exception& e) {
-        metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
-        std::throw_with_nested(
-            metkit::mars2grib::utils::exceptions::Mars2GribGenericException("ENCODING TEST FAILED", Here()));
-    }
-}
 
 int main(int argc, char** argv) {
     return eckit::testing::run_tests(argc, argv);

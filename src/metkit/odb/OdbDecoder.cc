@@ -47,7 +47,7 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg, eckit::message:
     odc::api::Reader reader(*handle, false);
     odc::api::Frame frame;
 
-    metkit::mars::MarsLanguage language("retrieve");
+    const metkit::mars::MarsLanguage& language = mars::MarsLanguage::get("retrieve");
     OdbMetadataDecoder setter(gather, options, language);
 
     while ((frame = reader.next())) {

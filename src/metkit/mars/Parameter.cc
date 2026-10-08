@@ -45,7 +45,7 @@ Parameter::~Parameter() {
     type_->detach();
 }
 
-Parameter::Parameter(const std::vector<std::string>& values, Type* type) : type_(type), values_(values) {
+Parameter::Parameter(const std::vector<std::string>& values, const Type* type) : type_(type), values_(values) {
     if (!type) {
         type_ = &undefined;
     }
@@ -58,8 +58,8 @@ Parameter::Parameter(const Parameter& other) : type_(other.type_), values_(other
 }
 
 Parameter& Parameter::operator=(const Parameter& other) {
-    Type* old = type_;
-    type_     = other.type_;
+    const Type* old = type_;
+    type_           = other.type_;
     type_->attach();
     old->detach();
 

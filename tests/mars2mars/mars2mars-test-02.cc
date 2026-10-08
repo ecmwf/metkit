@@ -35,7 +35,7 @@ namespace {
 const std::vector<std::string>& mars2marsSplitKeys() {
     static const std::vector<std::string> keys = {
         "class", "stream", "type",   "expver", "levtype",    "param",    "levelist", "step",
-        "date",  "time",   "number", "chem",   "wavelength", "timespan", "hdate",    "htime",
+        "date",  "time",   "number", "chem",   "wavelength", "timespan", "hdate",
     };
 
     return keys;

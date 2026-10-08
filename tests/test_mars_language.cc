@@ -7,7 +7,7 @@
 namespace metkit::mars::test {
 
 CASE("retrieve_best_match_param_matching") {
-    const auto language = MarsLanguage("retrieve");
+    const auto& language = MarsLanguage::get("retrieve");
 
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("parameter", {"parameter"}, false, false, false, {});
@@ -17,7 +17,7 @@ CASE("retrieve_best_match_param_matching") {
 
 
 CASE("retrieve_best_match_param_not_matching") {
-    const auto language = MarsLanguage("retrieve");
+    const auto& language = MarsLanguage::get("retrieve");
 
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("param", {"parameter"}, false, false, false, {});
@@ -30,7 +30,7 @@ CASE("retrieve_best_match_param_not_matching") {
 };
 
 CASE("retrieve_best_match_param_not_matching_throw") {
-    const auto language = MarsLanguage("retrieve");
+    const auto& language = MarsLanguage::get("retrieve");
 
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("param", {"parameter"}, true, false, false, {});
@@ -42,7 +42,7 @@ CASE("retrieve_best_match_param_not_matching_throw") {
 
 
 CASE("retrieve_best_match_param_not_matching") {
-    const auto language = MarsLanguage("retrieve");
+    const auto& language = MarsLanguage::get("retrieve");
 
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("param", {"parameter"}, false, false, true, {});
