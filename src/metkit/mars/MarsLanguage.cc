@@ -504,6 +504,9 @@ const MarsLanguage& MarsLanguage::get(Verb verb) {
 
     static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
 
+    // langOffsets_ is populated by the initialisation: it must be complete before it is looked up
+    pthread_once(&once, initLanguage);
+
     std::lock_guard lock(mutex);
     auto it = instances.find(verb);
     if (it != instances.end()) {
