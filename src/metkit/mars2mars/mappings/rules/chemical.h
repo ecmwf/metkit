@@ -33,6 +33,11 @@ inline void setParamChem(OutDict_t& out, long param, long chem) {
     try {
         set_or_throw<long>(out, "param", param);
         set_or_throw<long>(out, "chem", chem);
+
+        // Reset timespan for instant params
+        if (param % 10 == 0) {
+            set_or_throw<std::string>(out, "timespan", "none");
+        }
     }
     catch (...) {
         // Rethrow nested exceptions
@@ -53,6 +58,11 @@ inline void setParamChemWavelength(OutDict_t& out, long param, long chem, double
         set_or_throw<long>(out, "param", param);
         set_or_throw<long>(out, "chem", chem);
         set_or_throw<double>(out, "wavelength", wavelength);
+
+        // Reset timespan for instant params
+        if (param % 10 == 0) {
+            set_or_throw<std::string>(out, "timespan", "none");
+        }
     }
     catch (...) {
         // Rethrow nested exceptions
