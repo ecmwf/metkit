@@ -507,25 +507,22 @@ const MarsLanguage& MarsLanguage::get(Verb verb) {
     // langOffsets_ is populated by the initialisation: it must be complete before it is looked up
     pthread_once(&once, initLanguage);
 
-    std::lock_guard lock(mutex);
-    auto it = instances.find(verb);
-    if (it != instances.end()) {
-        return *(it->second);
+    std::scoped_lock lock(mutex);
+    if (auto it = instances.find(verb); it != instances.end()) {
+        return *it->second;
     }
 
     // load / parse the language for the given verb
     if (!metkitForceBinfileCreation && !langOffsets_.empty()) {
-        auto it = langOffsets_.find(verb);
-        if (it != langOffsets_.end()) {
-
+        if (auto it = langOffsets_.find(verb); it != langOffsets_.end()) {
             auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb, langFile_));
             ASSERT(inserted);
-            return *(newIt->second);
+            return *newIt->second;
         }
     }
     auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb));
     ASSERT(inserted);
-    return *(newIt->second);
+    return *newIt->second;
 }
 
 const MarsLanguage& MarsLanguage::get(const std::string& verb) {
