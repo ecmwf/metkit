@@ -14,6 +14,7 @@ name = "metkit"
 repo = "ecmwf/metkit"
 visibility = "public"
 compiler-inputs = ["cxx-compiler"]
+git-read = ["ecmwf/bindman", "ecmwf/rust-wrappers-playground"]
 
 [[deps]]
 repo = "ecmwf/ecbuild"
@@ -185,3 +186,26 @@ options = ""
 
 [[matrix.build-hpc.include]]
 options = "eckit-geo"
+
+[packages.metkit-rust]
+compiler-inputs = ["cxx-compiler"]
+
+[[packages.metkit-rust.deps]]
+package = "metkit"
+options-input = "options"
+
+[matrix.rust]
+packages = ["metkit-rust"]
+publishes = false
+
+[matrix.rust.defaults]
+job-script = "./.ci/runner/rust.sh.j2"
+runs-on = "arc-runner-normal"
+build-type = "RelWithDebInfo"
+cxx-compiler = "g++-13"
+c-compiler = "gcc-13"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13-boost-qt6-rust1.90"
+platform = "ubuntu-24.04"
+
+[[matrix.rust.include]]
+rust-compiler = "rust-1.90"
