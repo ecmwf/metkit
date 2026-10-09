@@ -23,7 +23,7 @@ compiler-inputs = []
 
 [[deps]]
 repo = "ecmwf/stack-dependencies"
-package = "stack-deps"
+package = "netcdf"
 ref = "master"
 compiler-inputs = ["cxx-compiler"]
 
@@ -42,14 +42,26 @@ package = "eckit"
 ref = "develop"
 compiler-inputs = ["cxx-compiler"]
 
+[packages.pymetkit]
+compiler-inputs = ["cxx-compiler"]
+
+[[packages.pymetkit.deps]]
+package = "metkit"
+options-input = "options"
+
+[[packages.pymetkit.deps]]
+repo = "ecmwf/stack-dependencies"
+package = "pybind11"
+ref = "master"
+
 [matrix.build]
+packages = ["metkit"]
 triggers = ["upstream-change", "rebuild-request"]
 
 [matrix.build.defaults]
 job-script = "./.ci/runner/build.sh.j2"
 build-type = "RelWithDebInfo"
 runs-on = "arc-runner-very-large"
-python-version = "3.11"
 
 [[matrix.build.include]]
 cxx-compiler = "clang++-18"
@@ -75,27 +87,6 @@ cxx-compiler = "g++-15"
 c-compiler = "gcc-15"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
 platform = "ubuntu-26.04"
-
-[[matrix.build.include]]
-cxx-compiler = "g++-15"
-c-compiler = "gcc-15"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04"
-python-version = "3.12"
-
-[[matrix.build.include]]
-cxx-compiler = "g++-15"
-c-compiler = "gcc-15"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04"
-python-version = "3.13"
-
-[[matrix.build.include]]
-cxx-compiler = "g++-15"
-c-compiler = "gcc-15"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
-platform = "ubuntu-26.04"
-python-version = "3.14"
 
 [[matrix.build.include]]
 cxx-compiler = "g++-8"
@@ -134,6 +125,98 @@ c-compiler = "gcc-14"
 container = "eccr.ecmwf.int/public-ci-images/debian13-gcc14-gfortran14"
 platform = "debian-13"
 
+[matrix.python]
+packages = ["pymetkit"]
+triggers = ["upstream-change", "rebuild-request"]
+
+[matrix.python.defaults]
+job-script = "./.ci/runner/pymetkit.sh.j2"
+build-type = "RelWithDebInfo"
+runs-on = "arc-runner-normal"
+python-version = "3.11"
+
+[[matrix.python.include]]
+cxx-compiler = "clang++-18"
+c-compiler = "clang-18"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-clang18:latest"
+platform = "ubuntu-24.04"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-13"
+c-compiler = "gcc-13"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13:latest"
+platform = "ubuntu-24.04"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-13"
+c-compiler = "gcc-13"
+options = "eckit-geo"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13:latest"
+platform = "ubuntu-24.04"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-15"
+c-compiler = "gcc-15"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
+platform = "ubuntu-26.04"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-15"
+c-compiler = "gcc-15"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
+platform = "ubuntu-26.04"
+python-version = "3.12"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-15"
+c-compiler = "gcc-15"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
+platform = "ubuntu-26.04"
+python-version = "3.13"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-15"
+c-compiler = "gcc-15"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu26.04-gcc15-gfortran15"
+platform = "ubuntu-26.04"
+python-version = "3.14"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-8"
+c-compiler = "gcc-8"
+container = "eccr.ecmwf.int/public-ci-images/rocky8-gcc8-gfortran8"
+platform = "rocky-8"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-11"
+c-compiler = "gcc-11"
+container = "eccr.ecmwf.int/public-ci-images/rocky9-gcc11-gfortran11"
+platform = "rocky-9"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-14"
+c-compiler = "gcc-14"
+container = "eccr.ecmwf.int/public-ci-images/rocky10-gcc14-gfortran14"
+platform = "rocky-10"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-10"
+c-compiler = "gcc-10"
+container = "eccr.ecmwf.int/public-ci-images/debian11-gcc10-gfortran10"
+platform = "debian-11"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-12"
+c-compiler = "gcc-12"
+container = "eccr.ecmwf.int/public-ci-images/debian12-gcc12-gfortran12"
+platform = "debian-12"
+
+[[matrix.python.include]]
+cxx-compiler = "g++-14"
+c-compiler = "gcc-14"
+container = "eccr.ecmwf.int/public-ci-images/debian13-gcc14-gfortran14"
+platform = "debian-13"
+
 [matrix.build-hpc]
 execution = "hpc-atos"
 container-credentials = true
@@ -150,7 +233,6 @@ platform = "hpc-atos-gnu"
 # gcc/old, not a version number: as of now gives you 8.5.0
 # `module avail gcc` lists no 8.5.0 to pin directly.
 modules = ["load prgenv/gnu", "unload gcc", "load gcc/old", "load cmake", "load ninja", "load uv", "load python3/3.11.8-01"]
-python-version = "3.11"
 c_compiler_binary = "gcc"
 cxx_compiler_binary = "g++"
 time = "00:40:00"

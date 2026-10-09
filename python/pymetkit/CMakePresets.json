@@ -6,17 +6,9 @@
   },
   "configurePresets": [
     {
-      "cacheVariables": {
-        "ENABLE_GRIB": "ON",
-        "ENABLE_TESTS": "ON"
-      },
       "name": "ci"
     },
     {
-      "cacheVariables": {
-        "ENABLE_GRIB2MARS": "ON",
-        "ENABLE_MARS2GRIB": "ON"
-      },
       "inherits": "ci",
       "name": "eckit-geo"
     }

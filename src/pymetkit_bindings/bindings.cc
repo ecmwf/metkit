@@ -23,7 +23,7 @@
 #include "eckit/utils/MD5.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit_version.h"
+#include "metkit/metkit_version.h"
 
 namespace py   = pybind11;
 namespace mars = metkit::mars;
