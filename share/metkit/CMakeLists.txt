@@ -24,9 +24,10 @@ if( HAVE_METKIT_CONFIG )
     # force regeneration since create-binary-files skips writing if a file already exists;
     # disable plugin auto-loading, since sibling projects' libraries may not be built yet at this point
     # both files are produced by the same run, so both are declared as outputs: a missing or outdated file triggers it
+    # disable LeakSanitizer so intentionally immortal singletons (e.g. MarsLanguage::get) don't fail sanitizer builds
     add_custom_command(OUTPUT ${_params_bin} ${_language_bin}
                     COMMAND ${CMAKE_COMMAND} -E remove -f ${_params_bin} ${_language_bin}
-                    COMMAND ${CMAKE_COMMAND} -E env METKIT_HOME=${CMAKE_BINARY_DIR} METKIT_FORCE_BINFILE_CREATION=1 AUTO_LOAD_PLUGINS=0 $<TARGET_FILE:create-binary-files>
+                    COMMAND ${CMAKE_COMMAND} -E env METKIT_HOME=${CMAKE_BINARY_DIR} METKIT_FORCE_BINFILE_CREATION=1 AUTO_LOAD_PLUGINS=0 ASAN_OPTIONS=detect_leaks=0 LSAN_OPTIONS=detect_leaks=0 $<TARGET_FILE:create-binary-files>
                     DEPENDS create-binary-files ${installed_files}
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                     COMMENT "Create binary files for Metkit configuration")

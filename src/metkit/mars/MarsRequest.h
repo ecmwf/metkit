@@ -182,6 +182,10 @@ public:  // methods
     /// The number of fields the request refers to
     size_t count() const;
 
+    MarsRequest extract(const std::string& category) const;
+
+    // void erase(const std::string& param);
+
     std::string asString() const;
 
     const Parameter* find(Keyword key) const;
