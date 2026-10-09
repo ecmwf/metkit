@@ -466,10 +466,11 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
 }
 
 MarsRequest MarsRequest::extract(const std::string& category) const {
-    Category cat = category == "data" ? Category::Data :
-                   category == "derived" ? Category::Derived :
-                   category == "postproc" ? Category::PostProc :
-                   category == "sink" ? Category::Sink : Category::None;
+    Category cat = category == "data"       ? Category::Data
+                   : category == "derived"  ? Category::Derived
+                   : category == "postproc" ? Category::PostProc
+                   : category == "sink"     ? Category::Sink
+                                            : Category::None;
 
     MarsRequest req(verb_);
     for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
