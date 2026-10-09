@@ -338,6 +338,7 @@ _field: &_field
       - [wmfm, wave monthly forecast means]
       - [wvhc, wave hindcast]
       - [xwda, extended window data assimilation]
+      - [reanl, icon reanalysis light CH1]
 
   product:
     category: data
