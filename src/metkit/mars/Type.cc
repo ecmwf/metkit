@@ -378,7 +378,9 @@ void Type::writeToByList(std::ofstream& file) const {
 void Type::writeCommon(std::ofstream& file) const {
     writeString(file, typeName_);
     write16(file, id_);
-    write8(file, flags_.to_ulong());
+    std::bitset<8> flags = flags_;
+    flags[5]             = hasGroups();
+    write8(file, flags.to_ulong());
     write8(file, static_cast<uint8_t>(category_));
 
     // write defaults_

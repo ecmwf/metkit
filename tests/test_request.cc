@@ -12,12 +12,16 @@
 /// @date   Jul 2024
 /// @author Emanuele Danovaro
 
+#include <sstream>
+#include <string>
+#include <type_traits>
+
 #include "eckit/io/Buffer.h"
 #include "eckit/log/JSON.h"
 #include "eckit/serialisation/MemoryStream.h"
 #include "eckit/serialisation/ResizableMemoryStream.h"
-#include "eckit/types/Date.h"
 
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
@@ -25,13 +29,10 @@
 #include "metkit/mars/Type.h"
 
 #include "eckit/testing/Test.h"
-#include "eckit/utils/Tokenizer.h"
 
 using namespace eckit::testing;
 
-namespace metkit {
-namespace mars {
-namespace test {
+namespace metkit::mars::test {
 
 //-----------------------------------------------------------------------------
 
@@ -419,11 +420,25 @@ CASE("test_language_verbs") {
     EXPECT_THROWS_AS(MarsLanguage::expandVerb("not_a_verb"), eckit::UserError);
 }
 
+CASE("test_request_no_implicit_conversions") {
+    // a verb (an integral) or a string must not silently become a request
+    EXPECT(!(std::is_convertible_v<Verb, MarsRequest>));
+    EXPECT(!(std::is_convertible_v<int, MarsRequest>));
+    EXPECT(!(std::is_convertible_v<std::string, MarsRequest>));
+    EXPECT(!(std::is_convertible_v<const char*, MarsRequest>));
+
+    EXPECT((std::is_constructible_v<MarsRequest, Verb>));
+    EXPECT((std::is_constructible_v<MarsRequest, std::string>));
+
+    Verb retrieve = MarsLanguage::verb("retrieve");
+    EXPECT_EQUAL(MarsRequest{retrieve}.verb(), "retrieve");
+    EXPECT_EQUAL(MarsRequest{"retrieve"}.verb(), "retrieve");
+}
+
 //-----------------------------------------------------------------------------
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
+
 
 int main(int argc, char** argv) {
     return run_tests(argc, argv);

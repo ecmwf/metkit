@@ -16,8 +16,17 @@
 
 #pragma once
 
+#include <cstddef>  // for size_t
+#include <functional>
+#include <iosfwd>
+#include <map>
+#include <memory>
 #include <optional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
+#include "eckit/utils/Translator.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/Dictionary.h"
@@ -25,6 +34,7 @@
 
 namespace eckit {
 class MD5;
+class Stream;
 namespace message {
 class Message;
 }
@@ -87,10 +97,10 @@ class MarsRequest {
 public:  // methods
 
     MarsRequest() = default;
-    MarsRequest(Verb verb);
-    MarsRequest(const std::string& verb);
-    MarsRequest(const std::string&, const std::map<std::string, std::string>&);
-    MarsRequest(const std::string&, const eckit::Value&);
+    explicit MarsRequest(Verb verb);
+    explicit MarsRequest(const std::string& verb);
+    MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals);
+    MarsRequest(const std::string& verb, const eckit::Value& vals);
 
     /// @param validate if true, every parameter is checked against the language of the verb and typed
     /// @param lowercase if true, the verb and the names of the parameters are converted to lowercase
@@ -100,6 +110,8 @@ public:  // methods
     MarsRequest(MarsRequest&& other) noexcept            = default;
     MarsRequest& operator=(const MarsRequest& other)     = default;
     MarsRequest& operator=(MarsRequest&& other) noexcept = default;
+
+    ~MarsRequest() = default;
 
     const std::string& operator[](const std::string&) const;
 

@@ -15,8 +15,23 @@
 
 #pragma once
 
+#include <atomic>
+#include <cstdint>
+#include <fstream>
+#include <functional>
+#include <map>
 #include <mutex>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "eckit/value/Value.h"
+
+#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
@@ -35,7 +50,7 @@ public:
 
 private:  // methods
 
-    bool hasGroups() const override { return flags_[5]; }
+    bool hasGroups() const override { return hasGroups_; }
     std::optional<std::reference_wrapper<const std::vector<std::string>>> group(
         const std::string& value) const override;
 
@@ -59,6 +74,8 @@ private:  // members
     mutable std::map<std::string, uint16_t> values_;  // map of acceptable values (included aliases)
 
     mutable std::once_flag readValues_;
+    // set when the values file is lazily loaded, while other threads may query it
+    mutable std::atomic<bool> hasGroups_{false};
 };
 
 //----------------------------------------------------------------------------------------------------------------------
