@@ -115,7 +115,7 @@ double resolve_FirstWavelength_or_throw(const MarsDict_t& mars, const ParDict_t&
     try {
 
         // Retrieve mandatory MARS wavelength (in nanometers)
-        long wavelengthInNanometers = get_or_throw<long>(mars, "wavelength");
+        double wavelengthInNanometers = get_or_throw<double>(mars, "wavelength");
 
         // Convert nanometers to meters
         double wavelengthInMeters = static_cast<double>(wavelengthInNanometers) / 1000000000.0;
