@@ -338,6 +338,7 @@ _field: &_field
       - [wmfm, wave monthly forecast means]
       - [wvhc, wave hindcast]
       - [xwda, extended window data assimilation]
+      - [reanl, icon reanalysis light CH1]
 
   product:
     category: data
@@ -471,6 +472,9 @@ _field: &_field
           - [vic-wur]
           - [geff]
           - [sparky]
+          - [icon-ch1-eps]
+          - [icon-ch2-eps]
+          - [icon-rea-l-ch1]
 
   forcing:
     category: data
@@ -672,6 +676,8 @@ _field: &_field
       - [pl, pressure levels]
       - [fl, flight levels]
       - [hl, height levels]
+      - [hmsl, height above mean sea level]
+      - [rfl, levels of constant reflectivity]
       - [pt, potential temperature]
       - [pv, potential vorticity]
       - [sfc, surf, surface] # sl ??
