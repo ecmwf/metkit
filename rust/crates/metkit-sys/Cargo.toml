@@ -1,6 +1,6 @@
 [package]
 name = "metkit-sys"
-version = "1.21.1"
+version = "1.21.2"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
