@@ -97,6 +97,24 @@ foreach( test
                       LIBS         metkit)
 endforeach()
 
+# a METKIT_HOME without language.yaml: the language can only be loaded from language.bin
+if( HAVE_METKIT_CONFIG )
+    set( _binary_only_home ${CMAKE_CURRENT_BINARY_DIR}/binary_only_home )
+    file( MAKE_DIRECTORY ${_binary_only_home}/share/metkit )
+    file( GLOB _metkit_config_files RELATIVE ${PROJECT_SOURCE_DIR}/share/metkit ${PROJECT_SOURCE_DIR}/share/metkit/*.yaml )
+    list( REMOVE_ITEM _metkit_config_files language.yaml )
+    foreach( _file ${_metkit_config_files} language.bin )
+        file( CREATE_LINK ${CMAKE_BINARY_DIR}/share/metkit/${_file} ${_binary_only_home}/share/metkit/${_file} SYMBOLIC )
+    endforeach()
+
+    ecbuild_add_test( TARGET       metkit_test_language_binary_first_use
+                      SOURCES      test_language_binary_first_use.cc
+                      INCLUDES     "${ECKIT_INCLUDE_DIRS}"
+                      ENVIRONMENT  "METKIT_HOME=${_binary_only_home}"
+                      NO_AS_NEEDED
+                      LIBS         metkit )
+endif()
+
 # Compile C test
 ecbuild_add_test( TARGET        metkit_test_c_compiled
                   SOURCES       test_c_api.c
