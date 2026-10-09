@@ -147,9 +147,14 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
             }());
         }
         else {
-
+            const bool isSeasonalEnsemble = (marsClass == "od" || marsClass == "rd" || marsClass == "c3") &&
+                                            (marsStream == "sfdd" || marsStream == "sfmd" || marsStream == "shdd" ||
+                                             marsStream == "shmd" || marsStream == "sfdp" || marsStream == "shdp");
+            if (isSeasonalEnsemble) {
+                result = tables::TypeOfProcessedData::PerturbedForecastProducts;
+            }
             // Deduce typeOfProcessedData from mars class and type
-            if (marsClass == "ai") {  // Mars class only for AI output
+            else if (marsClass == "ai") {  // Mars class only for AI output
                 result = tables::TypeOfProcessedData::MlBasedForecast;
             }
             else {  // Mars type for everything else
