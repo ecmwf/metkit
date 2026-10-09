@@ -21,7 +21,7 @@ function(add_pymetkit_test scenario test)
     set(_env
         "PYTHONPATH=${CMAKE_BINARY_DIR}/pymetkit-python-package-staging:$ENV{PYTHONPATH}"
         # prevent findlibs in pymetkit from picking up any globally installed metkit
-        "METKIT_DIR=${CMAKE_BINARY_DIR}"
+        "METKIT_DIR=$<TARGET_FILE_DIR:metkit>/.."
         "FINDLIBS_DISABLE_PACKAGE=yes"
         # metkit_env provides METKIT_HOME and ECCODES_DEFINITION_PATH for expansion
         ${metkit_env}

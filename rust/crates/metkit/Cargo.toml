@@ -11,8 +11,8 @@ build = "build.rs"
 
 [features]
 default = ["vendored", "grib", "bufr"]
-vendored = ["metkit-sys/vendored"]
-system = ["metkit-sys/system"]
+vendored = ["metkit-sys/vendored", "eckit/vendored"]
+system = ["metkit-sys/system", "eckit/system"]
 grib = ["metkit-sys/grib"]
 bufr = ["metkit-sys/bufr"]
 
