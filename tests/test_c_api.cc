@@ -202,6 +202,9 @@ CASE("metkit_paramiterator_t ") {
     }
 
     EXPECT_EQUAL(keys, keys_cpp);
+
+    test_success(metkit_paramiterator_delete(it));
+    test_success(metkit_marsrequest_delete(request));
 }
 
 CASE("metkit_requestiterator_t 1 item") {
