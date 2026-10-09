@@ -677,7 +677,7 @@ _field: &_field
       - [fl, flight levels]
       - [hl, height levels]
       - [hmsl, height above mean sea level]
-      - [rfl, reflectivity]
+      - [rfl, levels of constant reflectivity]
       - [pt, potential temperature]
       - [pv, potential vorticity]
       - [sfc, surf, surface] # sl ??
