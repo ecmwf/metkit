@@ -96,8 +96,16 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 
+        // Chemical products which have not been mapped
+        if (matchAny(param, range(228083, 228085))) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
+
         // Chemical products
-        if (matchAny(param, range(228083, 228085), range(400000, 499999))) {
+        if (matchAny(param, range(400000, 499999))) {
+            if (param % 10 != 0) {
+                return compile_time_registry_engine::MISSING;
+            }
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 

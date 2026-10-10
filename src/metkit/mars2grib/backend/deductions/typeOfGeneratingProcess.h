@@ -105,13 +105,13 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
     try {
 
         // Retrieve mandatory type from MARS dictionary
-        std::string marsTypeVal = get_or_throw<std::string>(mars, "type");
+        const auto type = get_or_throw<std::string>(mars, "type");
         // std::string marsStreamVal = get_or_throw<std::string>(mars, "stream");
         // std::string marsClassVal = get_or_throw<std::string>(mars, "class");
         // long paramIdVal = get_or_throw<long>(mars, "param");
 
         // Deduce the typeOfGeneratingProcess
-        if (marsTypeVal == "4i") {
+        if (type == "4i") {
 
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::AnalysisIncrement;
 
@@ -126,7 +126,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "pf" || marsTypeVal == "cf") {
+        else if (type == "pf" || type == "cf") {
 
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
 
@@ -141,9 +141,23 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "fc") {
+        else if (type == "fc") {
 
-            return TypeOfGeneratingProcess::EnsembleForecast;
+            const auto klass  = get_or_throw<std::string>(mars, "class");
+            const auto stream = get_or_throw<std::string>(mars, "stream");
+
+            const bool isSeasonalEnsemble = (klass == "od" || klass == "rd" || klass == "c3") &&
+                                            (stream == "sfdd" || stream == "sfmd" || stream == "shdd" ||
+                                             stream == "shmd" || stream == "sfdp" || stream == "shdp");
+
+            if (isSeasonalEnsemble) {
+                return TypeOfGeneratingProcess::EnsembleForecast;
+            }
+
+            // Note: class=od,stream=oper,type=fc is a control forecast, but may not have other evidence of an ensemble
+            if (klass == "od" && stream == "oper" /* && type == "fc" */) {
+                return TypeOfGeneratingProcess::EnsembleForecast;
+            }
 
             // Detect ensemble evidence even when MARS `type` is the generic
             // `fc`. Legacy GRIB1 data (and some rewritten streams) may carry
@@ -192,7 +206,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "est" || marsTypeVal == "es" || marsTypeVal == "em" || marsTypeVal == "ses") {
+        else if (type == "est" || type == "es" || type == "em" || type == "ses") {
 
             // Ensemble-derived statistical products (ensemble statistics,
             // ensemble standard deviation, ensemble mean, ensemble spread
@@ -205,14 +219,14 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
                 logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
-                logMsg += "' (type=" + marsTypeVal + ")";
+                logMsg += "' (type=" + type + ")";
                 return logMsg;
             }());
 
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "eme" || marsTypeVal == "me") {
+        else if (type == "eme" || type == "me") {
 
             // 4D-Var model-error fields (eme = ensemble model errors,
             // me = model errors). Generated as part of the analysis
@@ -234,7 +248,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "gbf") {
+        else if (type == "gbf") {
 
             // GRIB best forecast (gbf) fields. Generated as part of the forecast
             // system; the canonical ECMWF GRIB2 value is BiasCorrectedEnsembleForecast (11).
@@ -251,7 +265,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "gwt") {
+        else if (type == "gwt") {
 
             // GRIB generated with time (gwt) fields. Generated as part of the forecast
             // system; the canonical ECMWF GRIB2 value is Forecast (13).
@@ -268,7 +282,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "ssd") {
+        else if (type == "ssd") {
 
             // GRIB single site deterministic (ssd) fields. Generated as part of the forecast
             // system; the canonical ECMWF GRIB2 value is SingleSiteForecast (4).
