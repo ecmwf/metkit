@@ -70,7 +70,6 @@ struct ContextPtrComparator {
 };
 
 class MarsLanguage {
-
 public:  // methods
 
     MarsLanguage(Verb verb);
@@ -83,13 +82,15 @@ public:  // methods
     MarsLanguage& operator=(const MarsLanguage&) = delete;
     MarsLanguage& operator=(MarsLanguage&&)      = delete;
 
+    Verb verb() const { return verb_; }
+
     void write(std::ofstream& file) const;
 
     MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
-    const Type* type(Keyword name) const;
+    std::shared_ptr<const Type> type(Keyword name) const;
     const Type* type(const std::string& name) const;
 
     bool isData(Keyword keyword) const;
@@ -118,6 +119,7 @@ public:  // class methods
     static eckit::Value jsonFile(const std::string& name);
 
     static Verb verb(const std::string& name);
+    static Verb hasVerb(const std::string& name);
     static const std::string& name(Verb verb);
 
     static Keyword addKeyword(const std::string& name);

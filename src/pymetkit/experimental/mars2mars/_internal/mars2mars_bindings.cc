@@ -126,7 +126,7 @@ py::dict to_dict(const metkit::mars::MarsRequest& mars_request) {
 
     py::dict result{};
 
-    const auto& keys = mars_request.parameters();
+    const auto& keys = mars_request;
 
     for (const auto& key : keys) {
         const auto& values = key.values();

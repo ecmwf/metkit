@@ -377,7 +377,7 @@ void ParseRequest::process(const eckit::PathName& path) {
             const MarsRequest extra = passThrough.split(fields);
 
             for (auto& r : convertRequest(expand.expand(fields), converter)) {
-                for (const auto& param : extra.parameters()) {
+                for (const auto& param : extra) {
                     r.values(param.name(), param.values());
                 }
                 v.push_back(std::move(r));

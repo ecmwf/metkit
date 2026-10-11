@@ -123,7 +123,6 @@ void Parameter::merge(const Parameter& p) {
             diff.push_back(o);
         }
     }
-
     values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
 }
 

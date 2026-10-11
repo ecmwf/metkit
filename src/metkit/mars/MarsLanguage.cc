@@ -46,7 +46,7 @@ void initLanguage() {
 //----------------------------------------------------------------------------------------------------------------------
 
 ExpansionContext::ExpansionContext(const MarsRequest& request) {
-    for (const auto& param : request.parameters()) {
+    for (const auto& param : request) {
         Keyword key = param.id();
         if (key) {  // a parameter that is not a registered keyword cannot be inherited by any language
             values_[key] = param.values();
@@ -680,19 +680,18 @@ public:
     ~TypeHidden() override = default;
 };
 
-const Type* MarsLanguage::type(Keyword key) const {
+std::shared_ptr<const Type> MarsLanguage::type(Keyword key) const {
     auto it = types_.find(key);
-    if (it == types_.end()) {
-        throw eckit::UserError("Keyword '" + keywords_->name(key) + "' is not valid for verb '" + verbs_->name(verb_) +
-                               "'");
+    if (it != types_.end()) {
+        return it->second;
     }
-    return it->second.get();
+    throw eckit::UserError("Keyword '" + keywords_->name(key) + "' is not valid for verb '" + verbs_->name(verb_) + "'");
 }
 
 const Type* MarsLanguage::type(const std::string& name) const {
     Keyword key = keywords_->exist(name);
     if (key && types_.find(key) != types_.end()) {
-        return type(key);
+        return type(key).get();
     }
     if (!name.empty() && name[0] == '_') {  // internal keywords (e.g. _verb) are known, but have no type in a language
         static const TypeHidden hidden{};
@@ -710,7 +709,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
         // in axis order), so the order of the parameters in the request does not matter.
         std::map<Keyword, const Parameter*> paramSet;
 
-        for (const auto& param : r.parameters()) {
+        for (const auto& param : r) {
             // a typed parameter that is already a keyword of this language does not need to be looked up
             Keyword key = param.typed() ? param.id() : 0;
             if (!key || types_.find(key) == types_.end()) {
@@ -763,8 +762,8 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
 
         // pass2 modifies the request: go through a snapshot of the types, not through the parameters being modified
         std::vector<std::shared_ptr<const Type>> expanded;
-        expanded.reserve(result.parameters().size());
-        for (const auto& param : result.parameters()) {
+        expanded.reserve(result.size());
+        for (const auto& param : result) {
             expanded.push_back(param.typePtr());
         }
         for (const auto& t : expanded) {
@@ -799,7 +798,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<Keyword
     Keyword param = params[i];
 
     // internal keywords (e.g. _verb) are registered, but have no type in the language: look them up by name
-    const Type* t = types_.find(param) != types_.end() ? type(param) : type(name(param));
+    const Type* t = types_.find(param) != types_.end() ? type(param).get() : type(name(param));
     if (!t->flatten()) {
         flatten(request, params, i + 1, result, callback);
         return;
@@ -816,7 +815,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<Keyword
 void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
     MarsRequest result(request);
     std::vector<Keyword> params;
-    for (const auto& p : request.parameters()) {
+    for (const auto& p : request) {
         Keyword key = p.id();
         if (!key) {
             throw eckit::UserError("Cannot flatten a request with an unknown keyword '" + p.name() + "'");
@@ -829,6 +828,10 @@ void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback
 Verb MarsLanguage::verb(const std::string& name) {
     pthread_once(&once, initLanguage);
     return verbs_->keyword(eckit::StringTools::lower(name));
+}
+Verb MarsLanguage::hasVerb(const std::string& name) {
+    pthread_once(&once, initLanguage);
+    return verbs_->exist(eckit::StringTools::lower(name));
 }
 const std::string& MarsLanguage::name(Verb verb) {
     pthread_once(&once, initLanguage);

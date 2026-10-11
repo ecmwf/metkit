@@ -76,6 +76,7 @@ public:  // methods
 
     const std::vector<std::string>& values() const { return values_; }
     void values(const std::vector<std::string>& values) { values_ = values; }
+    void values(std::vector<std::string>&& values) { values_ = std::move(values); }
 
     bool typed() const { return type_ != nullptr; }
     /// @throws SeriousBug if the parameter is untyped

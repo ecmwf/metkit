@@ -282,8 +282,8 @@ CASE("test_request_untyped_parameters") {
     EXPECT_EQUAL(r["class"], "rd");
     EXPECT_EQUAL(r.params().size(), 2u);
 
-    // the parameters keep the order they were added in
-    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"custom", "class"}));
+    // the data parameters (here an axis) come first, then the others
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "custom"}));
 
     r.erase(klass);
     EXPECT(!r.has("class"));
