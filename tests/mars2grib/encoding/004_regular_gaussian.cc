@@ -80,9 +80,9 @@ CASE("encoding") {
             const auto handle = Mars2Grib().encode(vals, mars_request(grid));
             ASSERT(handle);
 
-            EXPECT_EQUAL(handle->getString("gridName"), grid);
+            EXPECT(handle->getString("gridName") == grid);
             if (useGridSpec) {
-                EXPECT_EQUAL(handle->getString("gridSpec"), R"({"grid":")" + grid + R"("})");
+                EXPECT(handle->getString("gridSpec") == R"({"grid":")" + grid + R"("})");
             }
 
             EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 40L);  // Gaussian latitude/longitude
@@ -99,8 +99,8 @@ CASE("encoding") {
             EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAParallel"), Ni);
             EXPECT_EQUAL(handle->getLong("Nj"), Nj);
             EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), Nj);
-            EXPECT_EQUAL(handle->getLong("N"), N);
-            EXPECT_EQUAL(handle->getLong("numberOfParallelsBetweenAPoleAndTheEquator"), N);
+            EXPECT(handle->getLong("N") == N);
+            EXPECT(handle->getLong("numberOfParallelsBetweenAPoleAndTheEquator") == N);
             EXPECT_EQUAL(handle->getLong("basicAngleOfTheInitialProductionDomain"), 0L);
             EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
 
