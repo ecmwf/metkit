@@ -86,12 +86,12 @@ CASE("encoding") {
             if (useGridSpec) {
                 auto increments = grid;
                 std::replace(increments.begin(), increments.end(), '/', ',');
-                EXPECT(handle->getString("gridSpec") == R"({"grid":[)" + increments + "]}");
+                EXPECT_EQUAL(handle->getString("gridSpec"), R"({"grid":[)" + increments + "]}");
             }
 
-            EXPECT(handle->getLong("gridDefinitionTemplateNumber") == 0L);  // Latitude/longitude
+            EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 0L);  // Latitude/longitude
 
-            EXPECT(handle->getLong("shapeOfTheEarth") == 6L);  // Spherical Earth with radius = 6371229.0 m
+            EXPECT_EQUAL(handle->getLong("shapeOfTheEarth"), 6L);  // Spherical Earth with radius = 6371229.0 m
             EXPECT(handle->isMissing("scaleFactorOfRadiusOfSphericalEarth"));
             EXPECT(handle->isMissing("scaledValueOfRadiusOfSphericalEarth"));
             EXPECT(handle->isMissing("scaleFactorOfEarthMajorAxis"));
@@ -99,23 +99,23 @@ CASE("encoding") {
             EXPECT(handle->isMissing("scaleFactorOfEarthMinorAxis"));
             EXPECT(handle->isMissing("scaledValueOfEarthMinorAxis"));
 
-            EXPECT(handle->getLong("Ni") == Ni);
-            EXPECT(handle->getLong("numberOfPointsAlongAParallel") == Ni);
-            EXPECT(handle->getLong("Nj") == Nj);
-            EXPECT(handle->getLong("numberOfPointsAlongAMeridian") == Nj);
-            EXPECT(handle->getLong("basicAngleOfTheInitialProductionDomain") == 0L);
+            EXPECT_EQUAL(handle->getLong("Ni"), Ni);
+            EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAParallel"), Ni);
+            EXPECT_EQUAL(handle->getLong("Nj"), Nj);
+            EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), Nj);
+            EXPECT_EQUAL(handle->getLong("basicAngleOfTheInitialProductionDomain"), 0L);
             EXPECT(handle->isMissing("subdivisionsOfBasicAngle"));
 
             EXPECT(approx(handle->getDouble("latitudeOfFirstGridPointInDegrees"), 90.));
             EXPECT(approx(handle->getDouble("longitudeOfFirstGridPointInDegrees"), 0.));
-            EXPECT(handle->getLong("resolutionAndComponentFlags") == 48L);  // 0011 0000 (Di and Dj given)
+            EXPECT_EQUAL(handle->getLong("resolutionAndComponentFlags"), 48L);  // 0011 0000 (Di and Dj given)
             EXPECT(approx(handle->getDouble("latitudeOfLastGridPointInDegrees"), -90.));
             EXPECT(approx(handle->getDouble("longitudeOfLastGridPointInDegrees"), 360. - dx));
             EXPECT(approx(handle->getDouble("iDirectionIncrementInDegrees"), dx));
             EXPECT(approx(handle->getDouble("jDirectionIncrementInDegrees"), dy));
-            EXPECT(handle->getLong("scanningMode") == 0L);  // 0000 0000
+            EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
 
-            EXPECT(handle->getLong("numberOfDataPoints") == Ni * Nj);
+            EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), Ni * Nj);
         }
     }
 }
@@ -137,12 +137,12 @@ CASE("encoding (rotated)") {
     const auto handle = Mars2Grib().encode(vals, mars);
     ASSERT(handle);
 
-    EXPECT(handle->getLong("gridDefinitionTemplateNumber") == 1L);  // Rotated latitude/longitude
+    EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 1L);  // Rotated latitude/longitude
 
-    EXPECT(handle->getLong("Ni") == Ni);
-    EXPECT(handle->getLong("numberOfPointsAlongAParallel") == Ni);
-    EXPECT(handle->getLong("Nj") == Nj);
-    EXPECT(handle->getLong("numberOfPointsAlongAMeridian") == Nj);
+    EXPECT_EQUAL(handle->getLong("Ni"), Ni);
+    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAParallel"), Ni);
+    EXPECT_EQUAL(handle->getLong("Nj"), Nj);
+    EXPECT_EQUAL(handle->getLong("numberOfPointsAlongAMeridian"), Nj);
 
     // first/last grid points, in the rotated frame
     EXPECT(approx(handle->getDouble("latitudeOfFirstGridPointInDegrees"), 26.65));
@@ -151,13 +151,13 @@ CASE("encoding (rotated)") {
     EXPECT(approx(handle->getDouble("longitudeOfLastGridPointInDegrees"), 30.45));
     EXPECT(approx(handle->getDouble("iDirectionIncrementInDegrees"), 0.1));
     EXPECT(approx(handle->getDouble("jDirectionIncrementInDegrees"), 0.1));
-    EXPECT(handle->getLong("scanningMode") == 0L);  // 0000 0000
+    EXPECT_EQUAL(handle->getLong("scanningMode"), 0L);  // 0000 0000
 
     EXPECT(approx(handle->getDouble("latitudeOfSouthernPoleInDegrees"), -22.));
     EXPECT(approx(handle->getDouble("longitudeOfSouthernPoleInDegrees"), 320.));
     EXPECT(approx(handle->getDouble("angleOfRotationInDegrees"), 0.));
 
-    EXPECT(handle->getLong("numberOfDataPoints") == Ni * Nj);
+    EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), Ni * Nj);
 
     // coordinates of the southernmost row (the last, as scanned), from a grid built from the encoded gridSpec
     const std::vector<eckit::geo::PointLonLat> points_ref{
@@ -172,8 +172,8 @@ CASE("encoding (rotated)") {
         eckit::geo::GridFactory::make_from_string(handle->getString("gridSpec")));
     ASSERT(grid);
 
-    EXPECT(grid->projection().type() == "rotation");
-    EXPECT(grid->size() == static_cast<size_t>(Ni * Nj));
+    EXPECT_EQUAL(grid->projection().type(), "rotation");
+    EXPECT_EQUAL(grid->size(), static_cast<size_t>(Ni * Nj));
 
     const auto points = grid->to_points();
     for (size_t i = 0; i < points_ref.size(); ++i) {

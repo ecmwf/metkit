@@ -1352,6 +1352,32 @@ CASE("test_metkit_expand_coeffindex") {
     }
 }
 
+CASE("number in xwda & seas6") {
+    {
+        const char* text =
+            "list,class=rd,expver=jc22,stream=xwda,type=fc,date=20230530,time=18,param=cdww,obscutoff=0900,number=1";
+        const char* expected =
+            "list,class=rd,expver=jc22,stream=xwda,type=fc,date=20230530,time=1800,param=140233,obscutoff=0900,number="
+            "1";
+        expand(text, expected);
+    }
+    {
+        const char* text =
+            "list,expver=jbpy,class=rd,stream=sfdd,type=fc,levtype=sfc,param=78,number=0/to/1/by/1,step=6";
+        const char* expected = "list,expver=jbpy,class=rd,stream=sfdd,type=fc,levtype=sfc,param=78,number=0/1,step=6";
+        expand(text, expected);
+    }
+    {
+        const char* text =
+            "retrieve,class=od,expver=1,stream=sfdd,system=0,date=20010501,time=0,domain=g,type=fc,levtype=sfc,"
+            "timespan=none,number=0/1,param=78,step=6";
+        const char* expected =
+            "retrieve,class=od,expver=0001,stream=sfdd,system=0,date=20010501,time=0000,domain=g,type=fc,levtype=sfc,"
+            "timespan=none,number=0/1,param=78,step=6";
+        expand(text, expected);
+    }
+}
+
 CASE("PGEN-566 class=ai") {
     const char* text =
         "retrieve,date=20260506,class=ai,stream=oper,expver=0001,domain=g,type=fc,levtype=sfc,param=sd/swh,time=0000/"
