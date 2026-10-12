@@ -170,16 +170,15 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
                 validation::check_EnsembleProductDefinitionSection_or_throw(opt, out);
 
                 // Deductions
-                tables::TypeOfEnsembleForecast typeOfEnsembleForecast =
-                    deductions::resolve_TypeOfEnsembleForecast_or_throw(mars, par, opt);
-                long numberOfForecastsInEnsemble =
+                const auto typeOfEnsembleForecast = deductions::resolve_TypeOfEnsembleForecast_or_throw(mars, par, opt);
+                const auto numberOfForecastsInEnsemble =
                     deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
-                long marsNumber = deductions::resolve_PerturbationNumber_or_throw(mars, par, opt);
+                const auto perturbationNumber = deductions::resolve_PerturbationNumber_or_throw(mars, par, opt);
 
                 // Encoding
                 set_or_throw<long>(out, "typeOfEnsembleForecast", static_cast<long>(typeOfEnsembleForecast));
                 set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
-                set_or_throw<long>(out, "perturbationNumber", marsNumber);
+                set_or_throw<long>(out, "perturbationNumber", perturbationNumber);
             }
 
             if constexpr (Variant == EnsembleType::ProbabilityLargeEnsemble) {
@@ -187,8 +186,8 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
                 // Structural validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {121L, 122L});
 
-                // Deductions
-                std::cout << "TODO:: Resolving TypeOfEnsembleForecast for ProbabilityLargeEnsemble..." << std::endl;
+                throw utils::exceptions::Mars2GribMatcherException(
+                    "Logic for EnsembleType::ProbabilityLargeEnsemble is not implemented!", Here());
             }
         }
         catch (...) {
