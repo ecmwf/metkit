@@ -109,7 +109,7 @@ static void test_steprange_axis(const std::vector<std::string>& user, const std:
 
     std::cout << "Result:" << values << std::endl;
 
-    EXPECT(values == result);
+    EXPECT_EQUAL(values, result);
 }
 
 

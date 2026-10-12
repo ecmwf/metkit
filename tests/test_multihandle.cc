@@ -38,8 +38,8 @@ CASE("openf filehandle") {
     }
 
     fclose(f);
-    EXPECT(count == 1);
-    EXPECT(err == GRIB_SUCCESS);
+    EXPECT_EQUAL(count, 1);
+    EXPECT_EQUAL(err, GRIB_SUCCESS);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -62,8 +62,8 @@ CASE("openf multihandle") {
     }
 
     fclose(f);
-    EXPECT(count == 2);
-    EXPECT(err == GRIB_SUCCESS);
+    EXPECT_EQUAL(count, 2);
+    EXPECT_EQUAL(err, GRIB_SUCCESS);
 }
 
 //-----------------------------------------------------------------------------

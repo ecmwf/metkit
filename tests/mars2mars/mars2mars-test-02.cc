@@ -115,8 +115,8 @@ CASE("mars2mars_flatten_convert_append_to_json") {
     std::cout << outputJson << std::endl;
 
     EXPECT(!outputJson.empty());
-    EXPECT(outputJson.front() == '[');
-    EXPECT(outputJson.back() == ']');
+    EXPECT_EQUAL(outputJson.front(), '[');
+    EXPECT_EQUAL(outputJson.back(), ']');
     // }
     // catch (const eckit::Exception& e) {
     //     std::cerr << "Test failed with exception: " << e.what() << std::endl;

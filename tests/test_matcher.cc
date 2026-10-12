@@ -24,7 +24,7 @@ namespace metkit::test {
 CASE("parse string with spaces") {
     std::map<std::string, eckit::Regex> map =
         parseMatchString("expver=(x[0-9a-z]{3}), number = (1|2) , stream=  ^enfo$  ");
-    EXPECT(map.size() == 3);
+    EXPECT_EQUAL(map.size(), 3);
     EXPECT(map.find("expver") != map.end());
     EXPECT(map.find("number") != map.end());
     EXPECT(map.find("stream") != map.end());

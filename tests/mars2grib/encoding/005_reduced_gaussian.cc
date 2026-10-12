@@ -309,8 +309,8 @@ CASE("O80 (rotated)") {
         eckit::geo::GridFactory::make_from_string(handle->getString("gridSpec")));
     ASSERT(grid);
 
-    EXPECT(grid->projection().type() == "rotation");
-    EXPECT(grid->size() == 28480);
+    EXPECT_EQUAL(grid->projection().type(), "rotation");
+    EXPECT_EQUAL(grid->size(), 28480);
 
     const auto points = grid->to_points();
     for (size_t i = 0; i < points_ref.size(); ++i) {
