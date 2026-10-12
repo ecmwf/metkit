@@ -290,7 +290,7 @@ Rule::Rule(MemFile& file) {
     }
     uint16_t numBareIds = file.read16();
     for (uint16_t i = 0; i < numBareIds; ++i) {
-        const uint32_t number = file.read16(); // 16 bits are enough since it stores only 3 decimal digits
+        const uint32_t number = file.read16();  // 16 bits are enough since it stores only 3 decimal digits
         param2paramid_.emplace(number, file.read32());
     }
 }
@@ -408,7 +408,7 @@ void Rule::write(std::ofstream& out) const {
     }
     write16(out, param2paramid_.size());
     for (const auto& [number, id] : param2paramid_) {
-        write16(out, static_cast<uint16_t>(number)); // 16 bits are enough since it is only storing 3 decimal digits
+        write16(out, static_cast<uint16_t>(number));  // 16 bits are enough since it is only storing 3 decimal digits
         write32(out, id);
     }
 }

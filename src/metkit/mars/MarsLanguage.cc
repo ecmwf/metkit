@@ -685,7 +685,8 @@ std::shared_ptr<const Type> MarsLanguage::type(Keyword key) const {
     if (it != types_.end()) {
         return it->second;
     }
-    throw eckit::UserError("Keyword '" + keywords_->name(key) + "' is not valid for verb '" + verbs_->name(verb_) + "'");
+    throw eckit::UserError("Keyword '" + keywords_->name(key) + "' is not valid for verb '" + verbs_->name(verb_) +
+                           "'");
 }
 
 const Type* MarsLanguage::type(const std::string& name) const {

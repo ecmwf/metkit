@@ -62,7 +62,9 @@ Verb MarsDataCube::verbId() const {
     return verb_;
 }
 
-void MarsDataCube::verb(Verb id) { verb_ = id; }
+void MarsDataCube::verb(Verb id) {
+    verb_ = id;
+}
 
 const std::vector<std::string>& MarsDataCube::get(Keyword key) const {
     static const std::vector<std::string> empty;
@@ -155,8 +157,8 @@ void MarsDataCube::merge(const MarsDataCube& other) {
 
 size_t MarsDataCube::count() const {
     static const Keyword LEVELIST = MarsLanguage::keyword("levelist");
-    static const Keyword PARAM = MarsLanguage::keyword("param");
-    static const Keyword LEVTYPE = MarsLanguage::keyword("levtype");
+    static const Keyword PARAM    = MarsLanguage::keyword("param");
+    static const Keyword LEVTYPE  = MarsLanguage::keyword("levtype");
 
     size_t result = 1;
 

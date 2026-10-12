@@ -88,6 +88,7 @@ public:  // methods
     void merge(const MarsDataCube& other);
 
 protected:
+
     Verb verb_;
     const MarsLanguage* lang_;
     std::vector<Parameter> data_;
@@ -225,7 +226,7 @@ public:  // methods
     MarsRequest& operator=(MarsRequest&& other) noexcept = default;
 
     ~MarsRequest() override = default;
-    
+
     const std::string& operator[](const std::string&) const;
 
     Verb verbId() const override;
@@ -258,8 +259,10 @@ public:  // methods
     /// @deprecated use params()
     void getParams(std::vector<std::string>& p) const { p = params(); }
 
-    [[ deprecated("iterate directly over the MarsRequest") ]]
-    MarsRequest& parameters() const { return *const_cast<MarsRequest*>(this); }
+    [[deprecated("iterate directly over the MarsRequest")]]
+    MarsRequest& parameters() const {
+        return *const_cast<MarsRequest*>(this);
+    }
 
     template <class T>
     void setValue(Keyword key, const T& value);

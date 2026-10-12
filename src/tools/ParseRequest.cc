@@ -249,7 +249,7 @@ public:
 
     MarsRequest split(MarsRequest& request) {
         const MarsLanguage& language = MarsLanguage::get(request.verb());
-        MarsRequest& inherited       = inherited_.try_emplace(request.verb(), MarsRequest{request.verb()}).first->second;
+        MarsRequest& inherited = inherited_.try_emplace(request.verb(), MarsRequest{request.verb()}).first->second;
 
         for (const auto& name : request.params()) {
             const std::string key = StringTools::lower(name);
