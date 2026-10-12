@@ -15,7 +15,7 @@ CASE("retrieve_best_match_param_matching") {
     const auto& match =
         MarsLanguage::get("retrieve").bestMatch("param", {"parameter", "param"}, false, false, true, {});
 
-    EXPECT(match == "param");
+    EXPECT_EQUAL(match, "param");
 };
 
 }  // namespace metkit::mars::test
