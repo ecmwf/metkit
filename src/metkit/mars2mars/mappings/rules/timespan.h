@@ -46,6 +46,16 @@ inline void setParamTimespan(OutDict_t& out, long param, const std::string& time
     }
 }
 
+/// @brief Legacy params whose step range always starts at the forecast start (`0-N`), so the window
+/// grows with the step and is `fs`, not `Nh`: CAMS accumulated dry (222xxx) and wet (223xxx) deposition.
+inline bool isAccumulatedFromStart(long param) {
+    static const std::unordered_set<long> paramsAccumulatedFromStart{222001, 222006, 222013, 222015, 222017, 222019,
+                                                                     222027, 222031, 222033, 223006, 223013, 223015,
+                                                                     223017, 223019, 223026, 223027, 223031, 223033};
+
+    return paramsAccumulatedFromStart.find(param) != paramsAccumulatedFromStart.end();
+}
+
 /// @brief Detect a `step` of the form "<startStep>-<endStep>" and rewrite
 /// `step` + `timespan` on `out`. When `step` is a single value, default the
 /// output `timespan` to "none" if it is not already set on `in`.
@@ -113,6 +123,10 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out, const
                 }
             }
 
+            set_or_throw<long>(out, "step", endStep);
+            set_or_throw<std::string>(out, "timespan", "fs");
+        }
+        else if (startStep == 0 && isAccumulatedFromStart(get_or_throw<long>(in, "param"))) {
             set_or_throw<long>(out, "step", endStep);
             set_or_throw<std::string>(out, "timespan", "fs");
         }

@@ -34,8 +34,9 @@ inline void setParamChem(OutDict_t& out, long param, long chem) {
         set_or_throw<long>(out, "param", param);
         set_or_throw<long>(out, "chem", chem);
 
-        // Reset timespan for instant params
-        if (param % 10 == 0) {
+        // Reset timespan for instant params. 444000/445000 (accumulated deposition) end in 0 but are accumulations
+        // (ecCodes paramId.chemsplit.def), see the `statistics` matcher
+        if (param % 10 == 0 && param != 444000 && param != 445000) {
             set_or_throw<std::string>(out, "timespan", "none");
         }
     }
@@ -59,8 +60,9 @@ inline void setParamChemWavelength(OutDict_t& out, long param, long chem, double
         set_or_throw<long>(out, "chem", chem);
         set_or_throw<double>(out, "wavelength", wavelength);
 
-        // Reset timespan for instant params
-        if (param % 10 == 0) {
+        // Reset timespan for instant params. 444000/445000 (accumulated deposition) end in 0 but are accumulations
+        // (ecCodes paramId.chemsplit.def), see the `statistics` matcher
+        if (param % 10 == 0 && param != 444000 && param != 445000) {
             set_or_throw<std::string>(out, "timespan", "none");
         }
     }
