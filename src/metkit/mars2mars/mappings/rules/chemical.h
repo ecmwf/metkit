@@ -561,21 +561,21 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 case 212149:
                     return setParamChem(out, 430000, 43);
                 case 212152:
-                    return setParamChem(out, 423000, 96);
+                    return setParamChem(out, 423000, 44);
                 case 212153:
-                    return setParamChem(out, 424000, 96);
+                    return setParamChem(out, 424000, 44);
                 case 212154:
-                    return setParamChem(out, 425000, 96);
+                    return setParamChem(out, 425000, 44);
                 case 212155:
-                    return setParamChem(out, 464000, 96);
+                    return setParamChem(out, 464000, 44);
                 case 212156:
-                    return setParamChem(out, 427000, 96);
+                    return setParamChem(out, 427000, 44);
                 case 212157:
-                    return setParamChem(out, 428000, 96);
+                    return setParamChem(out, 428000, 44);
                 case 212158:
-                    return setParamChem(out, 429000, 96);
+                    return setParamChem(out, 429000, 44);
                 case 212159:
-                    return setParamChem(out, 430000, 96);
+                    return setParamChem(out, 430000, 44);
                 case 212161:
                     return setParamChem(out, 412000, 19);
                 case 212162:
@@ -725,7 +725,7 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 case 212240:
                     return setParamChem(out, 426000, 43);
                 case 212241:
-                    return setParamChem(out, 426000, 96);
+                    return setParamChem(out, 426000, 44);
                 case 212242:
                     return setParamChem(out, 426000, 311);
                 case 212243:
@@ -736,6 +736,10 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                     return setParamChem(out, 463000, 42);
                 case 212246:
                     return setParamChem(out, 463000, 2);
+                case 212247:
+                    return setParamChem(out, 476000, 361);
+                case 212248:
+                    return setParamChem(out, 476000, 360);
                 case 212255:
                     return setParamChem(out, 418000, 17);
                 case 215001:
@@ -1277,7 +1281,7 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 case 216145:
                     return setParamChem(out, 421000, 12);
                 case 216146:
-                    return setParamChem(out, 463000, 96);
+                    return setParamChem(out, 463000, 44);
                 case 216147:
                     return setParamChem(out, 463000, 311);
                 case 216148:
