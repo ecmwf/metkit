@@ -81,13 +81,15 @@ SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const Par
     (void)par;
     (void)opt;
 
-    constexpr std::array<std::string_view, 17> analysisTypes = {
-        {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
-    constexpr std::array<std::string_view, 40> forecastTypes = {
-        {"fc",     "cf", "pf",     "cm",    "fp",    "em",      "ep",  "es",   "fa",   "efi",
-         "efic",   "bf", "cd",     "wem",   "wes",   "cr",      "ses", "taem", "taes", "sg",
-         "sf",     "if", "fcmean", "fcmax", "fcmin", "fcstdev", "ssd", "tf",   "bf",   "cd",
-         "hcmean", "s3", "si",     "gbf",   "gwt",   "est",     "icp", "pfc",  "sot",  "4v"}};
+    // GFAS analysis (`ga`) products are means over a window that starts at the reference time (step 0-1, 0-24), encoded
+    // like forecasts (significanceOfReferenceTime 1, forecastTime 0), as in the operational GRIB2
+    constexpr std::array<std::string_view, 14> analysisTypes = {
+        {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "gai", "ai", "af", "ab", "oai"}};
+    constexpr std::array<std::string_view, 41> forecastTypes = {
+        {"fc",     "cf",    "pf",    "cm",      "fp",  "em",  "ep",   "es",   "fa",     "efi", "efic",
+         "bf",     "cd",    "wem",   "wes",     "cr",  "ses", "taem", "taes", "sg",     "sf",  "if",
+         "fcmean", "fcmax", "fcmin", "fcstdev", "ssd", "tf",  "bf",   "cd",   "hcmean", "s3",  "si",
+         "gbf",    "gwt",   "est",   "icp",     "pfc", "sot", "4v",   "ga"}};
     constexpr std::array<std::string_view, 3> startOfDataAssimilationTypes = {{"4i", "me", "eme"}};
 
     try {
