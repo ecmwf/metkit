@@ -69,6 +69,7 @@ bool TypeToByListQuantile::expand(std::string& value, const MarsRequest&) const 
         oss << name_ << ": " << q.den() << "-quantile not supported.";
         throw eckit::BadValue(oss.str());
     }
+    value = q;
     return true;
 }
 

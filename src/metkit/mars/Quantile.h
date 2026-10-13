@@ -25,8 +25,11 @@ public:
 
     Quantile(const std::string& value);
     Quantile(long num, long den);
+    Quantile(long min, long max, long den);
 
-    long num() const { return num_; }
+    long num() const { return max_; }
+    long min() const { return min_; }
+    long max() const { return max_; }
     long den() const { return den_; }
 
     operator std::string();
@@ -49,7 +52,8 @@ private:
 
 private:
 
-    long num_;
+    long min_;
+    long max_;
     long den_;
 };
 

@@ -32,8 +32,8 @@ CASE("test_metkit_hypercube") {
     metkit::hypercube::HyperCube cube(r);
 
     EXPECT(cube.contains(r));
-    EXPECT(cube.size() == 1);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.size(), 1);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r));
 }
@@ -45,9 +45,9 @@ CASE("test_metkit_hypercube_subset") {
     MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
-    EXPECT(cube.size() == 2);
-    EXPECT(cube.countVacant() == 2);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.size(), 2);
+    EXPECT_EQUAL(cube.countVacant(), 2);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r));
 
@@ -68,16 +68,16 @@ CASE("test_metkit_hypercube_subset") {
     cube.clear(r500);
 
     EXPECT(!cube.contains(r500));
-    EXPECT(cube.size() == 2);
-    EXPECT(cube.countVacant() == 1);
+    EXPECT_EQUAL(cube.size(), 2);
+    EXPECT_EQUAL(cube.countVacant(), 1);
 
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r600 < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r600));
 
     cube.clear(r600);
 
-    EXPECT(cube.countVacant() == 0);
+    EXPECT_EQUAL(cube.countVacant(), 0);
 }
 
 CASE("test_metkit_hypercube_request") {
@@ -87,9 +87,9 @@ CASE("test_metkit_hypercube_request") {
     MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
-    EXPECT(cube.size() == 4);
-    EXPECT(cube.countVacant() == 4);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.size(), 4);
+    EXPECT_EQUAL(cube.countVacant(), 4);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r));
 
@@ -110,15 +110,15 @@ CASE("test_metkit_hypercube_request") {
     cube.clear(r500);
 
     EXPECT(!cube.contains(r500));
-    EXPECT(cube.size() == 4);
-    EXPECT(cube.countVacant() == 3);
+    EXPECT_EQUAL(cube.size(), 4);
+    EXPECT_EQUAL(cube.countVacant(), 3);
 
-    EXPECT(cube.vacantRequests().size() == 2);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 2);
 
     cube.clear(r600);
 
-    EXPECT(cube.countVacant() == 2);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.countVacant(), 2);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
 
     const char* text155 =
         "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
