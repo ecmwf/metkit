@@ -186,8 +186,8 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
                 // Structural validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {121L, 122L});
 
-                throw utils::exceptions::Mars2GribMatcherException(
-                    "Logic for EnsembleType::ProbabilityLargeEnsemble is not implemented!", Here());
+                // Nothing else to set: the strike-probability templates (4.121/4.122) get their keys from the paramId
+                // and the `probability` concept
             }
         }
         catch (...) {
