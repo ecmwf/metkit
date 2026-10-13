@@ -87,11 +87,11 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         if (hasWavelength) {
             if (matchAny(paramInstant, 457000)) {
-                if (matchAny(chem, range(900, 914), 918, 922, 923, range(933, 936))) {
+                if (matchAny(chem, range(900, 916), 918, 922, 923, range(933, 936))) {
                     return static_cast<std::size_t>(CompositionType::AerosolOptical);
                 }
             }
-            else if (matchAny(paramInstant, 458000, 459000, 460000, 461000, 462000, 472000)) {
+            else if (matchAny(paramInstant, 458000, 459000, 460000, 461000, 462000, 472000, 475000)) {
                 if (matchAny(chem, 922)) {
                     return static_cast<std::size_t>(CompositionType::AerosolOptical);
                 }
@@ -148,15 +148,28 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
+            else if (matchAny(paramInstant, 473000)) {
+                if (matchAny(chem, 2, 17, 236)) {
+                    return static_cast<std::size_t>(CompositionType::Chem);
+                }
+            }
             else if (matchAny(paramInstant, 479000)) {
                 if (matchAny(chem, 404)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
             else if (matchAny(paramInstant, 469000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 18, 19, 25, 31, 42, range(45, 49), 52, range(98, 100), 124, 126,
-                             129, 199, 224, 226, 233, 311, 334, 404, range(431, 433), range(438, 441), range(443, 446),
-                             922, 930, 933, 934, 948, 951)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 18, 19, 25, 31, 42, range(45, 49), 52, range(98, 100), 107, 124,
+                             126, 129, 199, 224, 226, 233, 311, 334, 404, range(431, 433), range(438, 441),
+                             range(443, 446), 922, 930, 933, 934, 948, 951)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            // Emission fluxes by sector (CAMS 212xxx): the sector is in the param (sourceSinkChemicalPhysicalProcess)
+            else if (matchAny(paramInstant, 412000, 413000, 418000, 419000, 420000, 421000, 423000, 424000, 425000,
+                              426000, 427000, 428000, 429000, 430000, 441000, 442000, 463000, 464000, 465000)) {
+                if (matchAny(chem, 2, 5, 9, 10, 11, 12, 16, 17, 18, 19, 27, 42, 43, range(45, 49), 52, 96, 99, 100, 188,
+                             233, 311, 933, 934)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
