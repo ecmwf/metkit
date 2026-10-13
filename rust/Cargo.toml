@@ -3,6 +3,7 @@ resolver = "2"
 members = ["crates/metkit-sys", "crates/metkit"]
 
 [workspace.package]
+version = "1.22.0"
 edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/ecmwf/metkit"
@@ -13,8 +14,8 @@ categories = ["science"]
 
 [workspace.dependencies]
 # Internal
-metkit-sys = { path = "crates/metkit-sys", default-features = false, features = ["metkit-config"] }
-metkit = { path = "crates/metkit" }
+metkit-sys = { version = "1.22", path = "crates/metkit-sys", default-features = false, features = ["metkit-config"] }
+metkit = { version = "1.22", path = "crates/metkit" }
 
 # Foundation crates
 eckit-sys = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop", default-features = false }
