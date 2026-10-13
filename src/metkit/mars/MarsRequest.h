@@ -214,6 +214,7 @@ public:  // methods
     MarsRequest(Verb verb);
     MarsRequest(const std::string& verb);
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
+    MarsRequest(const std::string&, const std::map<std::string, std::vector<std::string>>&);
     MarsRequest(const std::string&, const eckit::Value&);
 
     /// @param validate if true, every parameter is checked against the language of the verb and typed

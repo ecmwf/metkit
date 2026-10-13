@@ -223,6 +223,14 @@ MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, st
     }
 }
 
+MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, std::vector<std::string>>& vals) : MarsRequest(verb) {
+
+    for (const auto& [k, v] : vals) {
+        values(k, v);
+    }
+}
+
+    
 MarsRequest::MarsRequest(const std::string& s, const eckit::Value& vals) : MarsRequest(s) {
     eckit::ValueMap valueMap = vals;
     for (const auto& [param, value] : valueMap) {
