@@ -21,10 +21,10 @@ metkit-sys = { version = "1.22", path = "crates/metkit-sys", default-features = 
 metkit = { version = "1.22", path = "crates/metkit" }
 
 # Foundation crates
-eckit-sys = { version = "2.3", default-features = false }
+eckit-sys = { version = "2.5", default-features = false }
 eccodes-sys = { version = "2.49", default-features = false }
 # High-level wrappers
-eckit = { version = "2.3", default-features = false }
+eckit = { version = "2.5", default-features = false }
 
 # Build tools
 bindman = "0.2"
