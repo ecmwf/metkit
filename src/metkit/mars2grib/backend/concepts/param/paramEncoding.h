@@ -38,6 +38,7 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
+#include "metkit/mars2grib/backend/deductions/chemId.h"
 #include "metkit/mars2grib/backend/deductions/paramId.h"
 
 // Utils
@@ -76,6 +77,40 @@ constexpr bool paramApplicable() {
 
 
 ///
+/// @brief WMO source/sink code (code table 4.238) of an emission param with an ECMWF-local definition.
+///
+/// For these params, setting `paramId` selects the ECMWF-local definition (localConcepts/ecmf/paramId.chemsplit.def),
+/// which writes a local source/sink code (192-200) and `localTablesVersion=2`. The WMO definition of the same paramId
+/// uses the code returned here.
+///
+/// @return The WMO code, or 0 if the param has no ECMWF-local definition.
+///
+inline long wmoSourceSinkCodeOfLocalEmissionParam(long paramId) {
+    switch (paramId) {
+        case 412000:  // vegetation
+            return 34;
+        case 417000:  // biomass burning
+            return 35;
+        case 432000:  // settlements
+            return 36;
+        case 442000:  // soil
+            return 37;
+        case 443000:  // wild animals
+            return 38;
+        case 463000:  // commercial buildings heating
+            return 30;
+        case 464000:  // residential heating
+            return 31;
+        case 465000:  // oil refineries and transformation industry
+            return 32;
+        case 466000:  // gas production
+            return 33;
+        default:
+            return 0;
+    }
+}
+
+///
 /// @brief Execute the `param` concept operation.
 ///
 /// This function implements the runtime logic of the GRIB `param` concept.
@@ -84,6 +119,8 @@ constexpr bool paramApplicable() {
 /// 1. Deduces the GRIB parameter identifier (`paramId`) from the input
 /// MARS and parameter dictionaries.
 /// 2. Encodes the resolved `paramId` into the GRIB output dictionary.
+/// 3. For emission params with an ECMWF-local definition, restores the WMO source/sink code and
+/// `localTablesVersion` (0, or 1 for a local constituent, by setting `chemId` again).
 ///
 /// If the concept is invoked when not applicable, a
 /// `Mars2GribConceptException` is thrown.
@@ -135,6 +172,13 @@ void ParamOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
 
             // Encoding
             set_or_throw<long>(out, "paramId", paramId);
+
+            if (const long wmoSourceSinkCode = wmoSourceSinkCodeOfLocalEmissionParam(paramId); wmoSourceSinkCode != 0) {
+                set_or_throw<long>(out, "localTablesVersion", 0);
+                set_or_throw<long>(out, "sourceSinkChemicalPhysicalProcess", wmoSourceSinkCode);
+                // Setting chemId again restores localTablesVersion 1 for a local constituent (e.g. lumped aromatics)
+                set_or_throw<long>(out, "chemId", deductions::resolve_ChemId_or_throw(mars, par, opt));
+            }
         }
         catch (...) {
             dump_or_ignore(out, "mars2grib_param_concept_failure.grib");
