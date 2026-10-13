@@ -234,7 +234,7 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 case 210248:
                     return setParamChem(out, 402000, 913);
                 case 210249:
-                    return setParamChem(out, 402000, 21);
+                    return setParamChem(out, 402000, 914);
                 case 210250:
                     return setParamChemWavelength(out, 457000, 900, 550.0);
                 case 210251:
@@ -280,9 +280,9 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 case 211203:
                     return setParamChem(out, 402000, 236);
                 case 211247:
-                    return setParamChem(out, 402000, 900);
+                    return setParamChem(out, 402000, 912);
                 case 211248:
-                    return setParamChem(out, 402000, 903);
+                    return setParamChem(out, 402000, 913);
                 case 211249:
                     return setParamChem(out, 402000, 914);
                 case 211252:
@@ -1105,8 +1105,6 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                     return setParamChem(out, 401000, 101);
                 case 218107:
                     return setParamChem(out, 401000, 107);
-                case 218117:
-                    return setParamChem(out, 401000, 14);
                 case 218159:
                     return setParamChem(out, 401000, 159);
                 case 218161:
