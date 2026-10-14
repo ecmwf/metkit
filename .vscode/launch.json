@@ -133,6 +133,6 @@
             },
             "args": [""],
             "cwd":"${env:HOME}/git/metkit/share/metkit/"
-        },
+        }
     ]
 }

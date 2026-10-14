@@ -1,0 +1,17 @@
+{
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ci"
+    },
+    {
+      "inherits": "ci",
+      "name": "eckit-geo"
+    }
+  ],
+  "version": 3
+}
