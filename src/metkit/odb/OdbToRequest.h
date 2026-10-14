@@ -8,8 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef metkit_OdbToRequest_H
-#define metkit_OdbToRequest_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -52,5 +51,3 @@ private:  // members
 
 }  // namespace odb
 }  // namespace metkit
-
-#endif
