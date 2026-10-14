@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ParseRequest.h"
 
@@ -23,7 +16,6 @@
 #include <vector>
 
 #include "eckit/log/JSON.h"
-#include "eckit/log/Timer.h"
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/metkit_config.h"
@@ -249,23 +241,34 @@ public:
 
     MarsRequest split(MarsRequest& request) {
         const MarsLanguage& language = MarsLanguage::get(request.verb());
-        MarsRequest& inherited       = inherited_.try_emplace(request.verb(), MarsRequest{request.verb()}).first->second;
+        MarsRequest& inherited = inherited_.try_emplace(request.verb(), MarsRequest{request.verb()}).first->second;
 
         for (const auto& name : request.params()) {
-            const std::string key = StringTools::lower(name);
-            if (language.isKeyword(key)) {
+            const std::string keyName = StringTools::lower(name);
+            Keyword key = MarsLanguage::hasKeyword(keyName);
+            if (key && language.type(key) != nullptr) {
                 continue;
             }
 
-            const std::vector<std::string> values = request.values(name);
-            request.unsetValues(name);
+            const std::vector<std::string>& values = request.values(name);
 
             if (values.size() == 1 && StringTools::lower(values.front()) == "off") {
-                inherited.unsetValues(key);
+                if (key) {
+                    inherited.erase(key);
+                }
+                else {
+                    inherited.unsetValues(keyName);
+                }
             }
             else {
-                inherited.values(key, values);
+                if (key) {
+                    inherited.values(key, std::move(values));
+                }
+                else {
+                    inherited.values(keyName, std::move(values));
+                }
             }
+            request.erase(name);
         }
 
         return inherited;
@@ -338,8 +341,6 @@ void ParseRequest::process(const eckit::PathName& path) {
         std::cout << "==========> Parsing : " << path << std::endl;
     }
 
-    eckit::Timer timer;
-    timer.start();
     std::ifstream in(path.asString().c_str());
     MarsParser parser(in);
 
@@ -361,11 +362,7 @@ void ParseRequest::process(const eckit::PathName& path) {
         std::cout << "----------> Expanding ... " << std::endl;
     }
 
-    std::vector<MarsRequest> v = expand.expand(p);
-    timer.stop();
-    if (!porcelain_) {
-        std::cout << "Parsing and expansion took: " << timer.elapsed() << " seconds." << std::endl;
-    }
+    std::vector<MarsRequest> v;
 
 #ifdef metkit_HAVE_MARS2MARS
     if (grib2_) {
@@ -377,7 +374,7 @@ void ParseRequest::process(const eckit::PathName& path) {
             const MarsRequest extra = passThrough.split(fields);
 
             for (auto& r : convertRequest(expand.expand(fields), converter)) {
-                for (const auto& param : extra.parameters()) {
+                for (const auto& param : extra) {
                     r.values(param.name(), param.values());
                 }
                 v.push_back(std::move(r));

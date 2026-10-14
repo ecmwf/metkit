@@ -1,10 +1,5 @@
-# (C) Copyright 2025- ECMWF.
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-# In applying this licence, ECMWF does not waive the privileges and immunities
-# granted to it by virtue of its status as an intergovernmental organisation
-# nor does it submit to any jurisdiction.
+# SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+# SPDX-License-Identifier: Apache-2.0
 
 # Create the pytest-tmp folder for encompassing the different scenarios
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pytest-tmp")
@@ -21,7 +16,7 @@ function(add_pymetkit_test scenario test)
     set(_env
         "PYTHONPATH=${CMAKE_BINARY_DIR}/pymetkit-python-package-staging:$ENV{PYTHONPATH}"
         # prevent findlibs in pymetkit from picking up any globally installed metkit
-        "METKIT_DIR=${CMAKE_BINARY_DIR}"
+        "METKIT_DIR=$<TARGET_FILE_DIR:metkit>/.."
         "FINDLIBS_DISABLE_PACKAGE=yes"
         # metkit_env provides METKIT_HOME and ECCODES_DEFINITION_PATH for expansion
         ${metkit_env}

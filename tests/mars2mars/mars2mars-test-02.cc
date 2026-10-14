@@ -1,13 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <exception>
 #include <fstream>
@@ -115,8 +107,8 @@ CASE("mars2mars_flatten_convert_append_to_json") {
     std::cout << outputJson << std::endl;
 
     EXPECT(!outputJson.empty());
-    EXPECT(outputJson.front() == '[');
-    EXPECT(outputJson.back() == ']');
+    EXPECT_EQUAL(outputJson.front(), '[');
+    EXPECT_EQUAL(outputJson.back(), ']');
     // }
     // catch (const eckit::Exception& e) {
     //     std::cerr << "Test failed with exception: " << e.what() << std::endl;

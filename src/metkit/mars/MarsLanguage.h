@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @author Manuel Fuentes
 /// @author Baudouin Raoult
@@ -71,7 +64,6 @@ struct ContextPtrComparator {
 };
 
 class MarsLanguage {
-
 public:  // methods
 
     MarsLanguage(Verb verb);
@@ -84,13 +76,15 @@ public:  // methods
     MarsLanguage& operator=(const MarsLanguage&) = delete;
     MarsLanguage& operator=(MarsLanguage&&)      = delete;
 
+    Verb verb() const { return verb_; }
+
     void write(std::ofstream& file) const;
 
     MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
-    const Type* type(Keyword name) const;
+    std::shared_ptr<const Type> type(Keyword name) const;
     const Type* type(const std::string& name) const;
 
     bool isData(Keyword keyword) const;
@@ -102,9 +96,6 @@ public:  // methods
     bool isDerived(const std::string& keyword) const;
     bool isPostProc(const std::string& keyword) const;
     bool isSink(const std::string& keyword) const;
-
-    /// @brief Whether `keyword` is a keyword of this verb, or an alias of one
-    bool isKeyword(const std::string& keyword) const;
 
 public:  // class methods
 
@@ -119,6 +110,7 @@ public:  // class methods
     static eckit::Value jsonFile(const std::string& name);
 
     static Verb verb(const std::string& name);
+    static Verb hasVerb(const std::string& name);
     static const std::string& name(Verb verb);
 
     static Keyword addKeyword(const std::string& name);

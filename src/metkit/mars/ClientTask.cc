@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <pthread.h>
 #include <unistd.h>
@@ -14,8 +7,7 @@
 #include "metkit/mars/ClientTask.h"
 #include "metkit/mars/MarsHandle.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 // Call by the clien code
 ClientTask::ClientTask(const MarsRequest& r, const MarsRequest& e, const std::string& host, int port,
@@ -72,5 +64,4 @@ char ClientTask::receive(eckit::Stream& s) const {
     return mode;
 }
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

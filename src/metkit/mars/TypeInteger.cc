@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/mars/TypeInteger.h"
 
@@ -65,17 +58,17 @@ void TypeInteger::print(std::ostream& out) const {
     out << "TypeInteger[name=" << name() << "]";
 }
 
-bool TypeInteger::ok(const std::string& value, long& n) const {
-    n         = 0;
+long TypeInteger::parse(const std::string_view value, bool acceptNegative) {
+    long n    = 0;
     long sign = 1;
-    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+    for (auto j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
             case '-':
-                if (j == value.begin()) {
+                if (j == value.begin() && acceptNegative) {
                     sign = -1;
                 }
                 else {
-                    return false;
+                    throw std::invalid_argument("Invalid integer format");
                 }
                 break;
 
@@ -89,15 +82,29 @@ bool TypeInteger::ok(const std::string& value, long& n) const {
             case '7':
             case '8':
             case '9':
+                if (n > (std::numeric_limits<long>::max() - ((*j) - '0')) / 10) {
+                    throw std::invalid_argument("Integer value out of range");
+                }
                 n *= 10;
                 n += (*j) - '0';
                 break;
 
             default:
-                return false;
+                throw std::invalid_argument("Invalid integer format");
         }
     }
     n *= sign;
+
+    return n;
+}
+
+bool TypeInteger::ok(const std::string& value, long& n) const {
+    try {
+        n = parse(value);
+    }
+    catch (const std::exception& e) {
+        return false;
+    }
 
     return !range_ || (n >= range_->lower_ && n <= range_->upper_);
 }

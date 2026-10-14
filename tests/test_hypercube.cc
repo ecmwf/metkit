@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation
- * nor does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   test_MetFile.cc
 /// @date   Jan 2016
@@ -33,8 +26,8 @@ CASE("test_metkit_hypercube") {
     metkit::hypercube::HyperCube cube(r);
 
     EXPECT(cube.contains(r));
-    EXPECT(cube.size() == 1);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.size(), 1);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r));
 }
@@ -46,9 +39,9 @@ CASE("test_metkit_hypercube_subset") {
     MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
-    EXPECT(cube.size() == 2);
-    EXPECT(cube.countVacant() == 2);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.size(), 2);
+    EXPECT_EQUAL(cube.countVacant(), 2);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r));
 
@@ -69,16 +62,16 @@ CASE("test_metkit_hypercube_subset") {
     cube.clear(r500);
 
     EXPECT(!cube.contains(r500));
-    EXPECT(cube.size() == 2);
-    EXPECT(cube.countVacant() == 1);
+    EXPECT_EQUAL(cube.size(), 2);
+    EXPECT_EQUAL(cube.countVacant(), 1);
 
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r600 < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r600));
 
     cube.clear(r600);
 
-    EXPECT(cube.countVacant() == 0);
+    EXPECT_EQUAL(cube.countVacant(), 0);
 }
 
 CASE("test_metkit_hypercube_request") {
@@ -88,9 +81,9 @@ CASE("test_metkit_hypercube_request") {
     MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
-    EXPECT(cube.size() == 4);
-    EXPECT(cube.countVacant() == 4);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.size(), 4);
+    EXPECT_EQUAL(cube.countVacant(), 4);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
     EXPECT(!(r < *cube.vacantRequests().begin()));
     EXPECT(!(*cube.vacantRequests().begin() < r));
 
@@ -111,15 +104,15 @@ CASE("test_metkit_hypercube_request") {
     cube.clear(r500);
 
     EXPECT(!cube.contains(r500));
-    EXPECT(cube.size() == 4);
-    EXPECT(cube.countVacant() == 3);
+    EXPECT_EQUAL(cube.size(), 4);
+    EXPECT_EQUAL(cube.countVacant(), 3);
 
-    EXPECT(cube.vacantRequests().size() == 2);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 2);
 
     cube.clear(r600);
 
-    EXPECT(cube.countVacant() == 2);
-    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT_EQUAL(cube.countVacant(), 2);
+    EXPECT_EQUAL(cube.vacantRequests().size(), 1);
 
     const char* text155 =
         "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="

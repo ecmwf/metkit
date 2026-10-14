@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file typeOfEnsembleForecast.h
@@ -52,6 +45,7 @@
 #include <string>
 
 // Tables includes
+#include "metkit/mars2grib/backend/deductions/perturbationNumber.h"
 #include "metkit/mars2grib/backend/tables/typeOfEnsembleForecast.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
@@ -109,10 +103,10 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
         if (has(par, "typeOfEnsembleForecast")) {
 
             // Retrieve mandatory typeOfEnsembleForecast from parameter dictionary
-            long typeOfEnsembleForecastVal = get_or_throw<long>(par, "typeOfEnsembleForecast");
+            const auto typeOfEnsembleForecastVal = get_or_throw<long>(par, "typeOfEnsembleForecast");
 
             // Get the enum value
-            tables::TypeOfEnsembleForecast typeOfEnsembleForecast =
+            const auto typeOfEnsembleForecast =
                 tables::long2enum_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecastVal);
 
             // Emit RESOLVE log entry
@@ -127,22 +121,45 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
             return typeOfEnsembleForecast;
         }
         else {
-
-            // Retrieve mandatory type from MARS dictionary
-            std::string marsType = get_or_throw<std::string>(mars, "type");
-
             tables::TypeOfEnsembleForecast typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Missing;
 
-            // NOTE: MARS type 'cf' is deprecated since CY50r1
-            if (marsType == "cf" || marsType == "fc") {
+            const auto type = get_or_throw<std::string>(mars, "type");
+
+            if (type == "fc") {
+                const auto klass              = get_or_throw<std::string>(mars, "class");
+                const auto stream             = get_or_throw<std::string>(mars, "stream");
+                const auto perturbationNumber = resolve_PerturbationNumber_or_throw(mars, par, opt);
+
+                const bool isSeasonalEnsemble = (klass == "od" || klass == "rd" || klass == "c3") &&
+                                                (stream == "sfdd" || stream == "sfmd" || stream == "shdd" ||
+                                                 stream == "shmd" || stream == "sfdp" || stream == "shdp");
+
+                if (isSeasonalEnsemble) {
+                    if (perturbationNumber == 0) {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::ModelPhysicsPerturbations;
+                    }
+                    else {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::InitialAndModelPhysicsPerturbations;
+                    }
+                }
+                else {
+                    if (perturbationNumber == 0) {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Unperturbed;
+                    }
+                    else {
+                        typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
+                    }
+                }
+            }
+            else if (type == "cf") {
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Unperturbed;
             }
-            else if (marsType == "pf") {
+            else if (type == "pf") {
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
             }
             else {
                 throw Mars2GribDeductionException(
-                    "`type` value '" + marsType + "' is not mapped to any known `typeOfEnsembleForecast`", Here());
+                    "`type` value '" + type + "' is not mapped to any known `typeOfEnsembleForecast`", Here());
             }
 
             // Emit RESOLVE log entry

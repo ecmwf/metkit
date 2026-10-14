@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation
- * nor does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   test_request.cc
 /// @date   Jul 2024
@@ -283,8 +276,8 @@ CASE("test_request_untyped_parameters") {
     EXPECT_EQUAL(r["class"], "rd");
     EXPECT_EQUAL(r.params().size(), 2u);
 
-    // the parameters keep the order they were added in
-    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"custom", "class"}));
+    // the data parameters (here an axis) come first, then the others
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "custom"}));
 
     r.erase(klass);
     EXPECT(!r.has("class"));
@@ -387,7 +380,7 @@ CASE("test_request_stream_validate") {
     eckit::ResizableMemoryStream out3(buffer);
     out3 << upper;
     eckit::MemoryStream in3(buffer);
-    MarsRequest lower(in3, false, true);
+    MarsRequest lower(in3, false);
     EXPECT_EQUAL(lower.verb(), "retrieve");
     EXPECT(lower.find("class") != nullptr);
 }

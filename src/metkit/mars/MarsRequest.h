@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @author Manuel Fuentes
 /// @author Baudouin Raoult
@@ -16,14 +9,15 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>  // for size_t
 #include <functional>
 #include <iosfwd>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "eckit/utils/Translator.h"
@@ -44,6 +38,7 @@ struct metkit_marsrequest_t;
 
 namespace metkit::mars {
 
+class MarsLanguage;
 class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -55,11 +50,11 @@ public:
     void set(Keyword key, const std::string& value);
     void unset(Keyword key);
     bool has(Keyword key) const;
-    const std::unordered_map<Keyword, std::string>& values() const;
+    const std::map<Keyword, std::string>& values() const;
 
 private:
 
-    std::unordered_map<Keyword, std::string> values_;
+    std::map<Keyword, std::string> values_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -67,23 +62,134 @@ private:
 class MarsDataCube {
 public:  // methods
 
+    MarsDataCube(Verb verb);
+    virtual ~MarsDataCube() = default;
+
+    virtual Verb verbId() const;
+    virtual void verb(Verb id);
+
+    using iterator       = std::vector<Parameter>::iterator;
+    using const_iterator = std::vector<Parameter>::const_iterator;
+
+    std::vector<Parameter>::const_iterator begin() const { return data_.begin(); }
+    std::vector<Parameter>::const_iterator end() const { return data_.end(); }
+
+    size_t size() const { return data_.size(); }
+    bool empty() const { return data_.empty(); }
+
+    /// The number of fields the datacube refers to
+    size_t count() const;
+
     const std::vector<std::string>& get(Keyword key) const;
     void set(Keyword key, const std::vector<std::string>& value);
+    void set(Keyword key, std::vector<std::string>&& value);
     void unset(Keyword key);
     bool has(Keyword key) const;
-    void add(const MarsID& id);
     void merge(const MarsDataCube& other);
-    const std::unordered_map<Keyword, std::vector<std::string>>& values() const;
 
-private:
+protected:
 
-    std::unordered_map<Keyword, std::vector<std::string>> values_;
+    Verb verb_;
+    const MarsLanguage* lang_ = nullptr;
+    std::vector<Parameter> data_;
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// A MARS request: a verb and a list of parameters (keywords and their values), in the order they were added.
+/// Random access iterator over the parameters of a request: it goes through the data parameters, then the postproc
+/// ones, and then the others (each one in the order they were added)
+class ParameterIterator {
+public:  // types
+
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type        = Parameter;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = const value_type*;
+    using reference         = const value_type&;
+
+public:  // methods
+
+    ParameterIterator() = default;
+
+    /// @param end if true, the iterator is the one past the last parameter
+    ParameterIterator(const std::vector<Parameter>& data, const std::vector<Parameter>& postproc,
+                      const std::vector<Parameter>& other, bool end = false) :
+        containers_{&data, &postproc, &other}, index_(end ? data.size() + postproc.size() + other.size() : 0) {}
+
+    reference operator*() const { return at(index_); }
+    pointer operator->() const { return &at(index_); }
+    reference operator[](difference_type n) const { return at(index_ + n); }
+
+    ParameterIterator& operator++() {
+        ++index_;
+        return *this;
+    }
+    ParameterIterator operator++(int) {
+        ParameterIterator tmp = *this;
+        ++index_;
+        return tmp;
+    }
+    ParameterIterator& operator--() {
+        --index_;
+        return *this;
+    }
+    ParameterIterator operator--(int) {
+        ParameterIterator tmp = *this;
+        --index_;
+        return tmp;
+    }
+
+    ParameterIterator& operator+=(difference_type n) {
+        index_ += n;
+        return *this;
+    }
+    ParameterIterator& operator-=(difference_type n) {
+        index_ -= n;
+        return *this;
+    }
+
+    friend ParameterIterator operator+(ParameterIterator it, difference_type n) { return it += n; }
+    friend ParameterIterator operator+(difference_type n, ParameterIterator it) { return it += n; }
+    friend ParameterIterator operator-(ParameterIterator it, difference_type n) { return it -= n; }
+    friend difference_type operator-(const ParameterIterator& a, const ParameterIterator& b) {
+        return static_cast<difference_type>(a.index_) - static_cast<difference_type>(b.index_);
+    }
+
+    bool operator==(const ParameterIterator& other) const { return index_ == other.index_; }
+    bool operator!=(const ParameterIterator& other) const { return index_ != other.index_; }
+    bool operator<(const ParameterIterator& other) const { return index_ < other.index_; }
+    bool operator>(const ParameterIterator& other) const { return index_ > other.index_; }
+    bool operator<=(const ParameterIterator& other) const { return index_ <= other.index_; }
+    bool operator>=(const ParameterIterator& other) const { return index_ >= other.index_; }
+
+private:  // methods
+
+    /// @param i position in the concatenation of the three containers
+    const Parameter& at(size_t i) const {
+        for (const auto* container : containers_) {
+            if (i < container->size()) {
+                return (*container)[i];
+            }
+            i -= container->size();
+        }
+        __builtin_unreachable();
+    }
+
+private:  // members
+
+    std::array<const std::vector<Parameter>*, 3> containers_{};
+    size_t index_ = 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/// A MARS request: a verb and a list of parameters (keywords and their values).
+///
+/// The parameters are held in three containers: the ones whose type is of category Data, the ones of category
+/// PostProc, and the others (including the untyped ones). The axes (the keywords from 1 to
+/// MarsLanguage::maxDataKeyword() - 1) are always held with the data ones, typed or not. parameters() iterates over
+/// the containers in that order, and in the order the parameters were added within each one.
 ///
 /// The parameters of a request that was just parsed or created are untyped. The expansion (see MarsLanguage and
 /// MarsExpansion) produces requests whose parameters are typed.
@@ -93,34 +199,42 @@ private:
 ///
 /// @note Pointers and references returned by find() and values() (and the ones to the parameters) are valid until the
 /// request is modified (a value set, a parameter added or removed), or destroyed.
-class MarsRequest {
+class MarsRequest : public MarsDataCube {
 public:  // methods
 
-    MarsRequest() = default;
+    using iterator       = ParameterIterator;
+    using const_iterator = ParameterIterator;
+
+    ParameterIterator begin() const { return ParameterIterator(data_, postproc_, other_); }
+    ParameterIterator end() const { return ParameterIterator(data_, postproc_, other_, true); }
+
+    size_t size() const { return data_.size() + postproc_.size() + other_.size(); }
+
+    MarsRequest();
     explicit MarsRequest(Verb verb);
     explicit MarsRequest(const std::string& verb);
     MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals);
+    MarsRequest(const std::string&, const std::map<std::string, std::vector<std::string>>&);
     MarsRequest(const std::string& verb, const eckit::Value& vals);
 
     /// @param validate if true, every parameter is checked against the language of the verb and typed
     /// @param lowercase if true, the verb and the names of the parameters are converted to lowercase
-    explicit MarsRequest(eckit::Stream& s, bool validate = false, bool lowercase = false);
+    explicit MarsRequest(eckit::Stream& s, bool validate = false);
 
     MarsRequest(const MarsRequest& request)              = default;
     MarsRequest(MarsRequest&& other) noexcept            = default;
     MarsRequest& operator=(const MarsRequest& other)     = default;
     MarsRequest& operator=(MarsRequest&& other) noexcept = default;
 
-    ~MarsRequest() = default;
+    ~MarsRequest() noexcept override = default;
 
     const std::string& operator[](const std::string&) const;
 
-    /// @throws UserError if the verb is not a verb of the language
-    Verb verbId() const;
-    const std::string& verb() const { return verb_; }
+    Verb verbId() const override;
+    const std::string& verb() const { return verbName_; }
 
-    void verb(Verb id);
-    void verb(const std::string& name) { verb_ = name; }
+    void verb(Verb id) override;
+    void verb(const std::string& name);
 
     size_t countValues(Keyword key) const;
     size_t countValues(const std::string& name) const;
@@ -146,7 +260,10 @@ public:  // methods
     /// @deprecated use params()
     void getParams(std::vector<std::string>& p) const { p = params(); }
 
-    const std::vector<Parameter>& parameters() const { return params_; }
+    [[deprecated("iterate directly over the MarsRequest")]]
+    MarsRequest& parameters() const {
+        return *const_cast<MarsRequest*>(this);
+    }
 
     template <class T>
     void setValue(Keyword key, const T& value);
@@ -157,6 +274,8 @@ public:  // methods
     // They set the values of the parameter, which is created (untyped) if needed
     void values(Keyword key, const std::vector<std::string>& v);
     void values(const std::string& name, const std::vector<std::string>& v);
+    void values(Keyword key, std::vector<std::string>&& v);
+    void values(const std::string& name, std::vector<std::string>&& v);
 
     void unsetValues(const std::string& name) { erase(name); }
 
@@ -187,12 +306,16 @@ public:  // methods
 
     bool filter(const MarsRequest& filter);
     bool matches(const MarsRequest& other) const;
-    bool empty() const { return params_.empty(); }
+    bool empty() const { return data_.empty() && postproc_.empty() && other_.empty(); }
 
     bool operator<(const MarsRequest& other) const;
 
-    /// The number of fields the request refers to
-    size_t count() const;
+    MarsDataCube data() const;
+    const std::vector<Parameter>& postproc() const { return postproc_; }
+    [[deprecated("extract is deprecated, use data() or postproc() instead")]]
+    MarsRequest extract(const std::string& category) const;
+
+    // void erase(const std::string& param);
 
     std::string asString() const;
 
@@ -212,9 +335,22 @@ private:  // methods
     void print(std::ostream& s) const;
     void encode(eckit::Stream& s) const;
 
-    /// @return the position of the parameter, or params_.size() if there is no such parameter
-    size_t locate(Keyword key) const;
-    size_t locate(const std::string& name) const;
+    /// Where a parameter is held: the container (0 data, 1 postproc, 2 other) and the index in it
+    struct Position {
+        size_t container = 3;
+        size_t index     = 0;
+        explicit operator bool() const { return container < 3; }
+    };
+
+    /// @return the position of the parameter, or a false Position if there is no such parameter
+    Position locate(Keyword key) const;
+    Position locate(const std::string& name) const;
+
+    const std::vector<Parameter>& container(size_t c) const;
+    std::vector<Parameter>& container(size_t c);
+
+    /// Adds the parameter to the container that corresponds to its keyword @p key (0 if not registered) and type
+    void add(Parameter&& p);
 
     // -- Class members
 
@@ -238,8 +374,9 @@ private:  // methods
 
 private:  // members
 
-    std::string verb_;
-    std::vector<Parameter> params_;
+    std::string verbName_;
+    std::vector<Parameter> postproc_;  // typed parameters of category PostProc
+    std::vector<Parameter> other_;     // the rest: other categories, and untyped parameters
 };
 
 template <class T>

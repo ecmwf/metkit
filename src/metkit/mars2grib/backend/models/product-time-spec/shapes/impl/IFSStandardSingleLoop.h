@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file IFSStandardSingleLoop.h
@@ -69,8 +62,9 @@ inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input)
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isIfs      = input.regime == SimulationRegime::IFS;
-        const bool isForecast = input.simulationType == SimulationType::Forecast;
+        const bool isIfs = input.regime == SimulationRegime::IFS;
+        const bool isForecastAnalysis =
+            input.simulationType == SimulationType::Forecast || input.simulationType == SimulationType::Analysis;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
             (input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd");
@@ -84,8 +78,8 @@ inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input)
         const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
         const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasNoStattypeBlocks &&
-               doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
+        return isIfs && isForecastAnalysis && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
+               hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
     }
     catch (...) {
         std::throw_with_nested(

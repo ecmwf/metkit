@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation
- * nor does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   test_c_api.cc
 /// @date   Dec 2024
@@ -202,6 +195,9 @@ CASE("metkit_paramiterator_t ") {
     }
 
     EXPECT_EQUAL(keys, keys_cpp);
+
+    test_success(metkit_paramiterator_delete(it));
+    test_success(metkit_marsrequest_delete(request));
 }
 
 CASE("metkit_requestiterator_t 1 item") {

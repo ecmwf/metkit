@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/mars/Type.h"
 
@@ -31,6 +24,9 @@
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
+namespace {
+static const std::string emptyString{};
+}
 namespace metkit::mars {
 
 bool ContextRule::operator<(const ContextRule& other) const {
@@ -273,7 +269,8 @@ void Context::write(std::ofstream& file) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Type::Type(const std::string& name, Keyword keyword, const eckit::Value& settings) : typeName_(name), id_(keyword) {
+Type::Type(const std::string& type, Keyword key, const eckit::Value& settings) :
+    typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
     flags_[0] = settings.contains("flatten") ? bool(settings["flatten"]) : true;
     flags_[1] = settings.contains("multiple") ? bool(settings["multiple"]) : false;
@@ -299,7 +296,7 @@ Type::Type(const std::string& name, Keyword keyword, const eckit::Value& setting
         }
         else {
             std::stringstream ss;
-            ss << "Unknown category: " << category << " in Type " << MarsLanguage::name(id_);
+            ss << "Type: " << typeName_ << " - unknown category: " << category << " in " << settings;
             throw eckit::SeriousBug(ss.str());
         }
     }
@@ -335,7 +332,8 @@ Type::Type(const std::string& name, Keyword keyword, const eckit::Value& setting
     }
 }
 
-Type::Type(const std::string& type, Keyword key, MemFile& file) : typeName_(type), id_(key) {
+Type::Type(const std::string& type, Keyword key, MemFile& file) :
+    typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
     // typeName_ and id_ have already been consumed by MarsLanguage (to pick the right builder): they are passed in
 
@@ -509,7 +507,7 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
     std::vector<std::string> newvals;
     std::set<std::string> seen;
 
-    for (std::string& val : values) {
+    for (const std::string& val : values) {
         std::string value = val;
         if (!expand(value, request)) {
             std::ostringstream oss;
@@ -568,14 +566,6 @@ const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) 
 
 void Type::clearDefaults() {
     defaults_.clear();
-}
-
-Keyword Type::id() const {
-    return id_;
-}
-
-const std::string& Type::name() const {
-    return MarsLanguage::name(id_);
 }
 
 const Category& Type::category() const {

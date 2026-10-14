@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   Type.h
 /// @author Baudouin Raoult
@@ -242,8 +235,8 @@ public:  // methods
                         std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
-    Keyword id() const;
-    const std::string& name() const;
+    Keyword id() const { return id_; }
+    const std::string& name() const { return name_; }
 
     const Category& category() const;
 
@@ -276,6 +269,7 @@ protected:  // members
     std::string typeName_;
 
     Keyword id_;
+    const std::string& name_;
 
     std::bitset<8> flags_;
     // flags_[0] --> flatten

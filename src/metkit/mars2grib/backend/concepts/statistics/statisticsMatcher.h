@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file statisticsMatcher.h
@@ -135,6 +128,31 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         // Chemical products
         if (matchAny(param, range(228080, 228082), range(233032, 233035))) {
             return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
+
+        // Note: In range 4xxxxy the following typeOfStatisticalProduct can be derived from the last digit:
+        //       y == 1 -> mean; 2 -> accumulation; 3 -> maximum; 4 -> minimum; 5 -> standard deviation
+        //       If the last digit is 0, the param is point-in-time.
+        if (matchAny(param, range(400000, 499999))) {
+            switch (param % 10) {
+                case 0:
+                    return compile_time_registry_engine::MISSING;
+                case 1:
+                    return static_cast<std::size_t>(StatisticsType::Average);
+                case 2:
+                    return static_cast<std::size_t>(StatisticsType::Accumulation);
+                case 3:
+                    return static_cast<std::size_t>(StatisticsType::Maximum);
+                case 4:
+                    return static_cast<std::size_t>(StatisticsType::Minimum);
+                case 5:
+                    return static_cast<std::size_t>(StatisticsType::StandardDeviation);
+                default:
+                    throw utils::exceptions::Mars2GribMatcherException(
+                        "No typeOfStatisticalProcessing defined for chemical param " + std::to_string(param) +
+                            " with last digit " + std::to_string(param % 10),
+                        Here());
+            }
         }
 
         // TODO: Don't handle products with timespan as non-statistical if they are not handled above!

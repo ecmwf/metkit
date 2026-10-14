@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation
- * nor does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "eckit/io/BufferList.h"
 #include "eckit/io/FileHandle.h"
@@ -69,11 +62,11 @@ CASE("read multiple matched odb frames") {
         size_t expected_size = fh.size();
         comparedata.resize(expected_size);
         EXPECT(expected_size > 0);
-        EXPECT(fh.read(comparedata.data(), expected_size) == expected_size);
+        EXPECT_EQUAL(fh.read(comparedata.data(), expected_size), expected_size);
     }
 
-    EXPECT(comparedata.size() == msgdata.size());
-    EXPECT(::memcmp(comparedata.data(), msgdata.data(), comparedata.size()) == 0);
+    EXPECT_EQUAL(comparedata.size(), msgdata.size());
+    EXPECT_EQUAL(::memcmp(comparedata.data(), msgdata.data(), comparedata.size()), 0);
 
     eckit::Log::info() << "odb size: " << msgdata.size() << std::endl;
 }
@@ -116,13 +109,13 @@ CASE("read multiple matched odb frames") {
         size_t expected_size = fh.size();
         comparedata.resize(expected_size);
         EXPECT(expected_size > 0);
-        EXPECT(fh.read(comparedata.data(), expected_size) == expected_size);
+        EXPECT_EQUAL(fh.read(comparedata.data(), expected_size), expected_size);
     }
 
     eckit::Buffer combineddata = msgdata.consolidate();
 
-    EXPECT(comparedata.size() == combineddata.size());
-    EXPECT(::memcmp(comparedata.data(), combineddata.data(), combineddata.size()) == 0);
+    EXPECT_EQUAL(comparedata.size(), combineddata.size());
+    EXPECT_EQUAL(::memcmp(comparedata.data(), combineddata.data(), combineddata.size()), 0);
 
     eckit::Log::info() << "odb size: " << combineddata.size() << std::endl;
 }

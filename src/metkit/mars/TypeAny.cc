@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 
 #include "metkit/mars/TypeAny.h"
@@ -14,14 +7,17 @@
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypesFactory.h"
 
+namespace {
+const std::string typeName = "any";
+}
+
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
 TypeAny::TypeAny(const std::string& type, Keyword key, const eckit::Value& val) : Type(type, key, val) {}
 TypeAny::TypeAny(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {}
-TypeAny::TypeAny(const std::string& name) : Type("any", MarsLanguage::addKeyword(name), eckit::Value()) {}
+TypeAny::TypeAny(const std::string& name) : Type(typeName, MarsLanguage::addKeyword(name), eckit::Value()) {}
 
 void TypeAny::print(std::ostream& out) const {
     out << "TypeAny[name=" << name() << "]";

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <cstdlib>
 #include <string>
@@ -88,33 +81,33 @@ CASE("encoding") {
             ASSERT(handle);
 
             if (useGridSpec) {
-                EXPECT(handle->getString("gridSpec") == R"({"grid":")" + grid + R"("})");
+                EXPECT_EQUAL(handle->getString("gridSpec"), R"({"grid":")" + grid + R"("})");
             }
 
-            EXPECT(handle->getLong("gridDefinitionTemplateNumber") == 50L);
-            EXPECT(handle->getLong("dataRepresentationTemplateNumber") == 51L);
+            EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);
+            EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);
 
-            EXPECT(handle->getLong("spectralType") == 1L);
-            EXPECT(handle->getLong("spectralMode") == 1L);
-            EXPECT(handle->getLong("bitsPerValue") == 16L);            // Default
-            EXPECT(handle->getLong("unpackedSubsetPrecision") == 1L);  // IEEE 32-bit
+            EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
+            EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
+            EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);            // Default
+            EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
 
             EXPECT(handle->getLong("J") == J);
-            EXPECT(handle->getLong("K") == J);
-            EXPECT(handle->getLong("M") == J);
-            EXPECT(handle->getLong("JS") == S);
-            EXPECT(handle->getLong("KS") == S);
-            EXPECT(handle->getLong("MS") == S);
+            EXPECT(handle->getLong("K") == long(J));
+            EXPECT(handle->getLong("M") == long(J));
+            EXPECT(handle->getLong("JS") == long(S));
+            EXPECT(handle->getLong("KS") == long(S));
+            EXPECT(handle->getLong("MS") == long(S));
 
             EXPECT(handle->getLong("numberOfDataPoints") == number_of_real_coefficients(J));
             EXPECT(handle->getLong("TS") == number_of_real_coefficients(S));
 
             if (JS == J) {
                 // no coefficients are packed, these are unused
-                EXPECT(handle->getLong("referenceValue") == 0L);
-                EXPECT(handle->getLong("binaryScaleFactor") == 0L);
-                EXPECT(handle->getLong("decimalScaleFactor") == 0L);
-                EXPECT(handle->getLong("laplacianScalingFactor") == 0L);
+                EXPECT_EQUAL(handle->getLong("referenceValue"), 0L);
+                EXPECT_EQUAL(handle->getLong("binaryScaleFactor"), 0L);
+                EXPECT_EQUAL(handle->getLong("decimalScaleFactor"), 0L);
+                EXPECT_EQUAL(handle->getLong("laplacianScalingFactor"), 0L);
             }
         }
     }

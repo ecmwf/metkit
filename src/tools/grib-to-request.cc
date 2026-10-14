@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <algorithm>
 #include <map>
@@ -177,7 +170,7 @@ void GribToRequestTool::execute(const eckit::option::CmdArgs& args) {
         // split the requests into groups of requests with the same set of metadata (but potentially different values)
         for (const auto& r : requests) {
             std::set<std::string> keys;
-            for (const auto& p : r.parameters()) {
+            for (const auto& p : r) {
                 keys.insert(p.name());
             }
             coherentRequests[keys].push_back(r);

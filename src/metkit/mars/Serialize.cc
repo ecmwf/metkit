@@ -15,24 +15,12 @@
 
 namespace {
 
-void toLittleEndian(uint16_t* v) {
+void swapEndian(uint16_t* v) {
     if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
         *v = (*v >> 8) | (*v << 8);
     }
 }
-void toLittleEndian(uint32_t* v) {
-    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
-        *v =
-            ((*v >> 24) & 0x000000FF) | ((*v >> 8) & 0x0000FF00) | ((*v << 8) & 0x00FF0000) | ((*v << 24) & 0xFF000000);
-    }
-}
-
-void littleEndian2uint16(uint16_t* v) {
-    if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
-        *v = (*v >> 8) | (*v << 8);
-    }
-}
-void littleEndian2uint32(uint32_t* v) {
+void swapEndian(uint32_t* v) {
     if (eckit::codec::Endian::native == eckit::codec::Endian::big) {
         *v =
             ((*v >> 24) & 0x000000FF) | ((*v >> 8) & 0x0000FF00) | ((*v << 8) & 0x00FF0000) | ((*v << 24) & 0xFF000000);
@@ -116,7 +104,7 @@ uint16_t MemFile::read16() {
         uint16_t value;
         std::memcpy(&value, data_ + pos_, sizeof(value));
         pos_ += sizeof(value);
-        littleEndian2uint16(&value);
+        swapEndian(&value);
         return value;
     }
     throw eckit::SeriousBug("Failed to read 16-bit value from file", Here());
@@ -126,7 +114,7 @@ uint32_t MemFile::read32() {
         uint32_t value;
         std::memcpy(&value, data_ + pos_, sizeof(value));
         pos_ += sizeof(value);
-        littleEndian2uint32(&value);
+        swapEndian(&value);
         return value;
     }
     throw eckit::SeriousBug("Failed to read 32-bit value from file", Here());
@@ -184,11 +172,11 @@ void write8(std::ofstream& file, uint8_t size) {
     file.write(reinterpret_cast<char*>(&size), sizeof(uint8_t));
 }
 void write16(std::ofstream& file, uint16_t size) {
-    toLittleEndian(&size);
+    swapEndian(&size);
     file.write(reinterpret_cast<char*>(&size), sizeof(uint16_t));
 }
 void write32(std::ofstream& file, uint32_t size) {
-    toLittleEndian(&size);
+    swapEndian(&size);
     file.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
 }
 void write8(std::ofstream& file, size_t size) {
@@ -209,13 +197,13 @@ void write16(std::ofstream& file, size_t size) {
         throw eckit::SeriousBug(oss.str(), Here());
     }
     uint16_t size16 = static_cast<uint16_t>(size);
-    toLittleEndian(&size16);
+    swapEndian(&size16);
     file.write(reinterpret_cast<char*>(&size16), sizeof(uint16_t));
 }
 void write32(std::ofstream& file, size_t size) {
     ASSERT(size <= static_cast<size_t>(std::numeric_limits<uint32_t>::max()));
     uint32_t size32 = static_cast<uint32_t>(size);
-    toLittleEndian(&size32);
+    swapEndian(&size32);
     file.write(reinterpret_cast<char*>(&size32), sizeof(uint32_t));
 }
 void writeString(std::ofstream& file, const std::string& str) {
@@ -227,7 +215,7 @@ void writeString(std::ofstream& file, const std::string& str) {
         throw eckit::SeriousBug(oss.str(), Here());
     }
     uint16_t size = static_cast<uint16_t>(str.size());
-    toLittleEndian(&size);
+    swapEndian(&size);
     file.write(reinterpret_cast<char*>(&size), sizeof(uint16_t));
     file.write(str.data(), size);
 }

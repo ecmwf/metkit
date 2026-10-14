@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   test_integer_range.cc
 /// @author Metin Cakircali
@@ -31,9 +24,10 @@ using ::eckit::ValueMap;
 
 CASE("Test TypeInteger expansion range=[1,100]") {
 
+    std::string typeName = "integer";
     ValueMap settings;
     settings["range"] = ValueList{1, 100};
-    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
     Type& tday        = *type;
 
     // in range
@@ -59,10 +53,11 @@ CASE("Test TypeInteger expansion range=[1,100]") {
 //----------------------------------------------------------------------------------------------------------------------
 
 CASE("Test TypeInteger expansion range=[1,1]") {
+    std::string typeName = "integer";
 
     ValueMap settings;
     settings["range"] = ValueList{1, 1};
-    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
     Type& tday        = *type;
 
     {
@@ -80,10 +75,11 @@ CASE("Test TypeInteger expansion range=[1,1]") {
 //----------------------------------------------------------------------------------------------------------------------
 
 CASE("Test TypeInteger day expansion range=[-1,1]") {
+    std::string typeName = "integer";
 
     ValueMap settings;
     settings["range"] = ValueList{-1, 1};
-    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
     Type& tday        = *type;
 
     {

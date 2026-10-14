@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file ensembleMatcher.h
@@ -65,28 +58,25 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
-        using metkit::mars2grib::utils::dict_traits::get_opt;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
-        const auto stream = get_opt<std::string>(mars, "stream");
-        const auto type   = get_opt<std::string>(mars, "type");
+        const auto klass  = get_or_throw<std::string>(mars, "class");
+        const auto stream = get_or_throw<std::string>(mars, "stream");
+        const auto type   = get_or_throw<std::string>(mars, "type");
 
         // Control forecasts carry no MARS `number`; it is implied to be 0, and they are encoded as ensemble member 0
         // rather than as deterministic fields
-        //  - oper/fc : the operational control forecast (previously enfo/cf)
-        //  - type=cf : any ensemble control forecast (enfo, enfh, eefo, eefh, enwh, ...)
-        if ((stream && *stream == "oper" && type && *type == "fc") || (type && *type == "cf")) {
+        // Note: class=od,stream=oper,type=fc is a control forecast
+        if (type == "cf" || (klass == "od" && stream == "oper" && type == "fc")) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
 
-        long param = get_or_throw<long>(mars, "param");
-
-        if (has(mars, "number") &&
-            !(type && (*type == "me" || *type == "eme" || *type == "efi" || *type == "efic" || *type == "sot"))) {
+        if (has(mars, "number") && !(type == "me" || type == "efi" || type == "efic" || type == "sot")) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
-        else if (type && (*type == "ep")) {
+        else if (type == "ep") {
+            const long param = get_or_throw<long>(mars, "param");
             if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
                          131071, 131072, 131073, range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099,
                          131100)) {  // }, 133093, 133094, 133095, 133096, 133097, 133098)) {

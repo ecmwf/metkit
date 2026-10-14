@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <cstdlib>
 #include <memory>
@@ -309,8 +302,8 @@ CASE("O80 (rotated)") {
         eckit::geo::GridFactory::make_from_string(handle->getString("gridSpec")));
     ASSERT(grid);
 
-    EXPECT(grid->projection().type() == "rotation");
-    EXPECT(grid->size() == 28480);
+    EXPECT_EQUAL(grid->projection().type(), "rotation");
+    EXPECT_EQUAL(grid->size(), 28480);
 
     const auto points = grid->to_points();
     for (size_t i = 0; i < points_ref.size(); ++i) {

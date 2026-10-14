@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/mars/TypeParam.h"
 
@@ -290,7 +283,7 @@ Rule::Rule(MemFile& file) {
     }
     uint16_t numBareIds = file.read16();
     for (uint16_t i = 0; i < numBareIds; ++i) {
-        const uint32_t number = file.read16(); // 16 bits are enough since it stores only 3 decimal digits
+        const uint32_t number = file.read16();  // 16 bits are enough since it stores only 3 decimal digits
         param2paramid_.emplace(number, file.read32());
     }
 }
@@ -408,7 +401,7 @@ void Rule::write(std::ofstream& out) const {
     }
     write16(out, param2paramid_.size());
     for (const auto& [number, id] : param2paramid_) {
-        write16(out, static_cast<uint16_t>(number)); // 16 bits are enough since it is only storing 3 decimal digits
+        write16(out, static_cast<uint16_t>(number));  // 16 bits are enough since it is only storing 3 decimal digits
         write32(out, id);
     }
 }

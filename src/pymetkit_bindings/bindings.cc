@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation
- * nor does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -23,7 +16,7 @@
 #include "eckit/utils/MD5.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit_version.h"
+#include "metkit/metkit_version.h"
 
 namespace py   = pybind11;
 namespace mars = metkit::mars;
