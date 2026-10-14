@@ -13,8 +13,7 @@
 /// @author Simon Smart
 /// @date April 2019
 
-#ifndef metkit_odb_IdMapper_H
-#define metkit_odb_IdMapper_H
+#pragma once
 
 #include <cstddef>
 #include <map>
@@ -26,8 +25,7 @@ class PathName;
 }
 
 
-namespace metkit {
-namespace odb {
+namespace metkit::odb {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -72,7 +70,4 @@ private:  // members
 //----------------------------------------------------------------------------------------------------------------------
 
 
-}  // namespace odb
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::odb

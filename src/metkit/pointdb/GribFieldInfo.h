@@ -8,8 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef FieldInfoData_H
-#define FieldInfoData_H
+#pragma once
 
 
 #include "metkit/codes/api/CodesAPI.h"
@@ -67,6 +66,3 @@ private:
 };
 
 }  // namespace metkit::pointdb
-
-
-#endif

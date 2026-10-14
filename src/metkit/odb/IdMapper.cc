@@ -23,8 +23,7 @@
 
 using namespace eckit;
 
-namespace metkit {
-namespace odb {
+namespace metkit::odb {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -115,5 +114,4 @@ std::string IdMap::alphanumeric(long numeric) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace odb
-}  // namespace metkit
+}  // namespace metkit::odb

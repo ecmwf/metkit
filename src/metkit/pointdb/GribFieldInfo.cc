@@ -22,8 +22,7 @@ unsigned long grib_decode_unsigned_long(const unsigned char* p, long* offset, in
 double grib_power(long s, long n);
 }
 
-namespace metkit {
-namespace pointdb {
+namespace metkit::pointdb {
 
 static Mutex mutex;
 
@@ -174,5 +173,4 @@ double GribFieldInfo::value(const GribDataSource& f, size_t index) const {
     return v;
 }
 
-}  // namespace pointdb
-}  // namespace metkit
+}  // namespace metkit::pointdb

@@ -24,8 +24,7 @@
 
 using namespace eckit;
 
-namespace metkit {
-namespace pointdb {
+namespace metkit::pointdb {
 
 static Mutex mutex;
 static std::set<std::string> done_;
@@ -167,5 +166,4 @@ PointIndex::NodeInfo PointIndex::nearestNeighbour(double lat, double lon) {
     return n;
 }
 
-}  // namespace pointdb
-}  // namespace metkit
+}  // namespace metkit::pointdb
