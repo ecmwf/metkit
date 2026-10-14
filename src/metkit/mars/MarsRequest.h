@@ -211,7 +211,7 @@ public:  // methods
 
     /// @param validate if true, every parameter is checked against the language of the verb and typed
     /// @param lowercase if true, the verb and the names of the parameters are converted to lowercase
-    explicit MarsRequest(eckit::Stream& s, bool validate = false, bool lowercase = false);
+    explicit MarsRequest(eckit::Stream& s, bool validate = false);
 
     MarsRequest(const MarsRequest& request)              = default;
     MarsRequest(MarsRequest&& other) noexcept            = default;

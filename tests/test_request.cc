@@ -379,7 +379,7 @@ CASE("test_request_stream_validate") {
     eckit::ResizableMemoryStream out3(buffer);
     out3 << upper;
     eckit::MemoryStream in3(buffer);
-    MarsRequest lower(in3, false, true);
+    MarsRequest lower(in3, false);
     EXPECT_EQUAL(lower.verb(), "retrieve");
     EXPECT(lower.find("class") != nullptr);
 }

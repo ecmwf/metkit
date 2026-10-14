@@ -94,7 +94,11 @@ void MarsDataCube::set(Keyword key, const std::vector<std::string>& value) {
             ASSERT(verb_);
             lang_ = &MarsLanguage::get(verb_);
         }
-        data_.emplace_back(lang_->type(key), value);
+        auto type = lang_->type(key);
+        if (!type) {
+            throw eckit::UserError("Unknown type for parameter " + MarsLanguage::name(key));
+        }
+        data_.emplace_back(type, value);
     }
 }
 void MarsDataCube::set(Keyword key, std::vector<std::string>&& value) {
@@ -109,7 +113,11 @@ void MarsDataCube::set(Keyword key, std::vector<std::string>&& value) {
             ASSERT(verb_);
             lang_ = &MarsLanguage::get(verb_);
         }
-        data_.emplace_back(lang_->type(key), std::move(value));
+        auto type = lang_->type(key);
+        if (!type) {
+            throw eckit::UserError("Unknown type for parameter " + MarsLanguage::name(key));
+        }
+        data_.emplace_back(type, std::move(value));
     }
 }
 
@@ -245,13 +253,11 @@ MarsRequest::MarsRequest(const std::string& s, const eckit::Value& vals) : MarsR
     }
 }
 
-MarsRequest::MarsRequest(eckit::Stream& s, bool validate, bool lowercase) : MarsDataCube(0) {
+MarsRequest::MarsRequest(eckit::Stream& s, bool validate) : MarsDataCube(0) {
     int size;
 
     s >> verbName_;
-    if (lowercase) {
-        verbName_ = eckit::StringTools::lower(verbName_);
-    }
+    verbName_ = eckit::StringTools::lower(verbName_);
     MarsDataCube::verb(MarsLanguage::hasVerb(verbName_));
 
     s >> size;
@@ -261,9 +267,7 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate, bool lowercase) : Mars
         int count;
 
         s >> param;
-        if (lowercase) {
-            param = eckit::StringTools::lower(param);
-        }
+        param = eckit::StringTools::lower(param);
         s >> count;
         ASSERT(count >= 0);
 
@@ -289,7 +293,11 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate, bool lowercase) : Mars
         other_.clear();
         for (auto& p : all) {
             if (!p.typed()) {
-                p = Parameter(lang_->type(MarsLanguage::keyword(p.name())), p.values());
+                auto type = lang_->type(MarsLanguage::keyword(p.name()));
+                if (!type) {
+                    throw eckit::UserError("Unknown type for parameter " + p.name());
+                }
+                p = Parameter(type, p.values());
             }
             add(std::move(p));
         }
@@ -308,8 +316,8 @@ void MarsRequest::verb(Verb id) {
     verbName_ = MarsLanguage::name(id);
 }
 void MarsRequest::verb(const std::string& name) {
-    verbName_ = name;
-    MarsDataCube::verb(MarsLanguage::hasVerb(name));
+    verbName_ = eckit::StringTools::lower(name);
+    MarsDataCube::verb(MarsLanguage::hasVerb(verbName_));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

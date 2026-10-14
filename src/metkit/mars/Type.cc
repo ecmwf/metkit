@@ -296,7 +296,7 @@ Type::Type(const std::string& type, Keyword key, const eckit::Value& settings) :
         }
         else {
             std::stringstream ss;
-            ss << "Unknown category: " << category << " in Type " << MarsLanguage::name(id_);
+            ss << "Type: " << typeName_ << " - unknown category: " << category << " in " << settings;
             throw eckit::SeriousBug(ss.str());
         }
     }
