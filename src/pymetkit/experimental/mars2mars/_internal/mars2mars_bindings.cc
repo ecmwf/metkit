@@ -15,7 +15,7 @@
 
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars2mars/api/Mars2Mars.h"
-#include "metkit_version.h"
+#include "metkit/metkit_version.h"
 
 namespace py = pybind11;
 
