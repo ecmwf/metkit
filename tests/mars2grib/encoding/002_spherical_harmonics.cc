@@ -99,15 +99,15 @@ CASE("encoding") {
             EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);            // Default
             EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
 
-            EXPECT_EQUAL(handle->getLong("J"), J);
-            EXPECT_EQUAL(handle->getLong("K"), J);
-            EXPECT_EQUAL(handle->getLong("M"), J);
-            EXPECT_EQUAL(handle->getLong("JS"), S);
-            EXPECT_EQUAL(handle->getLong("KS"), S);
-            EXPECT_EQUAL(handle->getLong("MS"), S);
+            EXPECT(handle->getLong("J") == J);
+            EXPECT(handle->getLong("K") == long(J));
+            EXPECT(handle->getLong("M") == long(J));
+            EXPECT(handle->getLong("JS") == long(S));
+            EXPECT(handle->getLong("KS") == long(S));
+            EXPECT(handle->getLong("MS") == long(S));
 
-            EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), number_of_real_coefficients(J));
-            EXPECT_EQUAL(handle->getLong("TS"), number_of_real_coefficients(S));
+            EXPECT(handle->getLong("numberOfDataPoints") == number_of_real_coefficients(J));
+            EXPECT(handle->getLong("TS") == number_of_real_coefficients(S));
 
             if (JS == J) {
                 // no coefficients are packed, these are unused
