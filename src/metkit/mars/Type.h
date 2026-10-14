@@ -266,7 +266,7 @@ protected:  // methods
 
 protected:  // members
 
-    const std::string& typeName_;
+    std::string typeName_;
 
     Keyword id_;
     const std::string& name_;

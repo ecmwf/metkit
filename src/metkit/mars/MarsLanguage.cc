@@ -471,15 +471,20 @@ const MarsLanguage& MarsLanguage::get(Verb verb) {
     static std::map<Verb, MarsLanguage*> instances;
     static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
 
-    std::shared_lock lock(mutex);
+    {
+        std::shared_lock lock(mutex);
+        auto it = instances.find(verb);
+        if (it != instances.end()) {
+            return *(it->second);
+        }
+    }
+
+    // Upgrade to unique lock for writing
+    std::unique_lock uniqueLock(mutex);
     auto it = instances.find(verb);
     if (it != instances.end()) {
         return *(it->second);
     }
-
-    // Upgrade to unique lock for writing
-    lock.unlock();
-    std::unique_lock uniqueLock(mutex);
 
     // load / parse the language for the given verb
     if (!metkitForceBinfileCreation && !langOffsets_.empty()) {
@@ -662,15 +667,20 @@ const std::string& MarsLanguage::expandVerb(const std::string& verb) {
 }
 
 class TypeHidden : public Type {
+
+    static const std::string typeName;
+
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
     bool expand(std::string&, const MarsRequest&) const override { return true; }
 
 public:
 
-    TypeHidden() : Type("hidden", MarsLanguage::addKeyword("hidden"), eckit::Value()) {}
+    TypeHidden() : Type(typeName, MarsLanguage::addKeyword(typeName), eckit::Value()) {}
     ~TypeHidden() override = default;
 };
+
+const std::string TypeHidden::typeName{"hidden"};
 
 std::shared_ptr<const Type> MarsLanguage::type(Keyword key) const {
     auto it = types_.find(key);

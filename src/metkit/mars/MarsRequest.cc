@@ -212,7 +212,7 @@ MarsRequest::MarsRequest() : MarsRequest("retrieve") {}
 
 MarsRequest::MarsRequest(Verb verb) : MarsDataCube(verb), verbName_(MarsLanguage::name(verb)) {}
 
-MarsRequest::MarsRequest(const std::string& verb) : MarsDataCube(MarsLanguage::hasVerb(verb)), verbName_(verb) {}
+MarsRequest::MarsRequest(const std::string& verb) : MarsDataCube(MarsLanguage::hasVerb(eckit::StringTools::lower(verb))), verbName_(verb) {}
 
 MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals) : MarsRequest(verb) {
 

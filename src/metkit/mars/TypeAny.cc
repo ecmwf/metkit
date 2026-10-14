@@ -7,14 +7,17 @@
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypesFactory.h"
 
+namespace {
+const std::string typeName = "any";
+}
+
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
 TypeAny::TypeAny(const std::string& type, Keyword key, const eckit::Value& val) : Type(type, key, val) {}
 TypeAny::TypeAny(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {}
-TypeAny::TypeAny(const std::string& name) : Type("any", MarsLanguage::addKeyword(name), eckit::Value()) {}
+TypeAny::TypeAny(const std::string& name) : Type(typeName, MarsLanguage::addKeyword(name), eckit::Value()) {}
 
 void TypeAny::print(std::ostream& out) const {
     out << "TypeAny[name=" << name() << "]";
