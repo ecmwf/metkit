@@ -24,6 +24,9 @@
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
+namespace {
+static const std::string emptyString{};
+}
 namespace metkit::mars {
 
 bool ContextRule::operator<(const ContextRule& other) const {
@@ -266,7 +269,8 @@ void Context::write(std::ofstream& file) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Type::Type(const std::string& name, Keyword keyword, const eckit::Value& settings) : typeName_(name), id_(keyword) {
+Type::Type(const std::string& type, Keyword key, const eckit::Value& settings) :
+    typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
     flags_[0] = settings.contains("flatten") ? bool(settings["flatten"]) : true;
     flags_[1] = settings.contains("multiple") ? bool(settings["multiple"]) : false;
@@ -328,7 +332,8 @@ Type::Type(const std::string& name, Keyword keyword, const eckit::Value& setting
     }
 }
 
-Type::Type(const std::string& type, Keyword key, MemFile& file) : typeName_(type), id_(key) {
+Type::Type(const std::string& type, Keyword key, MemFile& file) :
+    typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
     // typeName_ and id_ have already been consumed by MarsLanguage (to pick the right builder): they are passed in
 
@@ -559,14 +564,6 @@ const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) 
 
 void Type::clearDefaults() {
     defaults_.clear();
-}
-
-Keyword Type::id() const {
-    return id_;
-}
-
-const std::string& Type::name() const {
-    return MarsLanguage::name(id_);
 }
 
 const Category& Type::category() const {

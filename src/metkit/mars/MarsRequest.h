@@ -77,13 +77,12 @@ public:  // methods
     void set(Keyword key, std::vector<std::string>&& value);
     void unset(Keyword key);
     bool has(Keyword key) const;
-    // void add(const MarsID& id);
     void merge(const MarsDataCube& other);
 
 protected:
 
     Verb verb_;
-    const MarsLanguage* lang_;
+    const MarsLanguage* lang_ = nullptr;
     std::vector<Parameter> data_;
 };
 
@@ -219,7 +218,7 @@ public:  // methods
     MarsRequest& operator=(const MarsRequest& other)     = default;
     MarsRequest& operator=(MarsRequest&& other) noexcept = default;
 
-    ~MarsRequest() override = default;
+    ~MarsRequest() noexcept override = default;
 
     const std::string& operator[](const std::string&) const;
 
@@ -303,9 +302,9 @@ public:  // methods
 
     bool operator<(const MarsRequest& other) const;
 
-
     MarsDataCube data() const;
     const std::vector<Parameter>& postproc() const { return postproc_; }
+    [[deprecated("extract is deprecated, use data() or postproc() instead")]]
     MarsRequest extract(const std::string& category) const;
 
     // void erase(const std::string& param);

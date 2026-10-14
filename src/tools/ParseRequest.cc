@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "eckit/log/JSON.h"
-#include "eckit/log/Timer.h"
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/metkit_config.h"
@@ -246,7 +245,7 @@ public:
 
         for (const auto& name : request.params()) {
             const std::string key = StringTools::lower(name);
-            if (language.isKeyword(key)) {
+            if (MarsLanguage::hasKeyword(key)) {
                 continue;
             }
 
@@ -331,8 +330,6 @@ void ParseRequest::process(const eckit::PathName& path) {
         std::cout << "==========> Parsing : " << path << std::endl;
     }
 
-    eckit::Timer timer;
-    timer.start();
     std::ifstream in(path.asString().c_str());
     MarsParser parser(in);
 
@@ -354,11 +351,7 @@ void ParseRequest::process(const eckit::PathName& path) {
         std::cout << "----------> Expanding ... " << std::endl;
     }
 
-    std::vector<MarsRequest> v = expand.expand(p);
-    timer.stop();
-    if (!porcelain_) {
-        std::cout << "Parsing and expansion took: " << timer.elapsed() << " seconds." << std::endl;
-    }
+    std::vector<MarsRequest> v;
 
 #ifdef metkit_HAVE_MARS2MARS
     if (grib2_) {

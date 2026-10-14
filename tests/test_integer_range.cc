@@ -24,9 +24,10 @@ using ::eckit::ValueMap;
 
 CASE("Test TypeInteger expansion range=[1,100]") {
 
+    std::string typeName = "integer";
     ValueMap settings;
     settings["range"] = ValueList{1, 100};
-    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
     Type& tday        = *type;
 
     // in range
@@ -52,10 +53,11 @@ CASE("Test TypeInteger expansion range=[1,100]") {
 //----------------------------------------------------------------------------------------------------------------------
 
 CASE("Test TypeInteger expansion range=[1,1]") {
+    std::string typeName = "integer";
 
     ValueMap settings;
     settings["range"] = ValueList{1, 1};
-    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
     Type& tday        = *type;
 
     {
@@ -73,10 +75,11 @@ CASE("Test TypeInteger expansion range=[1,1]") {
 //----------------------------------------------------------------------------------------------------------------------
 
 CASE("Test TypeInteger day expansion range=[-1,1]") {
+    std::string typeName = "integer";
 
     ValueMap settings;
     settings["range"] = ValueList{-1, 1};
-    auto type         = std::make_shared<TypeInteger>("integer", MarsLanguage::keyword("day"), settings);
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
     Type& tday        = *type;
 
     {

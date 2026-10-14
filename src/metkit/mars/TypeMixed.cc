@@ -22,7 +22,7 @@ TypeMixed::TypeMixed(const std::string& typeName, Keyword key, const eckit::Valu
             cfg         = val;
             cfg["type"] = types[i];
 
-            auto k = TypesFactory::build(MarsLanguage::addKeyword(name() + "." + std::string(types[i])), cfg);
+            auto k = TypesFactory::build(0, cfg);
             types_.emplace_back(MarsLanguage::context(0), k);
         }
         else {  // it is a subtype, potentially with a Context
@@ -32,8 +32,7 @@ TypeMixed::TypeMixed(const std::string& typeName, Keyword key, const eckit::Valu
             const Context& c =
                 cfg.contains("context") ? MarsLanguage::addContext(cfg["context"]) : MarsLanguage::context(0);
 
-            auto k = TypesFactory::build(
-                MarsLanguage::addKeyword(name() + "." + std::to_string(i) + "." + std::string(type)), cfg);
+            auto k = TypesFactory::build(0, cfg);
             types_.emplace_back(c, k);
         }
     }
@@ -46,7 +45,8 @@ TypeMixed::TypeMixed(const std::string& type, Keyword key, MemFile& file) : Type
         uint16_t ctxId = file.read16();
         std::string nestedTypeName{file.readString()};
         Keyword nestedTypeKey = file.read16();
-        auto type             = TypesFactory::build(nestedTypeName, nestedTypeKey, file);
+        ASSERT(nestedTypeKey == 0);
+        auto type = TypesFactory::build(nestedTypeName, 0, file);
         types_.emplace_back(MarsLanguage::context(ctxId), type);
     }
 }

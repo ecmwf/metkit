@@ -235,8 +235,8 @@ public:  // methods
                         std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
-    Keyword id() const;
-    const std::string& name() const;
+    Keyword id() const { return id_; }
+    const std::string& name() const { return name_; }
 
     const Category& category() const;
 
@@ -266,9 +266,10 @@ protected:  // methods
 
 protected:  // members
 
-    std::string typeName_;
+    const std::string& typeName_;
 
     Keyword id_;
+    const std::string& name_;
 
     mutable std::bitset<8> flags_;
     // flags_[0] --> flatten

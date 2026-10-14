@@ -18,7 +18,6 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ParamID.h"
 #include "metkit/mars/Type.h"
-#include "metkit/mars/TypeAny.h"
 
 namespace metkit::mars {
 
@@ -44,7 +43,19 @@ size_t containerOf(const Parameter& p) {
                 break;
         }
     }
+    else if (isData(p.id())) {
+        return DATA;
+    }
     return OTHER;
+}
+
+Parameter makeParameter(Verb verb, Keyword key, std::vector<std::string> vals) {
+    std::shared_ptr<const Type> type = verb ? MarsLanguage::get(verb).type(key) : nullptr;
+
+    if (type) {
+        return Parameter(std::move(type), std::move(vals));
+    }
+    return Parameter(MarsLanguage::name(key), std::move(vals));
 }
 
 }  // namespace
@@ -123,12 +134,6 @@ bool MarsDataCube::has(Keyword key) const {
     }
     return false;
 }
-
-// void MarsDataCube::add(const MarsID& id) {
-//     for (const auto& p : id.data()) {
-//         set(p.id(), p.values());
-//     }
-// }
 
 void MarsDataCube::merge(const MarsDataCube& other) {
     std::map<Keyword, const Parameter*> otherMap;
@@ -277,13 +282,15 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate, bool lowercase) : Mars
 
     if (validate) {
         // every parameter must be a keyword of the language of the verb (UserError otherwise)
-        lang_ = &MarsLanguage::get(verb_);
-        std::vector<Parameter> typed;
-        for (const auto& p : other_) {
-            typed.emplace_back(lang_->type(MarsLanguage::keyword(p.name()))->getptr(), p.values());
-        }
+        lang_ = &MarsLanguage::get(verbId());
+        std::vector<Parameter> all(begin(), end());
+        data_.clear();
+        postproc_.clear();
         other_.clear();
-        for (auto& p : typed) {
+        for (auto& p : all) {
+            if (!p.typed()) {
+                p = Parameter(lang_->type(MarsLanguage::keyword(p.name())), p.values());
+            }
             add(std::move(p));
         }
     }
@@ -443,22 +450,18 @@ void MarsRequest::values(Keyword key, const std::vector<std::string>& vals) {
         container(pos.container)[pos.index].values(vals);
     }
     else {
-        add(Parameter(MarsLanguage::get(verb_).type(key)->getptr(), vals));
+        add(makeParameter(verb_, key, vals));
     }
 }
 void MarsRequest::values(const std::string& name, const std::vector<std::string>& vals) {
-    if (Position pos = locate(name)) {
+    if (Keyword key = MarsLanguage::hasKeyword(name)) {
+        values(key, vals);
+    }
+    else if (Position pos = locate(name)) {
         container(pos.container)[pos.index].values(vals);
     }
     else {
-        // the keyword tells whether it is an axis, which is held with the data parameters even if untyped
-        Keyword key = MarsLanguage::hasKeyword(name);
-        if (key) {
-            add(Parameter(MarsLanguage::get(verb_).type(key)->getptr(), vals));
-        }
-        else {
-            add(Parameter(name, vals));
-        }
+        add(Parameter(name, vals));
     }
 }
 void MarsRequest::values(Keyword key, std::vector<std::string>&& vals) {
@@ -467,22 +470,17 @@ void MarsRequest::values(Keyword key, std::vector<std::string>&& vals) {
         container(pos.container)[pos.index].values(std::move(vals));
     }
     else {
-        add(Parameter(MarsLanguage::get(verb_).type(key), std::move(vals)));
+        add(makeParameter(verb_, key, std::move(vals)));
     }
 }
 void MarsRequest::values(const std::string& name, std::vector<std::string>&& vals) {
-    Keyword key = MarsLanguage::hasKeyword(name);
-    if (key) {
+    if (Keyword key = MarsLanguage::hasKeyword(name)) {
         values(key, std::move(vals));
-        return;
     }
-
-    // no keyword exists for this name - use the untyped parameter handling
-    if (Position pos = locate(name)) {
+    else if (Position pos = locate(name)) {
         container(pos.container)[pos.index].values(std::move(vals));
     }
     else {
-        // the keyword tells whether it is an axis, which is held with the data parameters even if untyped
         add(Parameter(name, std::move(vals)));
     }
 }

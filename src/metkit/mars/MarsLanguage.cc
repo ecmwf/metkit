@@ -314,7 +314,7 @@ const Context& MarsLanguage::addContext(eckit::Value& val) {
 
 MarsLanguage::MarsLanguage(const std::string& verb) {
     pthread_once(&once, initLanguage);
-    verb_ = verbs_->keyword(eckit::StringTools::lower(verb));
+    verb_ = verbs_->keyword(verb);
     parse(verb_);
 }
 
@@ -440,10 +440,6 @@ Category MarsLanguage::category(Keyword keyword) const {
     throw eckit::UserError("Cannot find keyword: " + keywords_->name(keyword));
 }
 
-bool MarsLanguage::isKeyword(const std::string& keyword) const {
-    return keywords_->exist(keyword) != 0;
-}
-
 bool MarsLanguage::isData(Keyword k) const {
     return category(k) == Category::Data;
 }
@@ -471,16 +467,19 @@ bool MarsLanguage::isSink(const std::string& k) const {
 }
 
 const MarsLanguage& MarsLanguage::get(Verb verb) {
-    static std::mutex mutex;
+    static std::shared_mutex mutex;
     static std::map<Verb, MarsLanguage*> instances;
-
     static bool metkitForceBinfileCreation = eckit::Resource<bool>("$METKIT_FORCE_BINFILE_CREATION", false);
 
-    std::lock_guard lock(mutex);
+    std::shared_lock lock(mutex);
     auto it = instances.find(verb);
     if (it != instances.end()) {
         return *(it->second);
     }
+
+    // Upgrade to unique lock for writing
+    lock.unlock();
+    std::unique_lock uniqueLock(mutex);
 
     // load / parse the language for the given verb
     if (!metkitForceBinfileCreation && !langOffsets_.empty()) {
@@ -678,8 +677,7 @@ std::shared_ptr<const Type> MarsLanguage::type(Keyword key) const {
     if (it != types_.end()) {
         return it->second;
     }
-    throw eckit::UserError("Keyword '" + keywords_->name(key) + "' is not valid for verb '" + verbs_->name(verb_) +
-                           "'");
+    return nullptr;
 }
 
 const Type* MarsLanguage::type(const std::string& name) const {
@@ -821,11 +819,11 @@ void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback
 
 Verb MarsLanguage::verb(const std::string& name) {
     pthread_once(&once, initLanguage);
-    return verbs_->keyword(eckit::StringTools::lower(name));
+    return verbs_->keyword(name);
 }
 Verb MarsLanguage::hasVerb(const std::string& name) {
     pthread_once(&once, initLanguage);
-    return verbs_->exist(eckit::StringTools::lower(name));
+    return verbs_->exist(name);
 }
 const std::string& MarsLanguage::name(Verb verb) {
     pthread_once(&once, initLanguage);
@@ -834,15 +832,15 @@ const std::string& MarsLanguage::name(Verb verb) {
 
 Keyword MarsLanguage::addKeyword(const std::string& name) {
     pthread_once(&once, initLanguage);
-    return keywords_->add(eckit::StringTools::lower(name));
+    return keywords_->add(name);
 }
 Keyword MarsLanguage::hasKeyword(const std::string& name) {
     pthread_once(&once, initLanguage);
-    return keywords_->exist(eckit::StringTools::lower(name));
+    return keywords_->exist(name);
 }
 Keyword MarsLanguage::keyword(const std::string& name) {
     pthread_once(&once, initLanguage);
-    return keywords_->keyword(eckit::StringTools::lower(name));
+    return keywords_->keyword(name);
 }
 const std::string& MarsLanguage::name(Keyword keyword) {
     pthread_once(&once, initLanguage);

@@ -49,15 +49,6 @@ std::shared_ptr<Type> TypesRegistry::build(Keyword keyword, const eckit::Value& 
 
 std::shared_ptr<Type> TypesRegistry::build(const std::string& name, Keyword key, MemFile& file) {
 
-    //     // read type name
-    //     std::string typeName = file.readString();
-    //     Keyword keyword = file.read8();
-    //     if (keyword != key) {
-    //         std::ostringstream ss;
-    //         ss << "TypesRegistry::build type: " << typeName << " - expecting keyword " << MarsLanguage::name(key) <<
-    //         "(" << key << ") found " << keyword; throw eckit::SeriousBug(ss.str(), Here());
-    //     }
-
     eckit::AutoLock<eckit::Mutex> lock(mutex_);
 
     std::map<std::string, TypesFactory*>::const_iterator j = m_.find(name);
