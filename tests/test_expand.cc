@@ -541,7 +541,18 @@ CASE("test_metkit_expand_11_quantile") {
     quantileThrows({"0:-5"});
     quantileThrows({"6:5"});
     quantileThrows({"0:12"});
+    quantileThrows({"2a:5"});
+    quantileThrows({"2:5b"});
+    quantileThrows({"2-1:12"});
+    quantileThrows({"-3-1:12"});
+    quantileThrows({"6--8:12"});
+    quantileThrows({"6-4:12"});
+    quantileThrows({"6-14:12"});
     quantile({"2:5"}, {"2:5"});
+    quantile({"2-3:5"}, {"2-3:5"});
+    quantile({"0-10:100"}, {"0-10:100"});
+    quantile({"5-5:100"}, {"5:100"});
+    quantile({"0-10:100", "10-99:100"}, {"0-10:100", "10-99:100"});
     quantile({"0:2", "1:2", "2:2"}, {"0:2", "1:2", "2:2"});
     quantile({"0:2", "1:3", "2:5"}, {"0:2", "1:3", "2:5"});
 
@@ -563,6 +574,8 @@ CASE("test_metkit_expand_11_quantile") {
     quantile({"4:5", "to", "5:5", "by", "2"}, {"4:5"});
     quantile({"0:10", "3:10", "to", "7:10", "by", "2", "10:10"}, {"0:10", "3:10", "5:10", "7:10", "10:10"});
     quantile({"3:5", "to", "2:5"}, {"3:5", "2:5"});
+    quantile({"0-20:100", "to", "80-100:100", "by", "20"},
+             {"0-20:100", "20-40:100", "40-60:100", "60-80:100", "80-100:100"});
 }
 
 
@@ -1335,6 +1348,32 @@ CASE("test_metkit_expand_coeffindex") {
         const char* expected =
             "retrieve,class=od,date=20260101,expver=0001,levelist=1,levtype=ml,param=130/131/132/138/139/152/"
             "155,step=0,number=1,stream=oper,time=0900,type=pf,target=output";
+        expand(text, expected);
+    }
+}
+
+CASE("number in xwda & seas6") {
+    {
+        const char* text =
+            "list,class=rd,expver=jc22,stream=xwda,type=fc,date=20230530,time=18,param=cdww,obscutoff=0900,number=1";
+        const char* expected =
+            "list,class=rd,expver=jc22,stream=xwda,type=fc,date=20230530,time=1800,param=140233,obscutoff=0900,number="
+            "1";
+        expand(text, expected);
+    }
+    {
+        const char* text =
+            "list,expver=jbpy,class=rd,stream=sfdd,type=fc,levtype=sfc,param=78,number=0/to/1/by/1,step=6";
+        const char* expected = "list,expver=jbpy,class=rd,stream=sfdd,type=fc,levtype=sfc,param=78,number=0/1,step=6";
+        expand(text, expected);
+    }
+    {
+        const char* text =
+            "retrieve,class=od,expver=1,stream=sfdd,system=0,date=20010501,time=0,domain=g,type=fc,levtype=sfc,"
+            "timespan=none,number=0/1,param=78,step=6";
+        const char* expected =
+            "retrieve,class=od,expver=0001,stream=sfdd,system=0,date=20010501,time=0000,domain=g,type=fc,levtype=sfc,"
+            "timespan=none,number=0/1,param=78,step=6";
         expand(text, expected);
     }
 }

@@ -88,8 +88,12 @@ void extractTimespan(const std::string& keyword, const metkit::codes::CodesHandl
                 Here());
         }
 
-        if (timespan == 0 && get_or_throw<bool>(opts, "tryFixBadInput_ZeroAccumulation")) {
+        if (timespan == 0 && endStep > 0 && get_or_throw<bool>(opts, "tryFixBadInput_ZeroAccumulation")) {
             detail::tryFixBadInput_ZeroAccumulation(grib, mars, stepType, startStep, endStep, opts);
+            return;
+        }
+        else if (timespan == 0 && endStep == 0 && stepType == "accum") {
+            set_or_throw<std::string>(mars, keyword, "fs");
             return;
         }
         else {

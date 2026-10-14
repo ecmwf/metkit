@@ -69,8 +69,9 @@ inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input)
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isIfs      = input.regime == SimulationRegime::IFS;
-        const bool isForecast = input.simulationType == SimulationType::Forecast;
+        const bool isIfs = input.regime == SimulationRegime::IFS;
+        const bool isForecastAnalysis =
+            input.simulationType == SimulationType::Forecast || input.simulationType == SimulationType::Analysis;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
             (input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd");
@@ -84,8 +85,8 @@ inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input)
         const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
         const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasNoStattypeBlocks &&
-               doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
+        return isIfs && isForecastAnalysis && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
+               hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
     }
     catch (...) {
         std::throw_with_nested(
