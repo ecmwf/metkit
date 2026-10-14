@@ -1,20 +1,12 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "eckit/exception/Exceptions.h"
 
 #include "metkit/fields/FieldIndexList.h"
 #include "metkit/fields/SimpleFieldIndex.h"
 
-namespace metkit {
-namespace fields {
+namespace metkit::fields {
 
 FieldIndexList::~FieldIndexList() {
     for (size_t i = 0; i < fields_.size(); ++i) {
@@ -67,5 +59,4 @@ void FieldIndexList::sendTo(eckit::Stream& s) const {
     }
 }
 
-}  // namespace fields
-}  // namespace metkit
+}  // namespace metkit::fields

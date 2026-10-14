@@ -8,8 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef PointIndex_H
-#define PointIndex_H
+#pragma once
 
 #include <memory>
 
@@ -17,8 +16,7 @@
 #include "eckit/geometry/Point3.h"
 #include "metkit/codes/api/CodesAPI.h"
 
-namespace metkit {
-namespace pointdb {
+namespace metkit::pointdb {
 
 
 struct LLPoint2 : public eckit::geometry::Point3 {
@@ -107,7 +105,4 @@ private:
     eckit::Mutex mutex_;
 };
 
-}  // namespace pointdb
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::pointdb
