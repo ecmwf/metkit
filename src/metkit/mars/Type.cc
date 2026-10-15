@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "eckit/exception/Exceptions.h"
+#include "eckit/utils/Tokenizer.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/hypercube/HyperCube.h"
@@ -23,6 +24,18 @@
 #include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool matchesAny(const std::set<std::string>& vals, const std::string& v) {
+    if (v.find('|') == std::string::npos) {
+        return vals.find(v) != vals.end();
+    }
+    std::vector<std::string> alternatives;
+    eckit::Tokenizer{"|"}(v, alternatives);
+    return std::any_of(alternatives.begin(), alternatives.end(),
+                       [&](const std::string& a) { return vals.find(a) != vals.end(); });
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

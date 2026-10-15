@@ -11,6 +11,7 @@
 #include "eckit/thread/AutoLock.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Tokenizer.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/TypesFactory.h"
@@ -18,9 +19,7 @@
 #include <algorithm>
 #include <cctype>
 #include <fstream>
-#include <iterator>
 #include <limits>
-#include <list>
 #include <set>
 #include <sstream>
 #include <string>
@@ -141,12 +140,12 @@ void writeString(std::ofstream& file, const std::string& str) {
 }
 
 std::string join(const std::vector<uint32_t>& values) {
-    static const std::string sep = "|";
 
     if (values.size() == 1) {
         return std::to_string(values.front());
     }
 
+    static const std::string sep = "|";
     std::ostringstream out;
     bool first = true;
     for (const auto& value : values) {
@@ -161,6 +160,7 @@ std::string join(const std::vector<uint32_t>& values) {
 
 static eckit::Mutex* local_mutex = 0;
 static pthread_once_t once       = PTHREAD_ONCE_INIT;
+
 class Matcher {
 
     std::string name_;
@@ -400,7 +400,7 @@ Rule::Rule(std::ifstream& file) {
         uint8_t numValues = read8(file);
         std::vector<uint32_t> values;
         values.reserve(numValues);
-        for (uint8_t i = 0; i < numValues; ++i) {
+        for (uint8_t k = 0; k < numValues; ++k) {
             values.push_back(read32(file));
         }
         name2paramid_.emplace(std::move(key), std::move(values));
@@ -428,6 +428,10 @@ std::string Rule::lookupAlternatives(const std::string& s) const {
     std::string out{};
     std::string separator = "";
     tokenize(s, vv);
+
+    if (vv.empty()) {
+        throw eckit::UserError("Cannot match parameter '" + s + "'", Here());
+    }
 
     for (const auto& v : vv) {
         out += separator + lookup(v);
@@ -650,7 +654,7 @@ void Rule::init() {
                         uint8_t numValues = read8(file);
                         std::vector<uint32_t> values;
                         values.reserve(numValues);
-                        for (uint8_t i = 0; i < numValues; ++i) {
+                        for (uint8_t k = 0; k < numValues; ++k) {
                             values.push_back(read32(file));
                         }
                         defaultMapping_.emplace(std::move(key), std::move(values));

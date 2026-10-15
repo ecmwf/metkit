@@ -6,6 +6,7 @@
 /// @date   March 2025
 
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -36,6 +37,45 @@ CASE("Context match") {
     metkit::mars::MarsRequest r = MarsRequest::parse(text, true);
 
     EXPECT(c.matches(r));
+}
+
+CASE("Context match with alternatives") {
+    MarsRequest r("retrieve");
+    r.setValue("param", "228032|32");
+
+    auto include = [](const std::set<std::string>& vals) {
+        Context c;
+        c.add(std::make_unique<Include>("param", vals));
+        return c;
+    };
+    auto exclude = [](const std::set<std::string>& vals) {
+        Context c;
+        c.add(std::make_unique<Exclude>("param", vals));
+        return c;
+    };
+
+    // Include: any alternative is enough
+    EXPECT(include({"32"}).matches(r));
+    EXPECT(include({"228032"}).matches(r));
+    EXPECT(!include({"167"}).matches(r));
+
+    // Exclude: no alternative may be listed
+    EXPECT(!exclude({"32"}).matches(r));
+    EXPECT(!exclude({"228032"}).matches(r));
+    EXPECT(exclude({"167"}).matches(r));
+}
+
+CASE("matchesAny") {
+    const std::set<std::string> vals{"32", "167"};
+
+    EXPECT(matchesAny(vals, "32"));
+    EXPECT(matchesAny(vals, "228032|32"));
+    EXPECT(matchesAny(vals, "228032|167|3062"));
+    EXPECT(!matchesAny(vals, "228032"));
+    EXPECT(!matchesAny(vals, "228032|3062"));
+    EXPECT(!matchesAny(vals, ""));
+    EXPECT(!matchesAny(vals, "|"));
+    EXPECT(!matchesAny({}, "32|167"));
 }
 
 

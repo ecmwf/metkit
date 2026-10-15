@@ -7,6 +7,7 @@
 
 #include <algorithm>
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"
 
 #include "metkit/hypercube/HyperCube.h"
@@ -213,6 +214,41 @@ CASE("test_metkit_hypercube_alternative_paramids") {
 
     cube.clear(MarsRequest::parse("retrieve,levelist=2,param=228"));
     EXPECT_EQUAL(cube.count(), 2);
+}
+
+CASE("test_metkit_hypercube_alternative_paramids_lookup") {
+    MarsRequest r = MarsRequest::parse("retrieve,levelist=1,param=228228|228/167");
+    metkit::hypercube::HyperCube cube{r};
+    EXPECT_EQUAL(cube.size(), 2);
+
+    // every alternative, and the full alternative list, identifies the same slot
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228228")));
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228")));
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=167")));
+
+    // values which are neither an axis value nor one of its alternatives are not in the cube
+    EXPECT(!cube.contains(MarsRequest::parse("retrieve,levelist=1,param=166")));
+    EXPECT(!cube.contains(MarsRequest::parse("retrieve,levelist=2,param=228")));
+
+    // a request carrying a list of alternatives is ambiguous and must be rejected
+    EXPECT_THROWS_AS(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228228|228")), eckit::UserError);
+    EXPECT_THROWS_AS(cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228228|228")), eckit::UserError);
+}
+
+CASE("test_metkit_hypercube_alternative_paramids_clear") {
+    MarsRequest r = MarsRequest::parse("retrieve,levelist=1,param=228228|228/167");
+    metkit::hypercube::HyperCube cube{r};
+
+    EXPECT(cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228")));
+    EXPECT_EQUAL(cube.count(), 1);
+    EXPECT(!cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228228")));
+
+    // clearing the same slot through another alternative is a no-op
+    EXPECT(!cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228228")));
+    EXPECT_EQUAL(cube.count(), 1);
+
+    // the other slot is not affected
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=167")));
 }
 
 }  // namespace metkit::mars::test

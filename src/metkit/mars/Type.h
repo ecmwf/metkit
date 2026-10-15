@@ -13,6 +13,7 @@
 #include <iosfwd>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -54,6 +55,10 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/// @brief true if `v`, or any of its '|'-separated alternatives, is in `vals`; the values in `vals` must not contain
+/// '|'
+bool matchesAny(const std::set<std::string>& vals, const std::string& v);
+
 /// @brief A MarsRequest matches an Include ContextRule if at least one of the mars request values matches with the
 /// values associated with the Include rule
 class Include : public ContextRule {
@@ -69,8 +74,7 @@ public:
             return false;
         }
         for (const std::string& v : req.values(key_)) {
-            // @todo - look for alternatives
-            if (vals_.find(v) != vals_.end()) {
+            if (matchesAny(vals_, v)) {
                 return true;
             }
         }
@@ -97,8 +101,7 @@ public:
             return false;
         }
         for (const std::string& v : req.values(key_)) {
-            // @todo - look for alternatives
-            if (vals_.find(v) != vals_.end()) {
+            if (matchesAny(vals_, v)) {
                 return false;
             }
         }

@@ -4,6 +4,7 @@
 #include "metkit/hypercube/HyperCube.h"
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/parser/YAMLParser.h"
@@ -42,35 +43,32 @@ AxisOrder& AxisOrder::instance() {
 class Axis {
 public:
 
-    Axis(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {}
+    Axis(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {
+        static const eckit::Tokenizer tokenize{"|"};
+        for (size_t i = 0; i < values_.size(); ++i) {
+            exact_.emplace(values_[i], i);  // emplace keeps the first index for duplicates
+            if (values_[i].find('|') != std::string::npos) {
+                std::vector<std::string> alternatives;
+                tokenize(values_[i], alternatives);
+                for (const auto& a : alternatives) {
+                    alternatives_.emplace(a, i);
+                }
+            }
+        }
+    }
 
     size_t size() const { return values_.size(); }
 
     const std::string& name() const { return name_; }
 
     int indexOf(const std::string& v) const {
-        static eckit::Tokenizer tokenize{"|"};
-        auto j = std::find(values_.begin(), values_.end(), v);
-        if (j == values_.end() && v.find('|') == std::string::npos) {
-            // identical value not found - look for matching values
-            bool found = false;
-            for (j = values_.begin(); j != values_.end(); ++j) {
-                std::vector<std::string> vv;
-                tokenize(*j, vv);
-                for (const auto& v2 : vv) {
-                    if (v2 == v) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found)
-                    break;
-            }
+        if (auto it = exact_.find(v); it != exact_.end()) {
+            return it->second;
         }
-        if (j == values_.end()) {
-            return -1;
+        if (auto it = alternatives_.find(v); it != alternatives_.end()) {
+            return it->second;
         }
-        return j - values_.begin();
+        return -1;
     }
 
     const std::string& valueOf(size_t index) const {
@@ -94,6 +92,8 @@ private:
 
     std::string name_;
     std::vector<std::string> values_;
+    std::unordered_map<std::string, size_t> exact_;
+    std::unordered_map<std::string, size_t> alternatives_;  // alternative -> index of the first value containing it
 };
 
 HyperCube::HyperCube(const metkit::mars::MarsRequest& request) :
