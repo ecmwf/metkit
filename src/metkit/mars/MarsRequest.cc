@@ -235,7 +235,8 @@ MarsRequest::MarsRequest() : MarsRequest("retrieve") {}
 
 MarsRequest::MarsRequest(Verb verb) : MarsDataCube(verb), verbName_(MarsLanguage::name(verb)) {}
 
-MarsRequest::MarsRequest(const std::string& verb) : MarsDataCube(MarsLanguage::hasVerb(eckit::StringTools::lower(verb))), verbName_(verb) {}
+MarsRequest::MarsRequest(const std::string& verb) :
+    MarsDataCube(MarsLanguage::hasVerb(eckit::StringTools::lower(verb))), verbName_(eckit::StringTools::lower(verb)) {}
 
 MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals) : MarsRequest(verb) {
 
@@ -411,7 +412,6 @@ MarsRequest::Position MarsRequest::locate(const std::string& name) const {
 
     Position pos = position(name);
     if (!pos) {
-        // the names of registered keywords are case insensitive, and typed parameters hold them in lowercase
         std::string lower = eckit::StringTools::lower(name);
         if (lower != name) {
             pos = position(lower);
@@ -668,7 +668,7 @@ static void expand_along_keys(const MarsRequest& prototype,
         return;
     }
 
-    const auto& [key, values] = expvalues[i];  // [] -> .at() ?
+    const auto& [key, values] = expvalues[i];
 
     MarsRequest req(prototype);
     for (const auto& value : values) {
