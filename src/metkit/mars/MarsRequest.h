@@ -10,10 +10,17 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
+#include <cstddef>  // for size_t
+#include <functional>
+#include <iosfwd>
 #include <iterator>
+#include <map>
+#include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
+#include "eckit/utils/Translator.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/Dictionary.h"
@@ -21,6 +28,7 @@
 
 namespace eckit {
 class MD5;
+class Stream;
 namespace message {
 class Message;
 }
@@ -42,11 +50,11 @@ public:
     void set(Keyword key, const std::string& value);
     void unset(Keyword key);
     bool has(Keyword key) const;
-    const std::unordered_map<Keyword, std::string>& values() const;
+    const std::map<Keyword, std::string>& values() const;
 
 private:
 
-    std::unordered_map<Keyword, std::string> values_;
+    std::map<Keyword, std::string> values_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -203,15 +211,15 @@ public:  // methods
     size_t size() const { return data_.size() + postproc_.size() + other_.size(); }
 
     MarsRequest();
-    MarsRequest(Verb verb);
-    MarsRequest(const std::string& verb);
-    MarsRequest(const std::string&, const std::map<std::string, std::string>&);
+    explicit MarsRequest(Verb verb);
+    explicit MarsRequest(const std::string& verb);
+    MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals);
     MarsRequest(const std::string&, const std::map<std::string, std::vector<std::string>>&);
-    MarsRequest(const std::string&, const eckit::Value&);
+    MarsRequest(const std::string& verb, const eckit::Value& vals);
 
     /// @param validate if true, every parameter is checked against the language of the verb and typed
     /// @param lowercase if true, the verb and the names of the parameters are converted to lowercase
-    explicit MarsRequest(eckit::Stream& s, bool validate = false, bool lowercase = false);
+    explicit MarsRequest(eckit::Stream& s, bool validate = false);
 
     MarsRequest(const MarsRequest& request)              = default;
     MarsRequest(MarsRequest&& other) noexcept            = default;

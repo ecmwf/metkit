@@ -3,22 +3,43 @@
 
 #include "metkit/mars/MarsLanguage.h"
 
+#include <pthread.h>
+
 #include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <cstdint>
+#include <exception>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <memory>
 #include <mutex>
 #include <optional>
+#include <ostream>
+#include <set>
 #include <shared_mutex>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "eckit/config/Resource.h"
+#include "eckit/exception/Exceptions.h"
+#include "eckit/filesystem/PathName.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/value/Content.h"
 
 #include "metkit/config/LibMetkit.h"
-
 #include "metkit/hypercube/HyperCube.h"
+#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsExpansion.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Parameter.h"
+#include "metkit/mars/Serialize.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -47,7 +68,7 @@ ExpansionContext::ExpansionContext(const MarsRequest& request) {
     }
 }
 
-ExpansionContext& ExpansionContext::operator=(ExpansionContext&& other) {
+ExpansionContext& ExpansionContext::operator=(ExpansionContext&& other) noexcept {
     values_ = std::move(other.values_);
     return *this;
 }
@@ -473,32 +494,30 @@ const MarsLanguage& MarsLanguage::get(Verb verb) {
 
     {
         std::shared_lock lock(mutex);
-        auto it = instances.find(verb);
-        if (it != instances.end()) {
-            return *(it->second);
+        if (auto it = instances.find(verb); it != instances.end()) {
+            return *it->second;
         }
     }
 
     // Upgrade to unique lock for writing
     std::unique_lock uniqueLock(mutex);
-    auto it = instances.find(verb);
-    if (it != instances.end()) {
-        return *(it->second);
+    if (auto it = instances.find(verb); it != instances.end()) {
+        return *it->second;
     }
+
+    pthread_once(&once, initLanguage);
 
     // load / parse the language for the given verb
     if (!metkitForceBinfileCreation && !langOffsets_.empty()) {
-        auto it = langOffsets_.find(verb);
-        if (it != langOffsets_.end()) {
-
+        if (auto it = langOffsets_.find(verb); it != langOffsets_.end()) {
             auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb, langFile_));
             ASSERT(inserted);
-            return *(newIt->second);
+            return *newIt->second;
         }
     }
     auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb));
     ASSERT(inserted);
-    return *(newIt->second);
+    return *newIt->second;
 }
 
 const MarsLanguage& MarsLanguage::get(const std::string& verb) {

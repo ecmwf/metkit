@@ -245,7 +245,7 @@ public:
 
         for (const auto& name : request.params()) {
             const std::string keyName = StringTools::lower(name);
-            Keyword key = MarsLanguage::hasKeyword(keyName);
+            Keyword key               = MarsLanguage::hasKeyword(keyName);
             if (key && language.type(key) != nullptr) {
                 continue;
             }

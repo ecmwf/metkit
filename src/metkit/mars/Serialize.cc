@@ -1,7 +1,5 @@
 #include "Serialize.h"
 
-#include <unistd.h>
-
 #include "eckit/codec/detail/Endian.h"
 #include "eckit/exception/Exceptions.h"
 
