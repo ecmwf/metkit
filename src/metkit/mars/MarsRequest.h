@@ -216,6 +216,7 @@ public:  // methods
     MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals);
     MarsRequest(const std::string&, const std::map<std::string, std::vector<std::string>>&);
     MarsRequest(const std::string& verb, const eckit::Value& vals);
+    MarsRequest(const eckit::message::Message& message);
 
     /// @param validate if true, every parameter is checked against the language of the verb and typed
     /// @param lowercase if true, the verb and the names of the parameters are converted to lowercase

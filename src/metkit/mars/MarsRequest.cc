@@ -269,6 +269,11 @@ MarsRequest::MarsRequest(const std::string& verb, const eckit::Value& vals) : Ma
     }
 }
 
+MarsRequest::MarsRequest(const eckit::message::Message& message) : verb_("message") {
+    eckit::message::StringSetter<MarsRequest> setter(*this);
+    message.getMetadata(setter);
+}
+
 MarsRequest::MarsRequest(eckit::Stream& s, bool validate) : MarsDataCube(0) {
     int size;
 
