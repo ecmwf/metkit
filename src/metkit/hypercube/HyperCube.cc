@@ -51,6 +51,10 @@ public:
                 std::vector<std::string> alternatives;
                 tokenize(values_[i], alternatives);
                 for (const auto& a : alternatives) {
+                    // check that 'a' is new
+                    if (exact_.find(a) != exact_.end() || alternatives_.find(a) != alternatives_.end()) {
+                        throw eckit::UserError("Duplicate value: " + a, Here());
+                    }
                     alternatives_.emplace(a, i);
                 }
             }

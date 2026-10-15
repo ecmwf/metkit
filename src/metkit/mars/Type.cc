@@ -27,6 +27,9 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+namespace {
+
+/// true if `v`, or any of its '|'-separated alternatives, is in `vals`; the values in `vals` must not contain '|'
 bool matchesAny(const std::set<std::string>& vals, const std::string& v) {
     if (v.find('|') == std::string::npos) {
         return vals.find(v) != vals.end();
@@ -35,6 +38,35 @@ bool matchesAny(const std::set<std::string>& vals, const std::string& v) {
     eckit::Tokenizer{"|"}(v, alternatives);
     return std::any_of(alternatives.begin(), alternatives.end(),
                        [&](const std::string& a) { return vals.find(a) != vals.end(); });
+}
+
+}  // namespace
+
+bool Include::matches(MarsRequest req) const {
+    if (key_ == "_verb") {
+        return (vals_.find(req.verb()) != vals_.end());
+    }
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (matchesAny(vals_, v)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Exclude::matches(MarsRequest req) const {
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (matchesAny(vals_, v)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -55,10 +55,6 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// @brief true if `v`, or any of its '|'-separated alternatives, is in `vals`; the values in `vals` must not contain
-/// '|'
-bool matchesAny(const std::set<std::string>& vals, const std::string& v);
-
 /// @brief A MarsRequest matches an Include ContextRule if at least one of the mars request values matches with the
 /// values associated with the Include rule
 class Include : public ContextRule {
@@ -66,20 +62,7 @@ public:
 
     Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
 
-    bool matches(MarsRequest req) const override {
-        if (key_ == "_verb") {
-            return (vals_.find(req.verb()) != vals_.end());
-        }
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (matchesAny(vals_, v)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    bool matches(MarsRequest req) const override;
 
 private:  // methods
 
@@ -96,17 +79,7 @@ class Exclude : public ContextRule {
 public:
 
     Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-    bool matches(MarsRequest req) const override {
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (matchesAny(vals_, v)) {
-                return false;
-            }
-        }
-        return true;
-    }
+    bool matches(MarsRequest req) const override;
 
 private:  // methods
 

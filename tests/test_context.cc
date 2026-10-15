@@ -65,17 +65,39 @@ CASE("Context match with alternatives") {
     EXPECT(exclude({"167"}).matches(r));
 }
 
-CASE("matchesAny") {
+CASE("Context match with multiple alternatives") {
     const std::set<std::string> vals{"32", "167"};
 
-    EXPECT(matchesAny(vals, "32"));
-    EXPECT(matchesAny(vals, "228032|32"));
-    EXPECT(matchesAny(vals, "228032|167|3062"));
-    EXPECT(!matchesAny(vals, "228032"));
-    EXPECT(!matchesAny(vals, "228032|3062"));
-    EXPECT(!matchesAny(vals, ""));
-    EXPECT(!matchesAny(vals, "|"));
-    EXPECT(!matchesAny({}, "32|167"));
+    auto includes = [](const std::set<std::string>& values, const std::string& param) {
+        MarsRequest r("retrieve");
+        r.setValue("param", param);
+        Context c;
+        c.add(std::make_unique<Include>("param", values));
+        return c.matches(r);
+    };
+    auto excludes = [](const std::set<std::string>& values, const std::string& param) {
+        MarsRequest r("retrieve");
+        r.setValue("param", param);
+        Context c;
+        c.add(std::make_unique<Exclude>("param", values));
+        return c.matches(r);
+    };
+
+    EXPECT(includes(vals, "32"));
+    EXPECT(includes(vals, "228032|32"));
+    EXPECT(includes(vals, "228032|167|3062"));
+    EXPECT(!includes(vals, "228032"));
+    EXPECT(!includes(vals, "228032|3062"));
+    EXPECT(!includes(vals, "|"));
+    EXPECT(!includes({}, "32|167"));
+
+    EXPECT(!excludes(vals, "32"));
+    EXPECT(!excludes(vals, "228032|32"));
+    EXPECT(!excludes(vals, "228032|167|3062"));
+    EXPECT(excludes(vals, "228032"));
+    EXPECT(excludes(vals, "228032|3062"));
+    EXPECT(excludes(vals, "|"));
+    EXPECT(excludes({}, "32|167"));
 }
 
 

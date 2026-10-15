@@ -10,19 +10,21 @@
 #include <fstream>
 #include <utility>
 
+#include "eckit/config/Resource.h"
 #include "eckit/filesystem/LocalPathName.h"
 #include "eckit/filesystem/StdDir.h"
+#include "eckit/testing/Test.h"
 #include "eckit/types/Date.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Tokenizer.h"
+
+#include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
-#include "eckit/config/Resource.h"
-#include "eckit/testing/Test.h"
-#include "eckit/utils/Tokenizer.h"
 
 using namespace eckit::testing;
 
@@ -710,8 +712,6 @@ CASE("test_metkit_expand_lowercase") {
 }
 
 CASE("test_metkit_expand_param") {
-    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
-
     {
         const char* text =
             "retrieve,class=od,expver=0079,stream=enfo,date=-1,time=00/12,type=pf,levtype=sfc,step=24,number=1/to/"
@@ -778,7 +778,7 @@ CASE("test_metkit_expand_param") {
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 6);
 
-        if (multiParamValues) {
+        if (metkit::LibMetkit::isMultiParam()) {
             EXPECT_EQUAL(params[0], "228032|32");
             EXPECT_EQUAL(params[1], "228143|143");
             EXPECT_EQUAL(params[2], "3062|142");

@@ -158,8 +158,8 @@ std::string join(const std::vector<uint32_t>& values) {
     return out.str();
 }
 
-static eckit::Mutex* local_mutex = 0;
-static pthread_once_t once       = PTHREAD_ONCE_INIT;
+eckit::Mutex* local_mutex = 0;
+pthread_once_t once       = PTHREAD_ONCE_INIT;
 
 class Matcher {
 
@@ -273,7 +273,7 @@ private:
                         std::map<std::string, size_t>& precedence);
 };
 
-static void initRules() {
+void initRules() {
     Rule::init();
 }
 
@@ -282,7 +282,6 @@ std::map<std::string, std::vector<uint32_t>> Rule::defaultMapping_;
 
 void Rule::mapping(const std::vector<std::string>& aliases, const uint32_t first,
                    std::map<std::string, std::vector<uint32_t>>& mapping, std::map<std::string, size_t>& precedence) {
-    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
 
     for (size_t j = 0; j < aliases.size(); ++j) {
         const std::string& v = aliases[j];
@@ -301,7 +300,7 @@ void Rule::mapping(const std::vector<std::string>& aliases, const uint32_t first
                         << join(it->second) << "' " << std::endl;
                 }
                 else {  // same precedence - if enabled, use multiparam values
-                    if (multiParamValues) {
+                    if (LibMetkit::isMultiParam()) {
                         bool found = false;
                         for (const auto& vv : it->second) {
                             if (vv == first) {
@@ -583,7 +582,7 @@ void Rule::print(std::ostream& out) const {
     }
 }
 
-static std::vector<Rule>* rules = nullptr;
+std::vector<Rule>* rules = nullptr;
 
 /// Like MARS, a param number given without a table (e.g. 246) that no table-128 param of this context has is
 /// read from the only other table of the context holding that number (e.g. 246 at levtype=sfc is 228246).

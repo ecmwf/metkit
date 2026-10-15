@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsRequest.h"
 
 #include "eckit/config/Resource.h"
@@ -41,7 +42,7 @@ std::vector<std::string> expandParam(const std::string& param) {
 
 CASE("multi-param mode is enabled") {
     // the mode is cached by the first reader, so it must be set before any request is expanded (see main)
-    EXPECT(eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false));
+    EXPECT(metkit::LibMetkit::isMultiParam());
 }
 
 CASE("shortnames expand to all matching paramids") {
