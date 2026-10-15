@@ -18,6 +18,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
+#include "eckit/message/Message.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/utils/StringTools.h"
@@ -269,7 +270,7 @@ MarsRequest::MarsRequest(const std::string& verb, const eckit::Value& vals) : Ma
     }
 }
 
-MarsRequest::MarsRequest(const eckit::message::Message& message) : verb_("message") {
+MarsRequest::MarsRequest(const eckit::message::Message& message) : MarsRequest("message") {
     eckit::message::StringSetter<MarsRequest> setter(*this);
     message.getMetadata(setter);
 }
