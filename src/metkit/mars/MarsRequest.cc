@@ -718,7 +718,8 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
     MarsRequest req(verb());
     for (size_t c = 0; c <= OTHER; ++c) {
         for (const auto& p : container(c)) {
-            if (keys.find(p.name()) != keys.end()) {
+            auto t = p.typePtr();
+            if (t && t->category() == cat) {
                 req.container(c).push_back(p);
             }
         }
