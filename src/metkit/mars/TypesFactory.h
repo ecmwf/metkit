@@ -12,6 +12,9 @@
 
 #include "eckit/types/Types.h"
 
+#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/Type.h"
+
 namespace eckit {
 class Value;
 }
@@ -37,7 +40,8 @@ public:
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
 
-    Type* build(const std::string& keyword, const eckit::Value&);
+    std::shared_ptr<Type> build(Keyword key, const eckit::Value& val);
+    std::shared_ptr<Type> build(const std::string& name, Keyword key, MemFile& file);
 
     void list(std::ostream& s);
 
@@ -56,9 +60,11 @@ private:  // members
 class TypesFactory {
 public:
 
-    virtual Type* make(const std::string& keyword, const eckit::Value& settings) const = 0;
+    virtual std::shared_ptr<Type> make(Keyword key, const eckit::Value& val) const = 0;
+    virtual std::shared_ptr<Type> make(Keyword key, MemFile& file) const           = 0;
 
-    static Type* build(const std::string& keyword, const eckit::Value& settings);
+    static std::shared_ptr<Type> build(Keyword key, const eckit::Value& val);
+    static std::shared_ptr<Type> build(const std::string& name, Keyword key, MemFile& file);
 
     static void list(std::ostream& s);
 
@@ -76,8 +82,11 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    Type* make(const std::string& keyword, const eckit::Value& settings) const override {
-        return new T(keyword, settings);
+    std::shared_ptr<Type> make(Keyword key, const eckit::Value& settings) const override {
+        return std::make_shared<T>(name_, key, settings);
+    }
+    std::shared_ptr<Type> make(Keyword key, MemFile& file) const override {
+        return std::make_shared<T>(name_, key, file);
     }
 
 public:
