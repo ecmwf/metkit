@@ -44,6 +44,11 @@ std::string LibMetkit::gitsha1(unsigned int count) const {
     return sha1.substr(0, std::min(count, 40u));
 }
 
+bool LibMetkit::isMultiParam() {
+    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
+    return multiParamValues;
+}
+
 eckit::PathName LibMetkit::configFile(const std::string& filename) {
     return eckit::PathName{"~metkit/share/metkit"} / filename;
 }
@@ -68,7 +73,7 @@ eckit::PathName LibMetkit::paramIDYamlFile() {
     return LibMetkit::configFile("paramids.yaml");
 }
 eckit::PathName LibMetkit::paramsBinaryFile() {
-    return LibMetkit::configFile("params.bin");
+    return LibMetkit::configFile(isMultiParam() ? "params-multi.bin" : "params.bin");
 }
 eckit::PathName LibMetkit::paramMatchingYamlFile() {
     return LibMetkit::configFile("param-matching.yaml");

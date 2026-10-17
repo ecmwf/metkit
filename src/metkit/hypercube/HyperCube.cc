@@ -4,9 +4,11 @@
 #include "metkit/hypercube/HyperCube.h"
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/parser/YAMLParser.h"
+#include "eckit/utils/Tokenizer.h"
 
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
@@ -41,18 +43,36 @@ AxisOrder& AxisOrder::instance() {
 class Axis {
 public:
 
-    Axis(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {}
+    Axis(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {
+        static const eckit::Tokenizer tokenize{"|"};
+        for (size_t i = 0; i < values_.size(); ++i) {
+            exact_.emplace(values_[i], i);  // emplace keeps the first index for duplicates
+            if (values_[i].find('|') != std::string::npos) {
+                std::vector<std::string> alternatives;
+                tokenize(values_[i], alternatives);
+                for (const auto& a : alternatives) {
+                    // check that 'a' is new
+                    if (exact_.find(a) != exact_.end() || alternatives_.find(a) != alternatives_.end()) {
+                        throw eckit::UserError("Duplicate value: " + a, Here());
+                    }
+                    alternatives_.emplace(a, i);
+                }
+            }
+        }
+    }
 
     size_t size() const { return values_.size(); }
 
     const std::string& name() const { return name_; }
 
     int indexOf(const std::string& v) const {
-        auto j = std::find(values_.begin(), values_.end(), v);
-        if (j == values_.end()) {
-            return -1;
+        if (auto it = exact_.find(v); it != exact_.end()) {
+            return it->second;
         }
-        return j - values_.begin();
+        if (auto it = alternatives_.find(v); it != alternatives_.end()) {
+            return it->second;
+        }
+        return -1;
     }
 
     const std::string& valueOf(size_t index) const {
@@ -76,6 +96,8 @@ private:
 
     std::string name_;
     std::vector<std::string> values_;
+    std::unordered_map<std::string, size_t> exact_;
+    std::unordered_map<std::string, size_t> alternatives_;  // alternative -> index of the first value containing it
 };
 
 HyperCube::HyperCube(const metkit::mars::MarsRequest& request) :
@@ -129,6 +151,7 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
     std::vector<eckit::Ordinal> coords;
 
     for (auto& a : axes_) {
+        // check that the request has a single value for this axis
         const std::vector<std::string>& values = r.values(a->name(), true);
         if (values.size() == 0) {
             std::ostringstream oss;
@@ -139,6 +162,13 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
         if (values.size() > 1) {
             std::ostringstream oss;
             oss << "HyperCube::indexOf too many values for [" << a->name() << "] in request " << r;
+            throw eckit::UserError(oss.str());
+        }
+
+        // check that the value in r is not a list of alternatives
+        if (values[0].find('|') != std::string::npos) {
+            std::ostringstream oss;
+            oss << "HyperCube::indexOf value for [" << a->name() << "] in request " << r << " contains '|'";
             throw eckit::UserError(oss.str());
         }
 
