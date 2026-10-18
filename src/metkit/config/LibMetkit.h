@@ -19,9 +19,12 @@ public:
 
     LibMetkit();
 
-    static eckit::PathName configFile(const std::string& filename);
 
     static uint16_t binaryFilesVersion() { return 2; }
+
+    static bool isMultiParam();
+
+    static eckit::PathName configFile(const std::string& filename);
 
     static eckit::PathName languageYamlFile();
     static std::vector<eckit::PathName> modifiersYamlFiles();
