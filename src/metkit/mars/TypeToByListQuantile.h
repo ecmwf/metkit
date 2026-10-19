@@ -17,8 +17,8 @@ class TypeToByListQuantile : public Type {
 
 public:
 
-    TypeToByListQuantile(const std::string& type, Keyword key, const eckit::Value& val);
-    TypeToByListQuantile(const std::string& type, Keyword key, MemFile& file);
+    TypeToByListQuantile(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeToByListQuantile(const std::string& type, MarsKeyword key, MemFile& file);
 
     ~TypeToByListQuantile() noexcept override = default;
 

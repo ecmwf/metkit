@@ -23,7 +23,8 @@
 #include "eckit/utils/Translator.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsKeyword.h"
+#include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/Parameter.h"
 
 namespace eckit {
@@ -46,15 +47,15 @@ class Type;
 class MarsID {
 public:
 
-    const std::string& get(Keyword key) const;
-    void set(Keyword key, const std::string& value);
-    void unset(Keyword key);
-    bool has(Keyword key) const;
-    const std::map<Keyword, std::string>& values() const;
+    const std::string& get(MarsKeyword key) const;
+    void set(MarsKeyword key, const std::string& value);
+    void unset(MarsKeyword key);
+    bool has(MarsKeyword key) const;
+    const std::map<MarsKeyword, std::string>& values() const;
 
 private:
 
-    std::map<Keyword, std::string> values_;
+    std::map<MarsKeyword, std::string> values_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -62,11 +63,11 @@ private:
 class MarsDataCube {
 public:  // methods
 
-    MarsDataCube(Verb verb);
+    MarsDataCube(MarsVerb verb);
     virtual ~MarsDataCube() = default;
 
-    virtual Verb verbId() const;
-    virtual void verb(Verb id);
+    virtual MarsVerb verbId() const;
+    virtual void verb(MarsVerb id);
 
     using iterator       = std::vector<Parameter>::iterator;
     using const_iterator = std::vector<Parameter>::const_iterator;
@@ -80,16 +81,16 @@ public:  // methods
     /// The number of fields the datacube refers to
     size_t count() const;
 
-    const std::vector<std::string>& get(Keyword key) const;
-    void set(Keyword key, const std::vector<std::string>& value);
-    void set(Keyword key, std::vector<std::string>&& value);
-    void unset(Keyword key);
-    bool has(Keyword key) const;
+    const std::vector<std::string>& get(MarsKeyword key) const;
+    void set(MarsKeyword key, const std::vector<std::string>& value);
+    void set(MarsKeyword key, std::vector<std::string>&& value);
+    void unset(MarsKeyword key);
+    bool has(MarsKeyword key) const;
     void merge(const MarsDataCube& other);
 
 protected:
 
-    Verb verb_;
+    MarsVerb verb_;
     const MarsLanguage* lang_ = nullptr;
     std::vector<Parameter> data_;
 };
@@ -211,7 +212,7 @@ public:  // methods
     size_t size() const { return data_.size() + postproc_.size() + other_.size(); }
 
     MarsRequest();
-    explicit MarsRequest(Verb verb);
+    explicit MarsRequest(MarsVerb verb);
     explicit MarsRequest(const std::string& verb);
     MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals);
     MarsRequest(const std::string&, const std::map<std::string, std::vector<std::string>>&);
@@ -231,20 +232,20 @@ public:  // methods
 
     const std::string& operator[](const std::string&) const;
 
-    Verb verbId() const override;
+    MarsVerb verbId() const override;
     const std::string& verb() const { return verbName_; }
 
-    void verb(Verb id) override;
+    void verb(MarsVerb id) override;
     void verb(const std::string& name);
 
-    size_t countValues(Keyword key) const;
+    size_t countValues(MarsKeyword key) const;
     size_t countValues(const std::string& name) const;
 
-    bool has(Keyword key) const;
+    bool has(MarsKeyword key) const;
     bool has(const std::string& name) const;
 
     template <class T>
-    size_t getValues(Keyword, std::vector<T>& v, bool emptyOk = false) const;
+    size_t getValues(MarsKeyword, std::vector<T>& v, bool emptyOk = false) const;
     template <class T>
     size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;
 
@@ -253,7 +254,7 @@ public:  // methods
     std::optional<std::reference_wrapper<const std::vector<std::string>>> get(const std::string& keyword) const;
 
     /// @throws UserError if there is no such parameter, unless @p emptyOk
-    const std::vector<std::string>& values(Keyword key, bool emptyOk = false) const;
+    const std::vector<std::string>& values(MarsKeyword key, bool emptyOk = false) const;
     const std::vector<std::string>& values(const std::string& name, bool emptyOk = false) const;
 
     std::vector<std::string> params() const;
@@ -267,20 +268,20 @@ public:  // methods
     }
 
     template <class T>
-    void setValue(Keyword key, const T& value);
+    void setValue(MarsKeyword key, const T& value);
     template <class T>
     void setValue(const std::string& name, const T& value);
 
     // setters
     // They set the values of the parameter, which is created (untyped) if needed
-    void values(Keyword key, const std::vector<std::string>& v);
+    void values(MarsKeyword key, const std::vector<std::string>& v);
     void values(const std::string& name, const std::vector<std::string>& v);
-    void values(Keyword key, std::vector<std::string>&& v);
+    void values(MarsKeyword key, std::vector<std::string>&& v);
     void values(const std::string& name, std::vector<std::string>&& v);
 
     void unsetValues(const std::string& name) { erase(name); }
 
-    void erase(Keyword key);
+    void erase(MarsKeyword key);
     void erase(const std::string& name);
 
     /// Splits a MARS request into multiple requests along the indicated keys
@@ -320,7 +321,7 @@ public:  // methods
 
     std::string asString() const;
 
-    const Parameter* find(Keyword key) const;
+    const Parameter* find(MarsKeyword key) const;
     const Parameter* find(const std::string& name) const;
 
 public:  // static methods
@@ -344,7 +345,7 @@ private:  // methods
     };
 
     /// @return the position of the parameter, or a false Position if there is no such parameter
-    Position locate(Keyword key) const;
+    Position locate(MarsKeyword key) const;
     Position locate(const std::string& name) const;
 
     const std::vector<Parameter>& container(size_t c) const;
@@ -381,7 +382,7 @@ private:  // members
 };
 
 template <class T>
-size_t MarsRequest::getValues(Keyword key, std::vector<T>& values, bool emptyOk) const {
+size_t MarsRequest::getValues(MarsKeyword key, std::vector<T>& values, bool emptyOk) const {
 
     eckit::Translator<std::string, T> t;
 
@@ -414,7 +415,7 @@ size_t MarsRequest::getValues(const std::string& name, std::vector<T>& val, bool
 }
 
 template <class T>
-void MarsRequest::setValue(Keyword key, const T& value) {
+void MarsRequest::setValue(MarsKeyword key, const T& value) {
     eckit::Translator<T, std::string> t;
     values(key, std::vector<std::string>{t(value)});
 }

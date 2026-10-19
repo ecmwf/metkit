@@ -31,7 +31,7 @@ Parameter::Parameter(std::shared_ptr<const Type> type, std::vector<std::string>&
     ASSERT(type_);
 }
 
-Keyword Parameter::id() const {
+MarsKeyword Parameter::id() const {
     // An untyped parameter may carry an arbitrary custom key that is not in the language definition: do not register
     // it, the dictionary is global, never shrinks and its size is limited, so user-provided names must not fill it.
     // A name that is not registered has no id (0), which no keyword has.
@@ -42,7 +42,7 @@ const std::string& Parameter::name() const {
     return type_ ? type_->name() : name_;
 }
 
-bool Parameter::is(Keyword key) const {
+bool Parameter::is(MarsKeyword key) const {
     if (type_) {
         return type_->id() == key;
     }
@@ -81,7 +81,7 @@ bool Parameter::filter(const std::vector<std::string>& filter) {
     return !values_.empty();
 }
 
-bool Parameter::filter(Keyword keyword, const std::vector<std::string>& f) {
+bool Parameter::filter(MarsKeyword keyword, const std::vector<std::string>& f) {
     if (type_) {
         return type_->filter(keyword, f, values_);
     }

@@ -14,11 +14,13 @@
 #include "eckit/serialisation/MemoryStream.h"
 #include "eckit/serialisation/ResizableMemoryStream.h"
 
-#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsExpansion.h"
+#include "metkit/mars/MarsKeyword.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
 
 #include "eckit/testing/Test.h"
@@ -269,7 +271,7 @@ CASE("test_request_untyped_parameters") {
     EXPECT_THROWS_AS(custom->type(), eckit::SeriousBug);
 
     // the parameters of registered keywords are found by name and by keyword, and are not duplicated
-    Keyword klass = MarsLanguage::keyword("class");
+    MarsKeyword klass = MarsLanguage::keyword("class");
     EXPECT(r.has(klass));
     EXPECT_EQUAL(r.values(klass).at(0), "od");
     r.setValue(klass, "rd");
@@ -290,7 +292,7 @@ CASE("test_request_typed_parameters") {
         "to/2,param=mucin/mucape/tprate,area=12/13/14/15,grid=.1/.1");
 
     // expanded parameters are typed, and are found by keyword or by name, whatever the case of the name
-    Keyword klass      = MarsLanguage::keyword("class");
+    MarsKeyword klass      = MarsLanguage::keyword("class");
     const Parameter* p = r.find("class");
     EXPECT(p != nullptr);
     EXPECT(p->typed());
@@ -415,15 +417,15 @@ CASE("test_language_verbs") {
 
 CASE("test_request_no_implicit_conversions") {
     // a verb (an integral) or a string must not silently become a request
-    EXPECT(!(std::is_convertible_v<Verb, MarsRequest>));
+    EXPECT(!(std::is_convertible_v<MarsVerb, MarsRequest>));
     EXPECT(!(std::is_convertible_v<int, MarsRequest>));
     EXPECT(!(std::is_convertible_v<std::string, MarsRequest>));
     EXPECT(!(std::is_convertible_v<const char*, MarsRequest>));
 
-    EXPECT((std::is_constructible_v<MarsRequest, Verb>));
+    EXPECT((std::is_constructible_v<MarsRequest, MarsVerb>));
     EXPECT((std::is_constructible_v<MarsRequest, std::string>));
 
-    Verb retrieve = MarsLanguage::verb("retrieve");
+    MarsVerb retrieve = MarsLanguage::verb("retrieve");
     EXPECT_EQUAL(MarsRequest{retrieve}.verb(), "retrieve");
     EXPECT_EQUAL(MarsRequest{"retrieve"}.verb(), "retrieve");
 }

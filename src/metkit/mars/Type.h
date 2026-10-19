@@ -23,7 +23,7 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
@@ -47,11 +47,11 @@ public:
 class ContextRule {
 public:
 
-    ContextRule(Keyword k) : key_(k) {}
+    ContextRule(MarsKeyword k) : key_(k) {}
 
     virtual ~ContextRule() = default;
 
-    Keyword key() const { return key_; }
+    MarsKeyword key() const { return key_; }
 
     virtual bool matches(const MarsRequest& req) const = 0;
 
@@ -69,7 +69,7 @@ public:
 
 protected:
 
-    Keyword key_;
+    MarsKeyword key_;
 
 private:  // methods
 
@@ -83,7 +83,7 @@ private:  // methods
 class Include : public ContextRule {
 public:
 
-    Include(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    Include(MarsKeyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
     bool matches(const MarsRequest& req) const override;
 
     void write(std::ofstream& file) const override;
@@ -102,7 +102,7 @@ private:
 class Exclude : public ContextRule {
 public:
 
-    Exclude(Keyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    Exclude(MarsKeyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
     bool matches(const MarsRequest& req) const override;
     void write(std::ofstream& file) const override;
 
@@ -119,7 +119,7 @@ private:
 class Undef : public ContextRule {
 public:
 
-    Undef(Keyword k) : ContextRule(k) {}
+    Undef(MarsKeyword k) : ContextRule(k) {}
     bool matches(const MarsRequest& req) const override;
     void write(std::ofstream& file) const override;
 
@@ -132,7 +132,7 @@ private:  // methods
 class Def : public ContextRule {
 public:
 
-    Def(Keyword k) : ContextRule(k) {}
+    Def(MarsKeyword k) : ContextRule(k) {}
     bool matches(const MarsRequest& req) const override;
     void write(std::ofstream& file) const override;
 
@@ -157,7 +157,7 @@ public:
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
 
-    Keyword maxAxisIndex() const;
+    MarsKeyword maxAxisIndex() const;
 
     bool matches(const MarsRequest& req) const;
 
@@ -206,8 +206,8 @@ class Type : public std::enable_shared_from_this<Type> {
 
 public:  // methods
 
-    Type(const std::string& type, Keyword key, const eckit::Value& settings);
-    Type(const std::string& type, Keyword key, MemFile& file);
+    Type(const std::string& type, MarsKeyword key, const eckit::Value& settings);
+    Type(const std::string& type, MarsKeyword key, MemFile& file);
 
     virtual ~Type() = default;
 
@@ -231,11 +231,11 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
-    virtual bool filter(Keyword keyword, const std::vector<std::string>& filter,
+    virtual bool filter(MarsKeyword keyword, const std::vector<std::string>& filter,
                         std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
-    Keyword id() const { return id_; }
+    MarsKeyword id() const { return id_; }
     const std::string& name() const { return name_; }
 
     const Category& category() const;
@@ -268,7 +268,7 @@ protected:  // members
 
     std::string typeName_;
 
-    Keyword id_;
+    MarsKeyword id_;
     const std::string& name_;
 
     std::bitset<8> flags_;
@@ -287,7 +287,7 @@ protected:  // members
 
     std::unique_ptr<ITypeToByList> toByList_;
 
-    std::map<Keyword, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
+    std::map<MarsKeyword, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
 

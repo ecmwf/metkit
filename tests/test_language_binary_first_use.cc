@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Runs in its own process, with a METKIT_HOME holding language.bin but no language.yaml:
-// the language must be served from the binary file even when get(Verb) is the first entry point.
+// the language must be served from the binary file even when get(MarsVerb) is the first entry point.
 
 #include <cstdint>
 #include <string>
@@ -10,14 +10,15 @@
 #include "eckit/testing/Test.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/Dictionary.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/Serialize.h"
+#include "metkit/mars/SymbolTable.h"
 
 namespace metkit::mars::test {
 
 /// Looks up a verb in the binary file directly, without initialising MarsLanguage
-static Verb verb_from_binary_file(const std::string& name) {
+static MarsVerb verb_from_binary_file(const std::string& name) {
     MemFile file{LibMetkit::languageBinaryFile().localPath()};
     EXPECT_EQUAL(std::string{file.readString(4)}, "LANG");
     EXPECT_EQUAL(file.read16(), LibMetkit::binaryFilesVersion());
@@ -25,17 +26,17 @@ static Verb verb_from_binary_file(const std::string& name) {
     const uint32_t numVerbs = file.read32();
     for (uint32_t i = 0; i < numVerbs; ++i) {
         if (file.readString() == name) {
-            return static_cast<Verb>(i + 1);  // index 0 is reserved for "not found"
+            return static_cast<MarsVerb>(i + 1);  // index 0 is reserved for "not found"
         }
     }
     return 0;
 }
 
-CASE("get(Verb) as first entry point uses the binary language file") {
+CASE("get(MarsVerb) as first entry point uses the binary language file") {
     EXPECT(LibMetkit::languageBinaryFile().exists());
     EXPECT(!LibMetkit::languageYamlFile().exists());
 
-    const Verb retrieve = verb_from_binary_file("retrieve");
+    const MarsVerb retrieve = verb_from_binary_file("retrieve");
     EXPECT(retrieve != 0);
 
     const MarsLanguage* language = nullptr;

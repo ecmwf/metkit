@@ -15,7 +15,7 @@
 #include "eckit/utils/HyperCube.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsKeyword.h"
 #include "metkit/mars/MarsRequest.h"
 
 
@@ -74,9 +74,9 @@ protected:
 
 private:
 
-    mars::Verb verb_;
+    mars::MarsVerb verb_;
     std::vector<Axis*> axes_;
-    std::map<mars::Keyword, Axis*> axesByName_;
+    std::map<mars::MarsKeyword, Axis*> axesByName_;
     std::vector<bool> set_;
     eckit::HyperCube cube_;
     size_t count_;

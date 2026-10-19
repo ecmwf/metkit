@@ -17,8 +17,8 @@ class TypeLowercase : public Type {
 
 public:  // methods
 
-    TypeLowercase(const std::string& type, Keyword key, const eckit::Value& val);
-    TypeLowercase(const std::string& type, Keyword key, MemFile& file);
+    TypeLowercase(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeLowercase(const std::string& type, MarsKeyword key, MemFile& file);
     ~TypeLowercase() noexcept override = default;
 
 private:  // methods

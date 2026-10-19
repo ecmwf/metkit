@@ -13,8 +13,8 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeExpver::TypeExpver(const std::string& type, Keyword key, const eckit::Value& value) : Type(type, key, value) {}
-TypeExpver::TypeExpver(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {}
+TypeExpver::TypeExpver(const std::string& type, MarsKeyword key, const eckit::Value& value) : Type(type, key, value) {}
+TypeExpver::TypeExpver(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {}
 
 bool TypeExpver::expand(std::string& value, const MarsRequest&) const {
 

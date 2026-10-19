@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsKeyword.h"
 
 namespace eckit {
 class JSON;
@@ -61,11 +61,11 @@ public:  // methods
     bool operator<(const Parameter&) const;
 
     /// @return the id of the keyword, or 0 if the name is not a registered keyword. It does not register anything.
-    Keyword id() const;
+    MarsKeyword id() const;
     const std::string& name() const;
 
     /// @return true if the id of the keyword is @p key (the name is compared if the parameter is untyped)
-    bool is(Keyword key) const;
+    bool is(MarsKeyword key) const;
 
     const std::vector<std::string>& values() const { return values_; }
     void values(const std::vector<std::string>& values) { values_ = values; }
@@ -82,7 +82,7 @@ public:  // methods
     /// Keeps only the values that are in @p filter. @return true if some value is left
     bool filter(const std::vector<std::string>& filter);
     /// Filters by another keyword, e.g. a date by day. @return false if this keyword does not support it
-    bool filter(Keyword keyword, const std::vector<std::string>& filter);
+    bool filter(MarsKeyword keyword, const std::vector<std::string>& filter);
     bool filter(const std::string& name, const std::vector<std::string>& filter);
 
     /// @return true if at least one of the values is in @p matches

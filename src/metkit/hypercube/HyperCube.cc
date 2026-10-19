@@ -41,11 +41,11 @@ AxisOrder& AxisOrder::instance() {
 class Axis {
 public:
 
-    Axis(mars::Keyword key, const std::vector<std::string>& values) : key_(key), values_(values) {}
+    Axis(mars::MarsKeyword key, const std::vector<std::string>& values) : key_(key), values_(values) {}
 
     size_t size() const { return values_.size(); }
 
-    mars::Keyword key() const { return key_; }
+    mars::MarsKeyword key() const { return key_; }
 
     int indexOf(const std::string& v) const {
         auto j = std::find(values_.begin(), values_.end(), v);
@@ -74,7 +74,7 @@ public:
 
 private:
 
-    mars::Keyword key_;
+    mars::MarsKeyword key_;
     std::vector<std::string> values_;
 };
 
@@ -83,15 +83,15 @@ HyperCube::HyperCube(const mars::MarsRequest& request) : verb_(request.verbId())
     std::vector<eckit::Ordinal> dimensions;
 
     // the axes are fixed by the configuration: convert their names to keywords only once
-    static const std::vector<mars::Keyword> axisKeys = [] {
-        std::vector<mars::Keyword> keys;
+    static const std::vector<mars::MarsKeyword> axisKeys = [] {
+        std::vector<mars::MarsKeyword> keys;
         for (const auto& name : AxisOrder::instance().axes()) {
             keys.push_back(mars::MarsLanguage::keyword(name));
         }
         return keys;
     }();
 
-    for (mars::Keyword key : axisKeys) {
+    for (mars::MarsKeyword key : axisKeys) {
         const std::vector<std::string>& values = request.values(key, true);
 
         if (!values.empty()) {

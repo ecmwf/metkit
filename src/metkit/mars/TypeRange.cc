@@ -29,11 +29,11 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRange::TypeRange(const std::string& type, Keyword key, const eckit::Value& vals) : Type(type, key, vals) {
+TypeRange::TypeRange(const std::string& type, MarsKeyword key, const eckit::Value& vals) : Type(type, key, vals) {
     toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, vals);
     flags_[1] = true;
 }
-TypeRange::TypeRange(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+TypeRange::TypeRange(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, file);
     flags_[1] = true;
 }

@@ -18,9 +18,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsKeyword.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/Serialize.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
@@ -45,16 +47,16 @@ public:
     ExpansionContext(const MarsRequest& request);
     ExpansionContext& operator=(ExpansionContext&& other) noexcept;
 
-    bool has(Keyword key) const;
+    bool has(MarsKeyword key) const;
 
-    const std::vector<std::string>& values(Keyword key) const;
+    const std::vector<std::string>& values(MarsKeyword key) const;
 
-    void unset(Keyword key);
+    void unset(MarsKeyword key);
     void unset(const std::string& key);
 
 private:
 
-    std::unordered_map<Keyword, std::vector<std::string>> values_;
+    std::unordered_map<MarsKeyword, std::vector<std::string>> values_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -66,9 +68,9 @@ struct ContextPtrComparator {
 class MarsLanguage {
 public:  // methods
 
-    MarsLanguage(Verb verb);
+    MarsLanguage(MarsVerb verb);
     MarsLanguage(const std::string& verb);
-    MarsLanguage(Verb verb, MemFile& file);
+    MarsLanguage(MarsVerb verb, MemFile& file);
     ~MarsLanguage() = default;
 
     MarsLanguage(const MarsLanguage&)            = delete;
@@ -76,7 +78,7 @@ public:  // methods
     MarsLanguage& operator=(const MarsLanguage&) = delete;
     MarsLanguage& operator=(MarsLanguage&&)      = delete;
 
-    Verb verb() const { return verb_; }
+    MarsVerb verb() const { return verb_; }
 
     void write(std::ofstream& file) const;
 
@@ -84,13 +86,13 @@ public:  // methods
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
-    std::shared_ptr<const Type> type(Keyword name) const;
+    std::shared_ptr<const Type> type(MarsKeyword name) const;
     const Type* type(const std::string& name) const;
 
-    bool isData(Keyword keyword) const;
-    bool isDerived(Keyword keyword) const;
-    bool isPostProc(Keyword keyword) const;
-    bool isSink(Keyword keyword) const;
+    bool isData(MarsKeyword keyword) const;
+    bool isDerived(MarsKeyword keyword) const;
+    bool isPostProc(MarsKeyword keyword) const;
+    bool isSink(MarsKeyword keyword) const;
 
     bool isData(const std::string& keyword) const;
     bool isDerived(const std::string& keyword) const;
@@ -101,7 +103,7 @@ public:  // class methods
 
     static const std::string& expandVerb(const std::string& verb);
 
-    static const MarsLanguage& get(Verb verb);
+    static const MarsLanguage& get(MarsVerb verb);
     static const MarsLanguage& get(const std::string& verb);
 
     static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
@@ -109,15 +111,15 @@ public:  // class methods
 
     static eckit::Value jsonFile(const std::string& name);
 
-    static Verb verb(const std::string& name);
-    static Verb hasVerb(const std::string& name);
-    static const std::string& name(Verb verb);
+    static MarsVerb verb(const std::string& name);
+    static MarsVerb hasVerb(const std::string& name);
+    static const std::string& name(MarsVerb verb);
 
-    static Keyword addKeyword(const std::string& name);
-    static Keyword hasKeyword(const std::string& name);
-    static Keyword keyword(const std::string& name);
-    static Keyword maxDataKeyword() { return maxDataKeyword_; }
-    static const std::string& name(Keyword keyword);
+    static MarsKeyword addKeyword(const std::string& name);
+    static MarsKeyword hasKeyword(const std::string& name);
+    static MarsKeyword keyword(const std::string& name);
+    static MarsKeyword maxDataKeyword() { return maxDataKeyword_; }
+    static const std::string& name(MarsKeyword keyword);
 
     static void init();
 
@@ -132,7 +134,7 @@ private:  // methods
     friend class Type;
     friend class TypeMixed;
 
-    void parse(Verb verb);
+    void parse(MarsVerb verb);
 
     static bool loadBinary();  // true if the language was loaded from the binary file
     static void loadYaml();
@@ -140,12 +142,12 @@ private:  // methods
     /// Whether a type takes part in the defaults and finalisation steps of the expansion, which process the types in
     /// the order of types_: the axes and all the types that are not data. Data keywords that are not axes (e.g. tile)
     /// do not.
-    bool isOrdered(Keyword key, const Type& type) const {
+    bool isOrdered(MarsKeyword key, const Type& type) const {
         return key < maxDataKeyword_ || type.category() != Category::Data;
     }
 
-    Category category(Keyword keyword) const;
-    void flatten(const MarsRequest& request, const std::vector<Keyword>& params, size_t i, MarsRequest& result,
+    Category category(MarsKeyword keyword) const;
+    void flatten(const MarsRequest& request, const std::vector<MarsKeyword>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback) const;
     void parseModifier(ModifierType typ, const Context& ctx, size_t maxIndex, const eckit::Value& mod);
     static const Context& context(size_t ctxId);
@@ -153,21 +155,21 @@ private:  // methods
 
 private:  // members
 
-    static std::unique_ptr<Dictionary<Verb>> verbs_;
-    static std::unique_ptr<Dictionary<Keyword>> keywords_;
-    static Keyword maxDataKeyword_;
+    static std::unique_ptr<SymbolTable<MarsVerb>> verbs_;
+    static std::unique_ptr<SymbolTable<MarsKeyword>> keywords_;
+    static MarsKeyword maxDataKeyword_;
 
     static std::shared_mutex contextsMutex_;
     static std::set<Context*, ContextPtrComparator> contextsSet_;
     static std::vector<std::unique_ptr<Context>> contexts_;
 
-    static std::map<Keyword, size_t> langOffsets_;
+    static std::map<MarsVerb, size_t> langOffsets_;
     static MemFile langFile_;
 
-    Verb verb_;
+    MarsVerb verb_;
     /// The types of the language, sorted by keyword. The keywords of the axes are registered following the AxisOrder
     /// (see init()), so iterating over the types visits the axes in axis order, followed by all the other keywords.
-    std::map<Keyword, std::shared_ptr<Type>> types_;
+    std::map<MarsKeyword, std::shared_ptr<Type>> types_;
 
     // for bestMatch - to be removed as we turn off fuzzy matching
     std::vector<std::string> keywordList_;

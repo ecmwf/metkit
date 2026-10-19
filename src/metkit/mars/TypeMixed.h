@@ -18,8 +18,8 @@ class TypeMixed : public Type {
 
 public:  // methods
 
-    TypeMixed(const std::string& type, Keyword key, const eckit::Value& val);
-    TypeMixed(const std::string& type, Keyword key, MemFile& file);
+    TypeMixed(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeMixed(const std::string& type, MarsKeyword key, MemFile& file);
 
     ~TypeMixed() noexcept override = default;
 

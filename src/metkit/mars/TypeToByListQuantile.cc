@@ -19,7 +19,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByListQuantile::TypeToByListQuantile(const std::string& type, Keyword key, const eckit::Value& vals) :
+TypeToByListQuantile::TypeToByListQuantile(const std::string& type, MarsKeyword key, const eckit::Value& vals) :
     Type(type, key, vals) {
 
     eckit::Value values = vals["denominators"];
@@ -52,7 +52,7 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string& type, Keyword key,
     flags_[1] = true;
 }
 
-TypeToByListQuantile::TypeToByListQuantile(const std::string& type, Keyword key, MemFile& file) :
+TypeToByListQuantile::TypeToByListQuantile(const std::string& type, MarsKeyword key, MemFile& file) :
     Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, file);
     flags_[1] = true;

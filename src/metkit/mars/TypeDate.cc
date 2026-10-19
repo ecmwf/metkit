@@ -109,13 +109,13 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeDate::TypeDate(const std::string& type, Keyword key, const eckit::Value& val) : Type(type, key, val) {
+TypeDate::TypeDate(const std::string& type, MarsKeyword key, const eckit::Value& val) : Type(type, key, val) {
 
     toByList_                                 = std::make_unique<TypeToByList<eckit::Date, long>>(*this, val);
     flags_[1]                                 = true;
     filters_[MarsLanguage::addKeyword("day")] = &filterByDay;
 }
-TypeDate::TypeDate(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+TypeDate::TypeDate(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
 
     toByList_                                 = std::make_unique<TypeToByList<eckit::Date, long>>(*this, file);
     flags_[1]                                 = true;

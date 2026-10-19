@@ -19,8 +19,8 @@ class TypeRegex : public Type {
 
 public:  // methods
 
-    TypeRegex(const std::string& type, Keyword key, const eckit::Value& val);
-    TypeRegex(const std::string& type, Keyword key, MemFile& file);
+    TypeRegex(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeRegex(const std::string& type, MarsKeyword key, MemFile& file);
 
     ~TypeRegex() noexcept override = default;
 

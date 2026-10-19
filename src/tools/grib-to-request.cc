@@ -49,7 +49,7 @@ class GribToRequestTool : public MetkitTool {
 public:
 
     GribToRequestTool(int argc, char** argv) : MetkitTool(argc, argv) {
-        options_.push_back(new SimpleOption<std::string>("verb", "Verb in the request, default = retrieve"));
+        options_.push_back(new SimpleOption<std::string>("verb", "MarsVerb in the request, default = retrieve"));
         options_.push_back(
             new SimpleOption<std::string>("database", "add database keyword to requests, default = none"));
         options_.push_back(new SimpleOption<std::string>("source", "add source keyword to requests, default = none"));

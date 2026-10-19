@@ -12,7 +12,9 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"
 
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/MarsKeyword.h"
+#include "metkit/mars/MarsVerb.h"
+#include "metkit/mars/SymbolTable.h"
 
 using namespace eckit::testing;
 
@@ -21,49 +23,48 @@ namespace metkit::mars::test {
 //-----------------------------------------------------------------------------
 
 CASE("test_dictionary_add_and_lookup") {
-    Dictionary<Keyword> dict("keyword");
+    SymbolTable<MarsKeyword> dict("keyword");
 
-    Keyword a = dict.add("class");
-    Keyword b = dict.add("type");
-    EXPECT(a != 0);
-    EXPECT(b != 0);
+    MarsKeyword a = dict.add("class");
+    MarsKeyword b = dict.add("type");
+    EXPECT(a != MarsKeyword::unknown());
+    EXPECT(b != MarsKeyword::unknown());
     EXPECT(a != b);
 
     // adding again returns the same key
     EXPECT_EQUAL(dict.add("class"), a);
 
-    EXPECT_EQUAL(dict.exist("class"), a);
-    EXPECT_EQUAL(dict.exist("unknown"), 0);
-    EXPECT_EQUAL(dict.keyword("type"), b);
+    EXPECT_EQUAL(dict.symbol("class", false), a);
+    EXPECT_EQUAL(dict.symbol("unknown", false), MarsKeyword::unknown());
+    EXPECT_EQUAL(dict.symbol("type"), b);
     EXPECT_EQUAL(dict.name(a), "class");
 
     // an unknown name is an error of the user, an invalid key a bug
-    EXPECT_THROWS_AS(dict.keyword("unknown"), eckit::UserError);
-    EXPECT_THROWS_AS(dict.name(0), eckit::SeriousBug);
-    EXPECT_THROWS_AS(dict.name(1000), eckit::SeriousBug);
+    EXPECT_THROWS_AS(dict.symbol("unknown"), eckit::UserError);
+    EXPECT_THROWS_AS(dict.name(MarsKeyword::unknown()), eckit::SeriousBug);
 }
 
 CASE("test_dictionary_alias") {
-    Dictionary<Keyword> dict("keyword");
-    Keyword a = dict.add("levelist");
-    Keyword b = dict.add("param");
+    SymbolTable<MarsKeyword> dict("keyword");
+    MarsKeyword a = dict.add("levelist");
+    MarsKeyword b = dict.add("param");
 
-    dict.alias("level", a);
-    EXPECT_EQUAL(dict.exist("level"), a);
+    dict.addAlias("level", a);
+    EXPECT_EQUAL(dict.symbol("level", false), a);
     EXPECT_EQUAL(dict.name(a), "levelist");
 
     // the same alias for the same key is fine, for another key it is a conflict
-    EXPECT_NO_THROW(dict.alias("level", a));
-    EXPECT_THROWS_AS(dict.alias("level", b), eckit::SeriousBug);
+    EXPECT_NO_THROW(dict.addAlias("level", a));
+    EXPECT_THROWS_AS(dict.addAlias("level", b), eckit::SeriousBug);
 
     // an alias must refer to an existing key
-    EXPECT_THROWS_AS(dict.alias("other", 0), eckit::SeriousBug);
-    EXPECT_THROWS_AS(dict.alias("other", 1000), eckit::SeriousBug);
+    EXPECT_THROWS_AS(dict.addAlias("other", 0), eckit::SeriousBug);
+    EXPECT_THROWS_AS(dict.addAlias("other", 1000), eckit::SeriousBug);
 }
 
 CASE("test_dictionary_full") {
     // the keys must stay representable: an overflow must not wrap around (and clash with existing keys)
-    Dictionary<uint8_t> dict("verb");
+    SymbolTable<MarsVerb> dict("verb");
 
     size_t added = 0;
     EXPECT_THROWS_AS(
@@ -78,16 +79,16 @@ CASE("test_dictionary_full") {
     EXPECT_EQUAL(added, 254u);
 
     // the existing entries are untouched
-    EXPECT_EQUAL(dict.exist("verb0"), 1);
+    EXPECT_EQUAL(dict.symbol("verb0", false), MarsVerb{1});
     EXPECT_EQUAL(dict.name(254), "verb253");
 }
 
 CASE("test_dictionary_concurrent_add") {
-    Dictionary<Keyword> dict("keyword");
+    SymbolTable<MarsKeyword> dict("keyword");
 
     constexpr int numThreads = 8;
     constexpr int numNames   = 500;
-    std::vector<std::vector<Keyword>> keys(numThreads, std::vector<Keyword>(numNames));
+    std::vector<std::vector<MarsKeyword>> keys(numThreads, std::vector<MarsKeyword>(numNames));
 
     std::vector<std::thread> threads;
     for (int t = 0; t < numThreads; ++t) {
@@ -102,7 +103,7 @@ CASE("test_dictionary_concurrent_add") {
     }
 
     // every thread got the same key for the same name, and the keys are all different
-    std::set<Keyword> distinct;
+    std::set<MarsKeyword> distinct;
     for (int i = 0; i < numNames; ++i) {
         for (int t = 1; t < numThreads; ++t) {
             EXPECT_EQUAL(keys[t][i], keys[0][i]);

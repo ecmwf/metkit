@@ -13,7 +13,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRegex::TypeRegex(const std::string& type, Keyword key, const eckit::Value& vals) : Type(type, key, vals) {
+TypeRegex::TypeRegex(const std::string& type, MarsKeyword key, const eckit::Value& vals) : Type(type, key, vals) {
 
     eckit::Value r = vals["regex"];
 
@@ -26,7 +26,7 @@ TypeRegex::TypeRegex(const std::string& type, Keyword key, const eckit::Value& v
         regex_.push_back(std::string(r));
     }
 }
-TypeRegex::TypeRegex(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+TypeRegex::TypeRegex(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
     uint8_t numRegex = file.read8();
     for (uint8_t i = 0; i < numRegex; ++i) {
         regex_.emplace_back(std::string{file.readString()});

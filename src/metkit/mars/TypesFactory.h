@@ -12,7 +12,7 @@
 
 #include "eckit/types/Types.h"
 
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
 
 namespace eckit {
@@ -40,8 +40,8 @@ public:
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
 
-    std::shared_ptr<Type> build(Keyword key, const eckit::Value& val);
-    std::shared_ptr<Type> build(const std::string& name, Keyword key, MemFile& file);
+    std::shared_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
+    std::shared_ptr<Type> build(const std::string& name, MarsKeyword key, MemFile& file);
 
     void list(std::ostream& s);
 
@@ -60,11 +60,11 @@ private:  // members
 class TypesFactory {
 public:
 
-    virtual std::shared_ptr<Type> make(Keyword key, const eckit::Value& val) const = 0;
-    virtual std::shared_ptr<Type> make(Keyword key, MemFile& file) const           = 0;
+    virtual std::shared_ptr<Type> make(MarsKeyword key, const eckit::Value& val) const = 0;
+    virtual std::shared_ptr<Type> make(MarsKeyword key, MemFile& file) const           = 0;
 
-    static std::shared_ptr<Type> build(Keyword key, const eckit::Value& val);
-    static std::shared_ptr<Type> build(const std::string& name, Keyword key, MemFile& file);
+    static std::shared_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
+    static std::shared_ptr<Type> build(const std::string& name, MarsKeyword key, MemFile& file);
 
     static void list(std::ostream& s);
 
@@ -82,10 +82,10 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    std::shared_ptr<Type> make(Keyword key, const eckit::Value& settings) const override {
+    std::shared_ptr<Type> make(MarsKeyword key, const eckit::Value& settings) const override {
         return std::make_shared<T>(name_, key, settings);
     }
-    std::shared_ptr<Type> make(Keyword key, MemFile& file) const override {
+    std::shared_ptr<Type> make(MarsKeyword key, MemFile& file) const override {
         return std::make_shared<T>(name_, key, file);
     }
 

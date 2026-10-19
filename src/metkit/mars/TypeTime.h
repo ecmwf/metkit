@@ -19,8 +19,8 @@ class TypeTime : public Type {
 
 public:  // methods
 
-    TypeTime(const std::string& type, Keyword key, const eckit::Value& val);
-    TypeTime(const std::string& type, Keyword key, MemFile& file);
+    TypeTime(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeTime(const std::string& type, MarsKeyword key, MemFile& file);
 
     ~TypeTime() noexcept override = default;
 

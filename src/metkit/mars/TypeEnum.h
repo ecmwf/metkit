@@ -22,7 +22,7 @@
 
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Serialize.h"
 #include "metkit/mars/Type.h"
@@ -35,8 +35,8 @@ class TypeEnum : public Type {
 
 public:
 
-    TypeEnum(const std::string& type, Keyword key, const eckit::Value& val);
-    TypeEnum(const std::string& type, Keyword key, MemFile& file);
+    TypeEnum(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeEnum(const std::string& type, MarsKeyword key, MemFile& file);
     ~TypeEnum() noexcept override = default;
 
     void write(std::ofstream& file) const override;

@@ -13,10 +13,10 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeFloat::TypeFloat(const std::string& type, Keyword keyword, const eckit::Value& settings) :
+TypeFloat::TypeFloat(const std::string& type, MarsKeyword keyword, const eckit::Value& settings) :
     Type(type, keyword, settings) {}
 
-TypeFloat::TypeFloat(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {}
+TypeFloat::TypeFloat(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {}
 
 bool TypeFloat::expand(std::string& value, const MarsRequest&) const {
 
@@ -80,11 +80,11 @@ static TypeBuilder<TypeFloat> type("float");
 class TypeToByListFloat : public TypeFloat {
 public:
 
-    TypeToByListFloat(const std::string& type, Keyword key, const eckit::Value& val) : TypeFloat(type, key, val) {
+    TypeToByListFloat(const std::string& type, MarsKeyword key, const eckit::Value& val) : TypeFloat(type, key, val) {
         toByList_ = std::make_unique<TypeToByList<float, float>>(*this, val);
         flags_[1] = true;
     }
-    TypeToByListFloat(const std::string& type, Keyword key, MemFile& file) : TypeFloat(type, key, file) {
+    TypeToByListFloat(const std::string& type, MarsKeyword key, MemFile& file) : TypeFloat(type, key, file) {
         toByList_ = std::make_unique<TypeToByList<float, float>>(*this, file);
         flags_[1] = true;
     }

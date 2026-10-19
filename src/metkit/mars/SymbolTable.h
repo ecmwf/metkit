@@ -29,32 +29,27 @@
 
 namespace metkit::mars {
 
-using Verb    = uint8_t;
-using Keyword = uint16_t;
-
-template <typename K>
-// requires std::is_arithmetic_v<K>
-class Dictionary {
+template <typename S>
+// requires std::is_arithmetic_v<S>
+class SymbolTable {
 public:
 
     /// @param kind what the dictionary holds ("keyword", "verb"): only used in error messages
-    explicit Dictionary(std::string kind = "keyword") : kind_(std::move(kind)) {
+    explicit SymbolTable(std::string kind = "keyword") : kind_(std::move(kind)) {
         static const std::string empty{};
         names_.push_back(empty);  // index 0 is reserved: it means "not found"
     }
-    explicit Dictionary(MemFile& file, std::string kind = "keyword");
+    explicit SymbolTable(MemFile& file, std::string kind = "keyword");
 
-    K add(const std::string& name);
-    void alias(const std::string& name, K key);
+    S add(const std::string& name);
+    void addAlias(const std::string& name, S symbol);
 
-    K keyword(const std::string& name) const;
-    K exist(const std::string& name) const;
+    S symbol(const std::string& name, bool throwOnUnknown = true) const;
+    const std::string& name(S symbol) const;
 
-    const std::string& name(K key) const;
+    size_t size() const;
 
-    K size() const;
-
-    void serialize(std::ofstream& file) const;
+    void write(std::ofstream& file) const;
 
 private:
 
@@ -63,16 +58,16 @@ private:
     std::string kind_;
     mutable std::shared_mutex mutex_;
     std::vector<std::reference_wrapper<const std::string>> names_;
-    std::unordered_map<std::string, K> map_;
+    std::unordered_map<std::string, S> map_;
 
-    friend std::ostream& operator<<(std::ostream& s, const Dictionary<K>& dict) {
+    friend std::ostream& operator<<(std::ostream& s, const SymbolTable<S>& dict) {
         dict.print(s);
         return s;
     }
 };
 
-template <typename K>
-Dictionary<K>::Dictionary(MemFile& file, std::string kind) : kind_(std::move(kind)) {
+template <typename S>
+SymbolTable<S>::SymbolTable(MemFile& file, std::string kind) : kind_(std::move(kind)) {
     static const std::string empty{};
     names_.push_back(empty);
     size_t num = file.read32();
@@ -83,17 +78,17 @@ Dictionary<K>::Dictionary(MemFile& file, std::string kind) : kind_(std::move(kin
     num = file.read32();
     for (size_t i = 0; i < num; ++i) {
         std::string name{file.readString()};
-        alias(name, static_cast<K>(file.read32()));
+        addAlias(name, static_cast<S>(file.read32()));
     }
 }
 
-template <typename K>
-K Dictionary<K>::add(const std::string& name) {
-    static_assert(std::is_integral_v<K> == true);
+template <typename S>
+S SymbolTable<S>::add(const std::string& name) {
+    // static_assert(std::is_integral_v<typename S::value_t> == true);
 
     // fast path: most calls are lookups of names that are already registered, avoid the exclusive lock
-    if (K key = exist(name)) {
-        return key;
+    if (S symb = symbol(name, false); symb != S{}) {
+        return symb;
     }
 
     std::unique_lock lock(mutex_);
@@ -102,77 +97,72 @@ K Dictionary<K>::add(const std::string& name) {
     if (it != map_.end()) {  // someone else registered it between the two locks
         return it->second;
     }
-    // the largest index must stay representable as K (and size() must not wrap around to 0)
-    if (names_.size() >= static_cast<size_t>(std::numeric_limits<K>::max())) {
+    // the largest index must stay representable as S (and size() must not wrap around to 0)
+    if (names_.size() >= static_cast<size_t>(std::numeric_limits<S>::max())) {
         std::ostringstream ss;
         ss << "Cannot register " << kind_ << " '" << name << "': dictionary is full (max "
-           << static_cast<size_t>(std::numeric_limits<K>::max()) - 1 << " entries)";
+           << static_cast<size_t>(std::numeric_limits<S>::max()) - 1 << " entries)";
         throw eckit::SeriousBug(ss.str(), Here());
     }
     bool inserted;
-    K key                  = static_cast<K>(names_.size());
-    std::tie(it, inserted) = map_.emplace(name, key);
+    S symbol{static_cast<typename S::value_t>(names_.size())};
+    std::tie(it, inserted) = map_.emplace(name, symbol);
     ASSERT(inserted);
     names_.push_back(it->first);
-    return key;
+    return symbol;
 }
 
-template <typename K>
-void Dictionary<K>::alias(const std::string& name, K key) {
+template <typename S>
+void SymbolTable<S>::addAlias(const std::string& name, S symbol) {
     std::unique_lock lock(mutex_);
-    if (key == 0 || key >= names_.size()) {
+    if (symbol == S{} || symbol >= names_.size()) {
         std::ostringstream ss;
-        ss << "Alias '" << name << "' refers to an invalid " << kind_ << " index " << static_cast<size_t>(key);
+        ss << "Alias '" << name << "' refers to an invalid " << kind_ << " index " << static_cast<size_t>(symbol);
         throw eckit::SeriousBug(ss.str(), Here());
     }
     auto it = map_.find(name);
     if (it != map_.end()) {
-        if (it->second != key) {
+        if (it->second != symbol) {
             std::ostringstream ss;
-            ss << "Alias " << name << " conflicts with existing key " << names_[it->second].get();
+            ss << "Alias " << name << " conflicts with existing symbol " << names_[it->second].get();
             throw eckit::SeriousBug(ss.str(), Here());
         }
     }
     else {
-        map_.emplace(name, key);
+        map_.emplace(name, symbol);
     }
 }
 
 
-template <typename K>
-K Dictionary<K>::exist(const std::string& name) const {
+template <typename S>
+S SymbolTable<S>::symbol(const std::string& name, bool throwOnUnknown) const {
     std::shared_lock lock(mutex_);
     auto it = map_.find(name);
     if (it != map_.end()) {
         return it->second;
     }
-    return 0;
-}
-template <typename K>
-K Dictionary<K>::keyword(const std::string& name) const {
-    K key = exist(name);
-    if (key) {
-        return key;
+    if (throwOnUnknown) {
+        // an unknown name comes from the user (a typo, a keyword that does not exist): not an internal error
+        throw eckit::UserError("Unknown " + kind_ + " '" + name + "'", Here());
     }
-    // an unknown name comes from the user (a typo, a keyword that does not exist): not an internal error
-    throw eckit::UserError("Unknown " + kind_ + " '" + name + "'", Here());
+    return S{};
 }
 
-template <typename K>
-const std::string& Dictionary<K>::name(K key) const {
-    static_assert(std::is_integral_v<K> == true);
+template <typename S>
+const std::string& SymbolTable<S>::name(S symbol) const {
+    // static_assert(std::is_integral_v<typename S::value_t> == true);
 
     std::shared_lock lock(mutex_);
-    if (key == 0 || key >= names_.size()) {
+    if (symbol == S{} || symbol >= names_.size()) {
         std::ostringstream ss;
-        ss << "Invalid " << kind_ << " index " << static_cast<size_t>(key);
+        ss << "Invalid " << kind_ << " index " << static_cast<size_t>(symbol);
         throw eckit::SeriousBug(ss.str(), Here());
     }
-    return names_[key].get();
+    return names_[symbol].get();
 }
 
-template <typename K>
-void Dictionary<K>::print(std::ostream& s) const {
+template <typename S>
+void SymbolTable<S>::print(std::ostream& s) const {
     std::shared_lock lock(mutex_);
     s << "[";
     for (size_t i = 0; i < names_.size(); ++i) {
@@ -183,16 +173,16 @@ void Dictionary<K>::print(std::ostream& s) const {
     s << "]";
 }
 
-template <typename K>
-K Dictionary<K>::size() const {
+template <typename S>
+size_t SymbolTable<S>::size() const {
     std::shared_lock lock(mutex_);
-    return static_cast<K>(names_.size());
+    return names_.size();
 }
 
-template <typename K>
-void Dictionary<K>::serialize(std::ofstream& file) const {
-    std::shared_lock lock(mutex_);  // taken before copying map_, which is shared with concurrent add() calls
-    std::map<std::string, K> map(map_.begin(), map_.end());
+template <typename S>
+void SymbolTable<S>::write(std::ofstream& file) const {
+    std::shared_lock lock(mutex_);
+    std::map<std::string, S> map(map_.begin(), map_.end());
 
     write32(file, names_.size() - 1);
     for (size_t i = 1; i < names_.size(); ++i) {
@@ -200,9 +190,9 @@ void Dictionary<K>::serialize(std::ofstream& file) const {
         map.erase(names_[i]);
     }
     write32(file, map.size());
-    for (const auto& [name, key] : map) {
+    for (const auto& [name, symbol] : map) {
         writeString(file, name);
-        write32(file, static_cast<uint32_t>(key));
+        write32(file, static_cast<uint32_t>(symbol));
     }
 }
 

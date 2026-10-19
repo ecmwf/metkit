@@ -12,7 +12,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeMixed::TypeMixed(const std::string& typeName, Keyword key, const eckit::Value& val) : Type(typeName, key, val) {
+TypeMixed::TypeMixed(const std::string& typeName, MarsKeyword key, const eckit::Value& val) : Type(typeName, key, val) {
     eckit::Value types = val["type"];
 
     eckit::Value cfg;
@@ -39,14 +39,14 @@ TypeMixed::TypeMixed(const std::string& typeName, Keyword key, const eckit::Valu
 }
 
 
-TypeMixed::TypeMixed(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+TypeMixed::TypeMixed(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
     uint8_t numSubtypes = file.read8();
     for (uint8_t i = 0; i < numSubtypes; ++i) {
         uint16_t ctxId = file.read16();
         std::string nestedTypeName{file.readString()};
-        Keyword nestedTypeKey = file.read16();
+        MarsKeyword::value_t nestedTypeKey = file.read16();
         ASSERT(nestedTypeKey == 0);
-        auto type = TypesFactory::build(nestedTypeName, 0, file);
+        auto type = TypesFactory::build(nestedTypeName, MarsKeyword{}, file);
         types_.emplace_back(MarsLanguage::context(ctxId), type);
     }
 }

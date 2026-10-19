@@ -21,7 +21,7 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Serialize.h"
@@ -105,7 +105,7 @@ void TypeEnum::readValuesFile() const {
     }
 }
 
-TypeEnum::TypeEnum(const std::string& type, Keyword key, const eckit::Value& val) : Type(type, key, val) {
+TypeEnum::TypeEnum(const std::string& type, MarsKeyword key, const eckit::Value& val) : Type(type, key, val) {
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name() << " settings=" << val << std::endl;
 
@@ -120,7 +120,7 @@ TypeEnum::TypeEnum(const std::string& type, Keyword key, const eckit::Value& val
     }
 }
 
-TypeEnum::TypeEnum(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file), hasGroups_{flags_[5]} {
+TypeEnum::TypeEnum(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file), hasGroups_{flags_[5]} {
 
     uint16_t numGroups = file.read16();
     for (uint16_t i = 0; i < numGroups; ++i) {

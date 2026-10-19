@@ -10,7 +10,7 @@
 #include "eckit/thread/AutoLock.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/Dictionary.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
@@ -63,10 +63,10 @@ public:
                             // write the number of languages/verbs (and leave room for their offsets and sizes)
                             write8(file, verbs.size());
                             size_t zero = 0;
-                            std::map<Verb, uint32_t> verbHeaderOffsets;
-                            std::map<Verb, uint32_t> verbBodyOffsets;
+                            std::map<MarsVerb, uint32_t> verbHeaderOffsets;
+                            std::map<MarsVerb, uint32_t> verbBodyOffsets;
                             for (const auto& verb : verbs) {
-                                Verb vv = MarsLanguage::verb(verb);
+                                MarsVerb vv = MarsLanguage::verb(verb);
                                 write8(file, vv);
                                 verbHeaderOffsets[vv] = file.tellp();
                                 // make room for the offset of the verb body
@@ -79,7 +79,7 @@ public:
 
                             // write languages (and updates their offsets and sizes)
                             for (const auto& verb : verbs) {
-                                Verb vv            = MarsLanguage::verb(verb);
+                                MarsVerb vv            = MarsLanguage::verb(verb);
                                 uint32_t verbStart = file.tellp();
                                 const auto& ll     = metkit::mars::MarsLanguage::get(vv);
                                 ll.write(file);

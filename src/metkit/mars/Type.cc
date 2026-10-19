@@ -46,7 +46,7 @@ bool ContextRule::operator==(const ContextRule& other) const {
 
 std::unique_ptr<ContextRule> ContextRule::parse(MemFile& file) {
     char type   = static_cast<char>(file.read8());
-    Keyword key = file.read16();
+    MarsKeyword key = file.read16();
     switch (type) {
         case 'I':
             return std::make_unique<Include>(key, file.readStringSet());
@@ -66,7 +66,7 @@ std::unique_ptr<ContextRule> ContextRule::parse(MemFile& file) {
 
 
 bool Include::matches(const MarsRequest& req) const {
-    static const Keyword verbKey = MarsLanguage::keyword("_verb");
+    static const MarsKeyword verbKey = MarsLanguage::keyword("_verb");
     if (key_ == verbKey) {
         return (vals_.find(req.verb()) != vals_.end());
     }
@@ -170,7 +170,7 @@ std::unique_ptr<ContextRule> parseRule(std::string name, eckit::Value r) {
     // context rules may reference a keyword before its own YAML entry has been parsed
     // (parsing order across sections/verbs is not guaranteed), so auto-intern rather
     // than require it to already be registered.
-    Keyword key = MarsLanguage::addKeyword(name);
+    MarsKeyword key = MarsLanguage::addKeyword(name);
 
     if (r.isList()) {
         if (r.size() == 0) {
@@ -250,8 +250,8 @@ bool Context::operator==(const Context& other) const {
     return true;
 }
 
-Keyword Context::maxAxisIndex() const {
-    Keyword maxIndex = 0;
+MarsKeyword Context::maxAxisIndex() const {
+    MarsKeyword maxIndex = 0;
     for (const auto& r : rules_) {
         if (r->key() < MarsLanguage::maxDataKeyword()) {
             maxIndex = std::max(maxIndex, r->key());
@@ -269,7 +269,7 @@ void Context::write(std::ofstream& file) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Type::Type(const std::string& type, Keyword key, const eckit::Value& settings) :
+Type::Type(const std::string& type, MarsKeyword key, const eckit::Value& settings) :
     typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
     flags_[0] = settings.contains("flatten") ? bool(settings["flatten"]) : true;
@@ -332,7 +332,7 @@ Type::Type(const std::string& type, Keyword key, const eckit::Value& settings) :
     }
 }
 
-Type::Type(const std::string& type, Keyword key, MemFile& file) :
+Type::Type(const std::string& type, MarsKeyword key, MemFile& file) :
     typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
     // typeName_ and id_ have already been consumed by MarsLanguage (to pick the right builder): they are passed in
@@ -343,21 +343,21 @@ Type::Type(const std::string& type, Keyword key, MemFile& file) :
     // read defaults_
     uint8_t num = file.read8();
     for (uint8_t i = 0; i < num; i++) {
-        Keyword contextId = file.read16();
+        MarsKeyword contextId = file.read16();
         defaults_.emplace_back(MarsLanguage::context(contextId), file.readStringVector());
     }
 
     // read sets_
     num = file.read8();
     for (uint8_t i = 0; i < num; i++) {
-        Keyword contextId = file.read16();
+        MarsKeyword contextId = file.read16();
         sets_.emplace_back(MarsLanguage::context(contextId), file.readStringVector());
     }
 
     // read unsets_
     num = file.read8();
     for (uint8_t i = 0; i < num; i++) {
-        Keyword contextId = file.read16();
+        MarsKeyword contextId = file.read16();
         unsets_.emplace_back(MarsLanguage::context(contextId));
     }
 }
@@ -423,7 +423,7 @@ void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& va
     // If the value is of the form _key, then copy values from that key
     if (values.size() == 1 && values[0][0] == '_') {
         // the key comes from the configuration: if it is not a registered keyword the request cannot hold it
-        Keyword key = MarsLanguage::hasKeyword(values[0].substr(1));
+        MarsKeyword key = MarsLanguage::hasKeyword(values[0].substr(1));
         if (key && request.has(key)) {
             request.setValuesTyped(this, request.values(key));
         }
@@ -453,7 +453,7 @@ bool Type::filter(const std::vector<std::string>& filter, std::vector<std::strin
     return !values.empty();
 }
 
-bool Type::filter(Keyword keyword, const std::vector<std::string>& f, std::vector<std::string>& values) const {
+bool Type::filter(MarsKeyword keyword, const std::vector<std::string>& f, std::vector<std::string>& values) const {
 
     if (keyword == id()) {
         return filter(f, values);

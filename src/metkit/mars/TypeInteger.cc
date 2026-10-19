@@ -15,7 +15,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeInteger::TypeInteger(const std::string& type, Keyword key, const eckit::Value& settings) :
+TypeInteger::TypeInteger(const std::string& type, MarsKeyword key, const eckit::Value& settings) :
     Type(type, key, settings) {
     // check if the settings contain a range
     if (settings.contains("range") && settings["range"].size() == 2) {
@@ -23,7 +23,7 @@ TypeInteger::TypeInteger(const std::string& type, Keyword key, const eckit::Valu
     }
 }
 
-TypeInteger::TypeInteger(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+TypeInteger::TypeInteger(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
     // check if the file contains a range
     uint8_t hasRange = file.read8();
     if (hasRange) {
@@ -127,12 +127,12 @@ class TypeToByListInt : public TypeInteger {
 
 public:
 
-    TypeToByListInt(const std::string& type, Keyword key, const eckit::Value& settings) :
+    TypeToByListInt(const std::string& type, MarsKeyword key, const eckit::Value& settings) :
         TypeInteger(type, key, settings) {
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, settings);
         flags_[1] = true;
     }
-    TypeToByListInt(const std::string& name, Keyword key, MemFile& file) : TypeInteger(name, key, file) {
+    TypeToByListInt(const std::string& name, MarsKeyword key, MemFile& file) : TypeInteger(name, key, file) {
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, file);
         flags_[1] = true;
     }

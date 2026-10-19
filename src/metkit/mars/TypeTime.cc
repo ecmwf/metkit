@@ -13,12 +13,12 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeTime::TypeTime(const std::string& type, Keyword key, const eckit::Value& settings) : Type(type, key, settings) {
+TypeTime::TypeTime(const std::string& type, MarsKeyword key, const eckit::Value& settings) : Type(type, key, settings) {
 
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, settings);
     flags_[1] = true;
 }
-TypeTime::TypeTime(const std::string& type, Keyword key, MemFile& file) : Type(type, key, file) {
+TypeTime::TypeTime(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, file);
     flags_[1] = true;
 }
