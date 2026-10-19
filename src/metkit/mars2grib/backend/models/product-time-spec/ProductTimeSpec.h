@@ -301,6 +301,15 @@ public:
     /// @brief Return the resolved canonical window sequence.
     const shape::ProductTimeSpecShape& windows() const noexcept { return windows_; }
 
+    /// @brief Determine if it is a "FromStart" product.
+    bool isFromStart() const noexcept {
+        bool fromStart = shapeType_ == shape::ProductTimeSpecShapeKind::IFSFromStartSingleLoopAtZero ||
+                         shapeType_ == shape::ProductTimeSpecShapeKind::IFSFromStartSingleLoopPositive ||
+                         shapeType_ == shape::ProductTimeSpecShapeKind::AIFSFromStartSingleLoopAtZero ||
+                         shapeType_ == shape::ProductTimeSpecShapeKind::AIFSFromStartSingleLoopPositive;
+        return fromStart; }
+
+
     ///
     /// @brief Serialize the final immutable ProductTimeSpec as diagnostic JSON.
     ///

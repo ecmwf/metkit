@@ -169,6 +169,14 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                                                                              mars, par, opt);
                 const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
+                MARS2GRIB_LOG_CONCEPT_MSG(statistics, "Building ProductTimeSpec for runtime stage", spec.to_json());
+
+                // Set time range if the product is "FromStart"
+                if (spec.isFromStart()) {
+                    set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", pts.indicatorOfUnitForTimeRange);
+                    set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
+                }
+
                 set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
 
                 const eckit::DateTime& end = pts.endOfOverallTimeInterval;

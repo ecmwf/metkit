@@ -41,6 +41,7 @@
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/logUtils.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 
@@ -169,7 +170,7 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeWindows(
                                           input.to_json(), Here());
         }
 
-        const TimeDuration timeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
+        const TimeDuration timeRange = *input.step;
 
         ResolvedInnerIncrement resolvedIncrement{};
 
@@ -234,6 +235,8 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeWindows(
 
         // The increment is the explicit, missing, or defaulted value resolved above.
         const auto timeIncrement = resolvedIncrement.timeIncrement;
+
+        MARS2GRIB_LOG_MODEL( [&]() { return "Canonical TimeRange: " + std::to_string(canonicalTimeRange.length); }() );
 
         ProductTimeSpecWindow window{typeOfStatisticalProcessing, typeOfTimeIncrement, canonicalTimeRange,
                                      timeIncrement};
