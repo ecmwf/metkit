@@ -113,16 +113,36 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
 
         // Retrieve mandatory MARS class
         const auto marsClass = get_or_throw<std::string>(mars, "class");
+        const auto marsExpver = get_or_throw<std::string>(mars, "expver");
 
+        // The following logic is partially inspired to ifs code: "ifs-source/arpifs/dia/preset_grib_template.F90:~151:170"
         // Deduce productionStatusOfProcessedData from mars class
         if (marsClass == "d1") {
             // This is mandatory for DestinE because it is used inside eccodes to allocate the proper "localUseSection"
             // template. Setting this keyword reallocate the local use section.
             productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::DestinationEarth;
         }
-        else if (marsClass == "e6") {
-            // Special handling for ERA6
+        else if (marsClass == "e6" || marsClass == "a5") {
             productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::ReanalysisProducts;
+        }
+        else if (marsClass == "od") {
+            if (marsExpver == "0001") {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::OperationalProducts;
+            }
+            else {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::OperationalTestProducts;
+            }
+        }
+        else if (marsClass == "rd" || marsClass == "cr") {
+            productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::ResearchProducts;
+        }
+        else if (marsClass == "s2") {
+            if (marsExpver == "prod") {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::S2SOperationalProducts;
+            }
+            else {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::S2STestProducts;
+            }
         }
 
         // Emit log entry based on deduction outcome
