@@ -23,7 +23,7 @@ namespace metkit::mars::test {
 //-----------------------------------------------------------------------------
 
 CASE("test_dictionary_add_and_lookup") {
-    SymbolTable<MarsKeyword> dict("keyword");
+    SymbolTable<MarsKeyword> dict;
 
     MarsKeyword a = dict.add("class");
     MarsKeyword b = dict.add("type");
@@ -45,7 +45,7 @@ CASE("test_dictionary_add_and_lookup") {
 }
 
 CASE("test_dictionary_alias") {
-    SymbolTable<MarsKeyword> dict("keyword");
+    SymbolTable<MarsKeyword> dict;
     MarsKeyword a = dict.add("levelist");
     MarsKeyword b = dict.add("param");
 
@@ -64,7 +64,7 @@ CASE("test_dictionary_alias") {
 
 CASE("test_dictionary_full") {
     // the keys must stay representable: an overflow must not wrap around (and clash with existing keys)
-    SymbolTable<MarsVerb> dict("verb");
+    SymbolTable<MarsVerb> dict;
 
     size_t added = 0;
     EXPECT_THROWS_AS(
@@ -84,7 +84,7 @@ CASE("test_dictionary_full") {
 }
 
 CASE("test_dictionary_concurrent_add") {
-    SymbolTable<MarsKeyword> dict("keyword");
+    SymbolTable<MarsKeyword> dict;
 
     constexpr int numThreads = 8;
     constexpr int numNames   = 500;

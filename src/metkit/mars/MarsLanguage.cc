@@ -140,7 +140,7 @@ bool MarsLanguage::loadBinary() {
 
             uint8_t numVerbs = langFile_.read8();
             for (uint8_t u = 0; u < numVerbs; ++u) {
-                MarsVerb vv         = langFile_.read8();
+                MarsVerb vv     = langFile_.read8();
                 uint32_t offset = langFile_.read32();
                 langOffsets_.emplace(vv, offset);
             }
@@ -182,7 +182,7 @@ void MarsLanguage::init() {
 
     loadYaml();
 
-    verbs_                   = std::make_unique<SymbolTable<MarsVerb>>("verb");
+    verbs_                   = std::make_unique<SymbolTable<MarsVerb>>();
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         std::string verb  = verbs[i];
@@ -197,7 +197,7 @@ void MarsLanguage::init() {
             }
         }
     }
-    keywords_ = std::make_unique<SymbolTable<MarsKeyword>>("keyword");
+    keywords_ = std::make_unique<SymbolTable<MarsKeyword>>();
     keywords_->add(std::string{"_verb"});
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
         keywords_->add(a);
@@ -220,8 +220,8 @@ void MarsLanguage::writeDictionaries(std::ofstream& file) {
     write16(file, maxDataKeyword_);
 }
 void MarsLanguage::readDictionaries(MemFile& file) {
-    verbs_          = std::make_unique<SymbolTable<MarsVerb>>(file, "verb");
-    keywords_       = std::make_unique<SymbolTable<MarsKeyword>>(file, "keyword");
+    verbs_          = std::make_unique<SymbolTable<MarsVerb>>(file);
+    keywords_       = std::make_unique<SymbolTable<MarsKeyword>>(file);
     maxDataKeyword_ = file.read16();
 }
 
@@ -276,7 +276,7 @@ void MarsLanguage::parseModifier(ModifierType typ, const Context& ctx, size_t ma
     }
     for (size_t j = 0; j < keys.size(); ++j) {
         std::string keyStr = keys[j];
-        MarsKeyword key        = keywords_->symbol(keyStr, false);
+        MarsKeyword key    = keywords_->symbol(keyStr, false);
         if (key) {  // a keyword in the modifier might apply only to a language for another verb
             keyStr = keywords_->name(key);
 
@@ -356,7 +356,7 @@ MarsLanguage::MarsLanguage(MarsVerb verb, MemFile& file) {
     for (uint16_t i = 0; i < numTypes; ++i) {
         std::string typeName{file.readString()};
         MarsKeyword keyword = file.read16();
-        auto type       = TypesFactory::build(typeName, keyword, file);
+        auto type           = TypesFactory::build(typeName, keyword, file);
         types_.emplace(keyword, type);
     }
 

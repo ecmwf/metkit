@@ -22,6 +22,8 @@ namespace metkit::mars {
 
 //-----------------------------------------------------------------------------
 
+/// Compact (uint16_t) identifier of a MARS keyword (e.g. class, stream, date), resolved by name through MarsLanguage.
+/// The value 0 means "unknown". Implicitly convertible to its underlying integer.
 class MarsKeyword {
 public:  // types
 
@@ -30,16 +32,13 @@ public:  // types
 public:  // methods
 
     friend std::ostream& operator<<(std::ostream& s, const MarsKeyword& x);
-    friend eckit::Stream& operator<<(eckit::Stream& s, const MarsKeyword& x);
-    friend eckit::Stream& operator>>(eckit::Stream& s, MarsKeyword& x);
-
-    // -- Contructors
 
     MarsKeyword(value_t v = 0) : value_(v) {}
     explicit MarsKeyword(const std::string& s);
     MarsKeyword(const MarsKeyword& other) : value_(other.value_) {}
 
     static MarsKeyword unknown() { return MarsKeyword{}; }
+
 public:  // operators
 
     MarsKeyword& operator=(const MarsKeyword& other) {
@@ -55,9 +54,8 @@ public:  // operators
 private:  // members
 
     value_t value_;
-
 };
-    
+
 //-----------------------------------------------------------------------------
 
 }  // namespace metkit::mars
@@ -66,10 +64,7 @@ private:  // members
 
 template <>
 struct std::hash<metkit::mars::MarsKeyword> {
-    std::size_t operator()(const metkit::mars::MarsKeyword& s) const noexcept
-    {
-        return std::hash<uint16_t>{}(s);
-    }
+    std::size_t operator()(const metkit::mars::MarsKeyword& s) const noexcept { return std::hash<uint16_t>{}(s); }
 };
 
 template <>

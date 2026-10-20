@@ -29,17 +29,22 @@
 
 namespace metkit::mars {
 
+/// Thread-safe bidirectional dictionary between names and compact integer-like symbols (e.g. MarsKeyword, MarsVerb).
+/// Symbol 0 is reserved for "unknown";
+/// Several names (aliases) can map to the same symbol
+/// A symbol resolves back to its primary name.
+/// Can be serialised to / loaded from a MemFile.
 template <typename S>
 // requires std::is_arithmetic_v<S>
 class SymbolTable {
 public:
 
     /// @param kind what the dictionary holds ("keyword", "verb"): only used in error messages
-    explicit SymbolTable(std::string kind = "keyword") : kind_(std::move(kind)) {
+    explicit SymbolTable() {
         static const std::string empty{};
         names_.push_back(empty);  // index 0 is reserved: it means "not found"
     }
-    explicit SymbolTable(MemFile& file, std::string kind = "keyword");
+    explicit SymbolTable(MemFile& file);
 
     S add(const std::string& name);
     void addAlias(const std::string& name, S symbol);
@@ -55,7 +60,6 @@ private:
 
     void print(std::ostream&) const;
 
-    std::string kind_;
     mutable std::shared_mutex mutex_;
     std::vector<std::reference_wrapper<const std::string>> names_;
     std::unordered_map<std::string, S> map_;
@@ -67,7 +71,7 @@ private:
 };
 
 template <typename S>
-SymbolTable<S>::SymbolTable(MemFile& file, std::string kind) : kind_(std::move(kind)) {
+SymbolTable<S>::SymbolTable(MemFile& file) {
     static const std::string empty{};
     names_.push_back(empty);
     size_t num = file.read32();
@@ -84,7 +88,6 @@ SymbolTable<S>::SymbolTable(MemFile& file, std::string kind) : kind_(std::move(k
 
 template <typename S>
 S SymbolTable<S>::add(const std::string& name) {
-    // static_assert(std::is_integral_v<typename S::value_t> == true);
 
     // fast path: most calls are lookups of names that are already registered, avoid the exclusive lock
     if (S symb = symbol(name, false); symb != S{}) {
@@ -93,21 +96,21 @@ S SymbolTable<S>::add(const std::string& name) {
 
     std::unique_lock lock(mutex_);
 
-    auto it = map_.find(name);
-    if (it != map_.end()) {  // someone else registered it between the two locks
+    S symbol{static_cast<typename S::value_t>(names_.size())};
+    auto [it, inserted] = map_.emplace(name, symbol);
+
+    if (!inserted) {  // someone else registered it between the retrieval and the lock
         return it->second;
     }
+
     // the largest index must stay representable as S (and size() must not wrap around to 0)
     if (names_.size() >= static_cast<size_t>(std::numeric_limits<S>::max())) {
         std::ostringstream ss;
-        ss << "Cannot register " << kind_ << " '" << name << "': dictionary is full (max "
+        ss << "Cannot register " << (typeid(S{}).name()) << " '" << name << "': dictionary is full (max "
            << static_cast<size_t>(std::numeric_limits<S>::max()) - 1 << " entries)";
+        map_.erase(it);
         throw eckit::SeriousBug(ss.str(), Here());
     }
-    bool inserted;
-    S symbol{static_cast<typename S::value_t>(names_.size())};
-    std::tie(it, inserted) = map_.emplace(name, symbol);
-    ASSERT(inserted);
     names_.push_back(it->first);
     return symbol;
 }
@@ -117,19 +120,17 @@ void SymbolTable<S>::addAlias(const std::string& name, S symbol) {
     std::unique_lock lock(mutex_);
     if (symbol == S{} || symbol >= names_.size()) {
         std::ostringstream ss;
-        ss << "Alias '" << name << "' refers to an invalid " << kind_ << " index " << static_cast<size_t>(symbol);
+        ss << "Alias '" << name << "' refers to an invalid " << (typeid(S{}).name()) << " index "
+           << static_cast<size_t>(symbol);
         throw eckit::SeriousBug(ss.str(), Here());
     }
-    auto it = map_.find(name);
-    if (it != map_.end()) {
+    auto [it, inserted] = map_.emplace(name, symbol);
+    if (!inserted) {
         if (it->second != symbol) {
             std::ostringstream ss;
             ss << "Alias " << name << " conflicts with existing symbol " << names_[it->second].get();
             throw eckit::SeriousBug(ss.str(), Here());
         }
-    }
-    else {
-        map_.emplace(name, symbol);
     }
 }
 
@@ -143,7 +144,9 @@ S SymbolTable<S>::symbol(const std::string& name, bool throwOnUnknown) const {
     }
     if (throwOnUnknown) {
         // an unknown name comes from the user (a typo, a keyword that does not exist): not an internal error
-        throw eckit::UserError("Unknown " + kind_ + " '" + name + "'", Here());
+        std::ostringstream ss;
+        ss << "Unknown " << (typeid(S{}).name()) << " '" << name << "'";
+        throw eckit::UserError(ss.str(), Here());
     }
     return S{};
 }
@@ -155,7 +158,7 @@ const std::string& SymbolTable<S>::name(S symbol) const {
     std::shared_lock lock(mutex_);
     if (symbol == S{} || symbol >= names_.size()) {
         std::ostringstream ss;
-        ss << "Invalid " << kind_ << " index " << static_cast<size_t>(symbol);
+        ss << "Invalid " << (typeid(S{}).name()) << " index " << static_cast<size_t>(symbol);
         throw eckit::SeriousBug(ss.str(), Here());
     }
     return names_[symbol].get();

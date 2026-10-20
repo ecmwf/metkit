@@ -22,9 +22,9 @@
 
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Serialize.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {

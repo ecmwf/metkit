@@ -8,8 +8,7 @@ namespace metkit_bridge {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-MarsLanguageWrapper::MarsLanguageWrapper(rust::Str verb) :
-    lang_(metkit::mars::MarsLanguage::get(std::string(verb))) {}
+MarsLanguageWrapper::MarsLanguageWrapper(rust::Str verb) : lang_(metkit::mars::MarsLanguage::get(std::string(verb))) {}
 
 bool MarsLanguageWrapper::is_data(rust::Str keyword) const {
     return lang_.isData(std::string(keyword));

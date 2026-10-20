@@ -39,7 +39,8 @@ static pthread_once_t once       = PTHREAD_ONCE_INIT;
 class Matcher {
 
     std::string name_;
-    metkit::mars::MarsKeyword key_;  // the keyword of name_, to look the values up in a request without converting the name
+    metkit::mars::MarsKeyword
+        key_;  // the keyword of name_, to look the values up in a request without converting the name
     std::vector<std::string> values_;
 
     friend class Rule;

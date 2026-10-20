@@ -19,14 +19,6 @@ std::ostream& operator<<(std::ostream& s, const MarsVerb& x) {
     return s << x.value_;
 }
 
-eckit::Stream& operator<<(eckit::Stream& s, const MarsVerb& x) {
-    return s << x.value_;
-}
-
-eckit::Stream& operator>>(eckit::Stream& s, MarsVerb& x) {
-    return s >> x.value_;
-}
-
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars

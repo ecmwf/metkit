@@ -17,9 +17,9 @@
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsKeyword.h"
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
 
@@ -292,7 +292,7 @@ CASE("test_request_typed_parameters") {
         "to/2,param=mucin/mucape/tprate,area=12/13/14/15,grid=.1/.1");
 
     // expanded parameters are typed, and are found by keyword or by name, whatever the case of the name
-    MarsKeyword klass      = MarsLanguage::keyword("class");
+    MarsKeyword klass  = MarsLanguage::keyword("class");
     const Parameter* p = r.find("class");
     EXPECT(p != nullptr);
     EXPECT(p->typed());

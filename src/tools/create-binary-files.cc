@@ -10,11 +10,11 @@
 #include "eckit/thread/AutoLock.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Serialize.h"
+#include "metkit/mars/SymbolTable.h"
 
 namespace metkit::mars {
 class ConfigBinaryFiles : public eckit::Tool {
@@ -79,7 +79,7 @@ public:
 
                             // write languages (and updates their offsets and sizes)
                             for (const auto& verb : verbs) {
-                                MarsVerb vv            = MarsLanguage::verb(verb);
+                                MarsVerb vv        = MarsLanguage::verb(verb);
                                 uint32_t verbStart = file.tellp();
                                 const auto& ll     = metkit::mars::MarsLanguage::get(vv);
                                 ll.write(file);

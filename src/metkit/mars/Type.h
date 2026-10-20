@@ -23,8 +23,8 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/SymbolTable.h"
 
 namespace metkit::mars {
 

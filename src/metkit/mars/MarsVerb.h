@@ -20,6 +20,8 @@ namespace metkit::mars {
 
 //-----------------------------------------------------------------------------
 
+/// Compact (uint8_t) identifier of a MARS verb (e.g. retrieve, archive), resolved by name through MarsLanguage.
+/// The value 0 means "unknown". Implicitly convertible to its underlying integer.
 class MarsVerb {
 public:  // types
 
@@ -28,8 +30,6 @@ public:  // types
 public:  // methods
 
     friend std::ostream& operator<<(std::ostream& s, const MarsVerb& x);
-    friend eckit::Stream& operator<<(eckit::Stream& s, const MarsVerb& x);
-    friend eckit::Stream& operator>>(eckit::Stream& s, MarsVerb& x);
 
     MarsVerb(value_t v = 0) : value_(v) {}
     explicit MarsVerb(const std::string& s);
@@ -51,7 +51,6 @@ public:  // operators
 private:  // members
 
     value_t value_;
-
 };
 //-----------------------------------------------------------------------------
 
@@ -61,16 +60,10 @@ private:  // members
 
 template <>
 struct std::hash<metkit::mars::MarsVerb> {
-    std::size_t operator()(const metkit::mars::MarsVerb& s) const noexcept
-    {
-        return std::hash<uint8_t>{}(s);
-    }
+    std::size_t operator()(const metkit::mars::MarsVerb& s) const noexcept { return std::hash<uint8_t>{}(s); }
 };
 
 template <>
 struct std::numeric_limits<metkit::mars::MarsVerb> {
-    static metkit::mars::MarsVerb::value_t max() {
-        return std::numeric_limits<metkit::mars::MarsVerb::value_t>::max();
-    }
+    static metkit::mars::MarsVerb::value_t max() { return std::numeric_limits<metkit::mars::MarsVerb::value_t>::max(); }
 };
-

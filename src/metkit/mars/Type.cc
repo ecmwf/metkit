@@ -45,7 +45,7 @@ bool ContextRule::operator==(const ContextRule& other) const {
 }
 
 std::unique_ptr<ContextRule> ContextRule::parse(MemFile& file) {
-    char type   = static_cast<char>(file.read8());
+    char type       = static_cast<char>(file.read8());
     MarsKeyword key = file.read16();
     switch (type) {
         case 'I':

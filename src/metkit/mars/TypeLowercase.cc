@@ -14,7 +14,8 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeLowercase::TypeLowercase(const std::string& type, MarsKeyword key, const eckit::Value& val) : Type(type, key, val) {}
+TypeLowercase::TypeLowercase(const std::string& type, MarsKeyword key, const eckit::Value& val) :
+    Type(type, key, val) {}
 
 TypeLowercase::TypeLowercase(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {}
 
