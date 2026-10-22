@@ -43,6 +43,7 @@ repo = "ecmwf/eckit"
 package = "eckit"
 ref = "develop"
 compiler-inputs = ["cxx-compiler"]
+crates = ["eckit", "eckit-sys"]
 
 [packages.pymetkit]
 compiler-inputs = ["cxx-compiler"]
