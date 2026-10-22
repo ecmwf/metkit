@@ -27,7 +27,7 @@ std::size_t postProcessingMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
 
         const auto marsType = get_or_throw<std::string>(mars, "type");
 
-        if (marsType == "pfc") {
+        if (marsType == "pfc" || marsType == "gbf" || marsType == "gwt") {
             return static_cast<std::size_t>(PostProcessingType::Default);
         }
 

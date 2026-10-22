@@ -260,11 +260,27 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
+        else if (type == "icp") {
+
+            // Initial condition perturbations: missing, as in the operational ECMWF GRIB2
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Missing;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=icp)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
         else if (type == "gbf") {
 
-            // GRIB best forecast (gbf) fields. Generated as part of the forecast
-            // system; the canonical ECMWF GRIB2 value is BiasCorrectedEnsembleForecast (11).
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
+            // Bias-corrected gridbox (gbf): ecPoint (weather-type subgrid-calibration) of an ensemble member.
+            // The operational ECMWF GRIB2 value is PostProcessedForecast (13), as for gwt and pfc.
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -279,8 +295,8 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
         }
         else if (type == "gwt") {
 
-            // GRIB generated with time (gwt) fields. Generated as part of the forecast
-            // system; the canonical ECMWF GRIB2 value is Forecast (13).
+            // Weather types (gwt): ecPoint (weather-type subgrid-calibration) of an ensemble member.
+            // The operational ECMWF GRIB2 value is PostProcessedForecast (13).
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
 
             // Emit RESOLVE log entry

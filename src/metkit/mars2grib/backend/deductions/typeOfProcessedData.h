@@ -158,8 +158,13 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                 else if (marsType == "ssd") {
                     result = tables::TypeOfProcessedData::ForecastProducts;
                 }
-                else if (marsType == "pf") {
+                else if (marsType == "pf" || marsType == "gbf" || marsType == "gwt") {
+                    // gbf/gwt: ecPoint of an individual perturbed member, as in the operational GRIB2
                     result = tables::TypeOfProcessedData::PerturbedForecastProducts;
+                }
+                else if (marsType == "icp") {
+                    // Initial condition perturbations: missing, as in the operational GRIB2
+                    result = tables::TypeOfProcessedData::Missing;
                 }
                 else if (marsType == "fc" || marsType == "cf") {
                     result = tables::TypeOfProcessedData::ControlForecastProducts;
