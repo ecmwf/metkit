@@ -5,11 +5,12 @@
  */
 
 /// @file postProcessingEncoding.h
-/// @brief `postProcessing` concept: the `postproc` block of PDT 4.89/4.90/4.133/4.135.
+/// @brief `postProcessing` concept: the `postproc` block of PDT 4.71/4.73/4.89/4.90/4.133/4.135.
 ///
-/// The post-processing keys are not part of the MARS request. For MARS type=pfc (ecPoint), the values of the
-/// operational ECMWF GRIB2 products are used: typeOfPostProcessing 206 (weather-type-subgrid-calibration,
-/// ecCodes postProcessingConcept.def), inputProcessIdentifier 16, inputOriginatingCentre 98.
+/// The post-processing keys are not part of the MARS request. For the ecPoint products (MARS type=pfc for the
+/// quantiles, gbf/gwt for the individual members), the values of the operational ECMWF GRIB2 products are used:
+/// typeOfPostProcessing 206 (weather-type-subgrid-calibration, ecCodes postProcessingConcept.def),
+/// inputProcessIdentifier 16, inputOriginatingCentre 98.
 
 #pragma once
 
@@ -48,7 +49,7 @@ void PostProcessingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
             MARS2GRIB_LOG_CONCEPT(postProcessing);
 
             const auto marsType = get_or_throw<std::string>(mars, "type");
-            if (marsType != "pfc") {
+            if (marsType != "pfc" && marsType != "gbf" && marsType != "gwt") {
                 throw Mars2GribGenericException("No post-processing keys defined for MARS type `" + marsType + "`",
                                                 Here());
             }

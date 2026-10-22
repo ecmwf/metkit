@@ -165,6 +165,16 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
             else if (type == "pf") {
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
             }
+            else if (type == "gbf" || type == "gwt") {
+                // ecPoint (weather-type subgrid-calibration) of an individual ensemble member: as the member itself
+                const auto perturbationNumber = resolve_PerturbationNumber_or_throw(mars, par, opt);
+                typeOfEnsembleForecast        = (perturbationNumber == 0) ? tables::TypeOfEnsembleForecast::Unperturbed
+                                                                          : tables::TypeOfEnsembleForecast::Perturbed;
+            }
+            else if (type == "icp") {
+                // Initial condition perturbations: missing, as in the operational GRIB2
+                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Missing;
+            }
             else {
                 throw Mars2GribDeductionException(
                     "`type` value '" + type + "' is not mapped to any known `typeOfEnsembleForecast`", Here());
