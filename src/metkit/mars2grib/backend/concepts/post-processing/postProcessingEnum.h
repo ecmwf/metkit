@@ -13,7 +13,7 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-/// Post-processed products: the `postproc` block of PDT 4.89/4.90/4.133/4.135
+/// Post-processed products: the `postproc` block of PDT 4.71/4.73/4.89/4.90/4.133/4.135
 /// (`inputProcessIdentifier`, `inputOriginatingCentre`, `typeOfPostProcessing`).
 inline constexpr std::string_view postProcessingName{"postProcessing"};
 
