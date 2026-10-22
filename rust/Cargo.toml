@@ -22,7 +22,7 @@ metkit = { version = "1.22", path = "crates/metkit" }
 
 # Foundation crates
 eckit-sys = { version = "2.5", default-features = false }
-eccodes-sys = { version = "2.49", default-features = false }
+eccodes-sys = { version = "2.50", default-features = false }
 # High-level wrappers
 eckit = { version = "2.5", default-features = false }
 
