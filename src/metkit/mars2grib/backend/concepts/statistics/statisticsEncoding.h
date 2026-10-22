@@ -128,6 +128,7 @@ tables::TypeOfStatisticalProcessing innerTypeOfStatisticalProcessing_or_throw(co
             case 132049:  // 10 metre wind gust index
             case 132059:  // Convective available potential energy index
             case 132201:  // Maximum temperature at 2 metres index
+            case 132216:  // Maximum of significant wave height index
                 return TypeOfStatisticalProcessing::Maximum;
             case 132202:  // Minimum temperature at 2 metres index
                 return TypeOfStatisticalProcessing::Minimum;

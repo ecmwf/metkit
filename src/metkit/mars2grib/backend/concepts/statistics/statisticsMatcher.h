@@ -201,7 +201,7 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(StatisticsType::Accumulation);
         }
 
-        if (matchAny(param, 132044, 132045, 132049, 132059, 132144, 132165, 132167, 132201, 132202, 132228)) {
+        if (matchAny(param, 132044, 132045, 132049, 132059, 132144, 132165, 132167, 132201, 132202, 132216, 132228)) {
             return static_cast<std::size_t>(StatisticsType::IndexProcessing);
         }
 
