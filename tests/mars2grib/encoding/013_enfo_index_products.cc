@@ -113,6 +113,22 @@ CASE("enfo efic: control EFI has one forecast in the ensemble") {
     });
 }
 
+CASE("enfo wave efi: maximum of significant wave height index on the surface, [102, maximum]") {
+    run([] {
+        auto encoder = metkit::mars2grib::Mars2Grib();
+        const auto handle =
+            encoder.encode(std::vector<double>(200, 0.5), indexRequest("efi", 132216, 24, 24), climateMisc(51));
+
+        expectModelClimate(handle, 20);
+        expectIndexTimeRanges(handle, 2, 0, 24);
+        EXPECT_EQUAL(handle->getLong("paramId"), 132216);
+        EXPECT_EQUAL(handle->getLong("discipline"), 10);
+        EXPECT_EQUAL(handle->getLong("parameterCategory"), 0);
+        EXPECT_EQUAL(handle->getLong("parameterNumber"), 3);
+        EXPECT_EQUAL(handle->getLong("typeOfFirstFixedSurface"), 1);
+    });
+}
+
 CASE("enfo sot 90: percentiles {90, 99} and mars.quantile 90-99:100") {
     run([] {
         auto mars = indexRequest("sot", 132144, 96, 24);
