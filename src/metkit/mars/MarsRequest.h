@@ -9,12 +9,27 @@
 
 #pragma once
 
+#include <array>
+#include <cstddef>  // for size_t
+#include <functional>
+#include <iosfwd>
+#include <iterator>
+#include <map>
+#include <memory>
 #include <optional>
+#include <string>
+#include <vector>
+
+#include "eckit/utils/Translator.h"
 #include "eckit/value/Value.h"
+
+#include "metkit/mars/MarsKeyword.h"
+#include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/Parameter.h"
 
 namespace eckit {
 class MD5;
+class Stream;
 namespace message {
 class Message;
 }
@@ -24,74 +39,245 @@ struct metkit_marsrequest_t;
 
 namespace metkit::mars {
 
+class MarsLanguage;
 class Type;
-class MarsRequest;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsRequest {
+class MarsDataCube {
 public:  // methods
 
+    MarsDataCube(MarsVerb verb);
+    virtual ~MarsDataCube() = default;
+
+    virtual MarsVerb verbId() const;
+    virtual void verb(MarsVerb id);
+
+    using iterator       = std::vector<Parameter>::iterator;
+    using const_iterator = std::vector<Parameter>::const_iterator;
+
+    std::vector<Parameter>::const_iterator begin() const { return data_.begin(); }
+    std::vector<Parameter>::const_iterator end() const { return data_.end(); }
+
+    virtual size_t size() const { return data_.size(); }
+    virtual bool empty() const { return data_.empty(); }
+
+    /// The number of fields the datacube refers to
+    size_t count() const;
+
+    const std::vector<std::string>& get(MarsKeyword key) const;
+    void set(MarsKeyword key, const std::vector<std::string>& value);
+    void set(MarsKeyword key, std::vector<std::string>&& value);
+    void unset(MarsKeyword key);
+    bool has(MarsKeyword key) const;
+    void merge(const MarsDataCube& other);
+
+protected:
+
+    // each verb can have a different set of types, potentially with a different behaviour
+    // e.g. retrieve requires a single levtype while list can accept multiple ones
+    MarsVerb verb_;
+    const MarsLanguage* lang_ = nullptr;
+
+    std::vector<Parameter> data_;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/// Random access iterator over the parameters of a request in category order, skipping absent categories
+/// (each category in the order its parameters were added).
+class ParameterIterator {
+public:  // types
+
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type        = Parameter;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = const value_type*;
+    using reference         = const value_type&;
+
+public:  // methods
+
+    ParameterIterator() = default;
+
+    /// @param end if true, the iterator is the one past the last parameter
+    ParameterIterator(const std::vector<Parameter>& data, const std::array<std::vector<Parameter>, 4>& other,
+                      bool end = false);
+
+    reference operator*() const { return at(index_); }
+    pointer operator->() const { return &at(index_); }
+    reference operator[](difference_type n) const { return at(index_ + n); }
+
+    ParameterIterator& operator++() {
+        ++index_;
+        return *this;
+    }
+    ParameterIterator operator++(int) {
+        ParameterIterator tmp = *this;
+        ++index_;
+        return tmp;
+    }
+    ParameterIterator& operator--() {
+        --index_;
+        return *this;
+    }
+    ParameterIterator operator--(int) {
+        ParameterIterator tmp = *this;
+        --index_;
+        return tmp;
+    }
+
+    ParameterIterator& operator+=(difference_type n) {
+        index_ += n;
+        return *this;
+    }
+    ParameterIterator& operator-=(difference_type n) {
+        index_ -= n;
+        return *this;
+    }
+
+    friend ParameterIterator operator+(ParameterIterator it, difference_type n) { return it += n; }
+    friend ParameterIterator operator+(difference_type n, ParameterIterator it) { return it += n; }
+    friend ParameterIterator operator-(ParameterIterator it, difference_type n) { return it -= n; }
+    friend difference_type operator-(const ParameterIterator& a, const ParameterIterator& b) {
+        return static_cast<difference_type>(a.index_) - static_cast<difference_type>(b.index_);
+    }
+
+    bool operator==(const ParameterIterator& other) const { return index_ == other.index_; }
+    bool operator!=(const ParameterIterator& other) const { return index_ != other.index_; }
+    bool operator<(const ParameterIterator& other) const { return index_ < other.index_; }
+    bool operator>(const ParameterIterator& other) const { return index_ > other.index_; }
+    bool operator<=(const ParameterIterator& other) const { return index_ <= other.index_; }
+    bool operator>=(const ParameterIterator& other) const { return index_ >= other.index_; }
+
+private:  // methods
+
+    /// @param i position in the concatenation of the three containers
+    const Parameter& at(size_t i) const {
+        for (const auto* container : containers_) {
+            if (!container) {
+                continue;
+            }
+            if (i < container->size()) {
+                return (*container)[i];
+            }
+            i -= container->size();
+        }
+        throw eckit::SeriousBug("ParameterIterator index out of range", Here());
+    }
+
+private:  // members
+
+    std::array<const std::vector<Parameter>*, 5> containers_{};
+    size_t index_ = 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/// A MARS request: a verb and a list of parameters (keywords and their values).
+///
+/// The parameters are held in three containers: the ones whose type is of category Data, the ones of category
+/// PostProc, and the others (including the untyped ones). The axes (the keywords from 1 to
+/// MarsLanguage::maxDataKeyword() - 1) are always held with the data ones, typed or not. parameters() iterates over
+/// the containers in that order, and in the order the parameters were added within each one.
+///
+/// The parameters of a request that was just parsed or created are untyped. The expansion (see MarsLanguage and
+/// MarsExpansion) produces requests whose parameters are typed.
+///
+/// Keywords can be given by name or by id (see MarsLanguage::keyword()). The id is faster for typed parameters, which
+/// know theirs. Names of registered keywords are case insensitive, custom names are compared as they are.
+///
+/// @note Pointers and references returned by find() and values() (and the ones to the parameters) are valid until the
+/// request is modified (a value set, a parameter added or removed), or destroyed.
+class MarsRequest : public MarsDataCube {
+public:  // methods
+
+    using iterator       = ParameterIterator;
+    using const_iterator = ParameterIterator;
+
+    ParameterIterator begin() const { return ParameterIterator(data_, params_); }
+    ParameterIterator end() const { return ParameterIterator(data_, params_, true); }
+
+    size_t size() const override;
+    bool empty() const override { return size() == 0; }
+
     MarsRequest();
+    explicit MarsRequest(MarsVerb verb);
+    explicit MarsRequest(const std::string& verb);
+    MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals);
+    MarsRequest(const std::string&, const std::map<std::string, std::vector<std::string>>&);
+    MarsRequest(const std::string& verb, const eckit::Value& vals);
+    MarsRequest(const eckit::message::Message& message);
 
-    explicit MarsRequest(const std::string&);
-    explicit MarsRequest(eckit::Stream&, bool lowercase = false);
+    /// @param validate if true, every parameter is checked against the language of the verb and typed
+    /// @param lowercase if true, the verb and the names of the parameters are converted to lowercase
+    explicit MarsRequest(eckit::Stream& s, bool validate = false);
 
-    MarsRequest(const std::string&, const std::map<std::string, std::string>&);
-    MarsRequest(const std::string&, const eckit::Value&);
+    MarsRequest(const MarsRequest& request)              = default;
+    MarsRequest(MarsRequest&& other) noexcept            = default;
+    MarsRequest& operator=(const MarsRequest& other)     = default;
+    MarsRequest& operator=(MarsRequest&& other) noexcept = default;
 
-    explicit MarsRequest(const eckit::message::Message&);
+    ~MarsRequest() noexcept override = default;
 
-    ~MarsRequest() = default;
-
-    bool operator<(const MarsRequest& other) const;
-
-    // eckit::Value&        operator[](const std::string&);
     const std::string& operator[](const std::string&) const;
 
-    operator eckit::Value() const;
+    MarsVerb verbId() const override;
+    const std::string& verb() const { return verbName_; }
 
-    const std::string& verb() const;
+    void verb(MarsVerb id) override;
+    void verb(const std::string& name);
 
-    size_t countValues(const std::string&) const;
-    bool has(const std::string&) const;
+    size_t countValues(MarsKeyword key) const;
+    size_t countValues(const std::string& name) const;
 
-    bool is(const std::string& param, const std::string& value) const;
+    bool has(MarsKeyword key) const;
+    bool has(const std::string& name) const;
 
-    const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const;
-
-    // Returns reference to values or nullopt if not found
-    std::optional<std::reference_wrapper<const std::vector<std::string>>> get(const std::string& keyword) const;
-
+    template <class T>
+    size_t getValues(MarsKeyword, std::vector<T>& v, bool emptyOk = false) const;
     template <class T>
     size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;
 
-    void getParams(std::vector<std::string>&) const;
+    // getters
+    // Returns reference to values or nullopt if not found
+    std::optional<std::reference_wrapper<const std::vector<std::string>>> get(const std::string& keyword) const;
+
+    /// @throws UserError if there is no such parameter, unless @p emptyOk
+    const std::vector<std::string>& values(MarsKeyword key, bool emptyOk = false) const;
+    const std::vector<std::string>& values(const std::string& name, bool emptyOk = false) const;
+
     std::vector<std::string> params() const;
 
-    std::list<Parameter>& parameters() { return params_; }
+    /// @deprecated use params()
+    void getParams(std::vector<std::string>& p) const { p = params(); }
 
-    const std::list<Parameter>& parameters() const { return params_; }
+    [[deprecated("iterate directly over the MarsRequest")]]
+    MarsRequest& parameters() const {
+        return *const_cast<MarsRequest*>(this);
+    }
 
-    void verb(const std::string&);
-
-    void values(const std::string&, const std::vector<std::string>&);
-
+    template <class T>
+    void setValue(MarsKeyword key, const T& value);
     template <class T>
     void setValue(const std::string& name, const T& value);
 
-    void setValue(const std::string& name, const char* value);
+    // setters
+    // They set the values of the parameter, which is created (untyped) if needed
+    void values(MarsKeyword key, const std::vector<std::string>& v);
+    void values(const std::string& name, const std::vector<std::string>& v);
+    void values(MarsKeyword key, std::vector<std::string>&& v);
+    void values(const std::string& name, std::vector<std::string>&& v);
 
-    void unsetValues(const std::string&);
+    void unsetValues(const std::string& name) { erase(name); }
 
-    /// Splits a MARS request into multiple requests along the provided key
-    std::vector<MarsRequest> split(const std::string& keys) const;
+    void erase(MarsKeyword key);
+    void erase(const std::string& name);
 
     /// Splits a MARS request into multiple requests along the indicated keys
     std::vector<MarsRequest> split(const std::vector<std::string>& keys) const;
 
     /// Merges one MarsRequest into another
-    /// @todo Improve performance -- uses O(N^2) search / merge in std::list's
+    // parameters existing in the other request but not present in the current request will be ignored
     void merge(const MarsRequest& other);
 
     /// Create a new MarsRequest from this one with only the given set of keys
@@ -101,21 +287,29 @@ public:  // methods
 
     void md5(eckit::MD5&) const;
 
-    void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
+    void dump(std::ostream& s, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
 
-    void setValuesTyped(const Type*, const std::vector<std::string>&);
+    [[deprecated("use setValuesTyped overload accepting Type reference")]]
+    void setValuesTyped(const Type* type, const std::vector<std::string>& values);
+    void setValuesTyped(const Type& type, const std::vector<std::string>& values);
 
     bool filter(const MarsRequest& filter);
-    bool matches(const MarsRequest& filter) const;
-    bool empty() const;
+    bool matches(const MarsRequest& other) const;
 
-    size_t count() const;
+    bool operator<(const MarsRequest& other) const;
 
+    MarsDataCube data() const;
+    /// Returns the parameters in a category, or an empty vector if the category is absent.
+    const std::vector<Parameter>& params(Category c) const;
+    [[deprecated("extract is deprecated, use data() or postproc() instead")]]
     MarsRequest extract(const std::string& category) const;
 
-    void erase(const std::string& param);
+    // void erase(const std::string& param);
 
     std::string asString() const;
+
+    const Parameter* find(MarsKeyword key) const;
+    const Parameter* find(const std::string& name) const;
 
 public:  // static methods
 
@@ -125,18 +319,26 @@ public:  // static methods
     /// Implementation in api/metkit_c.cc
     static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
 
-private:  // members
-
-    std::string verb_;
-    std::list<Parameter> params_;
-
 private:  // methods
 
-    void print(std::ostream&) const;
-    void encode(eckit::Stream&) const;
+    void print(std::ostream& s) const;
+    void encode(eckit::Stream& s) const;
 
-    std::list<Parameter>::const_iterator find(const std::string&) const;
-    std::list<Parameter>::iterator find(const std::string&);
+    /// Where a parameter is held: the container (0 data, 1 postproc, 2 other) and the index in it
+    struct Position {
+        Category category = Category::Unknown;
+        size_t index      = 0;
+        explicit operator bool() const { return category != Category::Unknown; }
+    };
+
+    /// @return the position of the parameter, or a false Position if there is no such parameter
+    Position locate(MarsKeyword key) const;
+    Position locate(const std::string& name) const;
+
+    std::vector<Parameter>& params(Category c);
+
+    /// Adds the parameter to the container that corresponds to its keyword @p key (0 if not registered) and type
+    void add(Parameter&& p);
 
     // -- Class members
 
@@ -157,30 +359,55 @@ private:  // methods
         r.encode(s);
         return s;
     }
+
+private:  // members
+
+    std::string verbName_;
+    std::array<std::vector<Parameter>, 4> params_;
 };
 
-
 template <class T>
-size_t MarsRequest::getValues(const std::string& name, std::vector<T>& v, bool emptyOk) const {
-    const std::vector<std::string>& s = values(name, emptyOk);
+size_t MarsRequest::getValues(MarsKeyword key, std::vector<T>& values, bool emptyOk) const {
 
     eckit::Translator<std::string, T> t;
 
-    v.clear();
+    const auto& vv = this->values(key, emptyOk);
 
-    for (std::vector<std::string>::const_iterator j = s.begin(); j != s.end(); ++j) {
-        v.push_back(t(*j));
+    values.clear();
+    values.reserve(vv.size());
+
+    for (const auto& v : vv) {
+        values.push_back(t(v));
     }
 
-    return v.size();
+    return values.size();
+}
+template <class T>
+size_t MarsRequest::getValues(const std::string& name, std::vector<T>& val, bool emptyOk) const {
+
+    eckit::Translator<std::string, T> t;
+
+    const auto& vv = values(name, emptyOk);
+
+    val.clear();
+    val.reserve(vv.size());
+
+    for (const auto& v : vv) {
+        val.push_back(t(v));
+    }
+
+    return val.size();
 }
 
-
+template <class T>
+void MarsRequest::setValue(MarsKeyword key, const T& value) {
+    eckit::Translator<T, std::string> t;
+    values(key, std::vector<std::string>{t(value)});
+}
 template <class T>
 void MarsRequest::setValue(const std::string& name, const T& value) {
     eckit::Translator<T, std::string> t;
-    std::vector<std::string> v(1, t(value));
-    values(name, v);
+    values(name, std::vector<std::string>{t(value)});
 }
 
 //----------------------------------------------------------------------------------------------------------------------

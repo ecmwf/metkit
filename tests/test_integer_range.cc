@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
 // SPDX-License-Identifier: Apache-2.0
 
-/// @file   test_integer_day.cc
+/// @file   test_integer_range.cc
 /// @author Metin Cakircali
 /// @date   March 2025
 
@@ -11,6 +11,7 @@
 #include "eckit/testing/Test.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeInteger.h"
 
@@ -23,10 +24,11 @@ using ::eckit::ValueMap;
 
 CASE("Test TypeInteger expansion range=[1,100]") {
 
+    std::string typeName = "integer";
     ValueMap settings;
     settings["range"] = ValueList{1, 100};
-    TypeInteger type("day", settings);
-    Type& tday = type;
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
+    Type& tday        = *type;
 
     // in range
 
@@ -51,11 +53,12 @@ CASE("Test TypeInteger expansion range=[1,100]") {
 //----------------------------------------------------------------------------------------------------------------------
 
 CASE("Test TypeInteger expansion range=[1,1]") {
+    std::string typeName = "integer";
 
     ValueMap settings;
     settings["range"] = ValueList{1, 1};
-    TypeInteger type("day", settings);
-    Type& tday = type;
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
+    Type& tday        = *type;
 
     {
         std::string value = "1";
@@ -72,11 +75,12 @@ CASE("Test TypeInteger expansion range=[1,1]") {
 //----------------------------------------------------------------------------------------------------------------------
 
 CASE("Test TypeInteger day expansion range=[-1,1]") {
+    std::string typeName = "integer";
 
     ValueMap settings;
     settings["range"] = ValueList{-1, 1};
-    TypeInteger type("day", settings);
-    Type& tday = type;
+    auto type         = std::make_shared<TypeInteger>(typeName, MarsLanguage::keyword("day"), settings);
+    Type& tday        = *type;
 
     {
         std::string value = "-2";
