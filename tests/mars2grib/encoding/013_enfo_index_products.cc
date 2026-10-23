@@ -61,6 +61,11 @@ void expectModelClimate(const Handle& handle, long typeOfRelationToReferenceData
     EXPECT_EQUAL(handle->getLong("numberOfReferencePeriodTimeRanges"), 2);
     EXPECT(handle->getLongArray("indicatorOfUnitForTimeRangeForReferencePeriod") == (std::vector<long>{4, 2}));
     EXPECT(handle->getLongArray("lengthOfTimeRangeForReferencePeriod") == (std::vector<long>{20, 31}));
+    // Code table 4.102: 20 = Model climate
+    EXPECT(handle->getLongArray("typeOfStatisticalProcessingForTimeRangeForReferencePeriod") ==
+           (std::vector<long>{20, 20}));
+    // The start of the model climate has no meaningful date
+    EXPECT(handle->isMissing("yearOfStartOfReferencePeriod"));
 }
 
 template <typename Handle>
@@ -97,6 +102,7 @@ CASE("enfo efi: two time ranges [102, average] and EFI model climate") {
         EXPECT_EQUAL(handle->getLong("numberOfAdditionalParametersForReferencePeriod"), 0);
         EXPECT_EQUAL(handle->getString("mars.type"), "efi");
         EXPECT_EQUAL(handle->getLong("mars.step"), 360);
+        EXPECT_EQUAL(handle->getLong("typeOfProcessedData"), 5);  // control and perturbed
     });
 }
 
@@ -110,6 +116,7 @@ CASE("enfo efic: control EFI has one forecast in the ensemble") {
         expectIndexTimeRanges(handle, 0, 96, 24);
         EXPECT_EQUAL(handle->getLong("numberOfForecastsInEnsemble"), 1);
         EXPECT_EQUAL(handle->getString("mars.type"), "efic");
+        EXPECT_EQUAL(handle->getLong("typeOfProcessedData"), 3);  // control
     });
 }
 
@@ -147,6 +154,7 @@ CASE("enfo sot 90: percentiles {90, 99} and mars.quantile 90-99:100") {
         EXPECT(handle->getLongArray("scaleFactorOfAdditionalParameterForReferencePeriod") == (std::vector<long>{0, 0}));
         EXPECT_EQUAL(handle->getString("mars.quantile"), "90-99:100");
         EXPECT_EQUAL(handle->getLong("numberOfForecastsInEnsemble"), 51);
+        EXPECT_EQUAL(handle->getLong("typeOfProcessedData"), 5);  // control and perturbed
     });
 }
 
