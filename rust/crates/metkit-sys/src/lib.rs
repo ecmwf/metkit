@@ -10,9 +10,20 @@ use bindman::track_cpp_api;
 // Auto-generated metkit Error enum + From<cxx::Exception> impl
 include!(concat!(env!("OUT_DIR"), "/metkit_exceptions.rs"));
 
+// C++ methods that are not bound (bindman takes one list for all the sources).
 #[track_cpp_api(
     ("metkit/mars/MarsRequest.h", class = "MarsRequest"),
     ("metkit/mars/MarsLanguage.h", class = "MarsLanguage"),
+    ignore = [
+        // MarsRequest
+        "split", "subset", "merge", "filter", "extract", "erase", "md5", "json", "asString",
+        "countValues", "getParams", "setValuesTyped", "parameters", "fromOpaque", "begin", "end",
+        "find", "postproc", "data", "verbId",
+        // MarsLanguage
+        "write", "addKeyword", "name", "hasKeyword", "isSink", "expandVerb", "keyword",
+        "maxDataKeyword", "writeDictionaries", "bestMatch", "hasVerb", "isDerived", "type",
+        "readContexts", "readDictionaries", "isPostProc", "flatten", "jsonFile", "writeContexts",
+    ]
 )]
 #[cxx::bridge(namespace = "metkit_bridge")]
 pub mod ffi {
@@ -178,7 +189,6 @@ pub mod ffi {
 
         type MarsLanguageWrapper;
 
-        fn sink_keywords(self: &MarsLanguageWrapper) -> Vec<String>;
         fn is_data(self: &MarsLanguageWrapper, keyword: &str) -> bool;
 
         #[Self = "MarsLanguageWrapper"]

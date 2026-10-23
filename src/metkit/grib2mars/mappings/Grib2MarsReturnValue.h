@@ -12,7 +12,7 @@ namespace metkit::grib2mars {
 /// @brief Structured result returned by grib2mars conversions.
 ///
 /// @tparam MarsDict
-/// Dictionary type used for the converted request.
+/// SymbolTable type used for the converted request.
 template <typename MarsDict>
 struct Grib2MarsResult {
     /// @brief Converted MARS request.

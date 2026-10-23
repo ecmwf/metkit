@@ -12,15 +12,16 @@
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsRequest.h"
 
-namespace metkit::mars::test {
+namespace metkit::mars {
+namespace test {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CASE("test_metkit_hypercube") {
     const char* text =
         "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
         "500,param=138";
-    MarsRequest r = MarsRequest::parse(text);
+    metkit::mars::MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
 
@@ -169,7 +170,8 @@ CASE("test_metkit_hypercube_request METK-132") {
     }
 }
 
-}  // namespace metkit::mars::test
+}  // namespace test
+}  // namespace metkit::mars
 
 int main(int argc, char** argv) {
     return eckit::testing::run_tests(argc, argv);
