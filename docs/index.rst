@@ -14,6 +14,7 @@ Metkit documentation
 
    metkit/index
    pymetkit/index
+   rust/index
    indices
 
 :ref:`Metkit <Metkit_Introduction>` is part of `ECMWF
@@ -25,3 +26,7 @@ language requests.
 :ref:`pymetkit <PyMetkit_Introduction>` is the Python interface to Metkit,
 providing a thin, idiomatic Python layer over the Metkit library installed on
 your system.
+
+:ref:`The Rust interface <Rust_Introduction>` is the ``metkit`` crate, a safe
+Rust API over the same library, with the ``metkit-sys`` crate underneath it
+for other ECMWF Rust bindings to build on.
