@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Stages, builds and installs the pymetkit wheel, from metkit's own build
-# or from python/pymetkit against an installed metkit.
+# or from .ci/packages/pymetkit against an installed metkit.
 
 set(_pymetkit_src "${CMAKE_CURRENT_LIST_DIR}/../src")
 
