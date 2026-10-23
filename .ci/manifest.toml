@@ -200,7 +200,6 @@ repo = "ecmwf/eckit"
 package = "eckit"
 ref = "develop"
 compiler-inputs = ["cxx-compiler"]
-options = "eckit-geo"
 crates = ["eckit", "eckit-sys"]
 
 [matrix.rust]
