@@ -43,7 +43,6 @@ repo = "ecmwf/eckit"
 package = "eckit"
 ref = "develop"
 compiler-inputs = ["cxx-compiler"]
-crates = ["eckit", "eckit-sys"]
 
 [packages.pymetkit]
 compiler-inputs = ["cxx-compiler"]
@@ -195,6 +194,14 @@ compiler-inputs = ["cxx-compiler"]
 [[packages.metkit-rust.deps]]
 package = "metkit"
 options-input = "options"
+
+[[packages.metkit-rust.deps]]
+repo = "ecmwf/eckit"
+package = "eckit"
+ref = "develop"
+compiler-inputs = ["cxx-compiler"]
+options = "eckit-geo"
+crates = ["eckit", "eckit-sys"]
 
 [matrix.rust]
 packages = ["metkit-rust"]
