@@ -169,6 +169,14 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                     // gbf/gwt: ecPoint of an individual perturbed member, as in the operational GRIB2
                     result = tables::TypeOfProcessedData::PerturbedForecastProducts;
                 }
+                else if (marsType == "efi" || marsType == "sot") {
+                    // Index products computed from the control and the perturbed members
+                    result = tables::TypeOfProcessedData::ControlAndPerturbedForecastProducts;
+                }
+                else if (marsType == "efic") {
+                    // EFI of the control forecast
+                    result = tables::TypeOfProcessedData::ControlForecastProducts;
+                }
                 else if (marsType == "icp") {
                     // Initial condition perturbations: missing, as in the operational GRIB2
                     result = tables::TypeOfProcessedData::Missing;

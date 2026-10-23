@@ -193,6 +193,7 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
                 // Model climate: N reforecast years, sampled in a window of D days (code table 4.4: 4 = year, 2 = day)
                 const auto years = get_opt<long>(par, "numberOfReforecastYearsInModelClimate");
                 const auto days  = get_opt<long>(par, "numberOfDaysInClimateSamplingWindow");
+                long numberOfReferencePeriodTimeRanges = 1;  // template default
                 if (years) {
                     std::vector<long> units{4};
                     std::vector<long> lengths{*years};
@@ -200,9 +201,16 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
                         units.push_back(2);
                         lengths.push_back(*days);
                     }
-                    set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", static_cast<long>(units.size()));
+                    numberOfReferencePeriodTimeRanges = static_cast<long>(units.size());
+                    set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", numberOfReferencePeriodTimeRanges);
                     set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRangeForReferencePeriod", units);
                     set_or_throw<std::vector<long>>(out, "lengthOfTimeRangeForReferencePeriod", lengths);
+                }
+
+                if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
+                    // Code table 4.102: 20 = Model climate, for every time range of the reference period
+                    set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
+                                                    std::vector<long>(numberOfReferencePeriodTimeRanges, 20));
                 }
             }
 
