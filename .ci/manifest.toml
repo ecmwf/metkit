@@ -195,6 +195,13 @@ compiler-inputs = ["cxx-compiler"]
 package = "metkit"
 options-input = "options"
 
+[[packages.metkit-rust.deps]]
+repo = "ecmwf/eckit"
+package = "eckit"
+ref = "develop"
+compiler-inputs = ["cxx-compiler"]
+crates = ["eckit", "eckit-sys"]
+
 [matrix.rust]
 packages = ["metkit-rust"]
 publishes = false
