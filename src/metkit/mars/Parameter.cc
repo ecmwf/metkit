@@ -3,7 +3,11 @@
 
 #include <algorithm>
 #include <iterator>
+#include <ostream>
 
+#include "eckit/exception/Exceptions.h"
+
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Parameter.h"
 #include "metkit/mars/Type.h"
 
@@ -12,68 +16,80 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class UndefinedType : public Type {
-    void print(std::ostream& out) const override { out << "<undefined type>"; }
+Parameter::Parameter(MarsKeyword key, const std::string& name, const std::vector<std::string>& values) :
+    key_(key), name_(name), values_(values) {}
 
-    bool expand(std::string&, const MarsRequest&) const override { NOTIMP; }
+Parameter::Parameter(MarsKeyword key, const std::string& name, std::vector<std::string>&& values) :
+    key_(key), name_(name), values_(std::move(values)) {}
 
-public:
+Parameter::Parameter(const Type& type, const std::vector<std::string>& values) :
+    key_(type.id()), name_(type.name()), values_(values), type_(std::cref(type)) {}
 
-    UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
-};
+Parameter::Parameter(const Type& type, std::vector<std::string>&& values) :
+    key_(type.id()), name_(type.name()), values_(std::move(values)), type_(std::cref(type)) {}
 
-
-static UndefinedType undefined;
-
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
-Parameter::Parameter() : type_(&undefined) {
-    type_->attach();
-}
-
-Parameter::~Parameter() {
-    type_->detach();
-}
-
-Parameter::Parameter(const std::vector<std::string>& values, const Type* type) : type_(type), values_(values) {
-    if (!type) {
-        type_ = &undefined;
+bool Parameter::is(MarsKeyword key) const {
+    if (key_ != MarsKeyword{}) {
+        return key_ == key;
     }
-    type_->attach();
+    return key != 0 && name_ == MarsLanguage::name(key);
 }
 
-
-Parameter::Parameter(const Parameter& other) : type_(other.type_), values_(other.values_) {
-    type_->attach();
+const Type& Parameter::type() const {
+    if (!type_) {
+        throw eckit::SeriousBug("Parameter '" + name_ + "' is untyped", Here());
+    }
+    return type_.value();
 }
 
-Parameter& Parameter::operator=(const Parameter& other) {
-    const Type* old = type_;
-    type_           = other.type_;
-    type_->attach();
-    old->detach();
-
-    values_ = other.values_;
-    return *this;
+bool Parameter::operator<(const Parameter& other) const {
+    if (name() != other.name()) {
+        return name() < other.name();
+    }
+    return values() < other.values();
 }
 
-void Parameter::values(const std::vector<std::string>& values) {
-    values_ = values;
+bool Parameter::multiple() const {
+    return !type_ || type_.value().get().multiple();
+}
+
+size_t Parameter::count() const {
+    return type_ ? type_.value().get().count(values_) : values_.size();
 }
 
 bool Parameter::filter(const std::vector<std::string>& filter) {
-    return type_->filter(filter, values_);
+    if (type_) {
+        return type_.value().get().filter(filter, values_);
+    }
+
+    NotInSet not_in_set(filter);
+    values_.erase(std::remove_if(values_.begin(), values_.end(), not_in_set), values_.end());
+    return !values_.empty();
 }
 
-bool Parameter::filter(const std::string& keyword, const std::vector<std::string>& filter) {
-    return type_->filter(keyword, filter, values_);
+bool Parameter::filter(MarsKeyword keyword, const std::vector<std::string>& f) {
+    if (type_) {
+        return type_.value().get().filter(keyword, f, values_);
+    }
+
+    // an untyped parameter has no knowledge of filters by another keyword (e.g. filtering a date by day): it can only
+    // be filtered by its own keyword, anything else is a "no match" and not an error
+    return keyword == id() && filter(f);
 }
 
+bool Parameter::filter(const std::string& name, const std::vector<std::string>& f) {
+    return filter(MarsLanguage::keyword(name), f);
+}
 
 bool Parameter::matches(const std::vector<std::string>& match) const {
-    return type_->matches(match, values_);
+    if (type_) {
+        return type_.value().get().matches(match, values_);
+    }
+
+    // same semantics as Type::matches(): at least one of the values is among the ones to match
+    return std::any_of(values_.begin(), values_.end(), [&match](const std::string& v) {
+        return std::find(match.begin(), match.end(), v) != match.end();
+    });
 }
 
 void Parameter::merge(const Parameter& p) {
@@ -82,39 +98,28 @@ void Parameter::merge(const Parameter& p) {
     /// @note this isn't optimal O(N^2) but it respects the order
 
     std::vector<std::string> diff;
-    for (auto& o : p.values_) {
-        bool found = false;
-        for (auto& v : values_) {
-            if (v == o) {
-                found = true;
-                break;
-            }
-        }
-        if (!found)
+    for (const auto& o : p.values()) {
+        if (std::find(values_.begin(), values_.end(), o) == values_.end()) {
             diff.push_back(o);
+        }
     }
-
     values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
 }
 
-
-const std::string& Parameter::name() const {
-    return type_->name();
-}
-
-size_t Parameter::count() const {
-    return type_->count(values_);
-}
-
 void Parameter::print(std::ostream& s) const {
-    s << "Parameter[type=" << *type_ << ",values=" << values_ << "]";
-}
-
-bool Parameter::operator<(const Parameter& other) const {
-    if (name() != other.name()) {
-        return name() < other.name();
+    if (type_) {
+        s << "Parameter[type=" << *type_;
     }
-    return values_ < other.values_;
+    else {
+        s << "Parameter[name=" << name_;
+    }
+    s << ",values=[";
+    const char* separator = "";
+    for (const auto& v : values_) {
+        s << separator << v;
+        separator = ",";
+    }
+    s << "]]";
 }
 
 //----------------------------------------------------------------------------------------------------------------------

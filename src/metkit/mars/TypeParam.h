@@ -18,13 +18,12 @@ class TypeParam : public Type {
 
 public:  // methods
 
-    TypeParam(const std::string& name, const eckit::Value& settings);
+    TypeParam(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeParam(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     ~TypeParam() noexcept override = default;
 
 private:  // methods
-
-    bool firstRule_;
 
     void print(std::ostream& out) const override;
     void pass2(MarsRequest& request) const override;

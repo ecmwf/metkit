@@ -1,334 +1,163 @@
 // SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
 // SPDX-License-Identifier: Apache-2.0
 
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <istream>
+#include <map>
+#include <memory>
+#include <optional>
+#include <ostream>
+#include <set>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "eckit/exception/Exceptions.h"
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
+#include "eckit/message/Message.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/value/Content.h"
+#include "eckit/value/Value.h"
 
-#include "eckit/message/Message.h"
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsExpansion.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ParamID.h"
+#include "metkit/mars/Parameter.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
-#include "metkit/mars/TypeAny.h"
 
 namespace metkit::mars {
 
-//----------------------------------------------------------------------------------------------------------------------
+namespace {
 
-MarsRequest::MarsRequest() {}
-
-MarsRequest::MarsRequest(const std::string& s) : verb_(s) {
-    ASSERT(s.find(',') == std::string::npos);
-}
-
-MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::string>& values) : verb_(s) {
-    for (auto j = values.begin(); j != values.end(); ++j) {
-        const std::string& param = (*j).first;
-        const std::string& value = (*j).second;
-
-
-        params_.push_back(Parameter(std::vector<std::string>(1, value), new TypeAny(param)));
-    }
-}
-
-
-MarsRequest::MarsRequest(const std::string& s, const eckit::Value& values) : verb_(s) {
-    eckit::ValueMap m = values;
-    for (auto j = m.begin(); j != m.end(); ++j) {
-        const std::string& param  = (*j).first;
-        const eckit::Value& value = (*j).second;
-
-        if (value.isList()) {
-            std::vector<std::string> vals;
-            eckit::fromValue(vals, value);
-            params_.push_back(Parameter(vals, new TypeAny(param)));
-        }
-        else {
-            params_.push_back(Parameter(std::vector<std::string>(1, value), new TypeAny(param)));
-        }
-    }
-}
-
-MarsRequest::MarsRequest(const eckit::message::Message& message) : verb_("message") {
-    eckit::message::StringSetter<MarsRequest> setter(*this);
-    message.getMetadata(setter);
-}
-
-MarsRequest::MarsRequest(eckit::Stream& s, bool lowercase) {
-    int size;
-
-    s >> verb_;
-    if (lowercase)
-        verb_ = eckit::StringTools::lower(verb_);
-    s >> size;
-
-    for (int i = 0; i < size; i++) {
-        std::string param;
-        int count;
-
-        s >> param;
-        if (lowercase)
-            param = eckit::StringTools::lower(param);
-        s >> count;
-
-        std::vector<std::string> v;
-        v.reserve(count);
-
-        for (int k = 0; k < count; k++) {
-            std::string value;
-            s >> value;
-            v.push_back(value);
-        }
-
-        params_.push_back(Parameter(v, new TypeAny(param)));
-    }
-}
-
-void MarsRequest::encode(eckit::Stream& s) const {
-    s << verb_;
-    int size = params_.size();
-    s << size;
-
-
-    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
-        s << (*i).name();
-
-        const std::vector<std::string>& v = (*i).values();
-
-        int size = v.size();  // For backward compatibility
-        s << size;
-
-        for (std::vector<std::string>::const_iterator k = v.begin(); k != v.end(); ++k) {
-            s << *k;
-        }
-    }
-}
-
-bool MarsRequest::empty() const {
-    return params_.empty();
-}
-
-
-void MarsRequest::print(std::ostream& s) const {
-    dump(s, "", "", true);
-}
-
-void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool verb) const {
-    std::list<Parameter>::const_iterator begin = params_.begin();
-    std::list<Parameter>::const_iterator end   = params_.end();
-
+Parameter makeParameter(MarsVerb verb, MarsKeyword key, std::vector<std::string> vals) {
+    std::optional<std::reference_wrapper<const Type>> type;
     if (verb) {
-        s << verb_ << ',';
+        type = MarsLanguage::get(verb).type(key);
     }
-    std::string separator = "";
-    if (begin != end) {
-        s << separator << cr << tab;
-        separator = ",";
-
-        int a = 0;
-        for (std::list<Parameter>::const_iterator i = begin; i != end; ++i) {
-            if (a++) {
-                s << ',';
-                s << cr << tab;
-            }
-
-            int b = 0;
-            s << (*i).name()
-              //               << "." << (*i).second.type()
-              << "=";
-            const std::vector<std::string>& v = (*i).values();
-
-            for (std::vector<std::string>::const_iterator k = v.begin(); k != v.end(); ++k) {
-                if (b++) {
-                    s << '/';
-                }
-                MarsParser::quoted(s, *k);
-            }
-
-            // s << " {" << (*i).type().category() << "}";
-        }
+    if (type) {
+        return Parameter(type.value().get(), std::move(vals));
     }
-
-    s << cr << cr;
+    return Parameter(key, MarsLanguage::name(key), std::move(vals));
 }
 
-void MarsRequest::json(eckit::JSON& s, bool array) const {
-    s.startObject();
-    // s << "_verb" << verb_;
-    std::list<Parameter>::const_iterator begin = params_.begin();
-    std::list<Parameter>::const_iterator end   = params_.end();
+}  // namespace
 
-    for (std::list<Parameter>::const_iterator i = begin; i != end; ++i) {
-        s << (*i).name();
-        const std::vector<std::string>& v = (*i).values();
+MarsDataCube::MarsDataCube(MarsVerb verb) : verb_(verb) {}
 
-        bool list = v.size() != 1 || (array && (*i).type().multiple());
-        if (list) {
-            s.startList();
-        }
-
-        for (std::vector<std::string>::const_iterator k = v.begin(); k != v.end(); ++k) {
-            s << (*k);
-        }
-
-        if (list) {
-            s.endList();
-        }
-    }
-
-    s.endObject();
+MarsVerb MarsDataCube::verbId() const {
+    return verb_;
 }
 
-void MarsRequest::md5(eckit::MD5& md5) const {
-    std::ostringstream oss;
-    oss << *this;
-    md5.add(oss.str());
+void MarsDataCube::verb(MarsVerb id) {
+    verb_ = id;
 }
 
-void MarsRequest::unsetValues(const std::string& name) {
-    std::list<Parameter>::iterator i = find(name);
-    if (i != params_.end()) {
-        params_.erase(i);
-    }
-}
-
-void MarsRequest::setValuesTyped(const Type* type, const std::vector<std::string>& values) {
-    std::list<Parameter>::iterator i = find(type->name());
-    if (i != params_.end()) {
-        (*i) = Parameter(values, type);
-    }
-    else {
-        params_.push_back(Parameter(values, type));
-    }
-}
-
-bool MarsRequest::filter(const MarsRequest& filter) {
-    for (std::list<Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
-        if ((*i).name() == "date") {
-            std::list<Parameter>::const_iterator j = filter.find("day");
-            if (j != filter.params_.end()) {
-                if (!(*i).filter("day", (*j).values())) {
-                    return false;
-                }
+const std::vector<std::string>& MarsDataCube::get(MarsKeyword key) const {
+    static const std::vector<std::string> empty;
+    if (key && key < MarsLanguage::maxDataKeyword()) {
+        for (const auto& p : data_) {
+            if (p.id() == key) {
+                return p.values();
             }
         }
+    }
+    return empty;
+}
 
-        std::list<Parameter>::const_iterator j = filter.find((*i).name());
-        if (j == filter.params_.end()) {
-            continue;
+void MarsDataCube::set(MarsKeyword key, const std::vector<std::string>& value) {
+    if (key && key < MarsLanguage::maxDataKeyword()) {
+        for (auto& p : data_) {
+            if (p.id() == key) {
+                p.values(value);
+                return;
+            }
         }
+        if (!lang_ || lang_->verb() != verb_) {
+            ASSERT(verb_);
+            lang_ = &MarsLanguage::get(verb_);
+        }
+        auto type = lang_->type(key);
+        if (!type) {
+            throw eckit::UserError("Unknown type for parameter " + MarsLanguage::name(key));
+        }
+        data_.emplace_back(type.value().get(), value);
+    }
+}
+void MarsDataCube::set(MarsKeyword key, std::vector<std::string>&& value) {
+    if (key && key < MarsLanguage::maxDataKeyword()) {
+        for (auto& p : data_) {
+            if (p.id() == key) {
+                p.values(std::move(value));
+                return;
+            }
+        }
+        if (!lang_ || lang_->verb() != verb_) {
+            ASSERT(verb_);
+            lang_ = &MarsLanguage::get(verb_);
+        }
+        auto type = lang_->type(key);
+        if (!type) {
+            throw eckit::UserError("Unknown type for parameter " + MarsLanguage::name(key));
+        }
+        data_.emplace_back(type.value().get(), std::move(value));
+    }
+}
 
-        if (!(*i).filter((*j).values())) {
-            return false;
+void MarsDataCube::unset(MarsKeyword key) {
+    if (key && key < MarsLanguage::maxDataKeyword()) {
+        for (auto it = data_.begin(); it != data_.end(); ++it) {
+            if (it->id() == key) {
+                data_.erase(it);
+                break;
+            }
         }
     }
-    return true;
 }
 
-bool MarsRequest::matches(const MarsRequest& matches) const {
-    std::vector<std::string> params = matches.params();
-    for (std::vector<std::string>::const_iterator j = params.begin(); j != params.end(); ++j) {
-        std::list<Parameter>::const_iterator k = find(*j);
-        if (k == params_.end()) {
-            return false;
+bool MarsDataCube::has(MarsKeyword key) const {
+    if (key && key < MarsLanguage::maxDataKeyword()) {
+        for (const auto& p : data_) {
+            if (p.id() == key) {
+                return true;
+            }
         }
-
-        if (!(*k).matches(matches.values(*j))) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void MarsRequest::values(const std::string& name, const std::vector<std::string>& v) {
-    std::list<Parameter>::iterator i = find(name);
-    if (i != params_.end()) {
-        (*i).values(v);
-    }
-    else {
-        params_.push_back(Parameter(v, new TypeAny(name)));
-    }
-}
-
-
-size_t MarsRequest::countValues(const std::string& name) const {
-    std::list<Parameter>::const_iterator i = find(name);
-    if (i != params_.end()) {
-        return (*i).values().size();
-    }
-    return 0;
-}
-
-bool MarsRequest::has(const std::string& name) const {
-    return find(name) != params_.end();
-}
-
-
-bool MarsRequest::is(const std::string& name, const std::string& value) const {
-    std::list<Parameter>::const_iterator i = find(name);
-    if (i != params_.end()) {
-        const std::vector<std::string>& v = (*i).values();
-        return v.size() == 1 && v[0] == value;
     }
     return false;
 }
 
-const std::vector<std::string>& MarsRequest::values(const std::string& name, bool emptyOk) const {
-    std::list<Parameter>::const_iterator i = find(name);
-    if (i == params_.end()) {
-        if (emptyOk) {
-            static std::vector<std::string> empty;
-            return empty;
+void MarsDataCube::merge(const MarsDataCube& other) {
+    std::map<MarsKeyword, const Parameter*> otherMap;
+    for (const auto& p : other.data_) {
+        otherMap[p.id()] = &p;
+    }
+    for (auto& p : data_) {
+        auto it = otherMap.find(p.id());
+        if (it != otherMap.end()) {
+            p.merge(*it->second);
+            otherMap.erase(it);
         }
-
-        std::ostringstream oss;
-        oss << "No parameter called '" << name << "' in request " << *this;
-        throw eckit::UserError(oss.str());
     }
-    return (*i).values();
-}
-
-std::optional<std::reference_wrapper<const std::vector<std::string>>> MarsRequest::get(
-    const std::string& keyword) const {
-    std::list<Parameter>::const_iterator i = find(keyword);
-    if (i == params_.end()) {
-        return std::nullopt;
-    }
-    return std::cref((*i).values());
-}
-
-const std::string& MarsRequest::operator[](const std::string& name) const {
-    std::list<Parameter>::const_iterator i = find(name);
-    if (i == params_.end()) {
-        std::ostringstream oss;
-        oss << "Parameter '" << name << "' is undefined";
-        throw eckit::UserError(oss.str());
-    }
-    const std::vector<std::string>& c = (*i).values();
-    if (c.size() > 1) {
-        std::ostringstream oss;
-        oss << "Parameter '" << name << "' has more than one value";
-        throw eckit::UserError(oss.str());
-    }
-
-    return c[0];
-}
-
-
-void MarsRequest::getParams(std::vector<std::string>& p) const {
-    p.clear();
-    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
-        p.push_back((*i).name());
+    // Add remaining items from otherMap that were not in data_
+    for (const auto& [key, param] : otherMap) {
+        data_.emplace_back(*param);
     }
 }
 
-size_t MarsRequest::count() const {
+size_t MarsDataCube::count() const {
+    static const MarsKeyword LEVELIST = MarsLanguage::keyword("levelist");
+    static const MarsKeyword PARAM    = MarsLanguage::keyword("param");
+    static const MarsKeyword LEVTYPE  = MarsLanguage::keyword("levtype");
+
     size_t result = 1;
 
     const std::set<std::string>& paramIdsSingleLevel = ParamID::getMlParamsSingleLevel();
@@ -339,25 +168,28 @@ size_t MarsRequest::count() const {
     size_t paramsSingleLevel = 0;
     bool hasLevelOne         = false;
 
-    for (const auto& p : params_) {
-        if (p.values().size() == 1 && (p.values().at(0) == "all" || p.values().at(0) == "any")) {
+    for (const auto& p : data_) {
+        MarsKeyword key = p.id();
+        ASSERT(key);
+        const auto& values = p.values();
+        if (values.size() == 1 && (values.at(0) == "all" || values.at(0) == "any")) {
             return 0;
         }
-        if (p.name() == "levelist") {
-            levels = p.values().size();
+        if (key == LEVELIST) {
+            levels = values.size();
             // For a parameter matching paramIdsSingleLevel, we can only include one value, and for level=1
-            hasLevelOne = std::find(p.values().begin(), p.values().end(), "1") != p.values().end();
+            hasLevelOne = std::find(values.begin(), values.end(), "1") != values.end();
         }
         else {
-            if (p.name() == "param") {
-                for (const auto& v : p.values()) {
+            if (key == PARAM) {
+                for (const auto& v : values) {
                     paramsSingleLevel += paramIdsSingleLevel.count(v);
                 }
-                params = p.values().size() - paramsSingleLevel;
+                params = values.size() - paramsSingleLevel;
             }
             else {
-                if (p.name() == "levtype") {
-                    ml = std::find(p.values().begin(), p.values().end(), "ml") != p.values().end();
+                if (key == LEVTYPE) {
+                    ml = std::find(values.begin(), values.end(), "ml") != values.end();
                 }
                 result *= p.count();
             }
@@ -374,31 +206,464 @@ size_t MarsRequest::count() const {
     return result;
 }
 
-std::vector<std::string> MarsRequest::params() const {
-    std::vector<std::string> p;
-    getParams(p);
-    return p;
+
+ParameterIterator::ParameterIterator(const std::vector<Parameter>& data,
+                                     const std::array<std::vector<Parameter>, 4>& other, bool end) {
+    containers_[0] = &data;
+    for (size_t cat = 0; cat < other.size(); ++cat) {
+        containers_[cat + 1] = &other[cat];
+    }
+    size_t size = 0;
+    if (end) {
+        for (auto container : containers_) {
+            if (container) {
+                size += container->size();
+            }
+        }
+    }
+    index_ = size;
 }
 
-MarsRequest::operator eckit::Value() const {
-    NOTIMP;
+//----------------------------------------------------------------------------------------------------------------------
+
+MarsRequest::MarsRequest() : MarsRequest("retrieve") {}
+
+MarsRequest::MarsRequest(MarsVerb verb) : MarsDataCube(verb), verbName_(MarsLanguage::name(verb)) {}
+
+MarsRequest::MarsRequest(const std::string& verb) :
+    MarsDataCube(MarsLanguage::verb_or_default(eckit::StringTools::lower(verb))),
+    verbName_(eckit::StringTools::lower(verb)) {}
+
+MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, std::string>& vals) : MarsRequest(verb) {
+
+    for (const auto& [k, v] : vals) {
+        values(k, std::vector<std::string>(1, v));
+    }
+}
+
+MarsRequest::MarsRequest(const std::string& verb, const std::map<std::string, std::vector<std::string>>& vals) :
+    MarsRequest(verb) {
+
+    for (const auto& [k, v] : vals) {
+        values(k, v);
+    }
+}
+
+
+MarsRequest::MarsRequest(const std::string& verb, const eckit::Value& vals) : MarsRequest(verb) {
+    eckit::ValueMap valueMap = vals;
+    for (const auto& [param, value] : valueMap) {
+        std::string name = param;
+        if (value.isList()) {
+            std::vector<std::string> vv;
+            eckit::fromValue(vv, value);
+            values(name, vv);
+        }
+        else {
+            values(name, std::vector<std::string>(1, value));
+        }
+    }
+}
+
+MarsRequest::MarsRequest(const eckit::message::Message& message) : MarsRequest("message") {
+    eckit::message::StringSetter<MarsRequest> setter(*this);
+    message.getMetadata(setter);
+}
+
+MarsRequest::MarsRequest(eckit::Stream& s, bool validate) : MarsDataCube(0) {
+    int size;
+
+    s >> verbName_;
+    verbName_ = eckit::StringTools::lower(verbName_);
+    MarsDataCube::verb(MarsLanguage::verb_or_default(verbName_));
+
+    s >> size;
+    ASSERT(size >= 0);
+    for (int i = 0; i < size; i++) {
+        std::string param;
+        int count;
+
+        s >> param;
+        param = eckit::StringTools::lower(param);
+        s >> count;
+        ASSERT(count >= 0);
+
+        std::vector<std::string> v;
+        v.reserve(count);
+
+        for (int k = 0; k < count; k++) {
+            std::string value;
+            s >> value;
+            v.push_back(std::move(value));
+        }
+
+        // a repeated parameter overrides the previous one
+        values(param, v);
+    }
+
+    if (validate) {
+        // every parameter must be a keyword of the language of the verb (UserError otherwise)
+        lang_ = &MarsLanguage::get(verbId());
+        std::vector<Parameter> all(begin(), end());
+        data_.clear();
+        for (auto& v : params_) {
+            v.clear();
+        }
+        for (auto& p : all) {
+            if (!p.typed()) {
+                auto type = lang_->type(MarsLanguage::keyword(p.name()));
+                if (!type) {
+                    throw eckit::UserError("Unknown type for parameter " + p.name());
+                }
+                p = Parameter(type.value().get(), p.values());
+            }
+            add(std::move(p));
+        }
+    }
+}
+
+MarsVerb MarsRequest::verbId() const {
+    if (verb_) {
+        return verb_;
+    }
+    throw eckit::UserError("Unknown verb " + verbName_);
+}
+
+void MarsRequest::verb(MarsVerb id) {
+    MarsDataCube::verb(id);
+    verbName_ = MarsLanguage::name(id);
+}
+void MarsRequest::verb(const std::string& name) {
+    verbName_ = eckit::StringTools::lower(name);
+    MarsDataCube::verb(MarsLanguage::verb_or_default(verbName_));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Parameters lookup
+
+const std::vector<Parameter>& MarsRequest::params(Category c) const {
+    ASSERT(c != Category::Unknown);
+    if (c == Category::Data) {
+        return data_;
+    }
+    return params_[static_cast<size_t>(c) - 1];
+}
+
+std::vector<Parameter>& MarsRequest::params(Category c) {
+    ASSERT(c != Category::Unknown);
+    if (c == Category::Data) {
+        return data_;
+    }
+    return params_[static_cast<size_t>(c) - 1];
+}
+
+void MarsRequest::add(Parameter&& p) {
+    // keywords unknown to the language (id 0) are stored as Category::Other
+    Category category = p.id() ? MarsLanguage::category(p.id()) : Category::Other;
+    params(category).push_back(std::move(p));
+}
+
+MarsRequest::Position MarsRequest::locate(MarsKeyword key) const {
+    if (!key) {
+        return {};
+    }
+
+    const Category category = MarsLanguage::category(key);
+    if (category == Category::Unknown) {
+        return {};
+    }
+
+    const auto& pp = params(category);
+    for (size_t i = 0; i < pp.size(); ++i) {
+        if (pp[i].id() == key) {
+            return {category, i};
+        }
+    }
+    return {};
+}
+
+MarsRequest::Position MarsRequest::locate(const std::string& name) const {
+    auto position = [this](const std::string& n) -> Position {
+        for (Category c = Category::Data; c < Category::Unknown;
+             c          = static_cast<Category>(static_cast<uint8_t>(c) + 1)) {
+            const auto& pp = params(c);
+            for (size_t i = 0; i < pp.size(); ++i) {
+                if (pp[i].name() == n) {
+                    return {c, i};
+                }
+            }
+        }
+        return {};
+    };
+
+    Position pos = position(name);
+    if (!pos) {
+        std::string lower = eckit::StringTools::lower(name);
+        if (lower != name) {
+            pos = position(lower);
+        }
+    }
+    return pos;
+}
+
+const Parameter* MarsRequest::find(MarsKeyword key) const {
+    Position pos = locate(key);
+    return pos ? &params(pos.category)[pos.index] : nullptr;
+}
+
+const Parameter* MarsRequest::find(const std::string& name) const {
+    Position pos = locate(name);
+    return pos ? &params(pos.category)[pos.index] : nullptr;
+}
+
+size_t MarsRequest::countValues(MarsKeyword key) const {
+    const Parameter* p = find(key);
+    return p ? p->count() : 0;
+}
+size_t MarsRequest::countValues(const std::string& name) const {
+    const Parameter* p = find(name);
+    return p ? p->count() : 0;
+}
+
+bool MarsRequest::has(MarsKeyword key) const {
+    return static_cast<bool>(locate(key));
+}
+bool MarsRequest::has(const std::string& name) const {
+    return static_cast<bool>(locate(name));
+}
+
+const std::vector<std::string>& MarsRequest::values(MarsKeyword key, bool emptyOk) const {
+    if (const Parameter* p = find(key)) {
+        return p->values();
+    }
+    if (emptyOk) {
+        static const std::vector<std::string> empty;
+        return empty;
+    }
+    throw eckit::UserError("No parameter called '" + (key ? MarsLanguage::name(key) : std::string{}) + "'");
+}
+const std::vector<std::string>& MarsRequest::values(const std::string& name, bool emptyOk) const {
+    if (const Parameter* p = find(name)) {
+        return p->values();
+    }
+    if (emptyOk) {
+        static const std::vector<std::string> empty;
+        return empty;
+    }
+    throw eckit::UserError("No parameter called '" + name + "'");
+}
+
+void MarsRequest::values(MarsKeyword key, const std::vector<std::string>& vals) {
+    ASSERT(key);
+    if (Position pos = locate(key)) {
+        params(pos.category)[pos.index].values(vals);
+    }
+    else {
+        add(makeParameter(verb_, key, vals));
+    }
+}
+void MarsRequest::values(const std::string& name, const std::vector<std::string>& vals) {
+    MarsKeyword key = MarsLanguage::keyword_or_default(name);
+    if (key) {
+        values(key, vals);
+    }
+    else if (Position pos = locate(name)) {
+        params(pos.category)[pos.index].values(vals);
+    }
+    else {
+        add(Parameter(key, name, vals));
+    }
+}
+void MarsRequest::values(MarsKeyword key, std::vector<std::string>&& vals) {
+    ASSERT(key);
+    if (Position pos = locate(key)) {
+        params(pos.category)[pos.index].values(std::move(vals));
+    }
+    else {
+        add(makeParameter(verb_, key, std::move(vals)));
+    }
+}
+void MarsRequest::values(const std::string& name, std::vector<std::string>&& vals) {
+    MarsKeyword key = MarsLanguage::keyword_or_default(name);
+    if (key) {
+        values(key, std::move(vals));
+    }
+    else if (Position pos = locate(name)) {
+        params(pos.category)[pos.index].values(std::move(vals));
+    }
+    else {
+        add(Parameter(key, name, std::move(vals)));
+    }
+}
+
+MarsDataCube MarsRequest::data() const {
+    return *this;
+}
+
+void MarsRequest::erase(MarsKeyword key) {
+    if (Position pos = locate(key)) {
+        auto& pp = params(pos.category);
+        pp.erase(pp.begin() + pos.index);
+    }
+}
+void MarsRequest::erase(const std::string& name) {
+    if (Position pos = locate(name)) {
+        auto& pp = params(pos.category);
+        pp.erase(pp.begin() + pos.index);
+    }
+}
+
+const std::string& MarsRequest::operator[](const std::string& name) const {
+    auto p = find(name);
+    if (!p) {
+        std::ostringstream oss;
+        oss << "Parameter '" << name << "' is undefined";
+        throw eckit::UserError(oss.str());
+    }
+    const std::vector<std::string>& c = p->values();
+    if (c.size() > 1) {
+        std::ostringstream oss;
+        oss << "Parameter '" << name << "' has more than one value";
+        throw eckit::UserError(oss.str());
+    }
+
+    return c[0];
+}
+
+size_t MarsRequest::size() const {
+    size_t count = MarsDataCube::size();
+    for (const auto& pp : params_) {
+        count += pp.size();
+    }
+    return count;
+}
+
+std::optional<std::reference_wrapper<const std::vector<std::string>>> MarsRequest::get(
+    const std::string& keyword) const {
+    const Parameter* p = find(keyword);
+    if (!p) {
+        return std::nullopt;
+    }
+    return std::cref(p->values());
+}
+
+std::vector<std::string> MarsRequest::params() const {
+    std::vector<std::string> out;
+    for (const auto& p : *this) {
+        out.push_back(p.name());
+    }
+    return out;
+}
+
+void MarsRequest::encode(eckit::Stream& s) const {
+    s << verb();
+
+    int numParams = size();
+    s << numParams;
+
+    for (const auto& p : *this) {
+        s << p.name();
+
+        const std::vector<std::string>& vv = p.values();
+        int numValues                      = vv.size();  // For backward compatibility
+        s << numValues;
+
+        for (const auto& v : vv) {
+            s << v;
+        }
+    }
+}
+
+void MarsRequest::print(std::ostream& s) const {
+    dump(s, "", "", true);
+}
+
+void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool printVerb) const {
+    if (printVerb) {
+        s << verb() << ',';
+    }
+    std::string separator = "";
+    if (size()) {
+        s << separator << cr << tab;
+        separator = ",";
+
+        int a = 0;
+        for (const auto& p : *this) {
+            if (a++) {
+                s << ',' << cr << tab;
+            }
+
+            int b = 0;
+            s << p.name() << "=";
+
+            for (const auto& v : p.values()) {
+                if (b++) {
+                    s << '/';
+                }
+                MarsParser::quoted(s, v);
+            }
+        }
+    }
+
+    s << cr << cr;
+}
+
+void MarsRequest::setValuesTyped(const Type* type, const std::vector<std::string>& values) {
+    ASSERT(type);
+    MarsKeyword key = type->id();
+    Position pos    = key ? locate(type->id()) : locate(type->name());
+    Parameter p(*type, values);
+    if (pos && pos.category == MarsLanguage::category(p.id())) {
+        params(pos.category)[pos.index] = std::move(p);
+        return;
+    }
+    // the category changes when an untyped parameter becomes typed
+    if (pos) {
+        auto& pp = params(pos.category);
+        pp.erase(pp.begin() + pos.index);
+    }
+    add(std::move(p));
+}
+
+void MarsRequest::setValuesTyped(const Type& type, const std::vector<std::string>& values) {
+    setValuesTyped(&type, values);
+}
+
+void MarsRequest::json(eckit::JSON& s, bool array) const {
+    s.startObject();
+    for (const auto& p : *this) {
+        s << p.name();
+
+        const std::vector<std::string>& vv = p.values();
+
+        bool list = vv.size() != 1 || (array && p.multiple());
+        if (list) {
+            s.startList();
+        }
+        for (const auto& v : vv) {
+            s << v;
+        }
+        if (list) {
+            s.endList();
+        }
+    }
+    s.endObject();
 }
 
 // recursively expand along keys in expvalues
-void expand_along_keys(const MarsRequest& prototype,
-                       const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
-                       std::vector<MarsRequest>& requests, size_t i) {
+static void expand_along_keys(const MarsRequest& prototype,
+                              const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
+                              std::vector<MarsRequest>& requests, size_t i) {
 
     if (i == expvalues.size()) {
         requests.push_back(prototype);
         return;
     }
 
-    const std::string& key                 = expvalues[i].first;
-    const std::vector<std::string>& values = expvalues[i].second;
+    const auto& [key, values] = expvalues[i];
 
     MarsRequest req(prototype);
-    for (auto& value : values) {
+    for (const auto& value : values) {
         req.setValue(key, value);
         expand_along_keys(req, expvalues, requests, i + 1);
     }
@@ -415,10 +680,11 @@ std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys
         std::vector<std::string> v = values(key, true);  // ok to be empty
         LOG_DEBUG_LIB(LibMetkit) << "splitting along key " << key << " n values " << v.size() << " values " << v
                                  << std::endl;
-        if (v.empty())
+        if (v.empty()) {
             continue;
+        }
         n *= v.size();
-        expvalues.emplace_back(std::make_pair(key, v));
+        expvalues.emplace_back(key, v);
     }
 
     std::vector<MarsRequest> requests;
@@ -434,25 +700,23 @@ std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys
     return requests;
 }
 
-std::vector<MarsRequest> MarsRequest::split(const std::string& key) const {
-    std::vector<std::string> keys = {key};
-    return split(keys);
-}
-
-void MarsRequest::merge(const MarsRequest& other) {
-    for (auto& param : params_) {
-        LOG_DEBUG_LIB(LibMetkit) << "Merging parameter " << param << std::endl;
-        auto it = other.find(param.name());
-        if (it != other.params_.end())
-            param.merge(*it);
-    }
-}
-
 MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
-    MarsRequest req(verb_);
-    for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
+    MarsRequest req(verb());
+
+    for (auto it = begin(); it != end(); it++) {
         if (keys.find(it->name()) != keys.end()) {
-            req.params_.push_back(*it);
+            if (it->typed()) {
+                req.setValuesTyped(&it->type(), it->values());
+            }
+            else {
+                MarsKeyword key = MarsLanguage::keyword_or_default(it->name());
+                if (key) {
+                    req.values(key, it->values());
+                }
+                else {
+                    req.values(it->name(), it->values());
+                }
+            }
         }
     }
     return req;
@@ -463,62 +727,26 @@ MarsRequest MarsRequest::extract(const std::string& category) const {
                    : category == "derived"  ? Category::Derived
                    : category == "postproc" ? Category::PostProc
                    : category == "sink"     ? Category::Sink
-                                            : Category::None;
+                                            : Category::Other;
 
     MarsRequest req(verb_);
-    for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
-        if (it->type().category() == cat) {
-            req.params_.push_back(*it);
-        }
+    for (const auto& p : params(cat)) {
+        req.params(cat).push_back(p);
     }
     return req;
 }
 
-void MarsRequest::verb(const std::string& verb) {
-    verb_ = verb;
+void MarsRequest::md5(eckit::MD5& md5) const {
+    std::ostringstream oss;
+    oss << *this;
+    md5.add(oss.str());
 }
 
 bool MarsRequest::operator<(const MarsRequest& other) const {
-    if (verb_ != other.verb_) {
-        return verb_ < other.verb_;
+    if (verb() != other.verb()) {
+        return verb() < other.verb();
     }
-    return params_ < other.params_;
-}
-
-
-void MarsRequest::setValue(const std::string& name, const char* value) {
-    std::string v(value);
-    setValue(name, v);
-}
-
-
-const std::string& MarsRequest::verb() const {
-    return verb_;
-}
-
-std::list<Parameter>::const_iterator MarsRequest::find(const std::string& name) const {
-    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
-        if ((*i).name() == name) {
-            return i;
-        }
-    }
-    return params_.end();
-}
-
-std::list<Parameter>::iterator MarsRequest::find(const std::string& name) {
-    for (std::list<Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
-        if ((*i).name() == name) {
-            return i;
-        }
-    }
-    return params_.end();
-}
-
-void MarsRequest::erase(const std::string& name) {
-    auto it = find(name);
-    if (it != params_.end()) {
-        params_.erase(it);
-    }
+    return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
 }
 
 std::string MarsRequest::asString() const {
@@ -536,9 +764,68 @@ std::vector<MarsRequest> MarsRequest::parse(std::istream& in, bool strict) {
 
 MarsRequest MarsRequest::parse(const std::string& s, bool strict) {
     std::istringstream in(s);
-    std::vector<MarsRequest> v = parse(in, strict);
+    auto v = parse(in, strict);
     ASSERT(v.size() == 1);
     return v[0];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool MarsRequest::filter(const MarsRequest& filter) {
+    std::vector<std::vector<Parameter>*> list = {&data_};
+    for (auto& pp : params_) {
+        list.push_back(&pp);
+    }
+    for (auto* params : list) {
+        for (auto& p : *params) {
+            if (p.name() == "date") {
+                if (const Parameter* fp = filter.find("day")) {
+                    if (!p.filter("day", fp->values())) {
+                        return false;
+                    }
+                }
+            }
+
+            const Parameter* fp = filter.find(p.name());
+            if (!fp) {
+                continue;
+            }
+
+            if (!p.filter(fp->values())) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool MarsRequest::matches(const MarsRequest& other) const {
+    for (const auto& p : other) {
+        const Parameter* mp = find(p.name());
+        if (!mp) {
+            return false;
+        }
+
+        if (!mp->matches(p.values())) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void MarsRequest::merge(const MarsRequest& other) {
+    std::vector<std::vector<Parameter>*> list = {&data_};
+    for (auto& pp : params_) {
+        list.push_back(&pp);
+    }
+    for (auto* params : list) {
+        for (auto& param : *params) {
+            LOG_DEBUG_LIB(LibMetkit) << "Merging parameter " << param.name() << std::endl;
+            if (const Parameter* p = other.find(param.name())) {
+                param.merge(*p);
+            }
+        }
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

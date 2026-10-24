@@ -241,23 +241,34 @@ public:
 
     MarsRequest split(MarsRequest& request) {
         const MarsLanguage& language = MarsLanguage::get(request.verb());
-        MarsRequest& inherited       = inherited_.try_emplace(language.verb(), language.verb()).first->second;
+        MarsRequest& inherited = inherited_.try_emplace(request.verb(), MarsRequest{request.verb()}).first->second;
 
         for (const auto& name : request.params()) {
-            const std::string key = StringTools::lower(name);
-            if (language.isKeyword(key)) {
+            const std::string keyName = StringTools::lower(name);
+            MarsKeyword key           = MarsLanguage::keyword_or_default(keyName);
+            if (key && language.type(key) != std::nullopt) {
                 continue;
             }
 
-            const std::vector<std::string> values = request.values(name);
-            request.unsetValues(name);
+            const std::vector<std::string>& values = request.values(name);
 
             if (values.size() == 1 && StringTools::lower(values.front()) == "off") {
-                inherited.unsetValues(key);
+                if (key) {
+                    inherited.erase(key);
+                }
+                else {
+                    inherited.unsetValues(keyName);
+                }
             }
             else {
-                inherited.values(key, values);
+                if (key) {
+                    inherited.values(key, std::move(values));
+                }
+                else {
+                    inherited.values(keyName, std::move(values));
+                }
             }
+            request.erase(name);
         }
 
         return inherited;
@@ -363,7 +374,7 @@ void ParseRequest::process(const eckit::PathName& path) {
             const MarsRequest extra = passThrough.split(fields);
 
             for (auto& r : convertRequest(expand.expand(fields), converter)) {
-                for (const auto& param : extra.parameters()) {
+                for (const auto& param : extra) {
                     r.values(param.name(), param.values());
                 }
                 v.push_back(std::move(r));

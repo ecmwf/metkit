@@ -21,11 +21,11 @@ using ::eckit::BadTime;
 using ::eckit::BadValue;
 using ::eckit::Value;
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    MarsLanguage::get("retrieve").type(name)->expand(values);
+    MarsLanguage::get("retrieve").typeRef(name).expand(values);
     EXPECT_EQUAL(values.size(), expected.size());
     EXPECT_EQUAL(expected, values);
 }
@@ -37,8 +37,10 @@ void checkExpansion(const Type& tt, const std::string& value, const std::string&
 
 CASE("Test TypeTime expansions") {
 
-    TypeTime ttime("time", Value());
-    Type& tt(ttime);
+    std::string typeName = "time";
+
+    auto ttime = std::make_shared<TypeTime>(typeName, MarsLanguage::keyword("time"), Value());
+    Type& tt(*ttime);
 
     // 1 and 2-digit times
     checkExpansion(tt, "0", "0000");
@@ -115,7 +117,7 @@ CASE("Test TypeTime expansions") {
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 

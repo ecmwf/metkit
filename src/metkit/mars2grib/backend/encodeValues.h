@@ -74,8 +74,8 @@ using Span = metkit::codes::Span<T>;
 /// @tparam OptDict_t  Type of the dictionary containing auxiliary metadata
 ///
 /// @param[in]     values  Non-owning span of numeric values (Payload)
-/// @param[in]     misc    Dictionary containing bitmap and missing value keys
-/// @param[in]     opt     Dictionary containing options
+/// @param[in]     misc    SymbolTable containing bitmap and missing value keys
+/// @param[in]     opt     SymbolTable containing options
 /// @param[in,out] handle  The GRIB handle to be updated
 ///
 /// @return The updated GRIB handle containing the encoded payload
@@ -175,8 +175,8 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
 ///
 /// @param[in]     values  Non-owning span of numeric values (Payload)
 /// @param[in]     mars    Read-only MARS dictionary
-/// @param[in]     misc    Dictionary containing bitmap and missing value keys
-/// @param[in]     opt     Dictionary containing options
+/// @param[in]     misc    SymbolTable containing bitmap and missing value keys
+/// @param[in]     opt     SymbolTable containing options
 /// @param[in,out] handle  The GRIB handle to be updated
 ///
 /// @return The updated GRIB handle containing the encoded payload

@@ -8,8 +8,22 @@
 
 #pragma once
 
+#include <atomic>
+#include <cstdint>
+#include <fstream>
+#include <functional>
+#include <map>
 #include <mutex>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "eckit/value/Value.h"
+
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
@@ -18,11 +32,13 @@ namespace metkit::mars {
 
 class TypeEnum : public Type {
 
-public:  // methods
+public:
 
-    TypeEnum(const std::string& name, const eckit::Value& settings);
-
+    TypeEnum(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeEnum(const std::string& type, MarsKeyword key, MMapFileReader& file);
     ~TypeEnum() noexcept override = default;
+
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
@@ -37,7 +53,7 @@ private:  // methods
 
     std::vector<std::string> parseEnumValue(const eckit::Value& val, bool allowDuplicates = false) const;
 
-    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates) const;
+    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates, bool canonical) const;
     uint16_t parseValueNames(const eckit::Value& names, bool allowDuplicates) const;
 
     void readValuesFile() const;
@@ -46,12 +62,12 @@ private:  // members
 
     std::string valuesFile_;
 
-    bool uppercase_         = false;
-    mutable bool hasGroups_ = false;
     mutable std::vector<std::pair<std::string, std::vector<std::string>>> groups_;
     mutable std::map<std::string, uint16_t> values_;  // map of acceptable values (included aliases)
 
     mutable std::once_flag readValues_;
+    // set when the values file is lazily loaded, while other threads may query it
+    mutable std::atomic<bool> hasGroups_{false};
 };
 
 //----------------------------------------------------------------------------------------------------------------------
