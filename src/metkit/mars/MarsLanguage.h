@@ -87,12 +87,13 @@ public:  // methods
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
-    std::optional<std::reference_wrapper<const Type>> type(MarsKeyword key) const;
+    std::optional<std::reference_wrapper<const Type>> type(MarsKeyword key) const noexcept;
 
     [[deprecated("use typeRef returning Type reference")]]
     const Type* type(const std::string& name) const;
     const Type& typeRef(const std::string& name) const;
 
+    [[deprecated("use category(MarsKeyword) instead")]]
     bool isData(const std::string& keyword) const;
 
 public:  // class methods

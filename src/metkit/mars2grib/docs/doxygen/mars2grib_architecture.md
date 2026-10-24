@@ -13,7 +13,7 @@ No additional dictionaries are required or assumed.
 All information required to determine the encoded product structure is derived
 from the inputs listed above and from internal compile-time rules.
 
-@section arch_mars_dictionary The MARS SymbolTable
+@section arch_mars_dictionary The MARS Dictionary
 
 The MARS dictionary is the primary semantic input of the Encoder.
 

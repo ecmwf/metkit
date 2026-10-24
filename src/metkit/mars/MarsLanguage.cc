@@ -175,7 +175,7 @@ bool MarsLanguage::loadBinary() {
         contexts_.clear();
     }
     langFile_.reset();  // releases the mmap file
-    return false;
+    return false;       // failed to load binary file - fall back to YAML parsing
 }
 
 void MarsLanguage::init() {
@@ -212,7 +212,7 @@ void MarsLanguage::init() {
     keywords_->add(std::string{"day"});  // keyword required for date filtering by day
     categories_.push_back(Category::Derived);
 
-    verbs_->add(std::string{"verb"});
+    verbs_->add(std::string{"verb"});     // used by marsgen tool (placeholder for archive/retrieve)
     verbs_->add(std::string{"environ"});  // sent by mars-client to complement a request
 
     auto emptyValue = eckit::Value{};
@@ -717,7 +717,7 @@ public:
 
 const std::string TypeHidden::typeName{"hidden"};
 
-std::optional<std::reference_wrapper<const Type>> MarsLanguage::type(MarsKeyword key) const {
+std::optional<std::reference_wrapper<const Type>> MarsLanguage::type(MarsKeyword key) const noexcept {
     auto it = types_.find(key);
     if (it != types_.end()) {
         return *it->second;

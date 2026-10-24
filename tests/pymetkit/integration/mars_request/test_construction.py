@@ -8,7 +8,7 @@ import pytest
 from pymetkit import MarsRequest
 
 # ---------------------------------------------------------------------------
-# MarsVerb and selection sources
+# Verb and selection sources
 # ---------------------------------------------------------------------------
 
 

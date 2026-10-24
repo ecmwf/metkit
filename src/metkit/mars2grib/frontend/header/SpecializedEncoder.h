@@ -103,10 +103,10 @@
 /// Template parameters
 /// -----------------------------------------------------------------------------
 ///
-/// @tparam MarsDict_t  SymbolTable type containing MARS metadata
-/// @tparam ParDict_t   SymbolTable type containing parameter metadata
-/// @tparam OptDict_t   SymbolTable type containing encoding options
-/// @tparam OutDict_t   SymbolTable type representing the GRIB output
+/// @tparam MarsDict_t  Dictionary type containing MARS metadata
+/// @tparam ParDict_t   Dictionary type containing parameter metadata
+/// @tparam OptDict_t   Dictionary type containing encoding options
+/// @tparam OutDict_t   Dictionary type representing the GRIB output
 ///
 /// All dictionary types are expected to satisfy the `dict_traits` interface
 /// used throughout mars2grib.
