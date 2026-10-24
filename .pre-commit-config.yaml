@@ -15,6 +15,7 @@ repos:
     rev: 06daf31318d5a47f14e5999f7711a813baad27cd
     hooks:
       - id: check-ci-approval
+      - id: check-ci-result
       
   # Off until the tree is cleaned up; the counts are what each would flag today.
   # - repo: https://github.com/astral-sh/ruff-pre-commit
