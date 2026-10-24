@@ -87,8 +87,9 @@ long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t
             const auto klass  = get_or_throw<std::string>(mars, "class");
             const auto stream = get_or_throw<std::string>(mars, "stream");
             const auto type   = get_or_throw<std::string>(mars, "type");
-            if (type == "cf" || ((klass == "od" && stream == "oper" && type == "fc"))) {
-                return 0L;  // Control forecast
+            if (type == "cf" ||
+                (klass == "od" && stream == "oper" && (type == "fc" || type == "gbf" || type == "gwt"))) {
+                return 0L;  // Control forecast (oper gbf/gwt: its ecPoint)
             }
             return get_or_throw<long>(mars, "number");
         }();

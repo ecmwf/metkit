@@ -67,8 +67,8 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         // Control forecasts carry no MARS `number`; it is implied to be 0, and they are encoded as ensemble member 0
         // rather than as deterministic fields
-        // Note: class=od,stream=oper,type=fc is a control forecast
-        if (type == "cf" || (klass == "od" && stream == "oper" && type == "fc")) {
+        // Note: class=od,stream=oper,type=fc is a control forecast, and so is its ecPoint (type=gbf/gwt)
+        if (type == "cf" || (klass == "od" && stream == "oper" && (type == "fc" || type == "gbf" || type == "gwt"))) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
 

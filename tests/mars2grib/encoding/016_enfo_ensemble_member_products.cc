@@ -138,6 +138,27 @@ CASE("enfo gbf of the control member is unperturbed") {
     run([] { checkEcPoint("gbf", 0, 73); });
 }
 
+CASE("oper gbf is the ecPoint of the control forecast: member 0, forecast products (PDT 73)") {
+    run([] {
+        auto mars = ecPointRequest("gbf", 0);
+        mars.set("stream", "oper");
+        mars.remove("number");
+
+        auto encoder      = metkit::mars2grib::Mars2Grib();
+        const auto handle = encoder.encode(std::vector<double>(200, 0.001), mars, ensembleMisc());
+
+        EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 73);
+        EXPECT_EQUAL(handle->getString("mars.stream"), "oper");
+        EXPECT_EQUAL(handle->getString("mars.type"), "gbf");
+        EXPECT_EQUAL(handle->getLong("typeOfProcessedData"), 1);
+        EXPECT_EQUAL(handle->getLong("typeOfEnsembleForecast"), 5);
+        EXPECT_EQUAL(handle->getLong("perturbationNumber"), 0);
+        EXPECT_EQUAL(handle->getLong("numberOfForecastsInEnsemble"), 51);
+        EXPECT_EQUAL(handle->getLong("typeOfGeneratingProcess"), 13);
+        EXPECT_EQUAL(handle->getLong("typeOfPostProcessing"), 206);
+    });
+}
+
 CASE("enfo icp keeps typeOfEnsembleForecast and typeOfProcessedData missing (PDT 1)") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
