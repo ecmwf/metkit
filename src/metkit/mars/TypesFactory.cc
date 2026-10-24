@@ -22,7 +22,7 @@ TypesFactory::~TypesFactory() {
     TypesRegistry::instance().remove(name_);
 }
 
-std::shared_ptr<Type> TypesRegistry::build(MarsKeyword keyword, const eckit::Value& settings) {
+std::unique_ptr<Type> TypesRegistry::build(MarsKeyword keyword, const eckit::Value& settings) {
     std::string name;
 
     if (settings["type"].isList()) {
@@ -44,10 +44,10 @@ std::shared_ptr<Type> TypesRegistry::build(MarsKeyword keyword, const eckit::Val
         throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
     }
 
-    return std::shared_ptr<Type>((*j).second->make(keyword, settings));
+    return std::unique_ptr<Type>((*j).second->make(keyword, settings));
 }
 
-std::shared_ptr<Type> TypesRegistry::build(const std::string& name, MarsKeyword key, MemFile& file) {
+std::unique_ptr<Type> TypesRegistry::build(const std::string& name, MarsKeyword key, MMapFileReader& file) {
 
     eckit::AutoLock<eckit::Mutex> lock(mutex_);
 
@@ -61,7 +61,7 @@ std::shared_ptr<Type> TypesRegistry::build(const std::string& name, MarsKeyword 
         throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
     }
 
-    return std::shared_ptr<Type>((*j).second->make(key, file));
+    return std::unique_ptr<Type>((*j).second->make(key, file));
 }
 
 void TypesRegistry::list(std::ostream& s) {
@@ -81,11 +81,11 @@ void TypesRegistry::list(std::ostream& s) {
     s << "]";
 }
 
-std::shared_ptr<Type> TypesFactory::build(MarsKeyword key, const eckit::Value& val) {
+std::unique_ptr<Type> TypesFactory::build(MarsKeyword key, const eckit::Value& val) {
     return TypesRegistry::instance().build(key, val);
 }
 
-std::shared_ptr<Type> TypesFactory::build(const std::string& name, MarsKeyword key, MemFile& file) {
+std::unique_ptr<Type> TypesFactory::build(const std::string& name, MarsKeyword key, MMapFileReader& file) {
     return TypesRegistry::instance().build(name, key, file);
 }
 

@@ -2,17 +2,16 @@
 
 set -uex
 
-[ -e outfile.compare ] && rm outfile.compare
-
 MARSGEN="@CMAKE_BINARY_DIR@/bin/mars-archive-script"
 GENFILE="@CMAKE_CURRENT_SOURCE_DIR@/genfile"
 OUTFILE="outfile.compare"
 CHECKFILE="checkfile.compare"
 
-$MARSGEN < $GENFILE > $OUTFILE
+rm -f "$OUTFILE"
+"$MARSGEN" < "$GENFILE" > "$OUTFILE"
 
-cat << EOF > $CHECKFILE
-\$RETRIEVE_MARS << @
+cat <<'EOF' > "$CHECKFILE"
+$RETRIEVE_MARS << @
 
 retrieve,
 	class=EA,
@@ -31,11 +30,11 @@ retrieve,
 
 @
 
-\$RETRIEVE_COMPLETE
+$RETRIEVE_COMPLETE
 
-\$UNBLOCK mars.source.0 mars.archive.0
+$UNBLOCK mars.source.0 mars.archive.0
 
-\$ARCHIVE_MARS << @
+$ARCHIVE_MARS << @
 
 archive,
 	class=EA,
@@ -54,7 +53,7 @@ archive,
 
 @
 
-\$ARCHIVE_COMPLETE
+$ARCHIVE_COMPLETE
 EOF
 
-cmp $CHECKFILE $OUTFILE
+cmp "$CHECKFILE" "$OUTFILE"

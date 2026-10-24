@@ -20,7 +20,7 @@ class TypeRegex : public Type {
 public:  // methods
 
     TypeRegex(const std::string& type, MarsKeyword key, const eckit::Value& val);
-    TypeRegex(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeRegex(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     ~TypeRegex() noexcept override = default;
 

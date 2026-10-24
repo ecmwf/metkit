@@ -8,7 +8,7 @@
 #include <ostream>
 #include <string>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 namespace eckit {
 
@@ -18,7 +18,7 @@ class Stream;
 
 namespace metkit::mars {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /// Compact (uint8_t) identifier of a MARS verb (e.g. retrieve, archive), resolved by name through MarsLanguage.
 /// The value 0 means "unknown". Implicitly convertible to its underlying integer.
@@ -47,16 +47,17 @@ public:  // operators
     bool operator<(const MarsVerb& other) const { return value_ < other.value_; }
 
     operator value_t() const { return value_; }
+    operator std::string_view() const;
 
 private:  // members
 
     value_t value_;
 };
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 template <>
 struct std::hash<metkit::mars::MarsVerb> {

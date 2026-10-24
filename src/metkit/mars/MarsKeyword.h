@@ -8,19 +8,20 @@
 #include <ostream>
 #include <string>
 
-//-----------------------------------------------------------------------------
-
-namespace eckit {
-
-class Stream;
-
-}
-
-//-----------------------------------------------------------------------------
-
 namespace metkit::mars {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+enum class Category : uint8_t {
+    Data = 0,
+    Derived,
+    PostProc,
+    Sink,
+    Other,  // for keywords/types not defined in the MarsLanguage
+    Unknown
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /// Compact (uint16_t) identifier of a MARS keyword (e.g. class, stream, date), resolved by name through MarsLanguage.
 /// The value 0 means "unknown". Implicitly convertible to its underlying integer.
@@ -32,6 +33,8 @@ public:  // types
 public:  // methods
 
     friend std::ostream& operator<<(std::ostream& s, const MarsKeyword& x);
+
+    // -- Contructors
 
     MarsKeyword(value_t v = 0) : value_(v) {}
     explicit MarsKeyword(const std::string& s);
@@ -56,11 +59,11 @@ private:  // members
     value_t value_;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 template <>
 struct std::hash<metkit::mars::MarsKeyword> {

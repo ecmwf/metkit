@@ -23,7 +23,7 @@ TypeInteger::TypeInteger(const std::string& type, MarsKeyword key, const eckit::
     }
 }
 
-TypeInteger::TypeInteger(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
+TypeInteger::TypeInteger(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {
     // check if the file contains a range
     uint8_t hasRange = file.read8();
     if (hasRange) {
@@ -132,7 +132,7 @@ public:
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, settings);
         flags_[1] = true;
     }
-    TypeToByListInt(const std::string& name, MarsKeyword key, MemFile& file) : TypeInteger(name, key, file) {
+    TypeToByListInt(const std::string& name, MarsKeyword key, MMapFileReader& file) : TypeInteger(name, key, file) {
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, file);
         flags_[1] = true;
     }

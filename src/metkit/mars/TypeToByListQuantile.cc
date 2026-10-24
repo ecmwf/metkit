@@ -9,9 +9,10 @@
 #include "eckit/utils/Tokenizer.h"
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Quantile.h"
-#include "metkit/mars/Serialize.h"
+#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -52,7 +53,7 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string& type, MarsKeyword 
     flags_[1] = true;
 }
 
-TypeToByListQuantile::TypeToByListQuantile(const std::string& type, MarsKeyword key, MemFile& file) :
+TypeToByListQuantile::TypeToByListQuantile(const std::string& type, MarsKeyword key, MMapFileReader& file) :
     Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, file);
     flags_[1] = true;

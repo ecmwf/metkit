@@ -60,7 +60,7 @@ public:
 
     virtual void write(std::ofstream& file) const = 0;
 
-    static std::unique_ptr<ContextRule> parse(MemFile& file);
+    static std::unique_ptr<ContextRule> parse(MMapFileReader& file);
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
         r.print(s);
@@ -150,7 +150,7 @@ class Context {
 public:
 
     Context(size_t id, const eckit::Value& c);
-    Context(size_t id, MemFile& file);
+    Context(size_t id, MMapFileReader& file);
 
     size_t id() const { return id_; }
 
@@ -190,29 +190,16 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-enum class Category : uint8_t {
-    None = 0,
-    Data,
-    Derived,
-    PostProc,
-    Sink
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
 class TypesFactory;
 
-class Type : public std::enable_shared_from_this<Type> {
+class Type {  // : public std::enable_shared_from_this<Type> {
 
 public:  // methods
 
     Type(const std::string& type, MarsKeyword key, const eckit::Value& settings);
-    Type(const std::string& type, MarsKeyword key, MemFile& file);
+    Type(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     virtual ~Type() = default;
-
-    std::shared_ptr<Type> getptr() { return shared_from_this(); }
-    std::shared_ptr<const Type> getptr() const { return shared_from_this(); }
 
     virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
     void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;
@@ -237,8 +224,6 @@ public:  // methods
 
     MarsKeyword id() const { return id_; }
     const std::string& name() const { return name_; }
-
-    const Category& category() const;
 
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
 
@@ -278,8 +263,6 @@ protected:  // members
     // flags_[3] --> uppercase (enum/regex)
     // flags_[4] --> firstRule (param)
     // flags_[5] --> hasGroups: only meaningful in the binary file, use hasGroups() at runtime
-
-    Category category_;
 
     std::list<std::pair<std::reference_wrapper<const Context>, std::vector<std::string>>> defaults_;
     std::list<std::pair<std::reference_wrapper<const Context>, std::vector<std::string>>> sets_;

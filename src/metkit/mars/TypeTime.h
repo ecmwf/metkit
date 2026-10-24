@@ -20,7 +20,7 @@ class TypeTime : public Type {
 public:  // methods
 
     TypeTime(const std::string& type, MarsKeyword key, const eckit::Value& val);
-    TypeTime(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeTime(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     ~TypeTime() noexcept override = default;
 

@@ -35,10 +35,11 @@
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/hypercube/HyperCube.h"
+#include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Parameter.h"
-#include "metkit/mars/Serialize.h"
+#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -94,12 +95,13 @@ void ExpansionContext::unset(MarsKeyword key) {
 // static members of MarsLanguage
 std::unique_ptr<SymbolTable<MarsVerb>> MarsLanguage::verbs_{};
 std::unique_ptr<SymbolTable<MarsKeyword>> MarsLanguage::keywords_{};
+std::vector<Category> MarsLanguage::categories_{};
 MarsKeyword MarsLanguage::maxDataKeyword_ = 0;
 std::shared_mutex MarsLanguage::contextsMutex_;
 std::map<MarsVerb, size_t> MarsLanguage::langOffsets_{};
 std::set<Context*, ContextPtrComparator> MarsLanguage::contextsSet_{};
 std::vector<std::unique_ptr<Context>> MarsLanguage::contexts_{};
-MemFile MarsLanguage::langFile_;
+std::unique_ptr<MMapFileReader> MarsLanguage::langFile_{};
 
 void MarsLanguage::loadYaml() {
     static std::once_flag loaded;
@@ -126,28 +128,28 @@ bool MarsLanguage::loadBinary() {
     }
 
     try {
-        langFile_ = MemFile{languageBinFile.localPath()};
+        langFile_ = std::make_unique<MMapFileReader>(languageBinFile.localPath());
 
-        std::string header{langFile_.readString(4)};
-        uint16_t version = langFile_.read16();
+        std::string header{langFile_->readString(4)};
+        uint16_t version = langFile_->read16();
 
         LOG_DEBUG_LIB(LibMetkit) << "Reading language binary file header: " << header << " version: " << version
                                  << std::endl;
 
         if ("LANG" == header && version == LibMetkit::binaryFilesVersion()) {
 
-            readDictionaries(langFile_);
+            readDictionaries(*langFile_);
 
-            uint8_t numVerbs = langFile_.read8();
+            uint8_t numVerbs = langFile_->read8();
             for (uint8_t u = 0; u < numVerbs; ++u) {
-                MarsVerb vv     = langFile_.read8();
-                uint32_t offset = langFile_.read32();
+                MarsVerb vv     = langFile_->read8();
+                uint32_t offset = langFile_->read32();
                 langOffsets_.emplace(vv, offset);
             }
             ASSERT(langOffsets_.size() == numVerbs);
 
             // the contexts follow the verb offsets table and are shared by all the languages
-            readContexts(langFile_);
+            readContexts(*langFile_);
 
             return true;
         }
@@ -164,6 +166,7 @@ bool MarsLanguage::loadBinary() {
     // do not leave a half-loaded state behind: the YAML parsing below starts from scratch
     verbs_.reset();
     keywords_.reset();
+    categories_.clear();
     maxDataKeyword_ = 0;
     langOffsets_.clear();
     {
@@ -171,7 +174,7 @@ bool MarsLanguage::loadBinary() {
         contextsSet_.clear();
         contexts_.clear();
     }
-    langFile_ = MemFile{};  // releases the mapping
+    langFile_.reset();  // releases the mmap file
     return false;
 }
 
@@ -198,17 +201,19 @@ void MarsLanguage::init() {
         }
     }
     keywords_ = std::make_unique<SymbolTable<MarsKeyword>>();
+    categories_.push_back(Category::Other);  // keyword 0
     keywords_->add(std::string{"_verb"});
+    categories_.push_back(Category::Other);  // for "_verb"
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
         keywords_->add(a);
+        categories_.push_back(Category::Data);
     }
     maxDataKeyword_ = keywords_->size();
-    keywords_->add(std::string{"day"});
-    keywords_->add(std::string{"output"});
-    keywords_->add(std::string{"pseudodate"});
+    keywords_->add(std::string{"day"});  // keyword required for date filtering by day
+    categories_.push_back(Category::Derived);
 
     verbs_->add(std::string{"verb"});
-    verbs_->add(std::string{"environ"});
+    verbs_->add(std::string{"environ"});  // sent by mars-client to complement a request
 
     auto emptyValue = eckit::Value{};
     addContext(emptyValue);
@@ -217,11 +222,21 @@ void MarsLanguage::init() {
 void MarsLanguage::writeDictionaries(std::ofstream& file) {
     verbs_->write(file);
     keywords_->write(file);
+    write16(file, categories_.size());
+    for (const auto& category : categories_) {
+        write8(file, static_cast<uint8_t>(category));
+    }
     write16(file, maxDataKeyword_);
 }
-void MarsLanguage::readDictionaries(MemFile& file) {
-    verbs_          = std::make_unique<SymbolTable<MarsVerb>>(file);
-    keywords_       = std::make_unique<SymbolTable<MarsKeyword>>(file);
+void MarsLanguage::readDictionaries(MMapFileReader& file) {
+    verbs_                = std::make_unique<SymbolTable<MarsVerb>>(file);
+    keywords_             = std::make_unique<SymbolTable<MarsKeyword>>(file);
+    size_t categoriesSize = file.read16();
+    categories_.clear();
+    categories_.reserve(categoriesSize);
+    for (size_t i = 0; i < categoriesSize; ++i) {
+        categories_.push_back(static_cast<Category>(file.read8()));
+    }
     maxDataKeyword_ = file.read16();
 }
 
@@ -231,7 +246,7 @@ void MarsLanguage::writeContexts(std::ofstream& file) {
         context->write(file);
     }
 }
-void MarsLanguage::readContexts(MemFile& file) {
+void MarsLanguage::readContexts(MMapFileReader& file) {
     size_t size = file.read16();
     for (size_t i = 0; i < size; ++i) {
         auto context = std::make_unique<Context>(i, file);
@@ -276,13 +291,13 @@ void MarsLanguage::parseModifier(ModifierType typ, const Context& ctx, size_t ma
     }
     for (size_t j = 0; j < keys.size(); ++j) {
         std::string keyStr = keys[j];
-        MarsKeyword key    = keywords_->symbol(keyStr, false);
+        MarsKeyword key    = keywords_->symbol_or_default(keyStr);
         if (key) {  // a keyword in the modifier might apply only to a language for another verb
             keyStr = keywords_->name(key);
 
             auto it = types_.find(key);
             if (it != types_.end()) {
-                ASSERT(it->second->category() != Category::Data || maxIndex <= key);
+                ASSERT(categories_[key] != Category::Data || maxIndex <= key);
 
                 if (typ == ModifierType::UNSET) {
                     it->second->unset(ctx);
@@ -343,7 +358,7 @@ MarsLanguage::MarsLanguage(MarsVerb verb) : verb_(verb) {
     parse(verb_);
 }
 
-MarsLanguage::MarsLanguage(MarsVerb verb, MemFile& file) {
+MarsLanguage::MarsLanguage(MarsVerb verb, MMapFileReader& file) {
     pthread_once(&once, initLanguage);
 
     auto offset = langOffsets_.find(verb);
@@ -356,8 +371,7 @@ MarsLanguage::MarsLanguage(MarsVerb verb, MemFile& file) {
     for (uint16_t i = 0; i < numTypes; ++i) {
         std::string typeName{file.readString()};
         MarsKeyword keyword = file.read16();
-        auto type           = TypesFactory::build(typeName, keyword, file);
-        types_.emplace(keyword, type);
+        types_.emplace(keyword, TypesFactory::build(typeName, keyword, file));
     }
 
     uint16_t numKeywords = file.read16();
@@ -394,6 +408,32 @@ void MarsLanguage::parse(MarsVerb verb) {
         ASSERT(types_.find(keyword) == types_.end());
 
         eckit::Value settings = lang[keywordStr];
+
+        Category category = Category::Other;
+        if (settings.contains("category")) {
+            std::string categoryStr = settings["category"];
+            if (categoryStr == "data") {
+                category = Category::Data;
+            }
+            else if (categoryStr == "derived") {
+                category = Category::Derived;
+            }
+            else if (categoryStr == "postproc") {
+                category = Category::PostProc;
+            }
+            else if (categoryStr == "sink") {
+                category = Category::Sink;
+            }
+            else {
+                std::stringstream ss;
+                ss << "Keyword: " << keywordStr << " - Unknown category: " << categoryStr << " in " << settings;
+                throw eckit::SeriousBug(ss.str());
+            }
+        }
+        // categories_ is indexed by keyword id: only newly registered keywords get an entry
+        if (uint16_t(keyword) == categories_.size()) {
+            categories_.push_back(category);
+        }
 
         if (options.contains(keywordStr)) {
             eckit::ValueMap m = options[keywordStr];
@@ -444,7 +484,7 @@ void MarsLanguage::parse(MarsVerb verb) {
     if (lang.contains("_clear_defaults")) {
         const auto& keywords = lang["_clear_defaults"];
         for (auto i = 0; i < keywords.size(); ++i) {
-            MarsKeyword key = keywords_->symbol(keywords[i], false);
+            MarsKeyword key = keywords_->symbol_or_default(keywords[i]);
             if (auto iter = types_.find(key); key && iter != types_.end()) {
                 iter->second->clearDefaults();
             }
@@ -452,38 +492,15 @@ void MarsLanguage::parse(MarsVerb verb) {
     }
 }
 
-Category MarsLanguage::category(MarsKeyword keyword) const {
-    auto it = types_.find(keyword);
-    if (it != types_.end()) {
-        return it->second->category();
+Category MarsLanguage::category(MarsKeyword keyword) {
+    if (!keyword || keyword >= categories_.size()) {
+        throw eckit::UserError("Cannot find keyword with id " + std::to_string(keyword));
     }
-    throw eckit::UserError("Cannot find keyword: " + keywords_->name(keyword));
-}
-
-bool MarsLanguage::isData(MarsKeyword k) const {
-    return category(k) == Category::Data;
-}
-bool MarsLanguage::isDerived(MarsKeyword k) const {
-    return category(k) == Category::Derived;
-}
-bool MarsLanguage::isPostProc(MarsKeyword k) const {
-    return category(k) == Category::PostProc;
-}
-bool MarsLanguage::isSink(MarsKeyword k) const {
-    return category(k) == Category::Sink;
+    return categories_[keyword];
 }
 
 bool MarsLanguage::isData(const std::string& k) const {
     return category(keywords_->symbol(k)) == Category::Data;
-}
-bool MarsLanguage::isDerived(const std::string& k) const {
-    return category(keywords_->symbol(k)) == Category::Derived;
-}
-bool MarsLanguage::isPostProc(const std::string& k) const {
-    return category(keywords_->symbol(k)) == Category::PostProc;
-}
-bool MarsLanguage::isSink(const std::string& k) const {
-    return category(keywords_->symbol(k)) == Category::Sink;
 }
 
 const MarsLanguage& MarsLanguage::get(MarsVerb verb) {
@@ -509,7 +526,7 @@ const MarsLanguage& MarsLanguage::get(MarsVerb verb) {
     // load / parse the language for the given verb
     if (!metkitForceBinfileCreation && !langOffsets_.empty()) {
         if (auto it = langOffsets_.find(verb); it != langOffsets_.end()) {
-            auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb, langFile_));
+            auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb, *langFile_));
             ASSERT(inserted);
             return *newIt->second;
         }
@@ -700,25 +717,37 @@ public:
 
 const std::string TypeHidden::typeName{"hidden"};
 
-std::shared_ptr<const Type> MarsLanguage::type(MarsKeyword key) const {
+std::optional<std::reference_wrapper<const Type>> MarsLanguage::type(MarsKeyword key) const {
     auto it = types_.find(key);
     if (it != types_.end()) {
-        return it->second;
+        return *it->second;
     }
-    return nullptr;
+    return std::nullopt;
 }
 
-const Type* MarsLanguage::type(const std::string& name) const {
-    MarsKeyword key = keywords_->symbol(name, false);
+const Type& MarsLanguage::typeRef(const std::string& name) const {
+    MarsKeyword key = keywords_->symbol_or_default(name);
     if (key && types_.find(key) != types_.end()) {
-        return type(key).get();
+        return type(key).value().get();
+    }
+    if (!name.empty() && name[0] == '_') {  // internal keywords (e.g. _verb) are known, but have no type in a language
+        static const TypeHidden hidden{};
+        return hidden;
+    }
+
+    throw eckit::UserError("Cannot find a type for '" + name + "'");
+}
+const Type* MarsLanguage::type(const std::string& name) const {
+    MarsKeyword key = keywords_->symbol_or_default(name);
+    if (key && types_.find(key) != types_.end()) {
+        return &type(key).value().get();
     }
     if (!name.empty() && name[0] == '_') {  // internal keywords (e.g. _verb) are known, but have no type in a language
         static const TypeHidden hidden{};
         return &hidden;
     }
 
-    throw eckit::UserError("Cannot find a type for '" + name + "'");
+    return nullptr;
 }
 
 MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
@@ -734,12 +763,12 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
             MarsKeyword key = param.typed() ? param.id() : MarsKeyword{};
             if (!key || types_.find(key) == types_.end()) {
                 std::string p = eckit::StringTools::lower(param.name());
-                key           = keywords_->symbol(p, false);
+                key           = keywords_->symbol_or_default(p);
                 if (!key || types_.find(key) == types_.end()) {
                     // not a keyword of this language (the dictionary is shared by all the verbs):
                     // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
                     p   = bestMatch(p, keywordList_, true, false, true, aliases_);
-                    key = keywords_->symbol(p, false);
+                    key = keywords_->symbol_or_default(p);
                 }
             }
             paramSet.emplace(key, &param);
@@ -755,46 +784,38 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
                     ctx.unset(k);
                     continue;
                 }
-                if (s == "all" && type(k)->multiple()) {
-                    result.setValuesTyped(type(k), std::vector<std::string>{"all"});
+                if (s == "all" && type(k).value().get().multiple()) {
+                    result.setValuesTyped(type(k).value().get(), std::vector<std::string>{"all"});
                     continue;
                 }
             }
 
-            auto t = type(k);
-            t->expand(values, result);
+            auto& t = type(k).value().get();
+            t.expand(values, result);
             result.setValuesTyped(t, values);
-            t->check(values);
+            t.check(values);
         }
 
         if (inherit) {
-            for (const auto& [k, t] : types_) {
-                if (isOrdered(k, *t) && result.countValues(k) == 0) {
-                    if (ctx.has(k)) {
-                        result.setValuesTyped(t, ctx.values(k));
+            for (const auto& t : types_) {
+                if (result.countValues(t.first) == 0) {
+                    if (ctx.has(t.first)) {
+                        result.setValuesTyped(*t.second, ctx.values(t.first));
                     }
                     else {
-                        t->setDefaults(result);
+                        t.second->setDefaults(result);
                     }
                 }
             }
         }
 
         // pass2 modifies the request: go through a snapshot of the types, not through the parameters being modified
-        std::vector<std::shared_ptr<const Type>> expanded;
-        expanded.reserve(result.size());
         for (const auto& param : result) {
-            expanded.push_back(param.typePtr());
-        }
-        for (const auto& t : expanded) {
-            ASSERT(t);
-            t->pass2(result);
+            param.type().pass2(result);
         }
 
-        for (const auto& [k, t] : types_) {
-            if (isOrdered(k, *t)) {
-                t->finalise(result, strict);
-            }
+        for (const auto& t : types_) {
+            t.second->finalise(result, strict);
         }
     }
     catch (std::exception& e) {
@@ -808,27 +829,28 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
     return result;
 }
 
-void MarsLanguage::flatten(const MarsRequest& request, const std::vector<MarsKeyword>& params, size_t i,
+void MarsLanguage::flatten(const MarsRequest& request, const std::vector<MarsKeyword>& keys, size_t i,
                            MarsRequest& result, FlattenCallback& callback) const {
-    if (i == params.size()) {
+    if (i == keys.size()) {
         callback(result);
         return;
     }
 
-    MarsKeyword param = params[i];
+    MarsKeyword key = keys[i];
 
     // internal keywords (e.g. _verb) are registered, but have no type in the language: look them up by name
-    const Type* t = types_.find(param) != types_.end() ? type(param).get() : type(name(param));
-    if (!t->flatten()) {
-        flatten(request, params, i + 1, result, callback);
+    auto it       = types_.find(key);
+    const Type& t = it != types_.end() ? *it->second : typeRef(name(key));
+    if (!t.flatten()) {
+        flatten(request, keys, i + 1, result, callback);
         return;
     }
 
-    const std::vector<std::string>& values = t->flattenValues(request);
+    const std::vector<std::string>& values = t.flattenValues(request);
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        result.setValue(param, *j);
-        flatten(request, params, i + 1, result, callback);
+        result.setValue(key, *j);
+        flatten(request, keys, i + 1, result, callback);
     }
 }
 
@@ -849,26 +871,28 @@ MarsVerb MarsLanguage::verb(const std::string& name) {
     pthread_once(&once, initLanguage);
     return verbs_->symbol(name);
 }
-MarsVerb MarsLanguage::hasVerb(const std::string& name) {
+MarsVerb MarsLanguage::verb_or_default(const std::string& name) noexcept {
     pthread_once(&once, initLanguage);
-    return verbs_->symbol(name, false);
+    return verbs_->symbol_or_default(name);
 }
 const std::string& MarsLanguage::name(MarsVerb verb) {
     pthread_once(&once, initLanguage);
     return verbs_->name(verb);
 }
 
-MarsKeyword MarsLanguage::addKeyword(const std::string& name) {
+MarsKeyword MarsLanguage::addKeyword(const std::string& name, Category category) {
     pthread_once(&once, initLanguage);
-    return keywords_->add(name);
-}
-MarsKeyword MarsLanguage::hasKeyword(const std::string& name) {
-    pthread_once(&once, initLanguage);
-    return keywords_->symbol(name, false);
+    MarsKeyword key = keywords_->add(name);
+    categories_.push_back(category);
+    return key;
 }
 MarsKeyword MarsLanguage::keyword(const std::string& name) {
     pthread_once(&once, initLanguage);
     return keywords_->symbol(name);
+}
+MarsKeyword MarsLanguage::keyword_or_default(const std::string& name) noexcept {
+    pthread_once(&once, initLanguage);
+    return keywords_->symbol_or_default(name);
 }
 const std::string& MarsLanguage::name(MarsKeyword keyword) {
     pthread_once(&once, initLanguage);

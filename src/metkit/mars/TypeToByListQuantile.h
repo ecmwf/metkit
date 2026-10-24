@@ -9,6 +9,9 @@
 
 #include "metkit/mars/Quantile.h"
 #include "metkit/mars/Type.h"
+
+class MMapFileReader;
+
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -18,7 +21,7 @@ class TypeToByListQuantile : public Type {
 public:
 
     TypeToByListQuantile(const std::string& type, MarsKeyword key, const eckit::Value& val);
-    TypeToByListQuantile(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeToByListQuantile(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     ~TypeToByListQuantile() noexcept override = default;
 

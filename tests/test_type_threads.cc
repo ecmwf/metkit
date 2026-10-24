@@ -28,7 +28,7 @@ CASE("test_enum_lazy_values_file_concurrent_flag_reads") {
     settings["values"]    = "obstype.yaml";  // grouped values: loading them sets the "has groups" flag
 
     // a fresh instance, so that its values file has not been loaded yet
-    std::shared_ptr<const Type> type = TypesFactory::build(MarsLanguage::addKeyword("obstype"), settings);
+    auto type = TypesFactory::build(MarsLanguage::addKeyword("obstype"), settings);
 
     constexpr size_t readers = 4;
     std::atomic<size_t> ready{0};

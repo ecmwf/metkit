@@ -19,7 +19,7 @@ class TypeAny : public Type {
 public:  // methods
 
     TypeAny(const std::string& type, MarsKeyword key, const eckit::Value& settings);
-    TypeAny(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeAny(const std::string& type, MarsKeyword key, MMapFileReader& file);
     TypeAny(const std::string& name);
 
     ~TypeAny() noexcept override = default;

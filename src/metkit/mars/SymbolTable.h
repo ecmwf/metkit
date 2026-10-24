@@ -25,7 +25,8 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "Serialize.h"
+#include "metkit/mars/MMapFileReader.h"
+#include "metkit/mars/StreamWriter.h"
 
 namespace metkit::mars {
 
@@ -33,7 +34,7 @@ namespace metkit::mars {
 /// Symbol 0 is reserved for "unknown";
 /// Several names (aliases) can map to the same symbol
 /// A symbol resolves back to its primary name.
-/// Can be serialised to / loaded from a MemFile.
+/// Can be serialised to / loaded from a MMapFileReader.
 template <typename S>
 // requires std::is_arithmetic_v<S>
 class SymbolTable {
@@ -44,12 +45,13 @@ public:
         static const std::string empty{};
         names_.push_back(empty);  // index 0 is reserved: it means "not found"
     }
-    explicit SymbolTable(MemFile& file);
+    explicit SymbolTable(MMapFileReader& file);
 
     S add(const std::string& name);
     void addAlias(const std::string& name, S symbol);
 
-    S symbol(const std::string& name, bool throwOnUnknown = true) const;
+    S symbol(const std::string& name) const;
+    S symbol_or_default(const std::string& name) const noexcept;
     const std::string& name(S symbol) const;
 
     size_t size() const;
@@ -71,7 +73,7 @@ private:
 };
 
 template <typename S>
-SymbolTable<S>::SymbolTable(MemFile& file) {
+SymbolTable<S>::SymbolTable(MMapFileReader& file) {
     static const std::string empty{};
     names_.push_back(empty);
     size_t num = file.read32();
@@ -90,7 +92,7 @@ template <typename S>
 S SymbolTable<S>::add(const std::string& name) {
 
     // fast path: most calls are lookups of names that are already registered, avoid the exclusive lock
-    if (S symb = symbol(name, false); symb != S{}) {
+    if (S symb = symbol_or_default(name); symb != S{}) {
         return symb;
     }
 
@@ -136,32 +138,40 @@ void SymbolTable<S>::addAlias(const std::string& name, S symbol) {
 
 
 template <typename S>
-S SymbolTable<S>::symbol(const std::string& name, bool throwOnUnknown) const {
+S SymbolTable<S>::symbol(const std::string& name) const {
     std::shared_lock lock(mutex_);
     auto it = map_.find(name);
     if (it != map_.end()) {
         return it->second;
     }
-    if (throwOnUnknown) {
-        // an unknown name comes from the user (a typo, a keyword that does not exist): not an internal error
-        std::ostringstream ss;
-        ss << "Unknown " << (typeid(S{}).name()) << " '" << name << "'";
-        throw eckit::UserError(ss.str(), Here());
+
+    // the user requested an unknown name
+    std::ostringstream ss;
+    ss << "Unknown " << (typeid(S{}).name()) << " '" << name << "'";
+    throw eckit::UserError(ss.str(), Here());
+}
+
+template <typename S>
+S SymbolTable<S>::symbol_or_default(const std::string& name) const noexcept {
+    std::shared_lock lock(mutex_);
+    auto it = map_.find(name);
+    if (it != map_.end()) {
+        return it->second;
     }
+
     return S{};
 }
 
 template <typename S>
 const std::string& SymbolTable<S>::name(S symbol) const {
-    // static_assert(std::is_integral_v<typename S::value_t> == true);
-
     std::shared_lock lock(mutex_);
-    if (symbol == S{} || symbol >= names_.size()) {
-        std::ostringstream ss;
-        ss << "Invalid " << (typeid(S{}).name()) << " index " << static_cast<size_t>(symbol);
-        throw eckit::SeriousBug(ss.str(), Here());
+    if (symbol != S{} && !(symbol >= names_.size())) {
+        return names_[symbol].get();
     }
-    return names_[symbol].get();
+
+    std::ostringstream ss;
+    ss << "Invalid " << (typeid(S{}).name()) << " index " << static_cast<size_t>(symbol);
+    throw eckit::SeriousBug(ss.str(), Here());
 }
 
 template <typename S>

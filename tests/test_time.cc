@@ -21,11 +21,11 @@ using ::eckit::BadTime;
 using ::eckit::BadValue;
 using ::eckit::Value;
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    MarsLanguage::get("retrieve").type(name)->expand(values);
+    MarsLanguage::get("retrieve").typeRef(name).expand(values);
     EXPECT_EQUAL(values.size(), expected.size());
     EXPECT_EQUAL(expected, values);
 }
@@ -117,7 +117,7 @@ CASE("Test TypeTime expansions") {
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 

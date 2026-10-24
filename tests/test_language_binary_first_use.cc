@@ -10,16 +10,17 @@
 #include "eckit/testing/Test.h"
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsVerb.h"
-#include "metkit/mars/Serialize.h"
+#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/SymbolTable.h"
 
 namespace metkit::mars::test {
 
 /// Looks up a verb in the binary file directly, without initialising MarsLanguage
 static MarsVerb verb_from_binary_file(const std::string& name) {
-    MemFile file{LibMetkit::languageBinaryFile().localPath()};
+    MMapFileReader file{LibMetkit::languageBinaryFile().localPath()};
     EXPECT_EQUAL(std::string{file.readString(4)}, "LANG");
     EXPECT_EQUAL(file.read16(), LibMetkit::binaryFilesVersion());
 
@@ -43,7 +44,7 @@ CASE("get(MarsVerb) as first entry point uses the binary language file") {
     EXPECT_NO_THROW(language = &MarsLanguage::get(retrieve));
     EXPECT(language != nullptr);
     EXPECT_EQUAL(language, &MarsLanguage::get("retrieve"));
-    EXPECT_NO_THROW(language->type("param"));
+    EXPECT_NO_THROW(language->typeRef("param"));
 }
 
 }  // namespace metkit::mars::test

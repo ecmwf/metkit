@@ -11,7 +11,8 @@
 #include "eckit/utils/StringTools.h"
 #include "eckit/utils/Translator.h"
 
-#include "metkit/mars/Serialize.h"
+#include "metkit/mars/MMapFileReader.h"
+#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
@@ -29,7 +30,7 @@ public:  // methods
 
     TypeToByList(const Type& type, const eckit::Value& settings) :
         type_(type), by_(settings.contains("by") ? settings["by"] : "1") {}
-    TypeToByList(const Type& type, MemFile& file) : type_(type) { by_ = file.readString(); }
+    TypeToByList(const Type& type, MMapFileReader& file) : type_(type) { by_ = file.readString(); }
 
     virtual ~TypeToByList() = default;
 

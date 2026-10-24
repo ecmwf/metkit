@@ -20,7 +20,7 @@ using namespace eckit::testing;
 
 namespace metkit::mars::test {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CASE("test_dictionary_add_and_lookup") {
     SymbolTable<MarsKeyword> dict;
@@ -34,8 +34,8 @@ CASE("test_dictionary_add_and_lookup") {
     // adding again returns the same key
     EXPECT_EQUAL(dict.add("class"), a);
 
-    EXPECT_EQUAL(dict.symbol("class", false), a);
-    EXPECT_EQUAL(dict.symbol("unknown", false), MarsKeyword::unknown());
+    EXPECT_EQUAL(dict.symbol_or_default("class"), a);
+    EXPECT_EQUAL(dict.symbol_or_default("unknown"), MarsKeyword::unknown());
     EXPECT_EQUAL(dict.symbol("type"), b);
     EXPECT_EQUAL(dict.name(a), "class");
 
@@ -50,7 +50,7 @@ CASE("test_dictionary_alias") {
     MarsKeyword b = dict.add("param");
 
     dict.addAlias("level", a);
-    EXPECT_EQUAL(dict.symbol("level", false), a);
+    EXPECT_EQUAL(dict.symbol_or_default("level"), a);
     EXPECT_EQUAL(dict.name(a), "levelist");
 
     // the same alias for the same key is fine, for another key it is a conflict
@@ -79,7 +79,7 @@ CASE("test_dictionary_full") {
     EXPECT_EQUAL(added, 254u);
 
     // the existing entries are untouched
-    EXPECT_EQUAL(dict.symbol("verb0", false), MarsVerb{1});
+    EXPECT_EQUAL(dict.symbol_or_default("verb0"), MarsVerb{1});
     EXPECT_EQUAL(dict.name(254), "verb253");
 }
 
@@ -114,7 +114,7 @@ CASE("test_dictionary_concurrent_add") {
     EXPECT_EQUAL(distinct.size(), static_cast<size_t>(numNames));
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 

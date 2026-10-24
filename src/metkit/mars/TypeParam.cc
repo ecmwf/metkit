@@ -13,8 +13,9 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/Serialize.h"
+#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/TypesFactory.h"
 
 #include <algorithm>
@@ -48,7 +49,7 @@ class Matcher {
 public:
 
     Matcher(const std::string& name, std::vector<std::string>&& values);
-    Matcher(MemFile& file);
+    Matcher(MMapFileReader& file);
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
 
@@ -62,11 +63,11 @@ public:
 };
 
 Matcher::Matcher(const std::string& name, std::vector<std::string>&& values) :
-    name_(name), key_(metkit::mars::MarsLanguage::addKeyword(name)), values_(std::move(values)) {}
+    name_(name), key_(metkit::mars::MarsLanguage::keyword(name)), values_(std::move(values)) {}
 
-Matcher::Matcher(MemFile& file) {
+Matcher::Matcher(MMapFileReader& file) {
     name_             = file.readString();
-    key_              = metkit::mars::MarsLanguage::addKeyword(name_);
+    key_              = metkit::mars::MarsLanguage::keyword(name_);
     uint8_t numValues = file.read8();
     values_.reserve(numValues);
     for (uint32_t i = 0; i < numValues; i++) {
@@ -131,7 +132,7 @@ public:
 
     Rule(const eckit::Value& matchers, const ParamIdAliases& ids, const std::vector<uint32_t>& values = {},
          const std::map<uint32_t, uint32_t>& param2paramid = {});
-    Rule(MemFile& file);
+    Rule(MMapFileReader& file);
 
     static void setDefault(const eckit::Value& setters, const ParamIdAliases& ids);
 
@@ -267,7 +268,7 @@ Rule::Rule(const eckit::Value& matchers, const ParamIdAliases& ids, const std::v
     }
 }
 
-Rule::Rule(MemFile& file) {
+Rule::Rule(MMapFileReader& file) {
     uint8_t numMatchers = file.read8();
     matchers_.reserve(numMatchers);
     for (uint8_t i = 0; i < numMatchers; ++i) {
@@ -484,7 +485,7 @@ void Rule::init() {
     if (!metkitForceBinfileCreation && !metkitLegacyParamCheck && !metkitRawParam) {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
         if (paramBinFile.exists()) {
-            MemFile file(paramBinFile.localPath());
+            MMapFileReader file(paramBinFile.localPath());
 
             try {
                 std::string header{file.readString(4)};
@@ -717,7 +718,7 @@ namespace metkit::mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeParam::TypeParam(const std::string& type, MarsKeyword key, const eckit::Value& val) : Type(type, key, val) {}
-TypeParam::TypeParam(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {}
+TypeParam::TypeParam(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {}
 
 void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name() << "]";

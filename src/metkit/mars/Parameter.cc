@@ -16,35 +16,21 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Parameter::Parameter(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {}
+Parameter::Parameter(MarsKeyword key, const std::string& name, const std::vector<std::string>& values) :
+    key_(key), name_(name), values_(values) {}
 
-Parameter::Parameter(const std::string& name, std::vector<std::string>&& values) :
-    name_(name), values_(std::move(values)) {}
+Parameter::Parameter(MarsKeyword key, const std::string& name, std::vector<std::string>&& values) :
+    key_(key), name_(name), values_(std::move(values)) {}
 
-Parameter::Parameter(std::shared_ptr<const Type> type, const std::vector<std::string>& values) :
-    values_(values), type_(std::move(type)) {
-    ASSERT(type_);
-}
+Parameter::Parameter(const Type& type, const std::vector<std::string>& values) :
+    key_(type.id()), name_(type.name()), values_(values), type_(std::cref(type)) {}
 
-Parameter::Parameter(std::shared_ptr<const Type> type, std::vector<std::string>&& values) :
-    values_(std::move(values)), type_(std::move(type)) {
-    ASSERT(type_);
-}
-
-MarsKeyword Parameter::id() const {
-    // An untyped parameter may carry an arbitrary custom key that is not in the language definition: do not register
-    // it, the dictionary is global, never shrinks and its size is limited, so user-provided names must not fill it.
-    // A name that is not registered has no id (0), which no keyword has.
-    return type_ ? type_->id() : MarsLanguage::hasKeyword(name_);
-}
-
-const std::string& Parameter::name() const {
-    return type_ ? type_->name() : name_;
-}
+Parameter::Parameter(const Type& type, std::vector<std::string>&& values) :
+    key_(type.id()), name_(type.name()), values_(std::move(values)), type_(std::cref(type)) {}
 
 bool Parameter::is(MarsKeyword key) const {
-    if (type_) {
-        return type_->id() == key;
+    if (key_ != MarsKeyword{}) {
+        return key_ == key;
     }
     return key != 0 && name_ == MarsLanguage::name(key);
 }
@@ -53,7 +39,7 @@ const Type& Parameter::type() const {
     if (!type_) {
         throw eckit::SeriousBug("Parameter '" + name_ + "' is untyped", Here());
     }
-    return *type_;
+    return type_.value();
 }
 
 bool Parameter::operator<(const Parameter& other) const {
@@ -64,16 +50,16 @@ bool Parameter::operator<(const Parameter& other) const {
 }
 
 bool Parameter::multiple() const {
-    return !type_ || type_->multiple();
+    return !type_ || type_.value().get().multiple();
 }
 
 size_t Parameter::count() const {
-    return type_ ? type_->count(values_) : values_.size();
+    return type_ ? type_.value().get().count(values_) : values_.size();
 }
 
 bool Parameter::filter(const std::vector<std::string>& filter) {
     if (type_) {
-        return type_->filter(filter, values_);
+        return type_.value().get().filter(filter, values_);
     }
 
     NotInSet not_in_set(filter);
@@ -83,7 +69,7 @@ bool Parameter::filter(const std::vector<std::string>& filter) {
 
 bool Parameter::filter(MarsKeyword keyword, const std::vector<std::string>& f) {
     if (type_) {
-        return type_->filter(keyword, f, values_);
+        return type_.value().get().filter(keyword, f, values_);
     }
 
     // an untyped parameter has no knowledge of filters by another keyword (e.g. filtering a date by day): it can only
@@ -97,7 +83,7 @@ bool Parameter::filter(const std::string& name, const std::vector<std::string>& 
 
 bool Parameter::matches(const std::vector<std::string>& match) const {
     if (type_) {
-        return type_->matches(match, values_);
+        return type_.value().get().matches(match, values_);
     }
 
     // same semantics as Type::matches(): at least one of the values is among the ones to match

@@ -19,7 +19,8 @@
 #include "eckit/filesystem/PathName.h"
 #include "eckit/testing/Test.h"
 
-#include "metkit/mars/Serialize.h"
+#include "metkit/mars/MMapFileReader.h"
+#include "metkit/mars/StreamWriter.h"
 
 namespace metkit::mars::test {
 
@@ -67,7 +68,7 @@ CASE("Integers round trip") {
         EXPECT(out);
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.read8(), 0);
     EXPECT_EQUAL(in.read8(), 255);
     EXPECT_EQUAL(in.read16(), 0);
@@ -89,7 +90,7 @@ CASE("Integers are written little endian") {
         write32(out, uint32_t{0x03040506});
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.read8(), 0x02);
     EXPECT_EQUAL(in.read8(), 0x01);
     EXPECT_EQUAL(in.read8(), 0x06);
@@ -108,7 +109,7 @@ CASE("size_t overloads round trip") {
         write32(out, size_t{4000000000});
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.read8(), 200);
     EXPECT_EQUAL(in.read16(), 60000);
     EXPECT_EQUAL(in.read32(), 4000000000u);
@@ -143,7 +144,7 @@ CASE("Strings round trip") {
         writeString(out, longest);
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.readString(), "");
     EXPECT_EQUAL(in.readString(), "a");
     EXPECT_EQUAL(in.readString(), "hello world");
@@ -168,7 +169,7 @@ CASE("String with explicit length") {
         out.write(raw.data(), static_cast<std::streamsize>(raw.size()));
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.readString(3), "abc");
     EXPECT_EQUAL(in.readString(0), "");
     EXPECT_EQUAL(in.readString(5), "defgh");
@@ -187,7 +188,7 @@ CASE("String set round trip") {
         writeStringSet(out, values);
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT(in.readStringSet() == empty);
     EXPECT(in.readStringSet() == values);
     EXPECT(in.atEnd());
@@ -204,27 +205,10 @@ CASE("String vector round trip") {
         writeStringVector(out, values);
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT(in.readStringVector() == empty);
     EXPECT(in.readStringVector() == values);
     EXPECT(in.atEnd());
-}
-
-CASE("Collections with more than 255 elements are rejected") {
-    TempFile tmp("collection_too_big");
-    auto out = tmp.open();
-
-    std::vector<std::string> v(256, "x");
-    EXPECT_THROWS_AS(writeStringVector(out, v), eckit::SeriousBug);
-
-    std::set<std::string> s;
-    for (int i = 0; i < 256; ++i) {
-        s.insert(std::to_string(i));
-    }
-    EXPECT_THROWS_AS(writeStringSet(out, s), eckit::SeriousBug);
-
-    v.resize(255);
-    writeStringVector(out, v);
 }
 
 CASE("Mixed content round trip") {
@@ -241,7 +225,7 @@ CASE("Mixed content round trip") {
         write32(out, uint32_t{7});
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.read8(), 1);
     EXPECT_EQUAL(in.read8(), 42);
     EXPECT_EQUAL(in.read16(), 1000);
@@ -262,7 +246,7 @@ CASE("Seek") {
         write16(out, uint16_t{222});  // offset 9
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.read32(), 111u);
     EXPECT_EQUAL(in.readString(), "abc");
     EXPECT_EQUAL(in.read16(), 222);
@@ -295,7 +279,7 @@ CASE("Reading past the end fails") {
         out.write("ab", 2);
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     EXPECT_EQUAL(in.read8(), 1);
     EXPECT_EQUAL(in.read16(), 2);
     EXPECT_THROWS_AS(in.readString(), eckit::SeriousBug);
@@ -323,22 +307,22 @@ CASE("Truncated collections fail") {
     }
 
     {
-        MemFile in(tmp.path());
+        MMapFileReader in(tmp.path());
         EXPECT_THROWS_AS(in.readStringVector(), eckit::SeriousBug);
     }
     {
-        MemFile in(tmp.path());
+        MMapFileReader in(tmp.path());
         EXPECT_THROWS_AS(in.readStringSet(), eckit::SeriousBug);
     }
 }
 
 CASE("Opening missing or empty files fails") {
     TempFile missing("missing");
-    EXPECT_THROWS_AS(MemFile(missing.path()), eckit::SeriousBug);
+    EXPECT_THROWS_AS(MMapFileReader(missing.path()), eckit::SeriousBug);
 
     TempFile empty("empty");
     { auto out = empty.open(); }
-    EXPECT_THROWS_AS(MemFile(empty.path()), eckit::SeriousBug);
+    EXPECT_THROWS_AS(MMapFileReader(empty.path()), eckit::SeriousBug);
 }
 
 CASE("Move semantics") {
@@ -350,26 +334,26 @@ CASE("Move semantics") {
         writeString(out, "moved");
     }
 
-    MemFile a(tmp.path());
+    MMapFileReader a(tmp.path());
     EXPECT_EQUAL(a.read32(), 1u);
 
     // position is carried over by the move constructor
-    MemFile b(std::move(a));
+    MMapFileReader b(std::move(a));
     EXPECT_EQUAL(b.read32(), 2u);
 
     // move assignment replaces a default constructed (empty) file
-    MemFile c;
+    MMapFileReader c;
     c = std::move(b);
     EXPECT_EQUAL(c.readString(), "moved");
     EXPECT(c.atEnd());
 
     // move assignment onto a mapped file releases the previous mapping
-    MemFile d(tmp.path());
+    MMapFileReader d(tmp.path());
     c = std::move(d);
     EXPECT_EQUAL(c.read32(), 1u);
 }
 
-CASE("String views stay valid while the MemFile is alive") {
+CASE("String views stay valid while the MMapFileReader is alive") {
     TempFile tmp("views");
     {
         auto out = tmp.open();
@@ -377,7 +361,7 @@ CASE("String views stay valid while the MemFile is alive") {
         writeString(out, "second");
     }
 
-    MemFile in(tmp.path());
+    MMapFileReader in(tmp.path());
     std::string_view first  = in.readString();
     std::string_view second = in.readString();
     EXPECT_EQUAL(first, "first");

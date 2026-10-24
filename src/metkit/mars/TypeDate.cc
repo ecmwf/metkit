@@ -111,15 +111,15 @@ namespace metkit::mars {
 
 TypeDate::TypeDate(const std::string& type, MarsKeyword key, const eckit::Value& val) : Type(type, key, val) {
 
-    toByList_                                 = std::make_unique<TypeToByList<eckit::Date, long>>(*this, val);
-    flags_[1]                                 = true;
-    filters_[MarsLanguage::addKeyword("day")] = &filterByDay;
+    toByList_                              = std::make_unique<TypeToByList<eckit::Date, long>>(*this, val);
+    flags_[1]                              = true;
+    filters_[MarsLanguage::keyword("day")] = &filterByDay;
 }
-TypeDate::TypeDate(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
+TypeDate::TypeDate(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {
 
-    toByList_                                 = std::make_unique<TypeToByList<eckit::Date, long>>(*this, file);
-    flags_[1]                                 = true;
-    filters_[MarsLanguage::addKeyword("day")] = &filterByDay;
+    toByList_                              = std::make_unique<TypeToByList<eckit::Date, long>>(*this, file);
+    flags_[1]                              = true;
+    filters_[MarsLanguage::keyword("day")] = &filterByDay;
 }
 
 void TypeDate::pass2(MarsRequest& request) const {

@@ -21,9 +21,10 @@
 #include "metkit/mars/MarsKeyword.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsVerb.h"
-#include "metkit/mars/Serialize.h"
 #include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
+
+class MMapFileReader;
 
 namespace metkit::mars {
 
@@ -70,7 +71,7 @@ public:  // methods
 
     MarsLanguage(MarsVerb verb);
     MarsLanguage(const std::string& verb);
-    MarsLanguage(MarsVerb verb, MemFile& file);
+    MarsLanguage(MarsVerb verb, MMapFileReader& file);
     ~MarsLanguage() = default;
 
     MarsLanguage(const MarsLanguage&)            = delete;
@@ -86,18 +87,13 @@ public:  // methods
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
-    std::shared_ptr<const Type> type(MarsKeyword name) const;
-    const Type* type(const std::string& name) const;
+    std::optional<std::reference_wrapper<const Type>> type(MarsKeyword key) const;
 
-    bool isData(MarsKeyword keyword) const;
-    bool isDerived(MarsKeyword keyword) const;
-    bool isPostProc(MarsKeyword keyword) const;
-    bool isSink(MarsKeyword keyword) const;
+    [[deprecated("use typeRef returning Type reference")]]
+    const Type* type(const std::string& name) const;
+    const Type& typeRef(const std::string& name) const;
 
     bool isData(const std::string& keyword) const;
-    bool isDerived(const std::string& keyword) const;
-    bool isPostProc(const std::string& keyword) const;
-    bool isSink(const std::string& keyword) const;
 
 public:  // class methods
 
@@ -112,22 +108,23 @@ public:  // class methods
     static eckit::Value jsonFile(const std::string& name);
 
     static MarsVerb verb(const std::string& name);
-    static MarsVerb hasVerb(const std::string& name);
+    static MarsVerb verb_or_default(const std::string& name) noexcept;
     static const std::string& name(MarsVerb verb);
 
-    static MarsKeyword addKeyword(const std::string& name);
-    static MarsKeyword hasKeyword(const std::string& name);
+    static MarsKeyword addKeyword(const std::string& name, Category category = Category::Other);
     static MarsKeyword keyword(const std::string& name);
+    static MarsKeyword keyword_or_default(const std::string& name) noexcept;
+    static Category category(MarsKeyword keyword);
     static MarsKeyword maxDataKeyword() { return maxDataKeyword_; }
     static const std::string& name(MarsKeyword keyword);
 
     static void init();
 
     static void writeDictionaries(std::ofstream& file);
-    static void readDictionaries(MemFile& file);
+    static void readDictionaries(MMapFileReader& file);
 
     static void writeContexts(std::ofstream& file);
-    static void readContexts(MemFile& file);
+    static void readContexts(MMapFileReader& file);
 
 private:  // methods
 
@@ -139,14 +136,6 @@ private:  // methods
     static bool loadBinary();  // true if the language was loaded from the binary file
     static void loadYaml();
 
-    /// Whether a type takes part in the defaults and finalisation steps of the expansion, which process the types in
-    /// the order of types_: the axes and all the types that are not data. Data keywords that are not axes (e.g. tile)
-    /// do not.
-    bool isOrdered(MarsKeyword key, const Type& type) const {
-        return key < maxDataKeyword_ || type.category() != Category::Data;
-    }
-
-    Category category(MarsKeyword keyword) const;
     void flatten(const MarsRequest& request, const std::vector<MarsKeyword>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback) const;
     void parseModifier(ModifierType typ, const Context& ctx, size_t maxIndex, const eckit::Value& mod);
@@ -157,6 +146,7 @@ private:  // members
 
     static std::unique_ptr<SymbolTable<MarsVerb>> verbs_;
     static std::unique_ptr<SymbolTable<MarsKeyword>> keywords_;
+    static std::vector<Category> categories_;
     static MarsKeyword maxDataKeyword_;
 
     static std::shared_mutex contextsMutex_;
@@ -164,12 +154,12 @@ private:  // members
     static std::vector<std::unique_ptr<Context>> contexts_;
 
     static std::map<MarsVerb, size_t> langOffsets_;
-    static MemFile langFile_;
+    static std::unique_ptr<MMapFileReader> langFile_;
 
     MarsVerb verb_;
     /// The types of the language, sorted by keyword. The keywords of the axes are registered following the AxisOrder
     /// (see init()), so iterating over the types visits the axes in axis order, followed by all the other keywords.
-    std::map<MarsKeyword, std::shared_ptr<Type>> types_;
+    std::map<MarsKeyword, std::unique_ptr<Type>> types_;
 
     // for bestMatch - to be removed as we turn off fuzzy matching
     std::vector<std::string> keywordList_;

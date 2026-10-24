@@ -40,8 +40,8 @@ public:
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
 
-    std::shared_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
-    std::shared_ptr<Type> build(const std::string& name, MarsKeyword key, MemFile& file);
+    std::unique_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
+    std::unique_ptr<Type> build(const std::string& name, MarsKeyword key, MMapFileReader& file);
 
     void list(std::ostream& s);
 
@@ -60,11 +60,11 @@ private:  // members
 class TypesFactory {
 public:
 
-    virtual std::shared_ptr<Type> make(MarsKeyword key, const eckit::Value& val) const = 0;
-    virtual std::shared_ptr<Type> make(MarsKeyword key, MemFile& file) const           = 0;
+    virtual std::unique_ptr<Type> make(MarsKeyword key, const eckit::Value& val) const = 0;
+    virtual std::unique_ptr<Type> make(MarsKeyword key, MMapFileReader& file) const    = 0;
 
-    static std::shared_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
-    static std::shared_ptr<Type> build(const std::string& name, MarsKeyword key, MemFile& file);
+    static std::unique_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
+    static std::unique_ptr<Type> build(const std::string& name, MarsKeyword key, MMapFileReader& file);
 
     static void list(std::ostream& s);
 
@@ -82,11 +82,11 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    std::shared_ptr<Type> make(MarsKeyword key, const eckit::Value& settings) const override {
-        return std::make_shared<T>(name_, key, settings);
+    std::unique_ptr<Type> make(MarsKeyword key, const eckit::Value& settings) const override {
+        return std::make_unique<T>(name_, key, settings);
     }
-    std::shared_ptr<Type> make(MarsKeyword key, MemFile& file) const override {
-        return std::make_shared<T>(name_, key, file);
+    std::unique_ptr<Type> make(MarsKeyword key, MMapFileReader& file) const override {
+        return std::make_unique<T>(name_, key, file);
     }
 
 public:

@@ -26,7 +26,7 @@ TypeRegex::TypeRegex(const std::string& type, MarsKeyword key, const eckit::Valu
         regex_.push_back(std::string(r));
     }
 }
-TypeRegex::TypeRegex(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
+TypeRegex::TypeRegex(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {
     uint8_t numRegex = file.read8();
     for (uint8_t i = 0; i < numRegex; ++i) {
         regex_.emplace_back(std::string{file.readString()});

@@ -44,7 +44,7 @@ bool ContextRule::operator==(const ContextRule& other) const {
     return out.str() == outOther.str();
 }
 
-std::unique_ptr<ContextRule> ContextRule::parse(MemFile& file) {
+std::unique_ptr<ContextRule> ContextRule::parse(MMapFileReader& file) {
     char type       = static_cast<char>(file.read8());
     MarsKeyword key = file.read16();
     switch (type) {
@@ -84,10 +84,7 @@ bool Include::matches(const MarsRequest& req) const {
 void Include::write(std::ofstream& file) const {
     write8(file, static_cast<uint8_t>('I'));
     write16(file, key_);
-    write8(file, vals_.size());
-    for (const auto& v : vals_) {
-        writeString(file, v);
-    }
+    writeStringSet(file, vals_);
 }
 
 bool Exclude::matches(const MarsRequest& req) const {
@@ -105,10 +102,7 @@ bool Exclude::matches(const MarsRequest& req) const {
 void Exclude::write(std::ofstream& file) const {
     write8(file, static_cast<uint8_t>('E'));
     write16(file, key_);
-    write8(file, vals_.size());
-    for (const auto& v : vals_) {
-        writeString(file, v);
-    }
+    writeStringSet(file, vals_);
 }
 
 bool Undef::matches(const MarsRequest& req) const {
@@ -209,16 +203,13 @@ Context::Context(size_t id, const eckit::Value& c) : id_(id) {
     }
 }
 
-Context::Context(size_t id, MemFile& file) : id_(id) {
+Context::Context(size_t id, MMapFileReader& file) : id_(id) {
     uint8_t numRules = file.read8();
     for (uint8_t i = 0; i < numRules; i++) {
         // read each rule from file
         rules_.push_back(ContextRule::parse(file));
     }
 }
-
-// Context::Context(Context&& other) : id_(other.id_), rules_(std::move(other.rules_)) {}
-
 
 bool Context::operator<(const Context& other) const {
     if (rules_.size() != other.rules_.size()) {
@@ -279,28 +270,6 @@ Type::Type(const std::string& type, MarsKeyword key, const eckit::Value& setting
     flags_[4] = settings.contains("first_rule") ? bool(settings["first_rule"]) : false;
     flags_[5] = false;  // has groups
 
-    category_ = Category::None;
-    if (settings.contains("category")) {
-        std::string category = settings["category"];
-        if (category == "data") {
-            category_ = Category::Data;
-        }
-        else if (category == "derived") {
-            category_ = Category::Derived;
-        }
-        else if (category == "postproc") {
-            category_ = Category::PostProc;
-        }
-        else if (category == "sink") {
-            category_ = Category::Sink;
-        }
-        else {
-            std::stringstream ss;
-            ss << "Type: " << typeName_ << " - unknown category: " << category << " in " << settings;
-            throw eckit::SeriousBug(ss.str());
-        }
-    }
-
     if (settings.contains("defaults")) {
         eckit::Value defaults = settings["defaults"];
         if (!defaults.isNil() && defaults.isList()) {
@@ -332,13 +301,12 @@ Type::Type(const std::string& type, MarsKeyword key, const eckit::Value& setting
     }
 }
 
-Type::Type(const std::string& type, MarsKeyword key, MemFile& file) :
+Type::Type(const std::string& type, MarsKeyword key, MMapFileReader& file) :
     typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
     // typeName_ and id_ have already been consumed by MarsLanguage (to pick the right builder): they are passed in
 
-    flags_    = file.read8();
-    category_ = static_cast<Category>(file.read8());
+    flags_ = file.read8();
 
     // read defaults_
     uint8_t num = file.read8();
@@ -379,26 +347,19 @@ void Type::writeCommon(std::ofstream& file) const {
     std::bitset<8> flags = flags_;
     flags[5]             = hasGroups();
     write8(file, flags.to_ulong());
-    write8(file, static_cast<uint8_t>(category_));
 
     // write defaults_
     write8(file, defaults_.size());
     for (const auto& [ctx, vals] : defaults_) {
         write16(file, ctx.get().id());
-        write8(file, vals.size());
-        for (const auto& val : vals) {
-            writeString(file, val);
-        }
+        writeStringVector(file, vals);
     }
 
     // write sets_
     write8(file, sets_.size());
     for (const auto& [ctx, vals] : sets_) {
         write16(file, ctx.get().id());
-        write8(file, vals.size());
-        for (const auto& val : vals) {
-            writeString(file, val);
-        }
+        writeStringVector(file, vals);
     }
 
     // write unsets_
@@ -423,7 +384,7 @@ void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& va
     // If the value is of the form _key, then copy values from that key
     if (values.size() == 1 && values[0][0] == '_') {
         // the key comes from the configuration: if it is not a registered keyword the request cannot hold it
-        MarsKeyword key = MarsLanguage::hasKeyword(values[0].substr(1));
+        MarsKeyword key = MarsLanguage::keyword_or_default(values[0].substr(1));
         if (key && request.has(key)) {
             request.setValuesTyped(this, request.values(key));
         }
@@ -566,10 +527,6 @@ const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) 
 
 void Type::clearDefaults() {
     defaults_.clear();
-}
-
-const Category& Type::category() const {
-    return category_;
 }
 
 void Type::pass2(MarsRequest& request) const {}

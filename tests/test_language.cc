@@ -239,7 +239,6 @@ CASE("check method: isData()") {
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("time"), true);
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("step"), true);
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("number"), true);
-
     EXPECT_EQUAL(MarsLanguage::get("disseminate").isData("accuracy"), false);
     EXPECT_EQUAL(MarsLanguage::get("disseminate").isData("grid"), false);
 }
@@ -284,53 +283,53 @@ CASE("check method: flatten()") {
 CASE("check some types") {
 
     {
-        EXPECT_THROWS(MarsLanguage::get("read").type("unknown"));
+        EXPECT_THROWS(MarsLanguage::get("read").typeRef("unknown"));
 
-        EXPECT_THROWS(MarsLanguage::get("retrieve").type("unknown"));
+        EXPECT_THROWS(MarsLanguage::get("retrieve").typeRef("unknown"));
 
-        EXPECT_NO_THROW(MarsLanguage::get("retrieve").type("_hidden"));
+        EXPECT_NO_THROW(MarsLanguage::get("retrieve").typeRef("_hidden"));
     }
 
     {
         const auto& language = MarsLanguage::get("retrieve");
 
-        const auto* type = language.type("class");
+        const Type* type = &language.typeRef("class");
         EXPECT(dynamic_cast<const TypeEnum*>(type) != nullptr);
 
-        type = language.type("param");
+        type = &language.typeRef("param");
         EXPECT(dynamic_cast<const TypeParam*>(type) != nullptr);
 
-        type = language.type("expver");
+        type = &language.typeRef("expver");
         EXPECT(dynamic_cast<const TypeExpver*>(type) != nullptr);
 
-        type = language.type("domain");
+        type = &language.typeRef("domain");
         EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
 
-        type = language.type("date");
+        type = &language.typeRef("date");
         EXPECT(dynamic_cast<const TypeDate*>(type) != nullptr);
 
-        type = language.type("grid");
+        type = &language.typeRef("grid");
         EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
         EXPECT_EQUAL(type->multiple(), true);
 
-        type = language.type("area");
+        type = &language.typeRef("area");
         EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
         EXPECT_EQUAL(type->multiple(), true);
 
-        type = language.type("accuracy");
+        type = &language.typeRef("accuracy");
         EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
 
-        type = language.type("resol");
+        type = &language.typeRef("resol");
         EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
     }
     {
         const auto& language = MarsLanguage::get("archive");
 
-        const auto* type = language.type("resol");
+        const Type* type = &language.typeRef("resol");
         EXPECT(dynamic_cast<const TypeAny*>(type) != nullptr);
 
-        EXPECT_THROWS_AS(language.type("grid"), eckit::UserError);
-        EXPECT_THROWS_AS(language.type("area"), eckit::UserError);
+        EXPECT_THROWS_AS(language.typeRef("grid"), eckit::UserError);
+        EXPECT_THROWS_AS(language.typeRef("area"), eckit::UserError);
     }
 }
 

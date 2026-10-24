@@ -22,8 +22,7 @@ TypeMixed::TypeMixed(const std::string& typeName, MarsKeyword key, const eckit::
             cfg         = val;
             cfg["type"] = types[i];
 
-            auto k = TypesFactory::build(0, cfg);
-            types_.emplace_back(MarsLanguage::context(0), k);
+            types_.emplace_back(MarsLanguage::context(0), TypesFactory::build(0, cfg));
         }
         else {  // it is a subtype, potentially with a Context
             cfg               = types[i];
@@ -32,14 +31,13 @@ TypeMixed::TypeMixed(const std::string& typeName, MarsKeyword key, const eckit::
             const Context& c =
                 cfg.contains("context") ? MarsLanguage::addContext(cfg["context"]) : MarsLanguage::context(0);
 
-            auto k = TypesFactory::build(0, cfg);
-            types_.emplace_back(c, k);
+            types_.emplace_back(c, TypesFactory::build(0, cfg));
         }
     }
 }
 
 
-TypeMixed::TypeMixed(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
+TypeMixed::TypeMixed(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {
     uint8_t numSubtypes = file.read8();
     for (uint8_t i = 0; i < numSubtypes; ++i) {
         uint16_t ctxId = file.read16();
@@ -47,7 +45,7 @@ TypeMixed::TypeMixed(const std::string& type, MarsKeyword key, MemFile& file) : 
         MarsKeyword::value_t nestedTypeKey = file.read16();
         ASSERT(nestedTypeKey == 0);
         auto type = TypesFactory::build(nestedTypeName, MarsKeyword{}, file);
-        types_.emplace_back(MarsLanguage::context(ctxId), type);
+        types_.emplace_back(MarsLanguage::context(ctxId), std::move(type));
     }
 }
 

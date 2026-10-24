@@ -20,7 +20,7 @@ class TypeDate : public Type {
 public:  // methods
 
     TypeDate(const std::string& type, MarsKeyword key, const eckit::Value& val);
-    TypeDate(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeDate(const std::string& type, MarsKeyword key, MMapFileReader& file);
     ~TypeDate() noexcept override = default;
 
 private:  // methods

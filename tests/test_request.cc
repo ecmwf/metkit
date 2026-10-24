@@ -22,6 +22,7 @@
 #include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
+#include "metkit/mars/TypeAny.h"
 
 #include "eckit/testing/Test.h"
 
@@ -29,7 +30,7 @@ using namespace eckit::testing;
 
 namespace metkit::mars::test {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CASE("test_request_json") {
     {
@@ -231,6 +232,68 @@ CASE("test_raw_request_stream_roundtrip") {
     EXPECT_EQUAL(decoded.params().size(), 2u);
 }
 
+CASE("test_request_sparse_categories") {
+    MarsRequest r("retrieve");
+    const MarsRequest& request = r;
+    EXPECT(r.begin() == r.end());
+    EXPECT(!r.has("missing"));
+    EXPECT(r.find("missing") == nullptr);
+    EXPECT(r.params().empty());
+
+    r.setValue("target", "output.grib");
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"target"}));
+    EXPECT_EQUAL(r.begin()->name(), "target");
+    EXPECT(!r.has("class"));
+    EXPECT(!r.has("missing"));
+    EXPECT(request.params(Category::Derived).empty());
+    EXPECT(request.params(Category::PostProc).empty());
+
+    r.setValue("grid", "1");
+    r.setValue("class", "od");
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "target", "grid"}));
+    EXPECT_EQUAL(r.end() - r.begin(), 3);
+    EXPECT_EQUAL(r.begin()[1].name(), "target");
+    EXPECT_EQUAL((r.end() - 1)->name(), "grid");
+    EXPECT_EQUAL(r["target"], "output.grib");
+    EXPECT_EQUAL(r["GRID"], "1");
+    EXPECT(!r.has("missing"));
+
+    r.erase("grid");
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "target"}));
+    r.erase("class");
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"target"}));
+    r.erase("target");
+    EXPECT(r.begin() == r.end());
+    EXPECT(r.params().empty());
+    EXPECT(!r.has("missing"));
+}
+
+CASE("test_request_subset") {
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.setValue("target", "output.grib");
+
+    MarsRequest subset = r.subset({"class"});
+
+    EXPECT_EQUAL(subset.verb(), "retrieve");
+    EXPECT_EQUAL(subset.params(), (std::vector<std::string>{"class"}));
+    EXPECT_EQUAL(subset.values("class"), (std::vector<std::string>{"od"}));
+    EXPECT(!subset.has("target"));
+}
+
+CASE("test_request_typed_unregistered_parameter") {
+    MarsRequest request("retrieve");
+
+    request.setValuesTyped(new TypeAny("test_custom_typed_parameter"), {"value"});
+    EXPECT(request.has("test_custom_typed_parameter"));
+    EXPECT_EQUAL(request.values("test_custom_typed_parameter"), (std::vector<std::string>{"value"}));
+
+    const Parameter* parameter = request.find("test_custom_typed_parameter");
+    EXPECT(parameter != nullptr);
+    EXPECT(parameter->typed());
+    EXPECT_EQUAL(parameter->type().name(), "test_custom_typed_parameter");
+}
+
 CASE("test_request_unknown_names") {
     MarsRequest r("retrieve");
     r.setValue("class", "od");
@@ -430,7 +493,7 @@ CASE("test_request_no_implicit_conversions") {
     EXPECT_EQUAL(MarsRequest{"retrieve"}.verb(), "retrieve");
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 

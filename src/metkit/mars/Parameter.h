@@ -17,6 +17,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -49,20 +50,19 @@ public:  // methods
     Parameter() = default;
 
     /// Untyped parameter
-    Parameter(const std::string& name, const std::vector<std::string>& values);
-    Parameter(const std::string& name, std::vector<std::string>&& values);
-
+    Parameter(MarsKeyword key, const std::string& name, const std::vector<std::string>& values);
+    Parameter(MarsKeyword key, const std::string& name, std::vector<std::string>&& values);
     /// Typed parameter
-    Parameter(std::shared_ptr<const Type> type, const std::vector<std::string>& values);
-    Parameter(std::shared_ptr<const Type> type, std::vector<std::string>&& values);
+    Parameter(const Type& type, const std::vector<std::string>& values);
+    Parameter(const Type& type, std::vector<std::string>&& values);
 
     /// Parameters are ordered by name (and then by values): the ids of the keywords depend on the order in which the
     /// languages are loaded, so they cannot be used to order parameters in a way that is stable across processes.
     bool operator<(const Parameter&) const;
 
-    /// @return the id of the keyword, or 0 if the name is not a registered keyword. It does not register anything.
-    MarsKeyword id() const;
-    const std::string& name() const;
+    /// @return the id of the MarsKeyword, or 0 if the name is not a registered keyword.
+    MarsKeyword id() const { return key_; }
+    const std::string& name() const { return name_; }
 
     /// @return true if the id of the keyword is @p key (the name is compared if the parameter is untyped)
     bool is(MarsKeyword key) const;
@@ -71,10 +71,9 @@ public:  // methods
     void values(const std::vector<std::string>& values) { values_ = values; }
     void values(std::vector<std::string>&& values) { values_ = std::move(values); }
 
-    bool typed() const { return type_ != nullptr; }
+    bool typed() const { return type_ != std::nullopt; }
     /// @throws SeriousBug if the parameter is untyped
     const Type& type() const;
-    const std::shared_ptr<const Type>& typePtr() const { return type_; }
 
     bool multiple() const;
     size_t count() const;
@@ -102,9 +101,10 @@ protected:
 
 private:  // members
 
-    std::string name_;  // the name of an untyped parameter. Empty if the parameter is typed, the type knows its name
+    MarsKeyword key_;
+    std::string name_;
     std::vector<std::string> values_;
-    std::shared_ptr<const Type> type_;  // null if the parameter is untyped
+    std::optional<std::reference_wrapper<const Type>> type_;  // nullopt if the parameter is untyped
 };
 
 //----------------------------------------------------------------------------------------------------------------------

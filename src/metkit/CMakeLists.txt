@@ -52,8 +52,10 @@ list( APPEND metkit_srcs
     mars/Quantile.h
     mars/RequestEnvironment.cc
     mars/RequestEnvironment.h
-    mars/Serialize.cc
-    mars/Serialize.h
+    mars/MMapFileReader.cc
+    mars/MMapFileReader.h
+    mars/StreamWriter.cc
+    mars/StreamWriter.h
     mars/StepRangeNormalise.h
     mars/Type.cc
     mars/Type.h

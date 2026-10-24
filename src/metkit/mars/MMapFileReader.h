@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
 // SPDX-License-Identifier: Apache-2.0
 
-// File Serialize.h
+// File MMapFileReader.h
 // Emanuele Danovaro - ECMWF September 2026
 
 #pragma once
@@ -16,20 +16,19 @@
 #include <string_view>
 #include <vector>
 
-/// Read-only memory mapped file, read sequentially (little endian). Strings are returned as views into the mapping:
-/// they are valid as long as the MemFile is alive (and not moved from, or assigned to).
-class MemFile {
+/// Read-only memory mapped file, read sequentially (and convert from little endian).
+class MMapFileReader {
 public:
 
-    MemFile() = default;
-    explicit MemFile(const std::string& filename);
+    MMapFileReader() = default;
+    explicit MMapFileReader(const std::string& filename);
 
-    MemFile(const MemFile&)            = delete;
-    MemFile& operator=(const MemFile&) = delete;
-    MemFile(MemFile&& other) noexcept;
-    MemFile& operator=(MemFile&& other) noexcept;
+    MMapFileReader(const MMapFileReader&)            = delete;
+    MMapFileReader& operator=(const MMapFileReader&) = delete;
+    MMapFileReader(MMapFileReader&& other) noexcept;
+    MMapFileReader& operator=(MMapFileReader&& other) noexcept;
 
-    ~MemFile();
+    ~MMapFileReader();
 
     uint8_t read8();
     uint16_t read16();

@@ -44,22 +44,6 @@ class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsID {
-public:
-
-    const std::string& get(MarsKeyword key) const;
-    void set(MarsKeyword key, const std::string& value);
-    void unset(MarsKeyword key);
-    bool has(MarsKeyword key) const;
-    const std::map<MarsKeyword, std::string>& values() const;
-
-private:
-
-    std::map<MarsKeyword, std::string> values_;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
 class MarsDataCube {
 public:  // methods
 
@@ -75,8 +59,8 @@ public:  // methods
     std::vector<Parameter>::const_iterator begin() const { return data_.begin(); }
     std::vector<Parameter>::const_iterator end() const { return data_.end(); }
 
-    size_t size() const { return data_.size(); }
-    bool empty() const { return data_.empty(); }
+    virtual size_t size() const { return data_.size(); }
+    virtual bool empty() const { return data_.empty(); }
 
     /// The number of fields the datacube refers to
     size_t count() const;
@@ -90,16 +74,18 @@ public:  // methods
 
 protected:
 
+    // each verb can have a different set of types, potentially with a different behaviour
+    // e.g. retrieve requires a single levtype while list can accept multiple ones
     MarsVerb verb_;
     const MarsLanguage* lang_ = nullptr;
+
     std::vector<Parameter> data_;
 };
 
-
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Random access iterator over the parameters of a request: it goes through the data parameters, then the postproc
-/// ones, and then the others (each one in the order they were added)
+/// Random access iterator over the parameters of a request in category order, skipping absent categories
+/// (each category in the order its parameters were added).
 class ParameterIterator {
 public:  // types
 
@@ -114,9 +100,8 @@ public:  // methods
     ParameterIterator() = default;
 
     /// @param end if true, the iterator is the one past the last parameter
-    ParameterIterator(const std::vector<Parameter>& data, const std::vector<Parameter>& postproc,
-                      const std::vector<Parameter>& other, bool end = false) :
-        containers_{&data, &postproc, &other}, index_(end ? data.size() + postproc.size() + other.size() : 0) {}
+    ParameterIterator(const std::vector<Parameter>& data, const std::array<std::vector<Parameter>, 4>& other,
+                      bool end = false);
 
     reference operator*() const { return at(index_); }
     pointer operator->() const { return &at(index_); }
@@ -169,17 +154,20 @@ private:  // methods
     /// @param i position in the concatenation of the three containers
     const Parameter& at(size_t i) const {
         for (const auto* container : containers_) {
+            if (!container) {
+                continue;
+            }
             if (i < container->size()) {
                 return (*container)[i];
             }
             i -= container->size();
         }
-        __builtin_unreachable();
+        throw eckit::SeriousBug("ParameterIterator index out of range", Here());
     }
 
 private:  // members
 
-    std::array<const std::vector<Parameter>*, 3> containers_{};
+    std::array<const std::vector<Parameter>*, 5> containers_{};
     size_t index_ = 0;
 };
 
@@ -206,10 +194,11 @@ public:  // methods
     using iterator       = ParameterIterator;
     using const_iterator = ParameterIterator;
 
-    ParameterIterator begin() const { return ParameterIterator(data_, postproc_, other_); }
-    ParameterIterator end() const { return ParameterIterator(data_, postproc_, other_, true); }
+    ParameterIterator begin() const { return ParameterIterator(data_, params_); }
+    ParameterIterator end() const { return ParameterIterator(data_, params_, true); }
 
-    size_t size() const { return data_.size() + postproc_.size() + other_.size(); }
+    size_t size() const override;
+    bool empty() const override { return size() == 0; }
 
     MarsRequest();
     explicit MarsRequest(MarsVerb verb);
@@ -300,20 +289,18 @@ public:  // methods
 
     void dump(std::ostream& s, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
 
-    /// Sets the values of the parameter of the type, which becomes typed
-    /// @note @p type must be owned by a std::shared_ptr, or allocated with new: the request takes the ownership in
-    /// the latter case
+    [[deprecated("use setValuesTyped overload accepting Type reference")]]
     void setValuesTyped(const Type* type, const std::vector<std::string>& values);
-    void setValuesTyped(std::shared_ptr<const Type> type, const std::vector<std::string>& values);
+    void setValuesTyped(const Type& type, const std::vector<std::string>& values);
 
     bool filter(const MarsRequest& filter);
     bool matches(const MarsRequest& other) const;
-    bool empty() const { return data_.empty() && postproc_.empty() && other_.empty(); }
 
     bool operator<(const MarsRequest& other) const;
 
     MarsDataCube data() const;
-    const std::vector<Parameter>& postproc() const { return postproc_; }
+    /// Returns the parameters in a category, or an empty vector if the category is absent.
+    const std::vector<Parameter>& params(Category c) const;
     [[deprecated("extract is deprecated, use data() or postproc() instead")]]
     MarsRequest extract(const std::string& category) const;
 
@@ -339,17 +326,16 @@ private:  // methods
 
     /// Where a parameter is held: the container (0 data, 1 postproc, 2 other) and the index in it
     struct Position {
-        size_t container = 3;
-        size_t index     = 0;
-        explicit operator bool() const { return container < 3; }
+        Category category = Category::Unknown;
+        size_t index      = 0;
+        explicit operator bool() const { return category != Category::Unknown; }
     };
 
     /// @return the position of the parameter, or a false Position if there is no such parameter
     Position locate(MarsKeyword key) const;
     Position locate(const std::string& name) const;
 
-    const std::vector<Parameter>& container(size_t c) const;
-    std::vector<Parameter>& container(size_t c);
+    std::vector<Parameter>& params(Category c);
 
     /// Adds the parameter to the container that corresponds to its keyword @p key (0 if not registered) and type
     void add(Parameter&& p);
@@ -377,8 +363,7 @@ private:  // methods
 private:  // members
 
     std::string verbName_;
-    std::vector<Parameter> postproc_;  // typed parameters of category PostProc
-    std::vector<Parameter> other_;     // the rest: other categories, and untyped parameters
+    std::array<std::vector<Parameter>, 4> params_;
 };
 
 template <class T>

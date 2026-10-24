@@ -19,7 +19,7 @@ class TypeFloat : public Type {
 public:  // methods
 
     TypeFloat(const std::string& type, MarsKeyword key, const eckit::Value& val);
-    TypeFloat(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeFloat(const std::string& type, MarsKeyword key, MMapFileReader& file);
     ~TypeFloat() noexcept override = default;
 
 private:  // methods

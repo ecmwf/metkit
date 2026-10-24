@@ -23,7 +23,7 @@ class TypeInteger : public Type {
 public:  // methods
 
     TypeInteger(const std::string& type, MarsKeyword key, const eckit::Value& val);
-    TypeInteger(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeInteger(const std::string& type, MarsKeyword key, MMapFileReader& file);
     ~TypeInteger() noexcept override = default;
 
     void write(std::ofstream& file) const override;

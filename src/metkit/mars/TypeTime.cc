@@ -18,7 +18,7 @@ TypeTime::TypeTime(const std::string& type, MarsKeyword key, const eckit::Value&
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, settings);
     flags_[1] = true;
 }
-TypeTime::TypeTime(const std::string& type, MarsKeyword key, MemFile& file) : Type(type, key, file) {
+TypeTime::TypeTime(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, file);
     flags_[1] = true;
 }

@@ -19,7 +19,7 @@ class TypeParam : public Type {
 public:  // methods
 
     TypeParam(const std::string& type, MarsKeyword key, const eckit::Value& val);
-    TypeParam(const std::string& type, MarsKeyword key, MemFile& file);
+    TypeParam(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     ~TypeParam() noexcept override = default;
 
