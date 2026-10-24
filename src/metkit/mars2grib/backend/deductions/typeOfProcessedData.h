@@ -165,9 +165,13 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                 else if (marsType == "ssd") {
                     result = tables::TypeOfProcessedData::ForecastProducts;
                 }
-                else if (marsType == "pf" || marsType == "gbf" || marsType == "gwt") {
-                    // gbf/gwt: ecPoint of an individual perturbed member, as in the operational GRIB2
+                else if (marsType == "pf") {
                     result = tables::TypeOfProcessedData::PerturbedForecastProducts;
+                }
+                else if (marsType == "gbf" || marsType == "gwt") {
+                    // ecPoint, as in the operational GRIB2: of a forecast in oper, of a perturbed member otherwise
+                    result = (marsStream == "oper") ? tables::TypeOfProcessedData::ForecastProducts
+                                                    : tables::TypeOfProcessedData::PerturbedForecastProducts;
                 }
                 else if (marsType == "efi" || marsType == "sot") {
                     // Index products computed from the control and the perturbed members
