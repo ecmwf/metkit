@@ -12,7 +12,7 @@ namespace metkit::mars2mars {
 /// @brief Structured result returned by mars2mars conversions.
 ///
 /// @tparam MarsDict
-/// Dictionary type used for the converted request.
+/// SymbolTable type used for the converted request.
 template <typename MarsDict>
 struct Mars2MarsResult {
     /// @brief Converted MARS request.

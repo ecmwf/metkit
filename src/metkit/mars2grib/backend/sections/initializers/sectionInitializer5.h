@@ -57,7 +57,7 @@ namespace metkit::mars2grib::backend::sections::initializers {
 template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
           class OutDict_t>
 void allocateTemplateNumber5(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
-    // Dictionary traits
+    // SymbolTable traits
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
