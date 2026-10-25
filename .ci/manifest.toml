@@ -13,6 +13,7 @@ header = """
 name = "metkit"
 repo = "ecmwf/metkit"
 visibility = "public"
+fork-pull-requests = true
 compiler-inputs = ["cxx-compiler"]
 git-read = ["ecmwf/bindman", "ecmwf/rust-wrappers-playground"]
 
@@ -193,6 +194,13 @@ compiler-inputs = ["cxx-compiler"]
 [[packages.metkit-rust.deps]]
 package = "metkit"
 options-input = "options"
+
+[[packages.metkit-rust.deps]]
+repo = "ecmwf/eckit"
+package = "eckit"
+ref = "develop"
+compiler-inputs = ["cxx-compiler"]
+crates = ["eckit", "eckit-sys"]
 
 [matrix.rust]
 packages = ["metkit-rust"]
