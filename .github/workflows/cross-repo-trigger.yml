@@ -297,10 +297,6 @@ jobs:
           echo "deps-json=${deps_json}"
           echo "own-artifact-name=${own_artifact_name}"
         } >> "$GITHUB_OUTPUT"
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Fetch resolved deps
       id: deps
       uses: ecmwf/ci-infrastructure/actions/fetch-deps@main
