@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
 // SPDX-License-Identifier: Apache-2.0
 
+#include <algorithm>
+
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/types/Types.h"
@@ -383,6 +385,65 @@ std::vector<std::string> MarsRequest::params() const {
 MarsRequest::operator eckit::Value() const {
     NOTIMP;
 }
+
+
+bool MarsRequest::checkValues(const std::string& key, const std::vector<std::string>& c) const {
+    auto t = find(key);
+    if (t == params_.end() || t->values().empty()) {
+        return false;
+    }
+    return std::all_of(t->values().begin(), t->values().end(),
+                       [&c](const std::string& value) { return std::find(c.begin(), c.end(), value) != c.end(); });
+}
+
+bool MarsRequest::observation() const {
+    return checkValues("type", {"ob", "fb"}) || checkValues("stream", {"ssmi"});
+}
+
+bool MarsRequest::image() const {
+    auto s = find("stream");
+    if (s == params_.end() || s->values().size() != 1) {
+        return false;
+    }
+    return s->values()[0] != "ssmi" && checkValues("type", {"im"});
+}
+
+bool MarsRequest::simulated_image() const {
+    return checkValues("type", {"sim"});
+}
+
+bool MarsRequest::gridded_observations() const {
+    return checkValues("type", {"go"});
+}
+
+bool MarsRequest::feedback() const {
+    return checkValues("type", {"ai", "af"});
+}
+
+bool MarsRequest::bias() const {
+    return checkValues("type", {"ab"});
+}
+
+bool MarsRequest::track() const {
+    return checkValues("type", {"tf"});
+}
+
+bool MarsRequest::is_bufr() const {
+    return checkValues("type", {"ai", "af", "ob", "fb", "ab", "tf"}) || checkValues("stream", {"ssmi"});
+}
+
+bool MarsRequest::is_odb() const {
+    return checkValues("type", {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"});
+}
+
+bool MarsRequest::is_ocean_netcdf() const {
+    return checkValues("levtype", {"o2d", "o3d"}) && checkValues("class", {"ep"});
+}
+
+bool MarsRequest::is_grib() const {
+    return !is_bufr();
+}
+
 
 // recursively expand along keys in expvalues
 void expand_along_keys(const MarsRequest& prototype,

@@ -111,6 +111,19 @@ public:  // methods
 
     size_t count() const;
 
+    /// Classification requires non-empty selections whose values all belong to the category.
+    bool observation() const;
+    bool image() const;
+    bool simulated_image() const;
+    bool gridded_observations() const;
+    bool feedback() const;
+    bool bias() const;
+    bool track() const;
+    bool is_bufr() const;
+    bool is_odb() const;
+    bool is_ocean_netcdf() const;
+    bool is_grib() const;
+
     MarsRequest extract(const std::string& category) const;
 
     void erase(const std::string& param);
@@ -131,6 +144,8 @@ private:  // members
     std::list<Parameter> params_;
 
 private:  // methods
+
+    bool checkValues(const std::string& key, const std::vector<std::string>& c) const;
 
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
