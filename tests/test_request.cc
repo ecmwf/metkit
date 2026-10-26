@@ -5,6 +5,9 @@
 /// @date   Jul 2024
 /// @author Emanuele Danovaro
 
+#include <string>
+#include <vector>
+
 #include "eckit/log/JSON.h"
 #include "eckit/types/Date.h"
 
@@ -22,6 +25,16 @@ using namespace eckit::testing;
 namespace metkit {
 namespace mars {
 namespace test {
+
+namespace {
+
+MarsRequest requestWith(const std::string& name, const std::vector<std::string>& values) {
+    MarsRequest request;
+    request.values(name, values);
+    return request;
+}
+
+}  // namespace
 
 //-----------------------------------------------------------------------------
 
@@ -195,6 +208,169 @@ CASE("test_request_count_single_level_params") {
         MarsRequest r = MarsRequest::parse(text);
         EXPECT_EQUAL(54, r.count());
     }
+}
+
+CASE("test_request_data_type_classification") {
+    {
+        MarsRequest request = requestWith("type", {"ob"});
+        EXPECT(request.observation());
+        EXPECT(request.is_bufr());
+        EXPECT(!request.is_grib());
+    }
+    {
+        MarsRequest request = requestWith("type", {"fb"});
+        EXPECT(request.observation());
+        EXPECT(request.is_bufr());
+    }
+    {
+        MarsRequest request = requestWith("stream", {"ssmi"});
+        EXPECT(request.observation());
+    }
+    {
+        MarsRequest request = requestWith("type", {"ob", "fb"});
+        EXPECT(request.observation());
+        EXPECT(request.is_bufr());
+        EXPECT(!request.is_grib());
+    }
+    {
+        MarsRequest request = requestWith("type", {"im"});
+        request.values("stream", std::vector<std::string>{"oper"});
+        EXPECT(request.image());
+    }
+    {
+        MarsRequest request = requestWith("type", {"im"});
+        request.values("stream", std::vector<std::string>{"ssmi"});
+        EXPECT(!request.image());
+    }
+    {
+        MarsRequest request = requestWith("type", {"im"});
+        EXPECT(!request.image());
+    }
+    {
+        MarsRequest request = requestWith("type", {"im"});
+        request.values("stream", std::vector<std::string>{"oper"});
+        EXPECT(request.image());
+    }
+
+    EXPECT(requestWith("type", {"sim"}).simulated_image());
+    EXPECT(!requestWith("type", {"im"}).simulated_image());
+    EXPECT(requestWith("type", {"go"}).gridded_observations());
+    EXPECT(!requestWith("type", {"ob"}).gridded_observations());
+    {
+        MarsRequest request = requestWith("type", {"ai"});
+        EXPECT(request.feedback());
+        EXPECT(request.is_bufr());
+        EXPECT(!request.is_grib());
+    }
+    {
+        MarsRequest request = requestWith("type", {"af"});
+        EXPECT(request.feedback());
+        EXPECT(request.is_bufr());
+    }
+    {
+        MarsRequest request = requestWith("type", {"ab"});
+        EXPECT(request.bias());
+        EXPECT(request.is_bufr());
+    }
+    {
+        MarsRequest request = requestWith("type", {"tf"});
+        EXPECT(request.track());
+        EXPECT(request.is_bufr());
+    }
+
+    for (const std::string& type : {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"}) {
+        EXPECT(requestWith("type", {type}).is_odb());
+    }
+    EXPECT(!requestWith("type", {"an"}).is_odb());
+
+    {
+        MarsRequest request = requestWith("class", {"ep"});
+        request.values("levtype", std::vector<std::string>{"o2d"});
+        EXPECT(request.is_ocean_netcdf());
+        request.values("levtype", std::vector<std::string>{"o3d"});
+        EXPECT(request.is_ocean_netcdf());
+    }
+    {
+        MarsRequest request = requestWith("class", {"od"});
+        request.values("levtype", std::vector<std::string>{"o2d"});
+        EXPECT(!request.is_ocean_netcdf());
+    }
+    {
+        MarsRequest request = requestWith("class", {"ep"});
+        request.values("levtype", std::vector<std::string>{"sfc"});
+        EXPECT(!request.is_ocean_netcdf());
+    }
+
+    EXPECT(requestWith("type", {"an"}).is_grib());
+    EXPECT(MarsRequest().is_grib());
+}
+
+CASE("test_request_multiple_type_values") {
+    struct Classification {
+        bool (MarsRequest::*predicate)() const;
+        std::vector<std::string> types;
+    };
+
+    const std::vector<Classification> classifications{
+        {&MarsRequest::observation, {"ob", "fb"}},
+        {&MarsRequest::simulated_image, {"sim", "sim"}},
+        {&MarsRequest::gridded_observations, {"go", "go"}},
+        {&MarsRequest::feedback, {"ai", "af"}},
+        {&MarsRequest::bias, {"ab", "ab"}},
+        {&MarsRequest::track, {"tf", "tf"}},
+        {&MarsRequest::is_bufr, {"ob", "fb", "ai", "af", "ab", "tf"}},
+        {&MarsRequest::is_odb, {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"}},
+    };
+
+    for (const auto& classification : classifications) {
+        const auto predicate = classification.predicate;
+        EXPECT((requestWith("type", classification.types).*predicate)());
+        EXPECT(!(MarsRequest().*predicate)());
+        EXPECT(!(requestWith("type", {}).*predicate)());
+        EXPECT(!(requestWith("type", {classification.types.front(), "an"}).*predicate)());
+        EXPECT(!(requestWith("type", {"an", classification.types.front()}).*predicate)());
+    }
+
+    const MarsRequest feedback = requestWith("type", {"ai", "af"});
+    EXPECT(feedback.is_bufr());
+    EXPECT(!feedback.is_grib());
+    EXPECT(!feedback.observation());
+    const MarsRequest observation = requestWith("type", {"ob", "fb"});
+    EXPECT(!observation.feedback());
+    const MarsRequest mixed = requestWith("type", {"ob", "ai"});
+    EXPECT(!mixed.observation());
+    EXPECT(!mixed.feedback());
+    EXPECT(mixed.is_bufr());
+    EXPECT(!mixed.is_grib());
+}
+
+CASE("test_request_multiple_stream_values") {
+    const MarsRequest observation = requestWith("stream", {"ssmi", "ssmi"});
+    EXPECT(observation.observation());
+    EXPECT(observation.is_bufr());
+    EXPECT(!observation.is_grib());
+    EXPECT(!requestWith("stream", {"ssmi", "oper"}).observation());
+    EXPECT(!requestWith("stream", {"oper", "ssmi"}).observation());
+    EXPECT(!requestWith("stream", {}).observation());
+}
+
+CASE("test_request_multiple_ocean_netcdf_values") {
+    MarsRequest request = requestWith("class", {"ep", "ep"});
+    request.values("levtype", std::vector<std::string>{"o2d", "o3d"});
+    EXPECT(request.is_ocean_netcdf());
+    request.values("levtype", std::vector<std::string>{"o2d", "sfc"});
+    EXPECT(!request.is_ocean_netcdf());
+    request.values("levtype", std::vector<std::string>{});
+    EXPECT(!request.is_ocean_netcdf());
+    request.unsetValues("levtype");
+    EXPECT(!request.is_ocean_netcdf());
+    request.values("levtype", std::vector<std::string>{"o2d", "o3d"});
+    request.values("class", std::vector<std::string>{"ep", "od"});
+    EXPECT(!request.is_ocean_netcdf());
+    request.values("class", std::vector<std::string>{});
+    EXPECT(!request.is_ocean_netcdf());
+    request.unsetValues("class");
+    EXPECT(!request.is_ocean_netcdf());
 }
 
 //-----------------------------------------------------------------------------
