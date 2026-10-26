@@ -27,6 +27,13 @@ namespace metkit::mars {
 class Type;
 class MarsRequest;
 
+enum DataType {
+    Bufr,
+    Odb,
+    Grib,
+    Unknown
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsRequest {
@@ -111,18 +118,11 @@ public:  // methods
 
     size_t count() const;
 
-    /// Classification requires non-empty selections whose values all belong to the category.
-    bool observation() const;
-    bool image() const;
-    bool simulated_image() const;
-    bool gridded_observations() const;
-    bool feedback() const;
-    bool bias() const;
-    bool track() const;
     bool is_bufr() const;
     bool is_odb() const;
-    bool is_ocean_netcdf() const;
     bool is_grib() const;
+
+    DataType dataType() const;
 
     MarsRequest extract(const std::string& category) const;
 
