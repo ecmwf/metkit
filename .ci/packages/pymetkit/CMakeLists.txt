@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # pymetkit on its own, against an installed metkit:
-#   cmake -S python/pymetkit -B build -DCMAKE_PREFIX_PATH=<metkit and its deps>
+#   cmake -S .ci/packages/pymetkit -B build -DCMAKE_PREFIX_PATH=<metkit and its deps>
 
 cmake_minimum_required( VERSION 3.18 FATAL_ERROR )
 
@@ -20,8 +20,8 @@ set( HAVE_PYTHON_METKIT_INTERFACE ON )
 set( HAVE_MARS2GRIB ${metkit_HAVE_MARS2GRIB} )
 set( HAVE_MARS2MARS ${metkit_HAVE_MARS2MARS} )
 
-include( ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/pymetkit.cmake )
+include( ${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/pymetkit.cmake )
 
 enable_testing()
 set( metkit_env "METKIT_HOME=$<TARGET_FILE_DIR:metkit>/.." )
-add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/../../tests/pymetkit ${CMAKE_CURRENT_BINARY_DIR}/tests )
+add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/../../../tests/pymetkit ${CMAKE_CURRENT_BINARY_DIR}/tests )
