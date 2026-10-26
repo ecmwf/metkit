@@ -396,54 +396,25 @@ bool MarsRequest::checkValues(const std::string& key, const std::vector<std::str
                        [&c](const std::string& value) { return std::find(c.begin(), c.end(), value) != c.end(); });
 }
 
-bool MarsRequest::observation() const {
-    return checkValues("type", {"ob", "fb"}) || checkValues("stream", {"ssmi"});
-}
-
-bool MarsRequest::image() const {
-    auto s = find("stream");
-    if (s == params_.end() || s->values().size() != 1) {
-        return false;
-    }
-    return s->values()[0] != "ssmi" && checkValues("type", {"im"});
-}
-
-bool MarsRequest::simulated_image() const {
-    return checkValues("type", {"sim"});
-}
-
-bool MarsRequest::gridded_observations() const {
-    return checkValues("type", {"go"});
-}
-
-bool MarsRequest::feedback() const {
-    return checkValues("type", {"ai", "af"});
-}
-
-bool MarsRequest::bias() const {
-    return checkValues("type", {"ab"});
-}
-
-bool MarsRequest::track() const {
-    return checkValues("type", {"tf"});
-}
-
 bool MarsRequest::is_bufr() const {
     return checkValues("type", {"ai", "af", "ob", "fb", "ab", "tf"}) || checkValues("stream", {"ssmi"});
 }
-
 bool MarsRequest::is_odb() const {
     return checkValues("type", {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"});
 }
-
-bool MarsRequest::is_ocean_netcdf() const {
-    return checkValues("levtype", {"o2d", "o3d"}) && checkValues("class", {"ep"});
-}
-
 bool MarsRequest::is_grib() const {
-    return !is_bufr();
+    return !is_bufr() && !is_odb();
 }
 
+DataType MarsRequest::dataType() const {
+    if (is_bufr()) {
+        return Bufr;
+    }
+    if (is_odb()) {
+        return Odb;
+    }
+    return Grib;
+}
 
 // recursively expand along keys in expvalues
 void expand_along_keys(const MarsRequest& prototype,
