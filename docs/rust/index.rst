@@ -8,7 +8,7 @@ Rust interface
 Metkit ships with a Rust interface. It lives in the ``rust/`` directory of the
 metkit repository, is built with Cargo, and calls the same C++ library that
 :ref:`pymetkit <PyMetkit_Introduction>` and the :ref:`C API <Metkit_C_API>`
-wrap. Nothing is reimplemented in Rust.
+wrap.
 
 The interface is a Cargo workspace with two crates:
 

@@ -1,7 +1,6 @@
 Approach
 ========
 
-The Rust interface calls the C++ library; no metkit code is ported to Rust.
 Every call ends up in the same metkit code that C++ applications run, so the
 MARS language, the expansion rules and the configuration files are the same in
 both languages.
