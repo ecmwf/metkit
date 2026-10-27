@@ -307,7 +307,8 @@ public:
                          shapeType_ == shape::ProductTimeSpecShapeKind::IFSFromStartSingleLoopPositive ||
                          shapeType_ == shape::ProductTimeSpecShapeKind::AIFSFromStartSingleLoopAtZero ||
                          shapeType_ == shape::ProductTimeSpecShapeKind::AIFSFromStartSingleLoopPositive;
-        return fromStart; }
+        return fromStart;
+    }
 
 
     ///

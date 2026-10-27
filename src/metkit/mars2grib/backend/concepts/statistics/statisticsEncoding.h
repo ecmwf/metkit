@@ -173,7 +173,8 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
 
                 // Set time range if the product is "FromStart"
                 if (spec.isFromStart()) {
-                    set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", pts.indicatorOfUnitForTimeRange);
+                    set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange",
+                                                    pts.indicatorOfUnitForTimeRange);
                     set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
                 }
 

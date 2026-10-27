@@ -119,11 +119,12 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
         std::optional<tables::ProductionStatusOfProcessedData> productionStatusOfProcessedData = std::nullopt;
 
         // Retrieve mandatory MARS class
-        const auto marsClass = get_or_throw<std::string>(mars, "class");
+        const auto marsClass  = get_or_throw<std::string>(mars, "class");
         const auto marsExpver = get_or_throw<std::string>(mars, "expver");
 
-        // The following logic is partially inspired to ifs code: "ifs-source/arpifs/dia/preset_grib_template.F90:~151:170"
-        // Deduce productionStatusOfProcessedData from mars class
+        // The following logic is partially inspired to ifs code:
+        // "ifs-source/arpifs/dia/preset_grib_template.F90:~151:170" Deduce productionStatusOfProcessedData from mars
+        // class
         if (marsClass == "d1") {
             // This is mandatory for DestinE because it is used inside eccodes to allocate the proper "localUseSection"
             // template. Setting this keyword reallocate the local use section.
