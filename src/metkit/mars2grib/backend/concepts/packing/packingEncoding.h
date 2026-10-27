@@ -56,6 +56,8 @@
 // Deductions
 #include "metkit/mars2grib/backend/deductions/bitsPerValue.h"
 #include "metkit/mars2grib/backend/deductions/subSetTrunc.h"
+#include "metkit/mars2grib/backend/deductions/truncation.h"
+#include "metkit/mars2grib/backend/deductions/laplacianScalingFactor.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -192,6 +194,25 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 set_or_throw<long>(out, "subSetK", subSetTruncation);
                 set_or_throw<long>(out, "subSetM", subSetTruncation);
                 set_or_throw<long>(out, "TS", (subSetTruncation + 1) * (subSetTruncation + 2));
+
+                // Set laplacian operator if applicable
+                long truncation = deductions::resolve_Truncation_or_throw(mars, par, opt);
+
+                if (truncation == subSetTruncation) {
+                    set_or_throw<double>(out, "computeLaplacianOperator", 0);
+                    set_or_throw<double>(out, "laplacianOperator", 0.0);
+                }
+                else {
+                    std::optional<double> laplacianOperator = deductions::resolve_FixedLaplacianOperator_or_throw(mars, par, opt);
+                    if (laplacianOperator) {
+                        set_or_throw<double>(out, "computeLaplacianOperator", 0);
+                        set_or_throw<double>(out, "laplacianOperator", *laplacianOperator);
+                    }
+                    else {
+                        set_or_throw<double>(out, "computeLaplacianOperator", 1);
+                    }
+                }
+
             }
         }
         catch (...) {
