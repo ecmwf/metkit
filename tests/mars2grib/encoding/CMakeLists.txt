@@ -1,5 +1,6 @@
 list( APPEND MARS2GRIB_ENCODING_TESTS
     011_seas6_stat_failure
+    012_spectral_laplacian_operator
 )
 
 list( SORT MARS2GRIB_ENCODING_TESTS )

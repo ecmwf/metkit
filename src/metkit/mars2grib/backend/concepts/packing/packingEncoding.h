@@ -55,6 +55,7 @@
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/bitsPerValue.h"
+#include "metkit/mars2grib/backend/deductions/laplacianOperator.h"
 #include "metkit/mars2grib/backend/deductions/subSetTrunc.h"
 
 // Utils
@@ -68,7 +69,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @brief Compile-time applicability predicate for the `packing` concept.
 ///
 /// The default applicability enables this concept only when:
-/// - `Stage == StagePreset`
+/// - `Stage == StagePreset`, or `Stage == StageRuntime` for spectral complex packing
 /// - `Section == SecDataRepresentationSection`
 ///
 /// @tparam Stage   Encoding stage (compile-time constant)
@@ -82,6 +83,11 @@ template <std::size_t Stage, std::size_t Section, PackingType Variant>
 constexpr bool packingApplicable() {
 
     if constexpr (Stage == StagePreset && Section == SecDataRepresentationSection) {
+        return true;
+    }
+
+    if constexpr (Stage == StageRuntime && Section == SecDataRepresentationSection &&
+                  Variant == PackingType::SpectralComplex) {
         return true;
     }
 
@@ -111,9 +117,18 @@ constexpr bool packingApplicable() {
 /// - Template: 51
 /// - Keys set:
 /// - `bitsPerValue`
-/// - `laplacianOperator`
 /// - `subSetJ`, `subSetK`, `subSetM`
 /// - `TS`
+/// - Runtime stage keys set (only for a fixed laplacian operator, see
+///   `resolve_FixedLaplacianOperator_or_throw`):
+/// - `computeLaplacianOperator` (to `0`)
+/// - `laplacianOperator`
+///
+/// In all other cases the laplacian operator is computed by ecCodes from the
+/// field values. The fixed laplacian operator is set in the runtime stage
+/// because `computeLaplacianOperator` is a transient key: it is reset whenever
+/// the handle is cloned, and the runtime stage is the last one before the
+/// values are encoded.
 ///
 /// If the concept is invoked when not applicable, a
 /// `Mars2GribConceptException` is thrown.
@@ -158,6 +173,19 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
             // =============================================================
             // Variant-specific logic
             // =============================================================
+            if constexpr (Stage == StageRuntime) {
+
+                // Fixed laplacian operator for selected fields, otherwise computed by ecCodes
+                const std::optional<double> laplacianOperator =
+                    deductions::resolve_FixedLaplacianOperator_or_throw(mars, par, opt);
+                if (laplacianOperator) {
+                    set_or_throw<long>(out, "computeLaplacianOperator", 0);
+                    set_or_throw<double>(out, "laplacianOperator", *laplacianOperator);
+                }
+
+                return;
+            }
+
             if constexpr (Variant == PackingType::Simple) {
 
                 // Check sample structure

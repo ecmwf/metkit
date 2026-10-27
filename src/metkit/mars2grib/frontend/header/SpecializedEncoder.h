@@ -306,15 +306,19 @@ public:
             auto samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
 
             // Encoding loop as a dense set of optimized operations
-            for (const auto& stage : plan_) {
-                for (const auto& section : stage) {
+            for (std::size_t s = 0; s < plan_.size(); ++s) {
+                for (const auto& section : plan_[s]) {
                     for (const auto& conceptCallback : section) {
                         if (conceptCallback) {
                             conceptCallback(mars, par, opt, *samplePtr);
                         }
                     }
                 }
-                samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
+                // No clone after the last (runtime) stage, as in `finaliseEncoding()`:
+                // transient keys set in the runtime stage must reach the values encoding
+                if (s + 1 < plan_.size()) {
+                    samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
+                }
             }
 
             return samplePtr;
