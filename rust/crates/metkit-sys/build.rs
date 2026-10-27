@@ -82,6 +82,7 @@ fn build_cxx_bridge(include: &std::path::Path) {
     let eccodes_include = std::env::var("DEP_ECCODES_SYS_INCLUDE")
         .expect("DEP_ECCODES_SYS_INCLUDE not set — eccodes-sys must be a dependency");
 
+    println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=cpp/MetkitBridge.h");
     println!("cargo:rerun-if-changed=cpp/MarsRequest.h");
     println!("cargo:rerun-if-changed=cpp/MarsRequest.cc");
