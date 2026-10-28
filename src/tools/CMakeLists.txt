@@ -16,25 +16,61 @@ ecbuild_add_executable(
     LIBS          metkit eckit_option eckit
 )
 
+set( _mars2grib_run_tests_utils
+     ../metkit/mars2grib/testing-utils/Producer.cc
+     ../metkit/mars2grib/testing-utils/Consumer.cc
+     ../metkit/mars2grib/testing-utils/TestRecord.cc
+     ../metkit/mars2grib/testing-utils/FailureReport.cc
+     ../metkit/mars2grib/testing-utils/Decode.cc )
+
+# The test-case tools read and write eckit::blockfile files.
+set( _mars2grib_run_tests_condition
+     HAVE_MARS2GRIB AND HAVE_GRIB2MARS AND HAVE_BUILD_GRIB2_TOOLS AND eckit_HAVE_ECKIT_BLOCKFILE )
+
 ecbuild_add_executable(
     TARGET        mars2grib-run-tests
     SOURCES       mars2grib-run-tests.cc
-                  ../metkit/mars2grib/testing-utils/Producer.cc
-                  ../metkit/mars2grib/testing-utils/Consumer.cc
-    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+                  ${_mars2grib_run_tests_utils}
+    CONDITION     ${_mars2grib_run_tests_condition}
     INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
-    LIBS          metkit eckit_option eckit zstd
+    LIBS          metkit eckit_blockfile eckit_option eckit
 )
 
 ecbuild_add_executable(
     TARGET        mars2grib-run-tests-scalar
     SOURCES       mars2grib-run-tests-scalar.cc
-                  ../metkit/mars2grib/testing-utils/Consumer.cc
-    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+                  ${_mars2grib_run_tests_utils}
+    CONDITION     ${_mars2grib_run_tests_condition}
     INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
-    LIBS          metkit eckit_option eckit
+    LIBS          metkit eckit_blockfile eckit_option eckit
+)
+
+ecbuild_add_executable(
+    TARGET        mars2grib-regenerate-tests
+    SOURCES       mars2grib-regenerate-tests.cc
+                  ../metkit/mars2grib/testing-utils/TestCaseLabels.cc
+                  ../metkit/mars2grib/testing-utils/Producer.cc
+                  ../metkit/mars2grib/testing-utils/JsonlWriter.cc
+                  ../metkit/mars2grib/testing-utils/TestRecord.cc
+    CONDITION     ${_mars2grib_run_tests_condition}
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_blockfile eckit_option eckit zstd
+)
+
+ecbuild_add_executable(
+    TARGET        mars2grib-testcases
+    SOURCES       mars2grib-testcases.cc
+                  ../metkit/mars2grib/testing-utils/TestCaseLabels.cc
+                  ../metkit/mars2grib/testing-utils/Producer.cc
+                  ../metkit/mars2grib/testing-utils/TestRecord.cc
+                  ../metkit/mars2grib/testing-utils/FailureReport.cc
+    CONDITION     ${_mars2grib_run_tests_condition}
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_blockfile eckit_option eckit
 )
 
 ecbuild_add_executable(

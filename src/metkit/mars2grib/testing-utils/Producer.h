@@ -6,29 +6,28 @@
 
 #pragma once
 
-#include <memory>
 #include <optional>
 #include <string>
 
+#include "eckit/blockfile/RecordReader.h"
+
 namespace metkit::mars2grib::testing_utils::run_tests {
 
+/// True when `path` ends in `.zst` or `.zstd`.
+bool isZstdPath(const std::string& path);
+
+/// Reads test-case records one at a time from a block file, a zstd-compressed JSONL file or a
+/// plain JSONL file (detected from the content). Empty lines are skipped.
 class Producer {
 public:
 
-    explicit Producer(const std::string& archivePath);
-    ~Producer();
-
-    Producer(const Producer&)            = delete;
-    Producer& operator=(const Producer&) = delete;
-    Producer(Producer&&)                 = delete;
-    Producer& operator=(Producer&&)      = delete;
+    explicit Producer(const std::string& path);
 
     std::optional<std::string> readNextRecord();
 
 private:
 
-    class Impl;
-    std::unique_ptr<Impl> impl_;
+    eckit::blockfile::RecordReader reader_;
 };
 
 }  // namespace metkit::mars2grib::testing_utils::run_tests
