@@ -10,9 +10,11 @@
 # up to `to` (inclusive), every `by` hours. `time` lists the base times (hhmm, quoted) that share
 # the schedule.
 #
-# Evidence: the step set of 2t (167) in the legacy archive, od:0001 20261027 (oper 06/12/18 UTC),
-# and the converted archive fdbsc od:2250 oper 20261013 00 UTC (237055 holds timespan 1h at
-# steps 1-90, 3h at 93-144, 6h at 150-360). Still to add: od enfo cf/pf.
+# Evidence: the step set of 2t (167) in the legacy archive, od:0001 20261027 (oper 06/12/18 UTC)
+# and 20261028 (enfo pf 00 UTC), and the converted archive fdbsc od:2250 oper 20261013 00 UTC
+# (237055 holds timespan 1h at steps 1-90, 3h at 93-144, 6h at 150-360). enfo 12 UTC is assumed
+# to match 00 UTC (to be confirmed); enfo has no cf in the current cycle, the entry serves legacy
+# requests. Still to add: the enfo 06/18 UTC runs.
 
 schedules:
   - class: od
@@ -36,3 +38,26 @@ schedules:
         by: 1
       - to: 144
         by: 3
+  # ENS: the same schedule as oper 00/12 UTC
+  - class: od
+    stream: enfo
+    type: pf
+    time: ["0000", "1200"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
+      - to: 360
+        by: 6
+  - class: od
+    stream: enfo
+    type: cf
+    time: ["0000", "1200"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
+      - to: 360
+        by: 6
