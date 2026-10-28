@@ -70,6 +70,10 @@ inline void applyOption(metkit::mars2mars::Options& opts, std::string_view key, 
         opts.tryFixBadInput_ZeroAccumulation = readBool(key, value);
         return;
     }
+    if (key == "outputScheduleFile") {
+        opts.outputScheduleFile = readString(key, value);
+        return;
+    }
 
     throw exceptions::Mars2marsDictException("Unknown Mars2Mars option `" + std::string(key) + "`", Here());
 }
