@@ -1,1 +1,1 @@
-retrieve,class=od,expver=0001,date=20260901,time=0000,stream=enfo,type=cf,levtype=sfc,param=201,step=6
+retrieve,class=od,expver=0001,date=20260901,time=0000,stream=lwda,type=fc,levtype=sfc,param=201,step=6

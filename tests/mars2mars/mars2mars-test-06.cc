@@ -111,10 +111,25 @@ CASE("since-last-pp params: a step outside the schedule is an error, never fs") 
     EXPECT_THROWS(convert(operField(201, 366)));
 }
 
+CASE("since-last-pp params: enfo pf and cf follow the oper 00/12 UTC schedule") {
+    for (const std::string type : {"pf", "cf"}) {
+        for (const long time : {0L, 1200L}) {
+            auto enfo = field("enfo", type, 228226, time);
+            if (type == "pf") {
+                enfo.set("number", 7L);
+            }
+            enfo.set("step", 93L);
+            EXPECT_EQUAL(convert(enfo).mars.getString("timespan"), "3h");
+            enfo.set("step", 150L);
+            EXPECT_EQUAL(convert(enfo).mars.getString("timespan"), "6h");
+        }
+    }
+}
+
 CASE("since-last-pp params: a context without a schedule is an error, never fs") {
-    auto enfo = field("enfo", "cf", 201, 0L);
-    enfo.set("step", 6L);
-    EXPECT_THROWS(convert(enfo));
+    auto lwda = field("lwda", "fc", 201, 0L);
+    lwda.set("step", 6L);
+    EXPECT_THROWS(convert(lwda));
 }
 
 CASE("accumulations since the start keep timespan=fs, including step 0") {
