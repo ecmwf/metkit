@@ -1558,8 +1558,8 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-      - [so, second-order, second_order,second order]
-      - [av]
+      - [so, second-order, second_order, 'second order']
+      - [av, archived-value, archived_value]
       - [complex, co]
       - [simple, si]
       - [ccsds]
@@ -1714,6 +1714,8 @@ disseminate:
     category: sink
     flatten: false
     type: any
+
+  _clear_defaults: [date, time, step]
 
 ##############################################################
 

@@ -26,7 +26,7 @@ MetkitTool::MetkitTool(int argc, char** argv) : eckit::Tool(argc, argv, "METKIT_
     instance_ = this;
 
     options_.push_back(new SimpleOption<bool>("version", "Prints the version and exits"));
-    options_.push_back(new SimpleOption<bool>("porcelain", "Stable output that can be used as input to other tools"));
+    options_.push_back(new SimpleOption<bool>("porcelain", "Stable output that can be used as input to other tools. A request is printed in a single line"));
 }
 
 static void usage(const std::string& tool) {
