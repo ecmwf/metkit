@@ -1,5 +1,5 @@
 retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000/1200,step=3/6/90,expver=0001,param=237318/237167/238167/237055/238055,grid=.25/.25,domain=g,timespan=1h
 retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000/1200,step=93/144,expver=0001,param=237318/237167/238167/237055/238055,grid=.25/.25,domain=g,timespan=3h
 retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000/1200,step=150,expver=0001,param=237318/238167/237055/238055,grid=.25/.25,domain=g,timespan=6h
-retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000/1200,step=0/3/6/90/93/144/150,expver=0001,param=237167,grid=.25/.25,domain=g,timespan=6h
+retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000/1200,step=3/6/90/93/144/150,expver=0001,param=237167,grid=.25/.25,domain=g,timespan=6h
 retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000/1200,step=0/3/6/90/93/144/150,expver=0001,param=228228,grid=.25/.25,domain=g,timespan=fs

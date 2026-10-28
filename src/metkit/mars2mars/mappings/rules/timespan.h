@@ -266,6 +266,41 @@ inline void fixTimespanSinceLastPostProcessing(const InDict_t& in, OutDict_t& ou
     }
 }
 
+/// @brief Flag a fixed-window statistic at step 0 for dropping.
+///
+/// A window of n hours (`timespan=<n>h`) cannot end at step 0, and the converted archive holds no such field
+/// (the encoder rejects zero-length windows). Accumulations (`fs`) and instantaneous fields (`none`) keep
+/// step 0. The flag is `misc.dropField`, as for the since-last-post-processing params.
+template <class OutDict_t>
+inline void dropFixedWindowAtStepZero(const OutDict_t& out, eckit::LocalConfiguration& misc) {
+    using metkit::mars2mars::utils::dict_traits::get_opt;
+    using metkit::mars2mars::utils::dict_traits::get_or_throw;
+    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
+
+    try {
+        const auto timespan = get_opt<std::string>(out, "timespan");
+        if (!timespan || timespan->size() < 2 || timespan->back() != 'h') {
+            return;
+        }
+        const std::string_view hours{timespan->data(), timespan->size() - 1};
+        if (!std::all_of(hours.begin(), hours.end(), [](unsigned char c) { return std::isdigit(c) != 0; })) {
+            return;
+        }
+
+        // The end step: a string in a MarsRequest, (usually) a number in a typed dictionary
+        const auto stepString = get_opt<std::string>(out, "step");
+        const long step       = stepString ? std::stol(*stepString) : get_or_throw<long>(out, "step");
+        if (step == 0) {
+            misc.set("dropField", true);
+        }
+    }
+    catch (...) {
+        // Rethrow nested exceptions
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to apply the step 0 fixed-window check in output dictionary", Here()));
+    }
+}
+
 /// @brief Convert surface-like legacy requests into sol layer output.
 template <class InDict_t, class OutDict_t, class OptDict_t>
 inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc, const OptDict_t& opts) {
@@ -289,79 +324,108 @@ inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfigur
         switch (param) {
             // Max 2t
             case 121:
-                return setParamTimespan(out, 237167, "6h");
+                setParamTimespan(out, 237167, "6h");
+                break;
             case 228026:
-                return setParamTimespan(out, 237167, "3h");
+                setParamTimespan(out, 237167, "3h");
+                break;
             case 201:
-                return set_or_throw<long>(out, "param", 237167);
+                set_or_throw<long>(out, "param", 237167);
+                break;
 
             // Max 6h CAPE
             case 228035:
-                return setParamTimespan(out, 237117, "6h");
+                setParamTimespan(out, 237117, "6h");
+                break;
 
             // Max 6h CAPES
             case 228036:
-                return setParamTimespan(out, 237321, "6h");
+                setParamTimespan(out, 237321, "6h");
+                break;
 
             // Max precipitation
             case 228222:
-                return setParamTimespan(out, 237055, "3h");
+                setParamTimespan(out, 237055, "3h");
+                break;
             case 228224:
-                return setParamTimespan(out, 237055, "6h");
+                setParamTimespan(out, 237055, "6h");
+                break;
             case 228226:
-                return set_or_throw<long>(out, "param", 237055);
+                set_or_throw<long>(out, "param", 237055);
+                break;
 
             // Max wind gust
             case 123:
-                return setParamTimespan(out, 237318, "6h");
+                setParamTimespan(out, 237318, "6h");
+                break;
             case 228028:
-                return setParamTimespan(out, 237318, "3h");
+                setParamTimespan(out, 237318, "3h");
+                break;
             case 49:
-                return set_or_throw<long>(out, "param", 237318);
+                set_or_throw<long>(out, "param", 237318);
+                break;
 
             // Mean flash density ?
             case 228051:
-                return setParamTimespan(out, 235326, "1h");
+                setParamTimespan(out, 235326, "1h");
+                break;
             case 228057:
-                return setParamTimespan(out, 235326, "3h");
+                setParamTimespan(out, 235326, "3h");
+                break;
             case 228058:
-                return setParamTimespan(out, 235326, "6h");
+                setParamTimespan(out, 235326, "6h");
+                break;
 
             // Min 2t
             case 122:
-                return setParamTimespan(out, 238167, "6h");
+                setParamTimespan(out, 238167, "6h");
+                break;
             case 228027:
-                return setParamTimespan(out, 238167, "3h");
+                setParamTimespan(out, 238167, "3h");
+                break;
             case 202:
-                return set_or_throw<long>(out, "param", 238167);
+                set_or_throw<long>(out, "param", 238167);
+                break;
 
             // Min precipitation
             case 228223:
-                return setParamTimespan(out, 238055, "3h");
+                setParamTimespan(out, 238055, "3h");
+                break;
             case 228225:
-                return setParamTimespan(out, 238055, "6h");
+                setParamTimespan(out, 238055, "6h");
+                break;
             case 228227:
-                return set_or_throw<long>(out, "param", 238055);
+                set_or_throw<long>(out, "param", 238055);
+                break;
 
             // Most frequent precipitation type
             case 260320:
-                return setParamTimespan(out, 260683, "1h");
+                setParamTimespan(out, 260683, "1h");
+                break;
             case 260321:
-                return setParamTimespan(out, 260683, "3h");
+                setParamTimespan(out, 260683, "3h");
+                break;
             case 260339:
-                return setParamTimespan(out, 260683, "6h");
+                setParamTimespan(out, 260683, "6h");
+                break;
 
             // Most severe precipitation type
             case 260318:
-                return setParamTimespan(out, 260682, "1h");
+                setParamTimespan(out, 260682, "1h");
+                break;
             case 260319:
-                return setParamTimespan(out, 260682, "3h");
+                setParamTimespan(out, 260682, "3h");
+                break;
             case 260338:
-                return setParamTimespan(out, 260682, "6h");
+                setParamTimespan(out, 260682, "6h");
+                break;
 
             default:
                 break;
         }
+
+        // A fixed window cannot end at step 0
+        dropFixedWindowAtStepZero(out, misc);
     }
     catch (...) {
         // Rethrow nested exceptions
