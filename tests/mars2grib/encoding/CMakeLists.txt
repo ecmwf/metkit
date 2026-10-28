@@ -18,6 +18,7 @@ foreach( _src
         014_enfo_probabilities.cc
         015_mc_cams_emission_sectors.cc
         016_enfo_ensemble_member_products.cc
+        017_model_component_background_process.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 

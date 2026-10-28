@@ -189,7 +189,9 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
             ///   - apply a DGOV-approved default,
             ///   - or throw if the value is mandatory.
             if (generatingProcessIdentifier.has_value()) {
-                set_or_throw<long>(out, "generatingProcessIdentifier", generatingProcessIdentifier.value());
+                set_or_throw<long>(out, "generatingProcessIdentifier",
+                                   deductions::translate_GeneratingProcessIdentifier(
+                                       generatingProcessIdentifier.value(), backgroundProcess));
             }
 
             /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]

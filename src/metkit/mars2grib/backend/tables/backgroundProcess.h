@@ -31,10 +31,14 @@ namespace metkit::mars2grib::backend::tables {
 /// code table values and must not be changed manually.
 ///
 /// @note
-/// The value `255` usually corresponds to the GRIB *missing* value.
-/// In this specific case, it is semantically interpreted as the
-/// deterministic IFS workflow (`ifs`) for compatibility with existing
-/// production data.
+/// Since ecCodes 2.50.0 (ECC-2354) the components of the coupled system have
+/// their own codes: IFS 254 (atmosphere), IFS-compo 252, nemo 250, ecwam 248,
+/// ldas 246 and gfas 144, each with a model version table keyed by
+/// `generatingProcessIdentifier` in a new numbering (cy50r2 = 2). The value
+/// `255` is the legacy IFS code (version table in the old numbering, cy50r2 =
+/// 162). The MARS `levtype` of the ocean level types depends on it: with
+/// backgroundProcess 254 they are `sfc` (IFS diagnostics such as t20d), with
+/// any other code `o2d` (native ocean fields).
 ///
 /// @important
 /// This enum is a **GRIB-level representation**, not a policy decision.
@@ -68,8 +72,29 @@ enum class BackgroundProcess : long {
     aifs_compo_ens_crps   = 9,
     aifs_subs             = 10,
     aifs_subs_crps        = 11,
-    ifs                   = 255
+    gfas                  = 144,
+    ldas                  = 246,
+    ecwam                 = 248,
+    nemo                  = 250,
+    ifs_compo             = 252,
+    ifs                   = 254,
+    ifs_legacy            = 255
 };
+
+/// @brief Whether the code belongs to the component scheme of ECC-2354 (model version in the new numbering).
+inline bool isComponentScheme(BackgroundProcess value) {
+    switch (value) {
+        case BackgroundProcess::gfas:
+        case BackgroundProcess::ldas:
+        case BackgroundProcess::ecwam:
+        case BackgroundProcess::nemo:
+        case BackgroundProcess::ifs_compo:
+        case BackgroundProcess::ifs:
+            return true;
+        default:
+            return false;
+    }
+}
 
 ///
 /// @brief Map a MARS model identifier to a GRIB `BackgroundProcess` enumeration.
@@ -156,8 +181,26 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
     else if (value == "aifs-subs-crps") {
         return BackgroundProcess::aifs_subs_crps;
     }
+    else if (value == "gfas") {
+        return BackgroundProcess::gfas;
+    }
+    else if (value == "ldas") {
+        return BackgroundProcess::ldas;
+    }
+    else if (value == "ecwam") {
+        return BackgroundProcess::ecwam;
+    }
+    else if (value == "nemo") {
+        return BackgroundProcess::nemo;
+    }
+    else if (value == "IFS-compo") {
+        return BackgroundProcess::ifs_compo;
+    }
     else if (value == "IFS") {
         return BackgroundProcess::ifs;
+    }
+    else if (value == "IFS-legacy") {
+        return BackgroundProcess::ifs_legacy;
     }
     else {
         std::string errMsg = "Invalid BackgroundProcess value: ";
@@ -165,7 +208,7 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
         errMsg +=
             "expected={'aifs-single', 'aifs-ens', 'aifs-single-mse', 'aifs-ens-crps', 'aifs-ens-diff', "
             "'aifs-compo-single', 'aifs-compo-ens', 'aifs-compo-single-mse', 'aifs-compo-ens-crps', "
-            "'aifs-subs', 'aifs-subs-crps', 'IFS'}";
+            "'aifs-subs', 'aifs-subs-crps', 'gfas', 'ldas', 'ecwam', 'nemo', 'IFS-compo', 'IFS', 'IFS-legacy'}";
         throw Mars2GribTableException(errMsg, Here());
     }
     // Remove compiler warning
@@ -253,8 +296,20 @@ inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value)
             return "aifs-subs";  // 10
         case BackgroundProcess::aifs_subs_crps:
             return "aifs-subs-crps";  // 11
+        case BackgroundProcess::gfas:
+            return "gfas";  // 144
+        case BackgroundProcess::ldas:
+            return "ldas";  // 246
+        case BackgroundProcess::ecwam:
+            return "ecwam";  // 248
+        case BackgroundProcess::nemo:
+            return "nemo";  // 250
+        case BackgroundProcess::ifs_compo:
+            return "IFS-compo";  // 252
         case BackgroundProcess::ifs:
-            return "IFS";  // 255
+            return "IFS";  // 254
+        case BackgroundProcess::ifs_legacy:
+            return "IFS-legacy";  // 255
         default:
             std::string errMsg = "Invalid BackgroundProcess enum value: ";
             errMsg += std::to_string(static_cast<long>(value));

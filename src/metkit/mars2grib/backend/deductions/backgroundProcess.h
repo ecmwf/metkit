@@ -51,6 +51,7 @@
 #pragma once
 
 // System includes
+#include <optional>
 #include <string>
 
 // Tables
@@ -120,62 +121,94 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction is deterministic and does not rely on any
 /// pre-existing GRIB header state.
 ///
+///
+/// @brief Component of the coupled system that produced a field, from the MARS keys of the field.
+///
+/// The legacy archive tells the components apart by MARS keys only: the fire emissions are `stream=gfas`,
+/// the land surface analysis is `stream=ldas`, atmospheric composition is `class=mc` (IFS-compo), the native
+/// ocean fields are on `levtype=o2d`/`o3d` (nemo), the wave fields carry table-140 params (ecwam), and
+/// everything else is the atmosphere (IFS). The IFS ocean diagnostics (t20d, pt300m, sc300m, ...) are on
+/// `levtype=sfc` and therefore IFS, which is what makes ecCodes keep them on `sfc`.
+///
+template <class MarsDict_t>
+tables::BackgroundProcess componentOfField(const MarsDict_t& mars) {
+    using metkit::mars2grib::utils::dict_traits::get_opt;
+
+    const std::optional<std::string> stream = get_opt<std::string>(mars, "stream");
+    if (stream && *stream == "gfas") {
+        return tables::BackgroundProcess::gfas;
+    }
+    if (stream && *stream == "ldas") {
+        return tables::BackgroundProcess::ldas;
+    }
+
+    const std::optional<std::string> marsClass = get_opt<std::string>(mars, "class");
+    if (marsClass && *marsClass == "mc") {
+        return tables::BackgroundProcess::ifs_compo;
+    }
+
+    const std::optional<std::string> levtype = get_opt<std::string>(mars, "levtype");
+    if (levtype && (*levtype == "o2d" || *levtype == "o3d")) {
+        return tables::BackgroundProcess::nemo;
+    }
+
+    const std::optional<long> param = get_opt<long>(mars, "param");
+    if (param && *param >= 140000 && *param < 141000) {
+        return tables::BackgroundProcess::ecwam;
+    }
+
+    return tables::BackgroundProcess::ifs;
+}
+
+///
+/// @brief Resolve the GRIB `backgroundProcess` from the MARS dictionary.
+///
+/// - `mars::model` present and an AIFS model, or one of the component names
+///   (`gfas`, `ldas`, `ecwam`, `nemo`, `IFS-compo`, `IFS-legacy`): that code.
+/// - `mars::model` `IFS`, `IFS-NEMO` or `IFS-FESOM` (the coupled system): the component of
+///   the field, see @ref componentOfField.
+/// - `mars::model` absent: the component of the field. The `backgroundProcess` of an input
+///   GRIB2 header is never taken over: the value is always deduced from the MARS keys.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& mars,
                                                              [[maybe_unused]] const ParDict_t& par,
                                                              [[maybe_unused]] const OptDict_t& opt) {
-
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
-
         if (has(mars, "model")) {
+            const std::string marsModelVal = get_or_throw<std::string>(mars, "model");
 
-            // Retrieve mandatory MARS model identifier
-            std::string marsModelVal = get_or_throw<std::string>(mars, "model");
+            const bool coupledSystem =
+                marsModelVal == "IFS" || marsModelVal == "IFS-NEMO" || marsModelVal == "IFS-FESOM";
+            const tables::BackgroundProcess backgroundProcess =
+                coupledSystem ? componentOfField(mars) : tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
 
-            // Use IFS as backgroundProcess for NEMO and FESOM
-            if (marsModelVal == "IFS-NEMO" || marsModelVal == "IFS-FESOM") {
-                marsModelVal = "IFS";
-            }
-
-            // Apply BackgroundProcess mapping logic
-            tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
-
-            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`backgroundProcess` resolved from input dictionaries: value='";
+                std::string logMsg =
+                    "`backgroundProcess` resolved from input dictionaries: model='" + marsModelVal + "', value='";
                 logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
                 return logMsg;
             }());
 
-            // Success exit point
             return backgroundProcess;
         }
         else {
+            const tables::BackgroundProcess backgroundProcess = componentOfField(mars);
 
-            // Retrieve mandatory MARS model identifier
-            std::string marsModelVal = "IFS";
-
-            // Apply BackgroundProcess mapping logic
-            tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
-
-            // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg = "`backgroundProcess` defaulted to: value='";
+                std::string logMsg = "`backgroundProcess` defaulted to the component of the field: value='";
                 logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
                 return logMsg;
             }());
 
-            // Success exit point
             return backgroundProcess;
         }
     }
     catch (...) {
-
-        // Rethrow nested exceptions
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `backgroundProcess` from input dictionaries", Here()));
     };

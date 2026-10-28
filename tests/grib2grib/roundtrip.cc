@@ -12,7 +12,9 @@
 #include <cstdio>
 #include <cstring>
 #include <ios>
+#include <set>
 #include <vector>
+#include "eckit/utils/StringTools.h"
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/io/AutoCloser.h"
@@ -125,6 +127,8 @@ class Roundtrip : public eckit::Tool {
             new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (default false)"));
 
         options.push_back(new Option<std::string>("out", "Write encoded message to file (default empty, no output)"));
+        options.push_back(new Option<std::string>(
+            "ignore", "Comma-separated keys excluded from the key check (default: the model component keys)"));
 
         eckit::option::CmdArgs args(usage, options, 1, 1);
         ASSERT(args.count() == 1);
@@ -194,6 +198,15 @@ class Roundtrip : public eckit::Tool {
             if (args.getBool("keys", true)) {
                 auto& out = eckit::Log::error();
 
+                // The model component (backgroundProcess and the model version code, hence modelName and
+                // modelVersion) is deduced from the MARS keys by mars2grib, never taken from the input
+                std::set<std::string> ignored;
+                for (const auto& key : eckit::StringTools::split(
+                         ",", args.getString("ignore",
+                                             "backgroundProcess,generatingProcessIdentifier,modelName,modelVersion"))) {
+                    ignored.insert(key);
+                }
+
                 // release() is the last use of h, so ownership transfer is safe
                 auto* h2    = reinterpret_cast<codes_handle*>(h->release());
                 auto* kiter = codes_keys_iterator_new(g, CODES_KEYS_ITERATOR_SKIP_READ_ONLY, nullptr);
@@ -201,6 +214,9 @@ class Roundtrip : public eckit::Tool {
                 auto diff = false;
                 while (codes_keys_iterator_next(kiter) != 0) {
                     const auto* key = codes_keys_iterator_get_name(kiter);
+                    if (ignored.count(key) != 0) {
+                        continue;
+                    }
 
                     auto err = codes_compare_key(g, h2, key, 0);
                     if (err != CODES_SUCCESS && err != CODES_NOT_IMPLEMENTED /*key doesn't support comparison*/) {

@@ -30,6 +30,7 @@
 
 
 #include "eckit/log/Log.h"
+#include "metkit/mars2grib/backend/tables/backgroundProcess.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
@@ -142,5 +143,34 @@ std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] con
     // Remove compiler warning
     mars2gribUnreachable();
 };
+
+///
+/// @brief Model version code of `generatingProcessIdentifier` in the numbering of the component scheme.
+///
+/// The legacy IFS numbering (ecCodes `modelVersionConcept.IFS.255.def`: cy49r2 = 159, cy50r1 = 161,
+/// cy50r2 = 162) is what the input carries (the GRIB1 header, or the `ncycle` override). The component
+/// scheme of ECC-2354 numbers the cycles from cy49r2 = 0 (`modelVersionConcept.<model>.<code>.def`: cy50r1
+/// = 1 as in ldas, cy50r2 = 2), the same for every component. A value below 100 is already in the new
+/// numbering; an unknown legacy value is kept, and the model version then resolves to "unknown".
+///
+inline long translate_GeneratingProcessIdentifier(long value, tables::BackgroundProcess backgroundProcess) {
+    if (!tables::isComponentScheme(backgroundProcess) || value < 100) {
+        return value;
+    }
+    switch (value) {
+        case 159:
+            return 0;  // cy49r2
+        case 161:
+            return 1;  // cy50r1
+        case 162:
+            return 2;  // cy50r2
+        default:
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return "`generatingProcessIdentifier`: legacy value " + std::to_string(value) +
+                       " has no equivalent in the component scheme, kept";
+            }());
+            return value;
+    }
+}
 
 }  // namespace metkit::mars2grib::backend::deductions

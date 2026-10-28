@@ -597,7 +597,7 @@ inline std::size_t matchO2D(const long param) {
         if (matchAny(param, 262116)) {
             return static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
         }
-        if (matchAny(param, 262118, 262119, 262121, 262122, 262146, 262147)) {
+        if (matchAny(param, 262118, 262119, 262121, 262122, 262144, 262146, 262147)) {
             return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
         }
         if (matchAny(param, 262120, 262123, 262148)) {
