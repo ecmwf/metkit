@@ -175,8 +175,7 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                     result = tables::TypeOfProcessedData::ControlForecastProducts;
                 }
                 else if (marsType == "icp") {
-                    // Initial condition perturbations: missing, as in the operational GRIB2
-                    result = tables::TypeOfProcessedData::Missing;
+                    result = tables::TypeOfProcessedData::PerturbedForecastProducts;
                 }
                 else if (marsType == "fc" || marsType == "cf") {
                     result = tables::TypeOfProcessedData::ControlForecastProducts;

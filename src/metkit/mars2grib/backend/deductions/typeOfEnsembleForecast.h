@@ -165,8 +165,10 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
                                                                           : tables::TypeOfEnsembleForecast::Perturbed;
             }
             else if (type == "icp") {
-                // Initial condition perturbations: missing, as in the operational GRIB2
-                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Missing;
+                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::InitialConditionsPerturbations;
+            }
+            else if (type == "ep") {
+                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
             }
             else {
                 throw Mars2GribDeductionException(
