@@ -10,10 +10,9 @@
 # up to `to` (inclusive), every `by` hours. `time` lists the base times (hhmm, quoted) that share
 # the schedule.
 #
-# Evidence: od oper fc 00 UTC taken from the converted archive (fdbsc od:2250 oper 20261013:
-# 237055 holds timespan 1h at steps 1-90, 3h at 93-144, 6h at 150-360). 12 UTC is assumed to
-# have the same configuration as 00 UTC (to be confirmed). Still to add, from the legacy index:
-# od oper 0600/1800 (the former scda runs) and od enfo cf/pf.
+# Evidence: the step set of 2t (167) in the legacy archive, od:0001 20261027 (oper 06/12/18 UTC),
+# and the converted archive fdbsc od:2250 oper 20261013 00 UTC (237055 holds timespan 1h at
+# steps 1-90, 3h at 93-144, 6h at 150-360). Still to add: od enfo cf/pf.
 
 schedules:
   - class: od
@@ -27,3 +26,13 @@ schedules:
         by: 3
       - to: 360
         by: 6
+  # The 06 and 18 UTC runs (the former scda stream)
+  - class: od
+    stream: oper
+    type: fc
+    time: ["0600", "1800"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
