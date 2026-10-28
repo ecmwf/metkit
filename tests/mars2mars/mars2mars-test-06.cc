@@ -82,6 +82,16 @@ CASE("since-last-pp params: 12 UTC follows the same schedule") {
     EXPECT_EQUAL(convert(operField(201, 93, 1200L)).mars.getString("timespan"), "3h");
 }
 
+CASE("since-last-pp params: the 06 and 18 UTC runs stop at step 144") {
+    for (const long time : {600L, 1800L}) {
+        EXPECT_EQUAL(convert(operField(228226, 6, time)).mars.getString("timespan"), "1h");
+        EXPECT_EQUAL(convert(operField(228226, 90, time)).mars.getString("timespan"), "1h");
+        EXPECT_EQUAL(convert(operField(228226, 93, time)).mars.getString("timespan"), "3h");
+        EXPECT_EQUAL(convert(operField(228226, 144, time)).mars.getString("timespan"), "3h");
+        EXPECT_THROWS(convert(operField(228226, 150, time)));
+    }
+}
+
 CASE("since-last-pp params: a step range keeps the window of the range (data path)") {
     EXPECT_EQUAL(convert(operFieldRange(228226, "5-6")).mars.getString("timespan"), "1h");
     EXPECT_EQUAL(convert(operFieldRange(228226, "90-93")).mars.getString("timespan"), "3h");
