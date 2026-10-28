@@ -3,7 +3,8 @@
 
 /// Tests for the timespan of the "since previous post-processing" params (10fg, mx2t, mn2t, mxtpr, mntpr):
 /// on a single step the window comes from the output schedule; a step range keeps its own window; step 0
-/// has no window and the field is flagged for dropping; accumulations keep `timespan=fs`.
+/// has no window and the field is flagged for dropping; accumulations keep `timespan=fs`. Also: any fixed
+/// window (`<n>h`) at step 0 is flagged for dropping.
 
 #include <string>
 #include <utility>
@@ -126,6 +127,36 @@ CASE("fixed-window params are unchanged") {
 CASE("instantaneous params are unchanged") {
     const auto result = convert(operField(167, 6));
     EXPECT_EQUAL(result.mars.getString("timespan"), "none");
+    EXPECT(!dropped(result));
+}
+
+CASE("fixed-window params at step 0 are flagged for dropping") {
+    // 6 h, 3 h and 1 h windows: mx2t6, mn2t6, 10fg6, mx2t3, mn2t3, 10fg3, mxtpr3/6, mntpr3/6, mxcap6, mxcapes6,
+    // litota1/3/6, ptype most frequent / most severe (1 h, 3 h, 6 h)
+    for (const long param :
+         {121L,    122L,    123L,    228026L, 228027L, 228028L, 228222L, 228223L, 228224L, 228225L, 228035L,
+          228036L, 228051L, 228057L, 228058L, 260320L, 260321L, 260339L, 260318L, 260319L, 260338L}) {
+        const auto atZero = convert(operField(param, 0));
+        EXPECT(dropped(atZero));
+
+        const auto atSix = convert(operField(param, 6));
+        EXPECT(!dropped(atSix));
+        EXPECT_EQUAL(atSix.mars.getString("timespan").back(), 'h');
+    }
+}
+
+CASE("a step range ending after step 0 is kept (data path)") {
+    const auto result = convert(operFieldRange(121, "0-6"));
+    EXPECT_EQUAL(result.mars.getString("timespan"), "6h");
+    EXPECT_EQUAL(result.mars.getLong("step"), 6L);
+    EXPECT(!dropped(result));
+}
+
+CASE("a legacy ep step range on enfo is kept") {
+    auto ep = field("enfo", "ep", 131060, 0L);
+    ep.set("step", "0-24");
+    const auto result = convert(ep);
+    EXPECT_EQUAL(result.mars.getString("timespan"), "24h");
     EXPECT(!dropped(result));
 }
 
