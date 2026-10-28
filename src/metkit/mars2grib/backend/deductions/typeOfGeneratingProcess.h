@@ -261,9 +261,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             return {result};
         }
         else if (type == "icp") {
-
-            // Initial condition perturbations: missing, as in the operational ECMWF GRIB2
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Missing;
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
