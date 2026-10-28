@@ -1,0 +1,29 @@
+# Output schedule of the model: the forecast steps written per (class, stream, type, time).
+#
+# mars2mars needs it for the params whose statistic runs "since the previous post-processing"
+# (10fg 49, mx2t 201, mn2t 202, mxtpr 228226, mntpr 228227) when a request gives a single step:
+# their window is the interval since the previous output step. A context that is not listed here
+# is an error, because the window cannot be guessed (it is never `timespan=fs`, which is reserved
+# for accumulations since the start of the forecast).
+#
+# Format: `bands` are consecutive; each band covers the steps after the end of the previous band
+# up to `to` (inclusive), every `by` hours. `time` lists the base times (hhmm, quoted) that share
+# the schedule.
+#
+# Evidence: od oper fc 00 UTC taken from the converted archive (fdbsc od:2250 oper 20261013:
+# 237055 holds timespan 1h at steps 1-90, 3h at 93-144, 6h at 150-360). 12 UTC is assumed to
+# have the same configuration as 00 UTC (to be confirmed). Still to add, from the legacy index:
+# od oper 0600/1800 (the former scda runs) and od enfo cf/pf.
+
+schedules:
+  - class: od
+    stream: oper
+    type: fc
+    time: ["0000", "1200"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
+      - to: 360
+        by: 6

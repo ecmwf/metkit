@@ -16,6 +16,7 @@
 #include "metkit/mars2mars/mappings/rules/common.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2mars/utils/mars2marsExceptions.h"
+#include "metkit/mars2mars/utils/outputSchedule.h"
 #include "metkit/mars2mars/utils/paramMatcher.h"
 
 namespace metkit::mars2mars::rules::impl {
@@ -120,7 +121,11 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out, const
     }
 }
 
-/// @brief Fix timespan of statistical fields that have been wrongly encoded as instant at step 0.
+/// @brief Give the accumulations since the start of the forecast `timespan=fs`.
+///
+/// Legacy accumulations are indexed by their end step only, so after `convertStepRangeToTimespan` they
+/// carry `timespan=none`. `fs` is only valid for accumulations: maxima, minima and other fixed-window
+/// statistics are handled by `fixTimespanSinceLastPostProcessing` and by the table in `fixTimespan`.
 template <class InDict_t, class OutDict_t>
 inline void fixTimespanFS(const InDict_t& in, OutDict_t& out) {
     using metkit::mars2mars::utils::dict_traits::get_opt;
@@ -128,13 +133,56 @@ inline void fixTimespanFS(const InDict_t& in, OutDict_t& out) {
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
-    // List of params that have been wrongly encoded as instant fields
+    // Accumulations and time integrals since the start of the forecast (GRIB1 names), and nothing else:
+    // the "since previous post-processing" params (49, 201, 202, 228226, 228227) and the fixed-window
+    // params (121, 122, 123, 228026-228028, 228222-228225) must not be in this list.
     static const std::unordered_set<long> paramsWithTimespanFS{
-        8,      9,      20,     44,     45,     47,     49,     50,     57,     58,     121,    122,
-        123,    142,    143,    144,    146,    145,    147,    169,    175,    176,    177,    178,
-        179,    180,    181,    182,    189,    195,    196,    197,    201,    202,    205,    208,
-        209,    210,    211,    212,    213,    228,    228021, 228022, 228080, 228081, 228082, 228129,
-        228130, 228216, 228222, 228223, 228224, 228225, 228226, 228227, 228026, 228027, 228028, 228251};
+        8,       // sro
+        9,       // ssro
+        20,      // parcs
+        44,      // es
+        45,      // smlt
+        47,      // dsrp
+        50,      // lspf
+        57,      // uvb
+        58,      // par
+        142,     // lsp
+        143,     // cp
+        144,     // sf
+        145,     // bld
+        146,     // sshf
+        147,     // slhf
+        169,     // ssrd
+        175,     // strd
+        176,     // ssr
+        177,     // str
+        178,     // tsr
+        179,     // ttr
+        180,     // ewss
+        181,     // nsss
+        182,     // e
+        189,     // sund
+        195,     // lgws
+        196,     // mgws
+        197,     // gwd
+        205,     // ro
+        208,     // tsrc
+        209,     // ttrc
+        210,     // ssrc
+        211,     // strc
+        212,     // tisr
+        213,     // vimd
+        228,     // tp
+        228021,  // fdir
+        228022,  // cdir
+        228080,  // aco2nee
+        228081,  // aco2gpp
+        228082,  // aco2rec
+        228129,  // ssrdc
+        228130,  // strdc
+        228216,  // fzra
+        228251,  // pev
+    };
 
     try {
         // No timespan without a step (e.g. monthly means indexed by fcmonth)
@@ -159,6 +207,65 @@ inline void fixTimespanFS(const InDict_t& in, OutDict_t& out) {
     }
 }
 
+/// @brief Window of the "since previous post-processing" params on a single step.
+///
+/// 10fg (49), mx2t (201), mn2t (202), mxtpr (228226) and mntpr (228227) run from the previous output step
+/// of the model to the current one, so their window is the output interval of the (class, stream, type,
+/// time) context, taken from the output schedule (`mars2mars-output-schedule.yaml`, see `OutputSchedule`).
+/// A step range (the data path) already carries the window and is left alone; only a single step with
+/// `timespan=none` is handled here. Step 0 has no previous step and therefore no window: no such field
+/// exists in the converted archive, so the field is flagged with `misc.dropField`. A context missing from
+/// the schedule is an error: the window is never guessed, and `fs` is reserved for accumulations.
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void fixTimespanSinceLastPostProcessing(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc,
+                                               const OptDict_t& opts) {
+    using metkit::mars2mars::utils::OutputSchedule;
+    using metkit::mars2mars::utils::dict_traits::get_opt;
+    using metkit::mars2mars::utils::dict_traits::get_or_throw;
+    using metkit::mars2mars::utils::dict_traits::set_or_throw;
+    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
+
+    static const std::unordered_set<long> sinceLastPostProcessing{49, 201, 202, 228226, 228227};
+
+    try {
+        const long param = get_or_throw<long>(in, "param");
+        if (sinceLastPostProcessing.find(param) == sinceLastPostProcessing.end()) {
+            return;
+        }
+
+        // No step (e.g. monthly means), or a step range that already gave the window
+        const auto timespan = get_opt<std::string>(out, "timespan");
+        if (!timespan || *timespan != "none") {
+            return;
+        }
+
+        // step and time are strings in a MarsRequest and (usually) numbers in a typed dictionary
+        const auto stepString = get_opt<std::string>(in, "step");
+        const long step       = stepString ? std::stol(*stepString) : get_or_throw<long>(in, "step");
+        const auto timeString = get_opt<std::string>(in, "time");
+        const long hour       = timeString ? OutputSchedule::hourOfMarsTime(*timeString)
+                                           : OutputSchedule::hourOfMarsTime(get_or_throw<long>(in, "time"));
+        const OutputSchedule::Context context{get_or_throw<std::string>(in, "class"),
+                                              get_or_throw<std::string>(out, "stream"),
+                                              get_or_throw<std::string>(in, "type"), hour};
+
+        const std::string scheduleFile = get_opt<std::string>(opts, "outputScheduleFile").value_or("");
+        const auto window              = OutputSchedule::get(scheduleFile).window(context, step);
+
+        if (!window) {
+            misc.set("dropField", true);
+            return;
+        }
+
+        set_or_throw<std::string>(out, "timespan", std::to_string(*window) + "h");
+    }
+    catch (...) {
+        // Rethrow nested exceptions
+        std::throw_with_nested(Mars2marsGenericException(
+            "Failed to apply the since-last-post-processing timespan rule in output dictionary", Here()));
+    }
+}
+
 /// @brief Convert surface-like legacy requests into sol layer output.
 template <class InDict_t, class OutDict_t, class OptDict_t>
 inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc, const OptDict_t& opts) {
@@ -171,8 +278,11 @@ inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfigur
         // Handle step ranges (e.g. "0-6") and default timespan to "none" for single-value steps.
         convertStepRangeToTimespan(in, out, opts);
 
-        // Fix statistical fields that are wrongly encoded as instant fields at step 0.
+        // Accumulations since the start of the forecast
         fixTimespanFS(in, out);
+
+        // "Since previous post-processing" params: the window is the output interval
+        fixTimespanSinceLastPostProcessing(in, out, misc, opts);
 
         const auto param = get_or_throw<long>(in, "param");
 

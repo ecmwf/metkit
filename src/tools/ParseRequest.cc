@@ -39,9 +39,10 @@ namespace {
 /// Keys read or rewritten by the mars2mars rules (see mars2mars/mappings/rules/*.h). Only these keys are
 /// flattened before conversion; every other key keeps its full list of values. Must be kept in sync with
 /// the rules: a rule reading a key not listed here would see a list instead of a single value.
+/// (`time` selects the output schedule of the since-last-post-processing params.)
 const std::vector<std::string>& ruleKeys() {
-    static const std::vector<std::string> keys{"param",   "class",    "stream", "type",
-                                               "levtype", "levelist", "step",   "timespan"};
+    static const std::vector<std::string> keys{"param",    "class", "stream",   "type", "levtype",
+                                               "levelist", "step",  "timespan", "time"};
     return keys;
 }
 
@@ -80,10 +81,51 @@ struct ConvertedRequest {
 
 using OrderedRequests = std::vector<std::pair<MarsRequest, size_t>>;
 
+/// Order of the values of the keys the rules never rewrite (step, time), as the user wrote them, so that a
+/// value dropped from the first fields of a request (e.g. step 0) does not move to the end of the list.
+class InputOrder {
+public:
+
+    explicit InputOrder(const MarsRequest& request) {
+        for (const auto& name : {"step", "time"}) {
+            if (!request.has(name)) {
+                continue;
+            }
+            size_t i = 0;
+            for (const auto& v : request.values(name)) {
+                order_[name].emplace(v, i++);
+            }
+        }
+    }
+
+    /// Sort the values of `name` by their position in the input; values that are not in the input (e.g. the
+    /// end step of a step range) keep their relative order after the input ones.
+    void sort(const std::string& name, std::vector<std::string>& values) const {
+        const auto it = order_.find(name);
+        if (it == order_.end()) {
+            return;
+        }
+        const auto& order   = it->second;
+        const auto position = [&](const std::string& v) {
+            const auto o = order.find(v);
+            return o == order.end() ? std::numeric_limits<size_t>::max() : o->second;
+        };
+        std::stable_sort(values.begin(), values.end(),
+                         [&](const std::string& a, const std::string& b) { return position(a) < position(b); });
+    }
+
+private:
+
+    std::map<std::string, std::map<std::string, size_t>> order_;
+};
+
 /// Compact a group of converted requests sharing the same set of keys. Keys whose values are identical in
 /// all requests of the group are copied from the first request, so keys that are not hypercube axes
-/// (grid, area, target, ...) are preserved.
-void compactGroup(const std::vector<const ConvertedRequest*>& members, OrderedRequests& out) {
+/// (grid, area, target, ...) are preserved. A group that is not a dense cube is described by a set of
+/// compact requests, either from the HyperCube or, when that gives fewer requests, by partitioning the
+/// group by `timespan` first (the key the rules most often change per field).
+void compactGroup(const std::vector<const ConvertedRequest*>& members, OrderedRequests& out,
+                  const InputOrder& inputOrder, bool tryPartitionByTimespan = true) {
     const MarsRequest& first = members.front()->request;
 
     size_t order = members.front()->order;
@@ -136,6 +178,9 @@ void compactGroup(const std::vector<const ConvertedRequest*>& members, OrderedRe
         }
         points.insert(std::move(point));
     }
+    for (size_t j = 0; j < varying.size(); ++j) {
+        inputOrder.sort(varying[j], axes[j]);
+    }
 
     size_t denseSize = 1;
     for (const auto& a : axes) {
@@ -160,37 +205,64 @@ void compactGroup(const std::vector<const ConvertedRequest*>& members, OrderedRe
         }
     }
 
-    MarsRequest cubeRequest(first.verb());
-    for (size_t j = 0; j < varying.size(); ++j) {
-        cubeRequest.values(varying[j], axes[j]);
-    }
-
-    metkit::hypercube::HyperCube cube{cubeRequest};
-    for (const auto* m : members) {
-        cube.clear(m->request);
-    }
-
-    for (const auto& r : cube.requests()) {
-        MarsRequest compact{first};
-        std::vector<std::set<std::string>> values;
-        for (const auto& name : varying) {
-            compact.values(name, r.values(name));
-            values.emplace_back(r.values(name).begin(), r.values(name).end());
+    OrderedRequests cubed;
+    {
+        MarsRequest cubeRequest(first.verb());
+        for (size_t j = 0; j < varying.size(); ++j) {
+            cubeRequest.values(varying[j], axes[j]);
         }
 
-        size_t compactOrder = std::numeric_limits<size_t>::max();
+        metkit::hypercube::HyperCube cube{cubeRequest};
         for (const auto* m : members) {
-            bool contained = true;
-            for (size_t j = 0; j < varying.size() && contained; ++j) {
-                contained = values[j].count(m->request.values(varying[j]).front()) > 0;
-            }
-            if (contained) {
-                compactOrder = std::min(compactOrder, m->order);
-            }
+            cube.clear(m->request);
         }
 
-        out.emplace_back(std::move(compact), compactOrder);
+        for (const auto& r : cube.requests()) {
+            MarsRequest compact{first};
+            std::vector<std::set<std::string>> values;
+            for (const auto& name : varying) {
+                compact.values(name, r.values(name));
+                values.emplace_back(r.values(name).begin(), r.values(name).end());
+            }
+
+            size_t compactOrder = std::numeric_limits<size_t>::max();
+            for (const auto* m : members) {
+                bool contained = true;
+                for (size_t j = 0; j < varying.size() && contained; ++j) {
+                    contained = values[j].count(m->request.values(varying[j]).front()) > 0;
+                }
+                if (contained) {
+                    compactOrder = std::min(compactOrder, m->order);
+                }
+            }
+
+            cubed.emplace_back(std::move(compact), compactOrder);
+        }
     }
+
+    if (tryPartitionByTimespan && std::find(varying.begin(), varying.end(), "timespan") != varying.end()) {
+        std::vector<std::vector<const ConvertedRequest*>> partitions;
+        std::map<std::string, size_t> partitionIndex;
+        for (const auto* m : members) {
+            auto [it, inserted] = partitionIndex.emplace(m->request.values("timespan").front(), partitions.size());
+            if (inserted) {
+                partitions.emplace_back();
+            }
+            partitions[it->second].push_back(m);
+        }
+
+        OrderedRequests partitioned;
+        for (const auto& p : partitions) {
+            compactGroup(p, partitioned, inputOrder, false);
+        }
+
+        if (partitioned.size() < cubed.size()) {
+            out.insert(out.end(), partitioned.begin(), partitioned.end());
+            return;
+        }
+    }
+
+    out.insert(out.end(), cubed.begin(), cubed.end());
 }
 
 /// Convert a fully expanded request to GRIB2 (MTG2) MARS metadata and compact the result.
@@ -199,8 +271,17 @@ std::vector<MarsRequest> convertRequest(const MarsRequest& request, Mars2Mars& c
     std::vector<ConvertedRequest> converted;
 
     MarsRequest current{request};
-    flattenRuleKeys(0, current,
-                    [&](const MarsRequest& r) { converted.push_back({converter.convert(r).mars, converted.size()}); });
+    flattenRuleKeys(0, current, [&](const MarsRequest& r) {
+        auto result = converter.convert(r);
+        // A field that does not exist in the converted archive (e.g. a window ending at step 0)
+        if (result.misc.getBool("dropField", false)) {
+            std::cerr << "convert-mars-request: warning: dropped param=" << result.mars.values("param").front()
+                      << " step=" << result.mars.values("step").front()
+                      << ": no window ends at this step, the field does not exist" << std::endl;
+            return;
+        }
+        converted.push_back({std::move(result.mars), converted.size()});
+    });
 
     // Group by set of keys, keeping the order in which the groups first appear
     std::vector<std::vector<const ConvertedRequest*>> groups;
@@ -216,9 +297,10 @@ std::vector<MarsRequest> convertRequest(const MarsRequest& request, Mars2Mars& c
         groups[it->second].push_back(&c);
     }
 
+    const InputOrder inputOrder{request};
     OrderedRequests compacted;
     for (const auto& g : groups) {
-        compactGroup(g, compacted);
+        compactGroup(g, compacted, inputOrder);
     }
 
     std::stable_sort(compacted.begin(), compacted.end(),

@@ -1,0 +1,3 @@
+retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000,step=6,expver=0001,param=237055,domain=g,timespan=1h
+retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000,step=93,expver=0001,param=237055,domain=g,timespan=3h
+retrieve,class=od,type=fc,stream=oper,levtype=sfc,date=20260901,time=0000,step=150,expver=0001,param=237055,domain=g,timespan=6h

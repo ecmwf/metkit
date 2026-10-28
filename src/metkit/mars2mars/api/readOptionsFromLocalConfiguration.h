@@ -59,6 +59,9 @@ inline Options readOptions(const eckit::LocalConfiguration& conf) {
     if (conf.has("tryFixBadInput_ZeroAccumulation")) {
         opts.tryFixBadInput_ZeroAccumulation = readBoolOption(conf, "tryFixBadInput_ZeroAccumulation");
     }
+    if (conf.has("outputScheduleFile")) {
+        opts.outputScheduleFile = readStringOption(conf, "outputScheduleFile");
+    }
 
     return opts;
 }
