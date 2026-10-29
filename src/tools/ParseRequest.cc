@@ -284,8 +284,17 @@ void ParseRequest::init(const CmdArgs& args) {
     args.get("json", json_);
     args.get("compact", compact_);
     args.get("porcelain", porcelain_);
+    args.get("block", block_);
     if (porcelain_) {
+        if (block_) {
+            std::ostringstream ss;
+            ss << "Error: --block and --porcelain cannot be used together." << std::endl;
+            throw eckit::UserError(ss.str(), Here());
+        }
         compact_ = true;
+    }
+    if (block_) {
+        compact_ = false;
     }
 }
 
