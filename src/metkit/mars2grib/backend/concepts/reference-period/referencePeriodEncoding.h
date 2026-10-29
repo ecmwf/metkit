@@ -42,6 +42,12 @@
 // Deductions
 #include "metkit/mars2grib/backend/deductions/numberOfAdditionalParametersForReferencePeriod.h"
 
+// Tables
+#include "metkit/mars2grib/backend/tables/timeUnits.h"
+#include "metkit/mars2grib/backend/tables/typeOfReferenceDataset.h"
+#include "metkit/mars2grib/backend/tables/typeOfRelationToReferenceDataset.h"
+#include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessingForTimeRangeForReferencePeriod.h"
+
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
@@ -130,8 +136,10 @@ inline std::array<ReferencePeriodParameter, 2> sotPercentiles_or_throw(const std
 ///   (`numberOfReforecastYearsInModelClimate` in years, `numberOfDaysInClimateSamplingWindow` in days)
 ///
 /// StagePreset:
-/// - EFI/SOT (`efi`, `efic`, `sot`): `typeOfReferenceDataset` = 2 (reforecast), `typeOfRelationToReferenceDataset`
-///   = 20 (EFI) or 21 (SOT). For the other products the relation follows from the paramId (ecCodes).
+/// - EFI/SOT (`efi`, `efic`, `sot`): `typeOfReferenceDataset` = `TypeOfReferenceDataset::Reforecast` (code table
+///   4.100), `typeOfRelationToReferenceDataset` = `TypeOfRelationToReferenceDataset::ExtremeForecastIndex` (EFI) or
+///   `TypeOfRelationToReferenceDataset::ShiftOfTails` (SOT) (code table 4.101). For the other products the relation
+///   follows from the paramId (ecCodes).
 /// - `sampleSizeOfReferencePeriod` from `sampleSizeOfModelClimate`, when given
 ///
 /// TODO: the start of the reference period (`yearOfStartOfReferencePeriod`, ...) is not encoded yet: it is not part
@@ -183,15 +191,15 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
                                                     {percentiles[0].scaledValue, percentiles[1].scaledValue});
                 }
 
-                // Model climate: N reforecast years, sampled in a window of D days (code table 4.4: 4 = year, 2 = day)
-                const auto years = get_opt<long>(par, "numberOfReforecastYearsInModelClimate");
-                const auto days  = get_opt<long>(par, "numberOfDaysInClimateSamplingWindow");
+                // Model climate: N reforecast years, sampled in a window of D days (code table 4.4)
+                const auto years                       = get_opt<long>(par, "numberOfReforecastYearsInModelClimate");
+                const auto days                        = get_opt<long>(par, "numberOfDaysInClimateSamplingWindow");
                 long numberOfReferencePeriodTimeRanges = 1;  // template default
                 if (years) {
-                    std::vector<long> units{4};
+                    std::vector<long> units{static_cast<long>(tables::TimeUnit::Year)};
                     std::vector<long> lengths{*years};
                     if (days) {
-                        units.push_back(2);
+                        units.push_back(static_cast<long>(tables::TimeUnit::Day));
                         lengths.push_back(*days);
                     }
                     numberOfReferencePeriodTimeRanges = static_cast<long>(units.size());
@@ -201,9 +209,12 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
                 }
 
                 if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
-                    // Code table 4.102: 20 = Model climate, for every time range of the reference period
-                    set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
-                                                    std::vector<long>(numberOfReferencePeriodTimeRanges, 20));
+                    // Code table 4.102: Model climate, for every time range of the reference period
+                    set_or_throw<std::vector<long>>(
+                        out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
+                        std::vector<long>(
+                            numberOfReferencePeriodTimeRanges,
+                            static_cast<long>(tables::TypeOfStatisticalProcessingForReferencePeriod::ModelClimate)));
                 }
             }
 
@@ -213,10 +224,15 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
             if constexpr (Stage == StagePreset) {
 
                 if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
-                    // Code table 4.100: 2 = Reforecast (Hindcast)
-                    set_or_throw<long>(out, "typeOfReferenceDataset", 2);
-                    // Code table 4.101: 20 = Extreme Forecast Index (EFI), 21 = Shift of Tails (SOT)
-                    set_or_throw<long>(out, "typeOfRelationToReferenceDataset", marsType == "sot" ? 21 : 20);
+                    // Code table 4.100: Reforecast (Hindcast)
+                    set_or_throw<long>(out, "typeOfReferenceDataset",
+                                       static_cast<long>(tables::TypeOfReferenceDataset::Reforecast));
+                    // Code table 4.101: Extreme Forecast Index (EFI) or Shift of Tails (SOT)
+                    set_or_throw<long>(
+                        out, "typeOfRelationToReferenceDataset",
+                        static_cast<long>(marsType == "sot"
+                                              ? tables::TypeOfRelationToReferenceDataset::ShiftOfTails
+                                              : tables::TypeOfRelationToReferenceDataset::ExtremeForecastIndex));
                 }
 
                 if (const auto sampleSize = get_opt<long>(par, "sampleSizeOfModelClimate")) {
