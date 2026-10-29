@@ -20,8 +20,7 @@ namespace {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "jun",
-                                          "jul", "aug", "sep", "oct", "nov", "dec"};
+std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
 
 std::string month(const std::string& value) {
     if (std::isdigit(value[0])) {
