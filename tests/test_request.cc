@@ -5,6 +5,9 @@
 /// @date   Jul 2024
 /// @author Emanuele Danovaro
 
+#include <string>
+#include <vector>
+
 #include "eckit/log/JSON.h"
 #include "eckit/types/Date.h"
 
@@ -19,9 +22,17 @@
 
 using namespace eckit::testing;
 
-namespace metkit {
-namespace mars {
-namespace test {
+namespace metkit::mars::test {
+
+namespace {
+
+MarsRequest requestWith(const std::string& name, const std::vector<std::string>& values) {
+    MarsRequest request;
+    request.values(name, values);
+    return request;
+}
+
+}  // namespace
 
 //-----------------------------------------------------------------------------
 
@@ -197,11 +208,60 @@ CASE("test_request_count_single_level_params") {
     }
 }
 
+CASE("test_request_data_type_classification") {
+    {
+        MarsRequest request = requestWith("type", {"ob"});
+        EXPECT(request.is_bufr());
+        EXPECT(!request.is_grib());
+    }
+    {
+        MarsRequest request = requestWith("type", {"fb"});
+        EXPECT(request.is_bufr());
+    }
+    {
+        MarsRequest request = requestWith("type", {"ob", "fb"});
+        EXPECT(request.is_bufr());
+        EXPECT(!request.is_grib());
+    }
+    {
+        MarsRequest request = requestWith("type", {"ai"});
+        EXPECT(request.is_bufr());
+        EXPECT(!request.is_grib());
+    }
+    {
+        MarsRequest request = requestWith("type", {"af"});
+        EXPECT(request.is_bufr());
+    }
+    {
+        MarsRequest request = requestWith("type", {"ab"});
+        EXPECT(request.is_bufr());
+    }
+    {
+        MarsRequest request = requestWith("type", {"tf"});
+        EXPECT(request.is_bufr());
+    }
+
+    for (const std::string& type : {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"}) {
+        EXPECT(requestWith("type", {type}).is_odb());
+    }
+    EXPECT(!requestWith("type", {"an"}).is_odb());
+
+    EXPECT(requestWith("type", {"an"}).is_grib());
+    EXPECT(MarsRequest().is_grib());
+}
+
+CASE("test_request_multiple_type_values") {
+    const MarsRequest feedback = requestWith("type", {"ai", "af"});
+    EXPECT(feedback.is_bufr());
+    EXPECT(!feedback.is_grib());
+    const MarsRequest mixed = requestWith("type", {"ob", "ai"});
+    EXPECT(mixed.is_bufr());
+    EXPECT(!mixed.is_grib());
+}
+
 //-----------------------------------------------------------------------------
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
 
 int main(int argc, char** argv) {
     return run_tests(argc, argv);

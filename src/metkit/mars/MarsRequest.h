@@ -27,6 +27,13 @@ namespace metkit::mars {
 class Type;
 class MarsRequest;
 
+enum DataType {
+    Bufr,
+    Odb,
+    Grib,
+    Unknown
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsRequest {
@@ -111,6 +118,12 @@ public:  // methods
 
     size_t count() const;
 
+    bool is_bufr() const;
+    bool is_odb() const;
+    bool is_grib() const;
+
+    DataType dataType() const;
+
     MarsRequest extract(const std::string& category) const;
 
     void erase(const std::string& param);
@@ -131,6 +144,8 @@ private:  // members
     std::list<Parameter> params_;
 
 private:  // methods
+
+    bool checkValues(const std::string& key, const std::vector<std::string>& c) const;
 
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;

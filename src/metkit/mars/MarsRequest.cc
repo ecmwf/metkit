@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
 // SPDX-License-Identifier: Apache-2.0
 
+#include <algorithm>
+
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/types/Types.h"
@@ -382,6 +384,36 @@ std::vector<std::string> MarsRequest::params() const {
 
 MarsRequest::operator eckit::Value() const {
     NOTIMP;
+}
+
+
+bool MarsRequest::checkValues(const std::string& key, const std::vector<std::string>& c) const {
+    auto t = find(key);
+    if (t == params_.end() || t->values().empty()) {
+        return false;
+    }
+    return std::all_of(t->values().begin(), t->values().end(),
+                       [&c](const std::string& value) { return std::find(c.begin(), c.end(), value) != c.end(); });
+}
+
+bool MarsRequest::is_bufr() const {
+    return checkValues("type", {"ai", "af", "ob", "fb", "ab", "tf"}) || checkValues("stream", {"ssmi"});
+}
+bool MarsRequest::is_odb() const {
+    return checkValues("type", {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"});
+}
+bool MarsRequest::is_grib() const {
+    return !is_bufr() && !is_odb();
+}
+
+DataType MarsRequest::dataType() const {
+    if (is_bufr()) {
+        return Bufr;
+    }
+    if (is_odb()) {
+        return Odb;
+    }
+    return Grib;
 }
 
 // recursively expand along keys in expvalues
