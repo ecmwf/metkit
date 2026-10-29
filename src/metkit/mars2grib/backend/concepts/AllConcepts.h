@@ -96,6 +96,7 @@
 #include "metkit/mars2grib/backend/concepts/derived/derivedConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/destine/destineConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/focal-statistics/focalStatisticsConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/iteration/iterationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/level/levelConceptDescriptor.h"
@@ -178,6 +179,6 @@ using AllConcepts =
              OriginConcept, PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept,
              RepresentationConcept, SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept,
              WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, ProbabilityConcept, ReferencePeriodConcept,
-             QuantileConcept, PostProcessingConcept>;
+             QuantileConcept, PostProcessingConcept, FocalStatisticsConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail

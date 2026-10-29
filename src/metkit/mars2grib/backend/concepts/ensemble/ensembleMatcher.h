@@ -77,10 +77,10 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         }
         else if (type == "ep") {
             // Only the strike probabilities use the large-ensemble templates (PDT 4.121/4.122). The other
-            // probabilities (PDT 4.5/4.9/4.112/4.131) carry no ensemble metadata, see the `probability` matcher.
+            // probabilities (PDT 4.5/4.9/4.112/4.131) carry no ensemble metadata.
             const long param = get_or_throw<long>(mars, "param");
             if (matchAny(param, 131089, 131090, 131091)) {
-                return static_cast<std::size_t>(EnsembleType::ProbabilityLargeEnsemble);
+                return static_cast<std::size_t>(EnsembleType::LargeEnsemble);
             }
             else {
                 return compile_time_registry_engine::MISSING;

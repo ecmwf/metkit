@@ -93,6 +93,18 @@ CASE("encoding") {
     }
 }
 
+CASE("encoding with misc overrides") {
+    eckit::LocalConfiguration misc;
+    misc.set("forecastProbabilityNumber", 2);
+    misc.set("totalNumberOfForecastProbabilities", 3);
+
+    const auto handle = metkit::mars2grib::Mars2Grib().encode(randomPercentage(), mars(131091), misc);
+
+    EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 121);
+    EXPECT_EQUAL(handle->getLong("forecastProbabilityNumber"), 2);
+    EXPECT_EQUAL(handle->getLong("totalNumberOfForecastProbabilities"), 3);
+}
+
 
 int main(int argc, char** argv) {
     return eckit::testing::run_tests(argc, argv);
