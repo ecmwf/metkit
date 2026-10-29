@@ -1198,6 +1198,9 @@ INPUT = \@MARS2GRIB_SOURCE_DIRECTORY@/utils/configConverter.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/tables/derivedForecast.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/tables/shapeOfTheReferenceSystem.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/tables/typeOfInterval.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/backend/tables/typeOfReferenceDataset.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/backend/tables/typeOfRelationToReferenceDataset.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/backend/tables/typeOfStatisticalProcessingForTimeRangeForReferencePeriod.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/encodeValues.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/GribHeaderLayoutData.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/make_HeaderLayout.h \
