@@ -18,6 +18,7 @@ foreach( _src
         017_enfo_probabilities.cc
         018_mc_cams_emission_sectors.cc
         019_enfo_ensemble_member_products.cc
+        020_severe_weather_probability.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 
