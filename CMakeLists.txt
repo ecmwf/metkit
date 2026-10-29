@@ -82,6 +82,11 @@ ecbuild_add_option( FEATURE MARS2GRIB
                     CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO AND eccodes_HAVE_ECKIT_GEO
                     DESCRIPTION "Build the MARS2GRIB encoder" )
 
+ecbuild_add_option( FEATURE MARS2GRIB_ROUNDTRIP_TESTCASES
+                    DEFAULT OFF
+                    CONDITION HAVE_MARS2GRIB AND HAVE_GRIB2MARS AND HAVE_BUILD_GRIB2_TOOLS AND eckit_HAVE_ECKIT_BLOCKFILE
+                    DESCRIPTION "mars2grib corpus ctests generated from a block file of test cases (tests/mars2grib/testcases)" )
+
 # Pythonic pybind11 interface (pymetkit)
 ecbuild_add_option( FEATURE PYTHON_METKIT_INTERFACE
                     DEFAULT OFF

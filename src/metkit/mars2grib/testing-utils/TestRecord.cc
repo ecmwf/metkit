@@ -281,6 +281,7 @@ std::vector<std::size_t> parseBlockIds(const std::string& expression, std::size_
 
 std::string configurationToJson(const eckit::LocalConfiguration& configuration) {
     std::ostringstream os;
+    os.precision(17);  // enough digits to read every double back exactly
     eckit::JSON json(os);
     json << configuration;
     return os.str();

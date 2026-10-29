@@ -151,6 +151,8 @@ public:
         options_.push_back(new SimpleOption<std::string>(
             "select", "Block-file inputs only: regenerate blocks matching e.g. class=od,stream=enfo/oper,type=pf"));
         options_.push_back(new SimpleOption<std::string>(
+            "blocks", "Single block-file input only: regenerate these blocks, e.g. 0,3,5-7 (combined with --select)"));
+        options_.push_back(new SimpleOption<std::string>(
             "keys",
             "Block output: comma-separated label keys (default class,stream,type). timeShape is the product "
             "time spec shape type; any other name is a MARS key; absent values are labelled 'missing'"));
@@ -189,6 +191,7 @@ private:
     metkit::mars2grib::testing_utils::run_tests::TestCaseLabeler labeler_;
     metkit::mars2grib::testing_utils::run_tests::MarsRecordFilter exclude_;
     std::optional<std::string> select_;
+    std::optional<std::string> blocks_;
     std::optional<std::string> failedRecordsPath_;
     std::optional<std::size_t> expectedMessages_;
     std::size_t threadCount_{0};
@@ -298,6 +301,14 @@ void Mars2GribRegenerateTestsTool::init(const eckit::option::CmdArgs& args) {
         args.get("select", select);
         select_ = std::move(select);
     }
+    if (args.has("blocks")) {
+        if (inputs_.size() != 1 || !allBlock) {
+            throw eckit::UserError("--blocks needs a single block-file input", Here());
+        }
+        std::string blocks;
+        args.get("blocks", blocks);
+        blocks_ = std::move(blocks);
+    }
     if (args.has("failed-records")) {
         std::string path;
         args.get("failed-records", path);
@@ -331,9 +342,18 @@ void Mars2GribRegenerateTestsTool::execute(const eckit::option::CmdArgs&) {
             allBlock = false;
             continue;
         }
-        readers[i] = std::make_unique<eckit::blockfile::Reader>(eckit::PathName{inputs_[i].path});
-        blockIds[i] =
-            readers[i]->select(select_ ? eckit::blockfile::Filter::parse(*select_) : eckit::blockfile::Filter{});
+        readers[i]        = std::make_unique<eckit::blockfile::Reader>(eckit::PathName{inputs_[i].path});
+        const auto filter = select_ ? eckit::blockfile::Filter::parse(*select_) : eckit::blockfile::Filter{};
+        if (blocks_) {
+            for (std::size_t id : parseBlockIds(*blocks_, readers[i]->numberOfBlocks())) {
+                if (filter.matches(readers[i]->keys(), readers[i]->blocks()[id])) {
+                    blockIds[i].push_back(id);
+                }
+            }
+        }
+        else {
+            blockIds[i] = readers[i]->select(filter);
+        }
         for (std::size_t id : blockIds[i]) {
             knownRecords += readers[i]->blocks()[id].records;
         }
@@ -645,7 +665,7 @@ void Mars2GribRegenerateTestsTool::usage(const std::string& tool) const {
                        << " --input <file>[,<file>...] --output <file> --num-threads <3..127> "
                           "[--output-format block|jsonl] [--keys <k1,k2,...>] [--exclude <rules>] [--exclude-file "
                           "<file>] [--deduplicate] "
-                          "[--select <filter>] [--max-queue-size <N>] "
+                          "[--select <filter>] [--blocks <ids>] [--max-queue-size <N>] "
                           "[--zstd-level <1..22>] [--records-per-block <N>] [--block-bytes <N>] "
                           "[--failed-records <file.jsonl[.zst]>] [--expected-messages <N>] [--yaml-parser]"
                        << std::endl;

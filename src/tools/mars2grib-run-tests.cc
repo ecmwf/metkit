@@ -68,6 +68,8 @@ public:
             new eckit::option::SimpleOption<long>("max-queue-size", "Maximum queued JSONL records (JSONL input only)"));
         options_.push_back(new eckit::option::SimpleOption<std::string>(
             "select", "Block files only: run blocks matching e.g. class=od,stream=enfo/oper,type=pf"));
+        options_.push_back(new eckit::option::SimpleOption<std::string>(
+            "blocks", "Block files only: run these blocks, e.g. 0,3,5-7 (combined with --select if both are given)"));
         options_.push_back(new eckit::option::SimpleOption<long>(
             "expected-messages", "Estimated total messages used only to display progress"));
         options_.push_back(new eckit::option::SimpleOption<std::string>(
@@ -88,6 +90,7 @@ private:
     std::string archivePath_;
     bool blockFile_{false};
     std::optional<std::string> select_;
+    std::optional<std::string> blocks_;
     std::optional<std::string> failedTestsPrefix_;
     std::optional<std::size_t> expectedMessages_;
     std::size_t threadCount_{0};
@@ -130,6 +133,14 @@ void Mars2GribRunTestsTool::init(const eckit::option::CmdArgs& args) {
         std::string select;
         args.get("select", select);
         select_ = std::move(select);
+    }
+    if (args.has("blocks")) {
+        if (!blockFile_) {
+            throw eckit::UserError("--blocks needs a block-file input", Here());
+        }
+        std::string blocks;
+        args.get("blocks", blocks);
+        blocks_ = std::move(blocks);
     }
 
     if (args.has("failed-tests")) {
@@ -250,6 +261,7 @@ void Mars2GribRunTestsTool::executeJsonl() {
                     options.logErrorDetails = false;
                     options.parser          = common_.parser;
                     options.mode            = common_.mode;
+                    options.decodeMarsOnly  = common_.decodeMarsOnly;
                     options.failureReports  = common_.failureReports;
                     if (failedTestsPrefix_) {
                         options.failedTestsPath = failurePath(*failedTestsPrefix_, threadIndex);
@@ -338,8 +350,18 @@ void Mars2GribRunTestsTool::executeBlocks() {
 
     const auto start = Clock::now();
     const eckit::blockfile::Reader reader{eckit::PathName{archivePath_}};
-    const std::vector<std::size_t> ids =
-        reader.select(select_ ? eckit::blockfile::Filter::parse(*select_) : eckit::blockfile::Filter{});
+    const auto filter = select_ ? eckit::blockfile::Filter::parse(*select_) : eckit::blockfile::Filter{};
+    std::vector<std::size_t> ids;
+    if (blocks_) {
+        for (std::size_t id : parseBlockIds(*blocks_, reader.numberOfBlocks())) {
+            if (filter.matches(reader.keys(), reader.blocks()[id])) {
+                ids.push_back(id);
+            }
+        }
+    }
+    else {
+        ids = reader.select(filter);
+    }
 
     std::size_t selectedRecords = 0;
     for (std::size_t id : ids) {
@@ -394,6 +416,7 @@ void Mars2GribRunTestsTool::executeBlocks() {
                     options.logErrorDetails = false;
                     options.parser          = common_.parser;
                     options.mode            = common_.mode;
+                    options.decodeMarsOnly  = common_.decodeMarsOnly;
                     options.failureReports  = common_.failureReports;
                     if (failedTestsPrefix_) {
                         options.failedTestsPath = failurePath(*failedTestsPrefix_, threadIndex);
@@ -459,7 +482,8 @@ void Mars2GribRunTestsTool::executeBlocks() {
     const std::size_t passedCount = passed.load();
     const std::size_t failedCount = failed.load();
     eckit::Log::info() << "BLOCKS: " << ids.size() << " of " << reader.numberOfBlocks()
-                       << (select_ ? " (select: " + *select_ + ")" : std::string{}) << std::endl;
+                       << (select_ ? " (select: " + *select_ + ")" : std::string{})
+                       << (blocks_ ? " (blocks: " + *blocks_ + ")" : std::string{}) << std::endl;
     printSummary(passedCount + failedCount, passedCount, failedCount);
 
     if (common_.failureReports && failedCount != 0) {
@@ -487,9 +511,10 @@ void Mars2GribRunTestsTool::usage(const std::string& tool) const {
     eckit::Log::info()
         << "Usage: " << tool
         << " --test-cases <file> --num-threads <N> [--max-queue-size <N> (JSONL input)] "
-           "[--select class=..,stream=..,type=.. (block input)] [--expected-messages <N>] "
+           "[--select class=..,stream=..,type=..] [--blocks <ids>] (block input) [--expected-messages <N>] "
            "[--failed-tests <prefix>] [--failure-reports [--failure-reports-dir <dir>] "
-           "[--failure-reports-schema <schema>]] [--mode encode|decode|roundtrip] [--timings] [--yaml-parser]"
+           "[--failure-reports-schema <schema>]] [--mode encode|decode|roundtrip] [--decode-mars-only] [--timings] "
+           "[--yaml-parser]"
         << std::endl;
 }
 

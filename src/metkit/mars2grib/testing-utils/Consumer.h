@@ -30,6 +30,8 @@ struct ConsumerOptions {
     std::optional<FailureReportOptions> failureReports;
     RecordParser parser{RecordParser::Json};
     TestMode mode{TestMode::Encode};
+    /// Decode and roundtrip modes: compare only the decoded mars, not misc.
+    bool decodeMarsOnly{false};
 };
 
 /// Time spent in each stage of `Consumer::run`, summed over all calls.

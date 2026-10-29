@@ -47,7 +47,7 @@ eckit::LocalConfiguration requiredSubConfiguration(const eckit::LocalConfigurati
 std::optional<eckit::LocalConfiguration> optionalSubConfiguration(const eckit::LocalConfiguration& root,
                                                                   const std::string& key);
 
-/// Compact JSON serialisation of a configuration.
+/// Compact JSON serialisation of a configuration (doubles with 17 significant digits, so they read back exactly).
 std::string configurationToJson(const eckit::LocalConfiguration& configuration);
 
 /// Selects test cases by their MARS request only (not misc or opt).

@@ -39,8 +39,9 @@ struct DecodeComparison {
 /// Every key of the expected mars and misc must be present in the decoded ones with an equal
 /// value; extra decoded keys are ignored. Strings compare case-insensitively, numbers by value
 /// (also when one side is a numeric string, e.g. "130" and 130), lists element by element, and
-/// a scalar equals a one-element list.
+/// a scalar equals a one-element list. With `compareMisc` false only mars is compared.
 DecodeComparison compareDecoded(const eckit::LocalConfiguration& expectedMars,
-                                const eckit::LocalConfiguration& expectedMisc, const DecodedTestCase& decoded);
+                                const eckit::LocalConfiguration& expectedMisc, const DecodedTestCase& decoded,
+                                bool compareMisc = true);
 
 }  // namespace metkit::mars2grib::testing_utils::run_tests

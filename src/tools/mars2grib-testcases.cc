@@ -129,6 +129,85 @@ std::map<std::size_t, std::string> fetchRecords(const std::string& file, const s
     return records;
 }
 
+/// Value spans [begin, end) of the top-level members of a JSON object, so single members can be
+/// replaced without re-serialising (and possibly reformatting) the others.
+std::map<std::string, std::pair<std::size_t, std::size_t>> topLevelMembers(std::string_view json) {
+    std::map<std::string, std::pair<std::size_t, std::size_t>> members;
+    std::size_t i         = 0;
+    const auto skipSpaces = [&]() {
+        while (i < json.size() && std::isspace(static_cast<unsigned char>(json[i]))) {
+            ++i;
+        }
+    };
+    const auto skipString = [&]() {  // json[i] == '"'
+        for (++i; i < json.size(); ++i) {
+            if (json[i] == '\\') {
+                ++i;
+            }
+            else if (json[i] == '"') {
+                ++i;
+                return;
+            }
+        }
+        throw eckit::BadValue("Unterminated string in test-case record", Here());
+    };
+
+    skipSpaces();
+    if (i >= json.size() || json[i] != '{') {
+        throw eckit::BadValue("Test-case record is not a JSON object", Here());
+    }
+    ++i;
+    while (true) {
+        skipSpaces();
+        if (i < json.size() && json[i] == '}') {
+            break;
+        }
+        if (i >= json.size() || json[i] != '"') {
+            throw eckit::BadValue("Malformed test-case record (expected a key)", Here());
+        }
+        const std::size_t keyBegin = i + 1;
+        skipString();
+        const std::string key{json.substr(keyBegin, i - 1 - keyBegin)};
+        skipSpaces();
+        if (i >= json.size() || json[i] != ':') {
+            throw eckit::BadValue("Malformed test-case record (expected ':')", Here());
+        }
+        ++i;
+        skipSpaces();
+        const std::size_t begin = i;
+        int depth               = 0;
+        while (i < json.size()) {
+            const char c = json[i];
+            if (c == '"') {
+                skipString();
+                continue;
+            }
+            if (c == '{' || c == '[') {
+                ++depth;
+            }
+            else if (c == '}' || c == ']') {
+                if (depth == 0) {
+                    break;
+                }
+                --depth;
+            }
+            else if (c == ',' && depth == 0) {
+                break;
+            }
+            ++i;
+        }
+        std::size_t end = i;
+        while (end > begin && std::isspace(static_cast<unsigned char>(json[end - 1]))) {
+            --end;
+        }
+        members[key] = {begin, end};
+        if (i < json.size() && json[i] == ',') {
+            ++i;
+        }
+    }
+    return members;
+}
+
 struct ParsedTest {
     std::size_t index{0};
     eckit::LocalConfiguration mars;
@@ -154,6 +233,10 @@ public:
         options_.push_back(
             new SimpleOption<long>("block-bytes", "relabel: uncompressed bytes per block (default 4 MiB)"));
         options_.push_back(new SimpleOption<long>("zstd-level", "relabel: zstd compression level 1..22 (default 9)"));
+        options_.push_back(new SimpleOption<std::string>(
+            "remove",
+            "remove-keys: comma-separated keys to delete from every record, as section.key with section "
+            "mars, misc or opt, e.g. misc.shapeOfTheEarth"));
         options_.push_back(new SimpleOption<long>(
             "details", "diff: number of changed/added/removed tests to show in detail (default 20, -1 = all)"));
         options_.push_back(new SimpleOption<std::string>(
@@ -184,6 +267,7 @@ private:
     void cat(const std::string& file, const eckit::option::CmdArgs& args) const;
     void ctestList(const std::string& file, const eckit::option::CmdArgs& args) const;
     void relabel(const std::string& file, const eckit::option::CmdArgs& args) const;
+    void removeKeys(const std::string& file, const eckit::option::CmdArgs& args) const;
     void diff(const std::string& oldFile, const std::string& newFile, const eckit::option::CmdArgs& args) const;
 };
 
@@ -214,6 +298,10 @@ void Mars2GribTestCasesTool::execute(const eckit::option::CmdArgs& args) {
         relabel(file, args);
         return;
     }
+    if (command == "remove-keys") {
+        removeKeys(file, args);
+        return;
+    }
     if (command == "diff") {
         if (args.count() != 3) {
             throw eckit::UserError("diff needs two files: diff <old> <new>", Here());
@@ -221,7 +309,8 @@ void Mars2GribTestCasesTool::execute(const eckit::option::CmdArgs& args) {
         diff(file, args(2), args);
         return;
     }
-    throw eckit::UserError("Unknown command `" + command + "` (get, cat, ctest-list, relabel, diff)", Here());
+    throw eckit::UserError("Unknown command `" + command + "` (get, cat, ctest-list, relabel, remove-keys, diff)",
+                           Here());
 }
 
 void Mars2GribTestCasesTool::get(const std::string& file, std::size_t index) const {
@@ -374,11 +463,19 @@ void Mars2GribTestCasesTool::ctestList(const std::string& file, const eckit::opt
             }
 
             for (const auto& mode : modes) {
-                const std::string test = prefix + "_" + mode + name + suffix;
+                // One block per test: name and label the test by its block id.
+                const bool perBlock = chunk == 1;
+                std::string blockTag;
+                if (perBlock) {
+                    std::ostringstream os;
+                    os << "_b" << std::setw(5) << std::setfill('0') << ids[c];
+                    blockTag = os.str();
+                }
+                const std::string test = prefix + "_" + mode + blockTag + name + (perBlock ? "" : suffix);
                 out << "add_test(" << cmakeArgument(test) << ' ' << cmakeArgument(runner) << ' '
                     << cmakeArgument("--test-cases") << ' ' << cmakeArgument(testCases) << ' '
                     << cmakeArgument("--mode") << ' ' << cmakeArgument(mode);
-                if (chunks == 1 && selectable) {
+                if (chunks == 1 && selectable && !perBlock) {
                     out << ' ' << cmakeArgument("--select") << ' ' << cmakeArgument(select);
                 }
                 else {
@@ -393,6 +490,9 @@ void Mars2GribTestCasesTool::ctestList(const std::string& file, const eckit::opt
                 std::string labelsProperty = prefix + ";" + prefix + "-" + mode;
                 for (const auto& label : labelList) {
                     labelsProperty += ";" + label;
+                }
+                if (perBlock) {
+                    labelsProperty += ";block=" + std::to_string(ids[c]);
                 }
                 out << "set_tests_properties(" << cmakeArgument(test) << " PROPERTIES LABELS "
                     << cmakeArgument(labelsProperty);
@@ -467,6 +567,97 @@ void Mars2GribTestCasesTool::relabel(const std::string& file, const eckit::optio
         eckit::Log::info() << "  " << options.keys[k].name << ": " << missing[k] << " tests labelled missing\n";
     }
     eckit::Log::info() << "Inspect with: eckit-blockfile stats " << output << std::endl;
+}
+
+void Mars2GribTestCasesTool::removeKeys(const std::string& file, const eckit::option::CmdArgs& args) const {
+    if (!args.has("output") || !args.has("remove")) {
+        throw eckit::UserError("remove-keys needs --output and --remove", Here());
+    }
+    const std::string output = args.getString("output");
+    if (eckit::PathName{output}.fullName() == eckit::PathName{file}.fullName()) {
+        throw eckit::UserError("--output must differ from the input", Here());
+    }
+    if (!eckit::blockfile::isBlockFile(eckit::PathName{file})) {
+        throw eckit::UserError("remove-keys needs a block-file input", Here());
+    }
+    const int level = static_cast<int>(args.getLong("zstd-level", 9));
+    if (level < 1 || level > 22) {
+        throw eckit::UserError("--zstd-level must be in the range 1..22", Here());
+    }
+
+    // section.key pairs
+    std::vector<std::pair<std::string, std::string>> keys;
+    for (const auto& item : splitList(args.getString("remove"))) {
+        const auto dot            = item.find('.');
+        const std::string section = item.substr(0, dot);
+        if (dot == std::string::npos || dot + 1 == item.size() ||
+            (section != "mars" && section != "misc" && section != "opt")) {
+            throw eckit::UserError("--remove entry `" + item + "` must be mars.<key>, misc.<key> or opt.<key>", Here());
+        }
+        keys.emplace_back(section, item.substr(dot + 1));
+    }
+
+    // Same blocks, same labels, same order: only the records change.
+    const eckit::blockfile::Reader reader{eckit::PathName{file}};
+    eckit::blockfile::WriterOptions options;
+    options.keys             = reader.keys();
+    options.compressionLevel = level;
+    eckit::blockfile::Writer writer{eckit::PathName{output}, options};
+
+    std::vector<std::size_t> removed(keys.size(), 0);
+    std::size_t tests = 0;
+    for (const auto& info : reader.blocks()) {
+        const auto block = reader.readBlock(info.id);
+        std::string records;
+        std::uint32_t count = 0;
+        block.forEachRecord([&](std::string_view view) {
+            // Re-serialise only the sections that change; everything else (notably `out`) stays byte-identical.
+            const auto members = topLevelMembers(view);
+            std::map<std::size_t, std::pair<std::size_t, std::string>> replacements;  // begin -> (end, text)
+            std::map<std::string, eckit::LocalConfiguration> edited;
+            for (std::size_t k = 0; k < keys.size(); ++k) {
+                const auto& [section, key] = keys[k];
+                const auto member          = members.find(section);
+                if (member == members.end()) {
+                    continue;
+                }
+                auto it = edited.find(section);
+                if (it == edited.end()) {
+                    const auto [begin, end] = member->second;
+                    it =
+                        edited.emplace(section, parseRecord(view.substr(begin, end - begin), RecordParser::Json)).first;
+                }
+                if (it->second.has(key)) {
+                    it->second.remove(key);
+                    ++removed[k];
+                    replacements[member->second.first] = {member->second.second, configurationToJson(it->second)};
+                }
+            }
+
+            std::size_t position = 0;
+            for (const auto& [begin, replacement] : replacements) {
+                records.append(view.substr(position, begin - position));
+                records += replacement.second;
+                position = replacement.first;
+            }
+            records.append(view.substr(position));
+            records += '\n';
+            ++count;
+        });
+        writer.addCompressedBlock(eckit::blockfile::Writer::compressBlock(info.labels, records, count, level));
+        tests += count;
+        std::cerr << "\rBLOCKS: " << info.id + 1 << '/' << reader.numberOfBlocks() << std::flush;
+    }
+    writer.close();
+    std::cerr << '\n';
+
+    eckit::Log::info() << "Wrote " << tests << " tests in " << writer.numberOfBlocks() << " blocks to " << output
+                       << '\n';
+    for (std::size_t k = 0; k < keys.size(); ++k) {
+        eckit::Log::info() << "  removed " << keys[k].first << '.' << keys[k].second << " from " << removed[k]
+                           << " tests\n";
+    }
+    eckit::Log::info() << std::flush;
 }
 
 void Mars2GribTestCasesTool::diff(const std::string& oldFile, const std::string& newFile,
@@ -605,6 +796,9 @@ void Mars2GribTestCasesTool::usage(const std::string& tool) const {
                        << "  " << tool
                        << " relabel <file> --output <file.ekbf> [--keys class,stream,type,levtype,timeShape] "
                           "[--records-per-block <N>] [--block-bytes <N>] [--zstd-level <1..22>]\n"
+                       << "  " << tool
+                       << " remove-keys <file.ekbf> --output <file.ekbf> --remove misc.shapeOfTheEarth[,...] "
+                          "[--zstd-level <1..22>]\n"
                        << "  " << tool << " diff <old> <new> [--details <N>]\n"
                        << "  " << tool
                        << " ctest-list <file> --runner <mars2grib-run-tests-scalar> --output <file.cmake> "

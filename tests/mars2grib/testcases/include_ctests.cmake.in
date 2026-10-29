@@ -3,7 +3,7 @@
 if( EXISTS "@_generated@" )
     include( "@_generated@" )
 else()
-    add_test( mars2grib_testcases_not_generated "@CMAKE_COMMAND@" -E echo
-              "mars2grib test-case ctests not generated: build the target mars2grib_testcases_ctests first" )
-    set_tests_properties( mars2grib_testcases_not_generated PROPERTIES WILL_FAIL TRUE LABELS "mars2grib" )
+    add_test( mars2grib_corpus_not_generated "@CMAKE_COMMAND@" -E echo
+              "mars2grib corpus ctests not generated: build the target mars2grib_testcases_ctests first" )
+    set_tests_properties( mars2grib_corpus_not_generated PROPERTIES WILL_FAIL TRUE LABELS "mars2grib_corpus" )
 endif()

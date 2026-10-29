@@ -97,7 +97,7 @@ bool Consumer::run(const std::string& json) {
             // Decode mode checks the expected output; roundtrip decodes what was just encoded.
             const RecordingDictionary& recording = encode ? *actual : testCase->expectedOutput;
             decoded.emplace(decodeRecording(recording, testCase->options));
-            const auto comparison = compareDecoded(testCase->mars, testCase->misc, *decoded);
+            const auto comparison = compareDecoded(testCase->mars, testCase->misc, *decoded, !options_.decodeMarsOnly);
             if (!comparison.equal) {
                 failure.decodeDiff = comparison.diff;
                 failure.reason +=

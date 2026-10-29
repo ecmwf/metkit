@@ -91,6 +91,7 @@ void Mars2GribRunTestsScalarTool::execute(const eckit::option::CmdArgs&) {
     options.logErrorDetails = true;
     options.parser          = common_.parser;
     options.mode            = common_.mode;
+    options.decodeMarsOnly  = common_.decodeMarsOnly;
     options.failureReports  = common_.failureReports;
     Consumer consumer{std::move(options)};
 
@@ -161,12 +162,12 @@ void Mars2GribRunTestsScalarTool::execute(const eckit::option::CmdArgs&) {
 }
 
 void Mars2GribRunTestsScalarTool::usage(const std::string& tool) const {
-    eckit::Log::info()
-        << "Usage: " << tool
-        << " --test-cases <file> [--select class=..,stream=..,type=..] [--blocks <ids>] (block input) "
-           "[--failure-reports [--failure-reports-dir <dir>] "
-           "[--failure-reports-schema <schema>]] [--mode encode|decode|roundtrip] [--timings] [--yaml-parser]"
-        << std::endl;
+    eckit::Log::info() << "Usage: " << tool
+                       << " --test-cases <file> [--select class=..,stream=..,type=..] [--blocks <ids>] (block input) "
+                          "[--failure-reports [--failure-reports-dir <dir>] "
+                          "[--failure-reports-schema <schema>]] [--mode encode|decode|roundtrip] [--decode-mars-only] "
+                          "[--timings] [--yaml-parser]"
+                       << std::endl;
 }
 
 }  // namespace

@@ -589,7 +589,7 @@ std::string FailureReporter::write(const FailureDetails& details) {
         detail::writeConfiguration(out, details.decodedMars);
         detail::writeSection(out, "DECODED MISC");
         detail::writeConfiguration(out, details.decodedMisc);
-        detail::writeSection(out, "DECODE DIFF (keys of the input mars/misc)");
+        detail::writeSection(out, "DECODE DIFF (keys of the input mars, and misc unless --decode-mars-only)");
         if (details.decodedMars == nullptr) {
             out << "(unavailable: decoding did not run or failed)\n";
         }

@@ -31,6 +31,7 @@ struct CommonRunTestsOptions {
     std::optional<FailureReportOptions> failureReports;
     RecordParser parser{RecordParser::Json};
     TestMode mode{TestMode::Encode};
+    bool decodeMarsOnly{false};
     bool timings{false};
 };
 
@@ -52,12 +53,15 @@ inline void addCommonRunTestsOptions(std::vector<eckit::option::Option*>& option
         "mode",
         "encode (default): mars/misc/opt -> set-list vs out; decode: out -> GRIB -> grib2mars vs "
         "mars/misc; roundtrip: encode check, then decode of the encoded output"));
+    options.push_back(new eckit::option::SimpleOption<bool>(
+        "decode-mars-only", "decode/roundtrip: compare only the decoded mars with the input (ignore misc)"));
 }
 
 inline CommonRunTestsOptions readCommonRunTestsOptions(const eckit::option::CmdArgs& args) {
     CommonRunTestsOptions result;
-    result.parser  = args.getBool("yaml-parser", false) ? RecordParser::Yaml : RecordParser::Json;
-    result.timings = args.getBool("timings", false);
+    result.parser         = args.getBool("yaml-parser", false) ? RecordParser::Yaml : RecordParser::Json;
+    result.timings        = args.getBool("timings", false);
+    result.decodeMarsOnly = args.getBool("decode-mars-only", false);
     if (args.has("mode")) {
         std::string mode;
         args.get("mode", mode);

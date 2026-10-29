@@ -257,10 +257,13 @@ DecodedTestCase decodeRecording(const RecordingDictionary& recording, const ecki
 }
 
 DecodeComparison compareDecoded(const eckit::LocalConfiguration& expectedMars,
-                                const eckit::LocalConfiguration& expectedMisc, const DecodedTestCase& decoded) {
+                                const eckit::LocalConfiguration& expectedMisc, const DecodedTestCase& decoded,
+                                bool compareMisc) {
     DecodeComparison result;
     compareSection("mars", expectedMars, decoded.mars, result);
-    compareSection("misc", expectedMisc, decoded.misc, result);
+    if (compareMisc) {
+        compareSection("misc", expectedMisc, decoded.misc, result);
+    }
     return result;
 }
 
