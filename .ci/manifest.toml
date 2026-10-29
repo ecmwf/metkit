@@ -29,14 +29,13 @@ package = "netcdf"
 ref = "master"
 compiler-inputs = ["cxx-compiler"]
 
-# metkit[eckit-geo] is built against eccodes[eckit-geo]: GRIB2MARS and
-# MARS2GRIB need it, and mir needs them.
+# GRIB2MARS and MARS2GRIB need eccodes[eckit-geo], and mir needs them.
 [[deps]]
 repo = "ecmwf/eccodes"
 package = "eccodes"
 ref = "develop"
 compiler-inputs = ["cxx-compiler"]
-options-input = "options"
+options = "eckit-geo"
 
 [[deps]]
 repo = "ecmwf/eckit"
@@ -49,7 +48,6 @@ compiler-inputs = ["cxx-compiler"]
 
 [[packages.pymetkit.deps]]
 package = "metkit"
-options-input = "options"
 
 [[packages.pymetkit.deps]]
 repo = "ecmwf/stack-dependencies"
@@ -75,20 +73,6 @@ platform = "ubuntu-24.04"
 cxx-compiler = "g++-13"
 c-compiler = "gcc-13"
 container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13"
-platform = "ubuntu-24.04"
-
-[[matrix.build.include]]
-cxx-compiler = "g++-13"
-c-compiler = "gcc-13"
-options = "eckit-geo"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13"
-platform = "ubuntu-24.04"
-
-[[matrix.build.include]]
-cxx-compiler = "clang++-18"
-c-compiler = "clang-18"
-options = "eckit-geo"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-clang18"
 platform = "ubuntu-24.04"
 
 [[matrix.build.include]]
@@ -159,16 +143,6 @@ python-version = "3.13"
 [[matrix.python.include]]
 python-version = "3.14"
 
-# The mars2grib and mars2mars bindings exist only in the eckit-geo build, which
-# metkit makes on this leg alone.
-[[matrix.python.include]]
-python-version = "3.14"
-options = "eckit-geo"
-cxx-compiler = "g++-13"
-c-compiler = "gcc-13"
-container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13"
-platform = "ubuntu-24.04"
-
 [matrix.build-hpc]
 execution = "hpc-atos"
 container-credentials = true
@@ -190,13 +164,8 @@ cxx-compiler-binary = "g++"
 time = "00:40:00"
 
 [[matrix.build-hpc.include]]
-options = ""
 
 [[matrix.build-hpc.include]]
-options = "eckit-geo"
-
-[[matrix.build-hpc.include]]
-options = "eckit-geo"
 cxx-compiler = "g++-15"
 platform = "hpc-atos-gnu"
 modules = ["load prgenv/gnu", "unload gcc", "load gcc/15.2.0", "load cmake", "load ninja"]
@@ -204,7 +173,6 @@ c-compiler-binary = "gcc"
 cxx-compiler-binary = "g++"
 
 [[matrix.build-hpc.include]]
-options = "eckit-geo"
 cxx-compiler = "nvc++-26.1"
 platform = "hpc-atos-nvidia"
 modules = ["load prgenv/nvidia", "unload nvidia", "load nvidia/26.1", "load cmake", "load ninja"]
@@ -212,7 +180,6 @@ c-compiler-binary = "nvc"
 cxx-compiler-binary = "nvc++"
 
 [[matrix.build-hpc.include]]
-options = "eckit-geo"
 cxx-compiler = "icpx-2025.3.1"
 platform = "hpc-atos-intel"
 modules = ["load prgenv/intel-llvm", "unload intel", "load intel/2025.3.1", "load cmake", "load ninja"]
@@ -220,7 +187,6 @@ c-compiler-binary = "icx"
 cxx-compiler-binary = "icpx"
 
 [[matrix.build-hpc.include]]
-options = "eckit-geo"
 cxx-compiler = "icpc-2023.2.0"
 platform = "hpc-atos-intel"
 modules = ["load prgenv/intel", "unload intel", "load intel/2023.2.0", "load cmake", "load ninja"]
@@ -232,7 +198,6 @@ compiler-inputs = ["cxx-compiler"]
 
 [[packages.metkit-rust.deps]]
 package = "metkit"
-options-input = "options"
 
 [[packages.metkit-rust.deps]]
 repo = "ecmwf/eckit"

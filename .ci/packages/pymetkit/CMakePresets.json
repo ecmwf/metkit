@@ -7,10 +7,6 @@
   "configurePresets": [
     {
       "name": "ci"
-    },
-    {
-      "inherits": "ci",
-      "name": "eckit-geo"
     }
   ],
   "version": 3
