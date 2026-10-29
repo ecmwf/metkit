@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "eckit/exception/Exceptions.h"
+#include "eckit/utils/Tokenizer.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/hypercube/HyperCube.h"
@@ -23,6 +24,50 @@
 #include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace {
+
+/// true if `v`, or any of its '|'-separated alternatives, is in `vals`; the values in `vals` must not contain '|'
+bool matchesAny(const std::set<std::string>& vals, const std::string& v) {
+    if (v.find('|') == std::string::npos) {
+        return vals.find(v) != vals.end();
+    }
+    std::vector<std::string> alternatives;
+    eckit::Tokenizer{"|"}(v, alternatives);
+    return std::any_of(alternatives.begin(), alternatives.end(),
+                       [&](const std::string& a) { return vals.find(a) != vals.end(); });
+}
+
+}  // namespace
+
+bool Include::matches(MarsRequest req) const {
+    if (key_ == "_verb") {
+        return (vals_.find(req.verb()) != vals_.end());
+    }
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (matchesAny(vals_, v)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Exclude::matches(MarsRequest req) const {
+    if (!req.has(key_)) {
+        return false;
+    }
+    for (const std::string& v : req.values(key_)) {
+        if (matchesAny(vals_, v)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -262,7 +307,6 @@ bool Type::matches(const std::vector<std::string>& match, const std::vector<std:
     InSet in_set(match);
     return std::find_if(values.begin(), values.end(), in_set) != values.end();
 }
-
 
 std::ostream& operator<<(std::ostream& s, const Type& x) {
     x.print(s);
