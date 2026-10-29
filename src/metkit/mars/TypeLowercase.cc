@@ -14,10 +14,13 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeLowercase::TypeLowercase(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
+TypeLowercase::TypeLowercase(const std::string& type, MarsKeyword key, const eckit::Value& val) :
+    Type(type, key, val) {}
+
+TypeLowercase::TypeLowercase(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {}
 
 void TypeLowercase::print(std::ostream& out) const {
-    out << "TypeLowercase[name=" << name_ << "]";
+    out << "TypeLowercase[name=" << name() << "]";
 }
 
 bool TypeLowercase::expand(std::string& value, const MarsRequest&) const {

@@ -122,7 +122,7 @@ CASE("metkit_marsrequest") {
     metkit_marsrequest_delete(expandedRequest);
     metkit_marsrequest_delete(req_manydates);
 }
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CASE("metkit_requestiterator_t parsing") {
 
