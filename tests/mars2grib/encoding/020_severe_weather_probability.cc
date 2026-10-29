@@ -84,11 +84,11 @@ CASE("encoding") {
             EXPECT_EQUAL(handle->getLong("spatialVicinityProcessing"), 191);  // Categorical (boolean)
             EXPECT_EQUAL(handle->getLong("spatialVicinityProcessingArgument1"), missing(1));
             EXPECT_EQUAL(handle->getLong("spatialVicinityProcessingArgument2"), missing(1));
-            EXPECT_EQUAL(handle->getLong("spatialVicinityMissingData"), 0);      // Ignore missing data
-            EXPECT_EQUAL(handle->getLong("temporalVicinityProcessing"), 191);    // Categorical (boolean)
-            EXPECT_EQUAL(handle->getLong("temporalVicinityUnit"), 1);            // Hour
-            EXPECT_EQUAL(handle->getLong("temporalVicinityTowardsPast"), 24);    // 24 Hours
-            EXPECT_EQUAL(handle->getLong("temporalVicinityTowardsFuture"), 24);  // 24 Hours
+            EXPECT_EQUAL(handle->getLong("spatialVicinityMissingData"), 0);     // Ignore missing data
+            EXPECT_EQUAL(handle->getLong("temporalVicinityProcessing"), 191);   // Categorical (boolean)
+            EXPECT_EQUAL(handle->getLong("temporalVicinityUnit"), 1);           // Hour
+            EXPECT_EQUAL(handle->getLong("temporalVicinityTowardsPast"), 48);   // 48 Hours
+            EXPECT_EQUAL(handle->getLong("temporalVicinityTowardsFuture"), 0);  // 0 Hours
         }
     }
 }
