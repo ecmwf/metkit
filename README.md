@@ -44,6 +44,13 @@ make -j10
 make install
 ```
 
+## Rust interface
+
+metkit can be used from Rust. The `metkit` crate provides a safe API on top of
+the C++ library, and `metkit-sys` provides the low-level bindings that other
+ECMWF packages build on. Both live in [rust/](rust/) and are documented in the
+[Rust interface](docs/rust/index.rst) section of the documentation.
+
 ## Release
 
 Config files should be updated before releasing a new version.
