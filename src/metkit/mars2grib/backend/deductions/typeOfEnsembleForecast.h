@@ -47,6 +47,7 @@
 // Tables includes
 #include "metkit/mars2grib/backend/deductions/perturbationNumber.h"
 #include "metkit/mars2grib/backend/tables/typeOfEnsembleForecast.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
@@ -155,6 +156,18 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Unperturbed;
             }
             else if (type == "pf") {
+                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
+            }
+            else if (type == "gbf" || type == "gwt") {
+                // ecPoint (weather-type subgrid-calibration) of an individual ensemble member: as the member itself
+                const auto perturbationNumber = resolve_PerturbationNumber_or_throw(mars, par, opt);
+                typeOfEnsembleForecast        = (perturbationNumber == 0) ? tables::TypeOfEnsembleForecast::Unperturbed
+                                                                          : tables::TypeOfEnsembleForecast::Perturbed;
+            }
+            else if (type == "icp") {
+                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::InitialConditionsPerturbations;
+            }
+            else if (type == "ep") {
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
             }
             else {

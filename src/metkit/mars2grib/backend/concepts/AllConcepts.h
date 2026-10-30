@@ -96,6 +96,7 @@
 #include "metkit/mars2grib/backend/concepts/derived/derivedConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/destine/destineConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/focal-statistics/focalStatisticsConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/iteration/iterationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/level/levelConceptDescriptor.h"
@@ -107,7 +108,9 @@
 #include "metkit/mars2grib/backend/concepts/packing/packingConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/param/paramConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/post-processing/postProcessingConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/probability/probabilityConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/quantile/quantileConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/representation/representationConceptDescriptor.h"
@@ -175,6 +178,7 @@ using AllConcepts =
              GeneratingProcessConcept, LevelConcept, LongrangeConcept, IterationConcept, MarsConcept, NilConcept,
              OriginConcept, PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept,
              RepresentationConcept, SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept,
-             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, ProbabilityConcept, ReferencePeriodConcept>;
+             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, ProbabilityConcept, ReferencePeriodConcept,
+             QuantileConcept, PostProcessingConcept, FocalStatisticsConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail
