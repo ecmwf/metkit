@@ -372,7 +372,7 @@ Length DHSProtocol::retrieve(const MarsRequest& request) {
 
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
 
-    task_.reset(new ClientTask(request, env_, callbackEndpoint.host(), callbackEndpoint.port()));
+    task_.reset(new ClientTask(request.expandAlternatives(), env_, callbackEndpoint.host(), callbackEndpoint.port()));
 
     net::TCPStream s(net::TCPClient().connect(host_, port_));
 
