@@ -116,6 +116,7 @@ template <std::size_t Stage, std::size_t Section, ProbabilityType Variant, class
 void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) noexcept(false) {
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
+    using metkit::mars2grib::utils::dict_traits::setMissing_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
     if constexpr (probabilityApplicable<Stage, Section, Variant>()) {
@@ -146,6 +147,10 @@ void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
             set_or_throw<long>(out, "forecastProbabilityNumber", forecastProbabilityNumber);
             set_or_throw<long>(out, "totalNumberOfForecastProbabilities", totalNumberOfForecastProbabilities);
             set_or_throw<long>(out, "probabilityType", static_cast<long>(probabilityType));
+            setMissing_or_throw(out, "scaleFactorOfLowerLimit");
+            setMissing_or_throw(out, "scaledValueOfLowerLimit");
+            setMissing_or_throw(out, "scaleFactorOfLowerLimit");
+            setMissing_or_throw(out, "scaledValueOfLowerLimit");
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(probability, "Unable to set `probability` concept...");

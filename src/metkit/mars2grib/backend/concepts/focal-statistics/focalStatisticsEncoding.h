@@ -155,8 +155,8 @@ void FocalStatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
 
             // Fixed assumptions: a single spatial vicinity value, no processing arguments, hours as temporal unit
             // (Code Table 4.4: 1 = hour) and no vicinity towards the future
-            constexpr long numberOfSpatialVicinityValues      = 1L;
-            constexpr long spatialVicinityProcessingArgument  = 255L;
+            constexpr long numberOfSpatialVicinityValues = 1L;
+            // spatialVicinityProcessingArgument = missing
             constexpr long spatialVicinityMissingData         = 0L;
             constexpr long temporalVicinityUnitHours          = 1L;
             constexpr long temporalVicinityTowardsFutureHours = 0L;
@@ -166,8 +166,8 @@ void FocalStatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
             set_or_throw<long>(out, "numberOfSpatialVicinityValues", numberOfSpatialVicinityValues);
             set_or_throw<long>(out, "spatialVicinityValue", spatialVicinityValue);
             set_or_throw<long>(out, "spatialVicinityProcessing", static_cast<long>(spatialVicinityProcessing));
-            set_or_throw<long>(out, "spatialVicinityProcessingArgument1", spatialVicinityProcessingArgument);
-            set_or_throw<long>(out, "spatialVicinityProcessingArgument2", spatialVicinityProcessingArgument);
+            setMissing_or_throw(out, "spatialVicinityProcessingArgument1");
+            setMissing_or_throw(out, "spatialVicinityProcessingArgument2");
             set_or_throw<long>(out, "spatialVicinityMissingData", spatialVicinityMissingData);
             set_or_throw<long>(out, "temporalVicinityProcessing", static_cast<long>(temporalVicinityProcessing));
             set_or_throw<long>(out, "temporalVicinityUnit", temporalVicinityUnitHours);
