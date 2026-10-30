@@ -4,13 +4,12 @@
 
 # mars2grib corpus ctests, generated from a block file of test cases.
 #
-# OFF BY DEFAULT. Enable with -DENABLE_MARS2GRIB_ROUNDTRIP_TESTCASES=ON and give the test file, either
+# OFF BY DEFAULT. Enable with -DENABLE_MARS2GRIB_ROUNDTRIP_TESTCASES=ON.
 #
-#     a local copy in tests/mars2grib/testcases/data/ (exactly one *.ekbf; keep it out of git, e.g. with
-#       `echo /tests/mars2grib/testcases/data/ >> .git/info/exclude`), or
-#     -DMARS2GRIB_TESTCASES_FILE=/path/to/tests.ekbf
-#     -DMARS2GRIB_TESTCASES_URL=https://server/path -DMARS2GRIB_TESTCASES_VERSION=v12 [-DMARS2GRIB_TESTCASES_MD5=...]
-#       (downloads <URL>/mars2grib-testcases-<VERSION>.ekbf)
+# The test file is always downloaded (once, into the build directory) from the ECMWF sites repository:
+#     <URL>/mars2grib-testcases-<VERSION>.ekbf
+# with the defaults below; versions named after the file's MD5 are checked on download. To use another
+# published file: -DMARS2GRIB_TESTCASES_VERSION=<md5> (and -DMARS2GRIB_TESTCASES_URL / _MD5 if needed).
 #
 # The ctests are created AFTER the build: the target `mars2grib_testcases_ctests` (part of `all`) runs
 # `mars2grib-testcases ctest-list`, which reads the block table and writes, by default, two ctests per
@@ -32,10 +31,15 @@ endif()
 
 set( _prefix "mars2grib_corpus" )
 
-set( MARS2GRIB_TESTCASES_FILE    ""       CACHE FILEPATH "Local block file of mars2grib test cases" )
-set( MARS2GRIB_TESTCASES_URL     ""       CACHE STRING   "Directory URL holding mars2grib-testcases-<VERSION>.ekbf" )
-set( MARS2GRIB_TESTCASES_VERSION ""       CACHE STRING   "Version of the test-case file to download" )
+set( MARS2GRIB_TESTCASES_URL     ""       CACHE STRING
+     "Directory URL holding mars2grib-testcases-<VERSION>.ekbf (empty = ECMWF sites repository)" )
+set( MARS2GRIB_TESTCASES_VERSION ""       CACHE STRING
+     "Version of the test-case file to download (empty = the default file; an MD5 version is also checked)" )
 set( MARS2GRIB_TESTCASES_MD5     ""       CACHE STRING   "Expected MD5 of the downloaded file (optional)" )
+
+# Built-in defaults, used when the cache variables above are empty.
+set( _default_url     "https://sites.ecmwf.int/repository/metkit/test-data/mars2grib" )
+set( _default_version "910e7d20b76f19b1eef5f4edb16c25c5" )
 set( MARS2GRIB_TESTCASES_MODES   "encode;decode" CACHE STRING "Test modes, ;-separated: encode;decode;roundtrip" )
 set( MARS2GRIB_TESTCASES_BLOCKS_PER_TEST 1 CACHE STRING
      "Blocks per ctest: 1 = one ctest per block and mode (default), N = chunks of N blocks of the same label combination, 0 = one ctest per label combination" )
@@ -44,39 +48,35 @@ set( MARS2GRIB_TESTCASES_ENVIRONMENT ""   CACHE STRING   "Environment of each ct
 
 # --- the test-case file ------------------------------------------------------------------------------------
 
-file( GLOB _local_testcases "${CMAKE_CURRENT_SOURCE_DIR}/data/*.ekbf" )
-list( LENGTH _local_testcases _local_count )
+set( _url     "${MARS2GRIB_TESTCASES_URL}" )
+set( _version "${MARS2GRIB_TESTCASES_VERSION}" )
+set( _md5     "${MARS2GRIB_TESTCASES_MD5}" )
+if( NOT _url )
+    set( _url "${_default_url}" )
+endif()
+if( NOT _version )
+    set( _version "${_default_version}" )
+endif()
+string( LENGTH "${_version}" _version_length )
+if( NOT _md5 AND _version_length EQUAL 32 AND _version MATCHES "^[0-9a-f]+$" )
+    set( _md5 "${_version}" )  # versions named after their MD5 are checked automatically
+endif()
 
-if( MARS2GRIB_TESTCASES_FILE )
-    set( _testcases "${MARS2GRIB_TESTCASES_FILE}" )
-    if( NOT EXISTS "${_testcases}" )
-        ecbuild_error( "MARS2GRIB_TESTCASES_FILE `${_testcases}` does not exist" )
+set( _name      "mars2grib-testcases-${_version}.ekbf" )
+set( _testcases "${CMAKE_CURRENT_BINARY_DIR}/${_name}" )
+if( NOT EXISTS "${_testcases}" )
+    set( _hash )
+    if( _md5 )
+        set( _hash EXPECTED_MD5 ${_md5} )
     endif()
-elseif( MARS2GRIB_TESTCASES_URL AND MARS2GRIB_TESTCASES_VERSION )
-    set( _name      "mars2grib-testcases-${MARS2GRIB_TESTCASES_VERSION}.ekbf" )
-    set( _testcases "${CMAKE_CURRENT_BINARY_DIR}/${_name}" )
-    if( NOT EXISTS "${_testcases}" )
-        set( _hash )
-        if( MARS2GRIB_TESTCASES_MD5 )
-            set( _hash EXPECTED_MD5 ${MARS2GRIB_TESTCASES_MD5} )
-        endif()
-        ecbuild_info( "Downloading ${MARS2GRIB_TESTCASES_URL}/${_name}" )
-        file( DOWNLOAD "${MARS2GRIB_TESTCASES_URL}/${_name}" "${_testcases}.part" ${_hash} STATUS _status )
-        list( GET _status 0 _code )
-        if( NOT _code EQUAL 0 )
-            file( REMOVE "${_testcases}.part" )
-            ecbuild_error( "Download of ${MARS2GRIB_TESTCASES_URL}/${_name} failed: ${_status}" )
-        endif()
-        file( RENAME "${_testcases}.part" "${_testcases}" )
+    ecbuild_info( "Downloading ${_url}/${_name}" )
+    file( DOWNLOAD "${_url}/${_name}" "${_testcases}.part" ${_hash} STATUS _status TLS_VERIFY ON )
+    list( GET _status 0 _code )
+    if( NOT _code EQUAL 0 )
+        file( REMOVE "${_testcases}.part" )
+        ecbuild_error( "Download of ${_url}/${_name} failed: ${_status}" )
     endif()
-elseif( _local_count EQUAL 1 )
-    set( _testcases "${_local_testcases}" )
-elseif( _local_count GREATER 1 )
-    ecbuild_error( "Several test files in ${CMAKE_CURRENT_SOURCE_DIR}/data: keep one, or set MARS2GRIB_TESTCASES_FILE" )
-else()
-    ecbuild_error( "ENABLE_MARS2GRIB_ROUNDTRIP_TESTCASES=ON but no test file: put one *.ekbf in "
-                   "${CMAKE_CURRENT_SOURCE_DIR}/data, or set MARS2GRIB_TESTCASES_FILE, or MARS2GRIB_TESTCASES_URL and "
-                   "MARS2GRIB_TESTCASES_VERSION" )
+    file( RENAME "${_testcases}.part" "${_testcases}" )
 endif()
 
 # --- generate the ctests after the build -------------------------------------------------------------------

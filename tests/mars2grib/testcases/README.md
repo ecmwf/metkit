@@ -108,7 +108,7 @@ mars2grib-run-tests-scalar --test-cases failed.3.txt --mode roundtrip
 
 ### 15. Corpus ctests (two per block: encode and decode), off by default
 ```sh
-# test file: exactly one *.ekbf in tests/mars2grib/testcases/data/ (git-excluded), or -DMARS2GRIB_TESTCASES_FILE=…
+# the test file is downloaded at configure time (-DMARS2GRIB_TESTCASES_VERSION=<md5> for another one)
 cmake <build> -DENABLE_MARS2GRIB_ROUNDTRIP_TESTCASES=ON
 make mars2grib_testcases_ctests
 ctest -N -L mars2grib_corpus | tail -1
