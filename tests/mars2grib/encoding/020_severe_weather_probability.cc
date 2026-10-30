@@ -40,10 +40,6 @@ eckit::LocalConfiguration mars(long param) {
     return mars;
 }
 
-long constexpr missing(long nOctets) {
-    return std::pow(2, nOctets * 8) - 1;
-}
-
 CASE("encoding") {
     struct test_t {
         std::string name;
@@ -72,18 +68,18 @@ CASE("encoding") {
             EXPECT_EQUAL(handle->getLong("forecastProbabilityNumber"), 0);           // Default
             EXPECT_EQUAL(handle->getLong("totalNumberOfForecastProbabilities"), 1);  // Default
             EXPECT_EQUAL(handle->getLong("probabilityType"), 9);  // Probability based on counts of categorical boolean
-            EXPECT_EQUAL(handle->getLong("scaleFactorOfLowerLimit"), missing(1));
-            EXPECT_EQUAL(handle->getLong("scaledValueOfLowerLimit"), missing(4));
-            EXPECT_EQUAL(handle->getLong("scaleFactorOfUpperLimit"), missing(1));
-            EXPECT_EQUAL(handle->getLong("scaledValueOfUpperLimit"), missing(4));
+            EXPECT(handle->isMissing("scaleFactorOfLowerLimit"));
+            EXPECT(handle->isMissing("scaledValueOfLowerLimit"));
+            EXPECT(handle->isMissing("scaleFactorOfUpperLimit"));
+            EXPECT(handle->isMissing("scaledValueOfUpperLimit"));
 
             // Focal Statistics
             EXPECT_EQUAL(handle->getLong("spatialVicinityType"), 0);  // Circle (in meters)
             EXPECT_EQUAL(handle->getLong("numberOfSpatialVicinityValues"), 1);
             EXPECT_EQUAL(handle->getLong("spatialVicinityValue"), 300'000);   // 300000 M aka 300 KM
             EXPECT_EQUAL(handle->getLong("spatialVicinityProcessing"), 191);  // Categorical (boolean)
-            EXPECT_EQUAL(handle->getLong("spatialVicinityProcessingArgument1"), missing(1));
-            EXPECT_EQUAL(handle->getLong("spatialVicinityProcessingArgument2"), missing(1));
+            EXPECT(handle->isMissing("spatialVicinityProcessingArgument1"));
+            EXPECT(handle->isMissing("spatialVicinityProcessingArgument2"));
             EXPECT_EQUAL(handle->getLong("spatialVicinityMissingData"), 0);     // Ignore missing data
             EXPECT_EQUAL(handle->getLong("temporalVicinityProcessing"), 191);   // Categorical (boolean)
             EXPECT_EQUAL(handle->getLong("temporalVicinityUnit"), 1);           // Hour
