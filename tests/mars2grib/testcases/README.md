@@ -106,7 +106,15 @@ mars2grib-run-tests --test-cases tests.ekbf --num-threads 32 --failed-tests fail
 mars2grib-run-tests-scalar --test-cases failed.3.txt --mode roundtrip
 ```
 
-### 15. Corpus ctests (two per block: encode and decode), off by default
+### 15. Standard scripts (build tree, no arguments)
+```sh
+cd <build>/tests/mars2grib/testcases
+./rerun-all-tests.sh         # mars2grib-run-tests, encode + decode; self-contained reports in failure-reports/
+./regenerate-all-tests.sh    # mars2grib-regenerate-tests -> regenerated/mars2grib-testcases-<md5>.ekbf
+./upload-test-file.sh        # upload it to Nexus (asks for username/password), then check the download
+```
+
+### 16. Corpus ctests (two per block: encode and decode), off by default
 ```sh
 # the test file is downloaded at configure time (-DMARS2GRIB_TESTCASES_VERSION=<md5> for another one)
 cmake <build> -DENABLE_MARS2GRIB_ROUNDTRIP_TESTCASES=ON

@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <cstdlib>
 #include <iomanip>
 #include <optional>
 #include <ostream>
@@ -34,6 +35,16 @@ struct CommonRunTestsOptions {
     bool decodeMarsOnly{false};
     bool timings{false};
 };
+
+/// Make mars2grib, mars2mars and grib2mars write the full error stack of every failure to a file
+/// (its path is appended to the error message). Only used with failure reports, which copy each file
+/// into the report and delete it. Call before starting any thread.
+inline void enableErrorStackFiles() {
+    for (const char* name :
+         {"MARS2GRIB_WRITE_STACK_TO_FILE", "MARS2MARS_WRITE_STACK_TO_FILE", "GRIB2MARS_WRITE_STACK_TO_FILE"}) {
+        ::setenv(name, "1", 1);
+    }
+}
 
 inline void addCommonRunTestsOptions(std::vector<eckit::option::Option*>& options) {
     options.push_back(

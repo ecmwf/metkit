@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 #include <map>
+#include <regex>
 #include <sstream>
 #include <utility>
 
@@ -284,6 +285,18 @@ std::string marsValue(const eckit::LocalConfiguration* mars, const std::string& 
         return join(mars->getLongVector(key));
     }
     return "complex";
+}
+
+/// Paths of the error-stack files named in a failure reason
+/// ("... Full error stack written to `<path>`" from mars2grib, mars2mars and grib2mars).
+std::vector<std::string> errorStackFiles(std::string_view reason) {
+    static const std::regex pattern{"error stack written to `([^`]+)`", std::regex::icase};
+    std::vector<std::string> files;
+    const std::string text{reason};
+    for (auto it = std::sregex_iterator(text.begin(), text.end(), pattern); it != std::sregex_iterator(); ++it) {
+        files.push_back((*it)[1].str());
+    }
+    return files;
 }
 
 void writeSection(std::ostream& out, const std::string& title) {
@@ -601,12 +614,28 @@ std::string FailureReporter::write(const FailureDetails& details) {
         }
     }
 
+    // Error stacks written by the libraries: copied into the report, then deleted.
+    const auto stacks = detail::errorStackFiles(details.reason);
+    for (const auto& stack : stacks) {
+        detail::writeSection(out, "ERROR STACK (" + stack + ")");
+        std::ifstream in{stack};
+        if (in) {
+            out << in.rdbuf() << '\n';
+        }
+        else {
+            out << "(unavailable: the file cannot be read)\n";
+        }
+    }
+
     detail::writeSection(out, "RECORD");
     out << details.record << '\n';
 
     out.close();
     if (!out) {
         throw eckit::Exception("Unable to write failure report `" + path + "`", Here());
+    }
+    for (const auto& stack : stacks) {
+        std::remove(stack.c_str());  // its content is now in the report
     }
     return path;
 }

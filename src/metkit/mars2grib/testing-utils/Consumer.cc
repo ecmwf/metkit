@@ -6,6 +6,7 @@
 
 #include "metkit/mars2grib/testing-utils/Consumer.h"
 
+#include <cstdio>
 #include <exception>
 #include <iostream>
 #include <utility>
@@ -54,7 +55,15 @@ Consumer::Consumer(ConsumerOptions options) : options_{std::move(options)} {
     }
 }
 
-Consumer::~Consumer() = default;
+Consumer::~Consumer() {
+    // Keep the failed-records file only if some record was written to it.
+    if (failedTests_.is_open()) {
+        failedTests_.close();
+        if (failedTestsWritten_ == 0) {
+            std::remove(options_.failedTestsPath->c_str());
+        }
+    }
+}
 
 bool Consumer::run(const std::string& json) {
     using Clock = std::chrono::steady_clock;
@@ -136,6 +145,7 @@ bool Consumer::failed(const std::string& json, const Failure& failure) {
 
     if (failedTests_.is_open()) {
         failedTests_ << json << '\n';
+        ++failedTestsWritten_;
         if (!failedTests_) {
             throw eckit::Exception("Unable to write failed-test record to `" + *options_.failedTestsPath + "`", Here());
         }

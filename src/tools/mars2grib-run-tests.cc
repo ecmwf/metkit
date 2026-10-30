@@ -165,6 +165,10 @@ void Mars2GribRunTestsTool::init(const eckit::option::CmdArgs& args) {
 }
 
 void Mars2GribRunTestsTool::execute(const eckit::option::CmdArgs&) {
+    // Stack files only with reports: each one is copied into its report and deleted.
+    if (common_.failureReports) {
+        metkit::mars2grib::testing_utils::run_tests::enableErrorStackFiles();
+    }
     if (blockFile_) {
         executeBlocks();
     }

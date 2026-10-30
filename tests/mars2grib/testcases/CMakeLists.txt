@@ -23,6 +23,11 @@
 #     ctest -j 32 -L mars2grib_corpus-decode    # one mode
 #     ctest -L "^block=42$"                    # one block (both modes)
 #     ctest -N -L mars2grib_corpus              # list the tests (after building)
+#
+# Standard scripts generated in the build tree (tests/mars2grib/testcases/), without arguments:
+#     ./rerun-all-tests.sh        all tests with mars2grib-run-tests; self-contained failure reports in failure-reports/
+#     ./regenerate-all-tests.sh   regenerate the test file with the current code into regenerated/
+#     ./upload-test-file.sh       upload the regenerated file to Nexus (prompts for credentials)
 
 if( NOT TARGET mars2grib-testcases OR NOT TARGET mars2grib-run-tests-scalar )
     ecbuild_error( "ENABLE_MARS2GRIB_ROUNDTRIP_TESTCASES needs the tools mars2grib-testcases and mars2grib-run-tests-scalar "
@@ -111,5 +116,29 @@ add_custom_target( mars2grib_testcases_ctests ALL DEPENDS "${_generated}" )
 # explaining what to do if they have not been generated yet.
 configure_file( include_ctests.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/include_ctests.cmake" @ONLY )
 set_property( DIRECTORY APPEND PROPERTY TEST_INCLUDE_FILES "${CMAKE_CURRENT_BINARY_DIR}/include_ctests.cmake" )
+
+# --- standard scripts, in the build tree, without arguments ----------------------------------------------
+#   rerun-all-tests.sh       mars2grib-run-tests (encode, decode) with failure reports in failure-reports/
+#   regenerate-all-tests.sh  mars2grib-regenerate-tests into regenerated/mars2grib-testcases-<md5>.ekbf
+#   upload-test-file.sh      upload that file to Nexus (asks for username/password) and check it
+
+set( _regen_keys              "class,stream,type,levtype,timeShape" )
+set( _regen_records_per_block 100 )
+set( _regen_zstd_level        22 )
+set( _nexus_remote_path       "metkit/mars2grib" )
+set( _nexus_download_url      "https://get.ecmwf.int/repository/test-data/metkit/mars2grib" )
+
+foreach( _script rerun-all-tests regenerate-all-tests upload-test-file )
+    configure_file( ${_script}.sh.in "${CMAKE_CURRENT_BINARY_DIR}/${_script}.sh.configured" @ONLY )
+    if( CMAKE_VERSION VERSION_LESS 3.19 )
+        file( GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${_script}.sh"
+                       INPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_script}.sh.configured" )
+    else()
+        file( GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${_script}.sh"
+                       INPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_script}.sh.configured"
+                       FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE
+                                        WORLD_READ WORLD_EXECUTE )
+    endif()
+endforeach()
 
 ecbuild_info( "mars2grib corpus ctests (${_prefix}_*): ${_testcases} (modes: ${_modes}), generated at build time" )

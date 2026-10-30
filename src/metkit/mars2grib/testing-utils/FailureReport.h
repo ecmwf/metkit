@@ -20,13 +20,14 @@ namespace metkit::mars2grib::testing_utils::run_tests {
 
 inline constexpr const char* defaultFailureReportDirectory = "mars2grib-failure-reports";
 inline constexpr const char* defaultFailureReportSchema =
-    "{class}-{stream}-{type}-{expver}/{levtype}-{param}-{hash}.txt";
+    "{status}/{class}-{stream}-{type}-{expver}/{levtype}-{param}-{hash}.txt";
 
 /// Where and how per-test failure reports are written.
 ///
 /// `schema` is a path relative to `directory`. `{key}` is replaced by the value of MARS key `key`
 /// (`none` when absent); `{hash}` by a hash of the JSONL record and `{status}` by `mismatch` or
-/// `error`. Substituted values are sanitised so they cannot introduce path separators.
+/// `error` (by default the first directory level, separating mismatches from genuine errors).
+/// Substituted values are sanitised so they cannot introduce path separators.
 struct FailureReportOptions {
     std::string directory{defaultFailureReportDirectory};
     std::string schema{defaultFailureReportSchema};

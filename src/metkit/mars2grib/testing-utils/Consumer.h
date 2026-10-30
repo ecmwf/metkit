@@ -105,6 +105,7 @@ private:
 
     ConsumerOptions options_;
     std::ofstream failedTests_;
+    std::size_t failedTestsWritten_{0};
     std::unique_ptr<FailureReporter> reporter_;
     ConsumerTimings timings_;
 };
