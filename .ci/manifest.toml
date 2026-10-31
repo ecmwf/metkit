@@ -15,6 +15,7 @@ repo = "ecmwf/metkit"
 visibility = "public"
 fork-pull-requests = true
 compiler-inputs = ["cxx-compiler"]
+allow-stale-deps = true
 git-read = ["ecmwf/bindman", "ecmwf/rust-wrappers-playground"]
 
 [[deps]]
