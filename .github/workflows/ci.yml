@@ -9,6 +9,8 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
+  schedule:
+    - cron: "52 0 * * *"
   workflow_call:
 
 concurrency:
