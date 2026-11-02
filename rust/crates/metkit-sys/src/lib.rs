@@ -18,6 +18,7 @@ include!(concat!(env!("OUT_DIR"), "/metkit_exceptions.rs"));
 pub mod ffi {
     unsafe extern "C++" {
         include!("MetkitBridge.h");
+        include!("metkit_exceptions.h");
 
         // ==================== MarsRequest ====================
 

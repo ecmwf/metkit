@@ -1,10 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # metkit-sys
 
 Low-level Rust bindings to ECMWF's [metkit](https://github.com/ecmwf/metkit) C++
 library.
 
-This crate provides raw FFI bindings using [cxx](https://cxx.rs/). For a safe,
-ergonomic API, use the higher-level `metkit` crate (forthcoming).
+This crate provides raw FFI bindings using [cxx](https://cxx.rs/). For a safe
+API, use the higher-level [`metkit`](https://crates.io/crates/metkit) crate.
 
 ## Cargo build features
 
@@ -49,6 +54,10 @@ Each maps to a `-DENABLE_<NAME>=ON/OFF` flag in upstream
 - `CMAKE_PREFIX_PATH` - Additional CMake search paths.
 - `DOCS_RS` - When set, the build script becomes a no-op (for docs.rs).
 
-## License
+## Copyright and License
 
-Apache-2.0
+Copyright 1996- European Centre for Medium-Range Weather Forecasts (ECMWF).
+
+This software is licensed under the terms of the [Apache License, Version 2.0](LICENSE) which can also be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+
+In applying this licence, ECMWF does not waive the privileges and immunities granted to it by virtue of its status as an intergovernmental organisation nor does it submit to any jurisdiction.
