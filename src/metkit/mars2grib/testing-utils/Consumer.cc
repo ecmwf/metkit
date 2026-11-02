@@ -12,6 +12,7 @@
 #include <utility>
 
 #include "eckit/exception/Exceptions.h"
+#include "metkit/datamod/Json.h"
 #include "metkit/mars2grib/api/Mars2GribTestCaseGenerator.h"
 
 namespace metkit::mars2grib::testing_utils::run_tests {
@@ -66,6 +67,10 @@ Consumer::~Consumer() {
 }
 
 bool Consumer::run(const std::string& json) {
+    if (options_.dict == DictKind::Datamod) {
+        return runDatamod(json);
+    }
+
     using Clock = std::chrono::steady_clock;
 
     // Charge the elapsed time to the stage in progress, then move on to `next`.
@@ -133,6 +138,101 @@ bool Consumer::run(const std::string& json) {
     failure.testCase  = testCase ? &*testCase : nullptr;
     failure.actual    = actual ? &*actual : nullptr;
     failure.decoded   = decoded ? &*decoded : nullptr;
+    const bool result = failed(json, failure);
+    nextStage(&timings_.failureOutput);
+    return result;
+}
+
+bool Consumer::runDatamod(const std::string& json) {
+    using Clock = std::chrono::steady_clock;
+
+    auto stageStart                  = Clock::now();
+    ConsumerTimings::Duration* stage = &timings_.parse;
+    const auto nextStage             = [&](ConsumerTimings::Duration* next) {
+        const auto now = Clock::now();
+        *stage += now - stageStart;
+        stageStart = now;
+        stage      = next;
+    };
+
+    const bool encode = options_.mode != TestMode::Decode;
+    const bool decode = options_.mode != TestMode::Encode;
+
+    std::optional<RecordingDictionary> actual;
+    std::optional<DecodedDictTestCase> decoded;
+    Failure failure;
+    std::string decodeStage;
+    try {
+        const metkit::datamod::Dict root = metkit::datamod::parseJsonObject(json);
+        const auto section               = [&](const std::string& key) -> const metkit::datamod::Dict& {
+            const metkit::datamod::Value* value = root.find(key);
+            if (value == nullptr || !value->isDict()) {
+                throw eckit::UserError("Test-case record requires object `" + key + "`", Here());
+            }
+            return value->asDict();
+        };
+        const metkit::datamod::Dict& mars = section("mars");
+        const metkit::datamod::Dict& misc = section("misc");
+        const metkit::datamod::Dict& opt  = section("opt");
+        const RecordingDictionary expected{section("out")};
+
+        if (encode) {
+            nextStage(&timings_.encode);
+            Mars2GribTestCaseGenerator generator{opt};
+            actual.emplace(generator.generateOutput(mars, misc));
+            nextStage(&timings_.compare);
+            const auto comparison = detail::compareOutputs(expected, *actual);
+            if (!comparison.equal) {
+                failure.reason = "Output mismatch at " + comparison.path + ": " + comparison.reason +
+                                 "\nEXPECTED: " + comparison.expected + "\nACTUAL: " + comparison.actual;
+            }
+        }
+
+        if (decode) {
+            nextStage(&timings_.decode);
+            decodeStage                          = "decode";
+            const RecordingDictionary& recording = encode ? *actual : expected;
+            decoded.emplace(decodeRecording(recording, opt));
+            const auto comparison = compareDecoded(mars, misc, *decoded, !options_.decodeMarsOnly);
+            if (!comparison.equal) {
+                failure.decodeDiff = comparison.diff;
+                failure.reason +=
+                    (failure.reason.empty() ? "" : "\n") + std::string{"Decode mismatch:\n"} + comparison.diff;
+            }
+        }
+        nextStage(&timings_.failureOutput);
+        if (failure.reason.empty()) {
+            return true;
+        }
+    }
+    catch (const std::exception& exception) {
+        nextStage(&timings_.failureOutput);
+        failure.reason += (failure.reason.empty() ? "" : "\n") +
+                          (decodeStage.empty() ? std::string{} : decodeStage + " failed: ") + exception.what();
+        failure.error = true;
+    }
+    catch (...) {
+        nextStage(&timings_.failureOutput);
+        failure.reason += (failure.reason.empty() ? "" : "\n") + std::string{"Unknown exception"};
+        failure.error = true;
+    }
+
+    // Failure only: build the eckit view of the test for the logs and reports.
+    std::optional<detail::TestCase> testCase;
+    std::optional<DecodedTestCase> decodedView;
+    try {
+        testCase.emplace(detail::parseTestCase(json, RecordParser::Json));
+        if (decoded) {
+            decodedView.emplace(
+                DecodedTestCase{parseRecord(metkit::datamod::toJson(decoded->mars), RecordParser::Json),
+                                parseRecord(metkit::datamod::toJson(decoded->misc), RecordParser::Json)});
+        }
+    }
+    catch (...) {
+    }
+    failure.testCase  = testCase ? &*testCase : nullptr;
+    failure.actual    = actual ? &*actual : nullptr;
+    failure.decoded   = decodedView ? &*decodedView : nullptr;
     const bool result = failed(json, failure);
     nextStage(&timings_.failureOutput);
     return result;

@@ -105,6 +105,7 @@ ecbuild_add_test( TARGET        metkit_test_c_compiled
 #    add_subdirectory(netcdf)
 # endif()
 
+add_subdirectory(datamod)
 add_subdirectory(regressions)
 add_subdirectory(marsgen)
 add_subdirectory(tools)

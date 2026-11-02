@@ -11,14 +11,17 @@
 
 #include "eckit/config/LocalConfiguration.h"
 
+#include "metkit/datamod/Dict.h"
+
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/mars2grib/testing-utils/RecordingDictionary.h"
 
 namespace metkit::mars2grib::testing_utils::run_tests {
 
 /// Replay a recorded set-list on a real GRIB handle: make_from_sample -> codes sample, set ->
-/// CodesHandle::set (booleans as 0/1), set_missing -> setMissing, clone -> clone(). A recorded
-/// `values` summary is replayed as a constant field of the recorded size and average.
+/// CodesHandle::set (booleans as 0/1), set_missing -> setMissing, clone -> clone(). `values` arrays up to
+/// RecordingDictionary::maxStoredValues are recorded exactly and replayed as is; larger ones are only
+/// summarised and are replayed as a constant field of the recorded size and average.
 std::unique_ptr<metkit::codes::CodesHandle> replayOnCodesHandle(const RecordingDictionary& recording);
 
 struct DecodedTestCase {
@@ -43,5 +46,16 @@ struct DecodeComparison {
 DecodeComparison compareDecoded(const eckit::LocalConfiguration& expectedMars,
                                 const eckit::LocalConfiguration& expectedMisc, const DecodedTestCase& decoded,
                                 bool compareMisc = true);
+
+// The same with metkit::datamod::Dict (experimental fast path).
+struct DecodedDictTestCase {
+    metkit::datamod::Dict mars;
+    metkit::datamod::Dict misc;
+};
+
+DecodedDictTestCase decodeRecording(const RecordingDictionary& recording, const metkit::datamod::Dict& options);
+
+DecodeComparison compareDecoded(const metkit::datamod::Dict& expectedMars, const metkit::datamod::Dict& expectedMisc,
+                                const DecodedDictTestCase& decoded, bool compareMisc = true);
 
 }  // namespace metkit::mars2grib::testing_utils::run_tests

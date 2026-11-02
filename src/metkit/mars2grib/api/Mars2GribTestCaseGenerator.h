@@ -10,6 +10,8 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/datamod/Dict.h"
+
 #include "metkit/mars2grib/api/Options.h"
 #include "metkit/mars2grib/testing-utils/RecordingDictionary.h"
 
@@ -25,6 +27,7 @@ public:
     explicit Mars2GribTestCaseGenerator(const Options& opts);
     explicit Mars2GribTestCaseGenerator(const eckit::LocalConfiguration& opts);
     explicit Mars2GribTestCaseGenerator(OptionList opts);
+    explicit Mars2GribTestCaseGenerator(const metkit::datamod::Dict& opts);
 
     Mars2GribTestCaseGenerator(const Mars2GribTestCaseGenerator&)            = delete;
     Mars2GribTestCaseGenerator& operator=(const Mars2GribTestCaseGenerator&) = delete;
@@ -38,6 +41,11 @@ public:
     testing_utils::RecordingDictionary generateOutput(const eckit::LocalConfiguration& mars,
                                                       const eckit::LocalConfiguration& misc);
     testing_utils::RecordingDictionary generateOutput(const eckit::LocalConfiguration& mars);
+
+    // Same with metkit::datamod::Dict dictionaries (experimental fast path).
+    std::string generate(const metkit::datamod::Dict& mars, const metkit::datamod::Dict& misc);
+    testing_utils::RecordingDictionary generateOutput(const metkit::datamod::Dict& mars,
+                                                      const metkit::datamod::Dict& misc);
 
 private:
 

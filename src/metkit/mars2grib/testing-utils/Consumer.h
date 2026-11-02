@@ -32,6 +32,8 @@ struct ConsumerOptions {
     TestMode mode{TestMode::Encode};
     /// Decode and roundtrip modes: compare only the decoded mars, not misc.
     bool decodeMarsOnly{false};
+    /// Dictionary used to run the test (eckit::LocalConfiguration or the experimental datamod::Dict).
+    DictKind dict{DictKind::Eckit};
 };
 
 /// Time spent in each stage of `Consumer::run`, summed over all calls.
@@ -100,6 +102,7 @@ private:
         std::string decodeDiff;
     };
 
+    bool runDatamod(const std::string& json);
     bool failed(const std::string& json, const Failure& failure);
     void writeFailureReport(const std::string& json, const Failure& failure);
 

@@ -11,6 +11,9 @@
 /// JSONL, plain or zstd) can be merged into one output. Work is done in batches: whole blocks for
 /// block-file input, groups of records for JSONL input. One thread schedules the batches, N workers
 /// read/regenerate/compress them and one thread writes them in input order.
+///
+/// `--overrides` rewrites the `mars` input of matching records (e.g. a wrong `timespan`) before they
+/// are labelled, identified and encoded; see MarsOverrides.h for the file format.
 
 #include <atomic>
 #include <cstddef>
@@ -45,6 +48,7 @@
 #include "metkit/mars2grib/api/Mars2GribTestCaseGenerator.h"
 #include "metkit/mars2grib/testing-utils/BoundedQueue.h"
 #include "metkit/mars2grib/testing-utils/JsonlWriter.h"
+#include "metkit/mars2grib/testing-utils/MarsOverrides.h"
 #include "metkit/mars2grib/testing-utils/Producer.h"
 #include "metkit/mars2grib/testing-utils/TestCaseLabels.h"
 #include "metkit/mars2grib/testing-utils/TestRecord.h"
@@ -81,23 +85,30 @@ struct OutputBatch {
     std::size_t regenerated{0};
     /// Records dropped by --exclude.
     std::size_t excluded{0};
+    /// Records changed by each --overrides rule.
+    std::vector<std::size_t> overridden;
     /// Failed records always; regenerated records unless they were packed into `block`.
     std::vector<RecordResult> results;
     /// Block output from a block input with the same keys: the records compressed by the worker.
     std::optional<eckit::blockfile::CompressedBlock> block;
 };
 
-/// The regenerated record, or nullopt when `exclude` matches its MARS request.
+/// The regenerated record, or nullopt when `exclude` matches its MARS request. `exclude` sees the
+/// original request; labels, identity and encoding see it after `overrides`.
 std::optional<std::string> regenerateRecord(const std::string& record, RecordParser parser,
-                                            const MarsRecordFilter& exclude, const TestCaseLabeler& labeler,
+                                            const MarsRecordFilter& exclude, const MarsOverrides& overrides,
+                                            std::vector<std::size_t>& overridden, const TestCaseLabeler& labeler,
                                             eckit::blockfile::Labels* labels, std::uint64_t* identity) {
     const eckit::LocalConfiguration root = parseRecord(record, parser);
-    const eckit::LocalConfiguration mars = requiredSubConfiguration(root, "mars");
+    eckit::LocalConfiguration mars       = requiredSubConfiguration(root, "mars");
     const eckit::LocalConfiguration misc = optionalSubConfiguration(root, "misc").value_or(eckit::LocalConfiguration{});
     const eckit::LocalConfiguration opt  = optionalSubConfiguration(root, "opt").value_or(eckit::LocalConfiguration{});
 
     if (!exclude.empty() && exclude.matches(mars)) {
         return std::nullopt;
+    }
+    if (!overrides.empty()) {
+        overrides.apply(mars, overridden);
     }
     if (labels != nullptr) {
         *labels = labeler.labels(mars, misc, opt);
@@ -162,6 +173,10 @@ public:
             "with a/to/b ranges and 'missing', e.g. stream=enfo,type=pf;class=rd"));
         options_.push_back(new SimpleOption<std::string>(
             "exclude-file", "File of --exclude rules, one per line ('#' starts a comment)"));
+        options_.push_back(new SimpleOption<std::string>(
+            "overrides",
+            "YAML file of rewrites of the mars input applied before regeneration (after --exclude), e.g. "
+            "overrides: [{match: 'type=gbf,param=228228', when: window-from-start, set: {timespan: fs}}]"));
         options_.push_back(new SimpleOption<bool>(
             "deduplicate", "Keep only the first record of every distinct (mars, misc, opt), across all inputs"));
         options_.push_back(new SimpleOption<std::string>(
@@ -190,6 +205,7 @@ private:
     bool deduplicate_{false};
     metkit::mars2grib::testing_utils::run_tests::TestCaseLabeler labeler_;
     metkit::mars2grib::testing_utils::run_tests::MarsRecordFilter exclude_;
+    metkit::mars2grib::testing_utils::run_tests::MarsOverrides overrides_;
     std::optional<std::string> select_;
     std::optional<std::string> blocks_;
     std::optional<std::string> failedRecordsPath_;
@@ -269,6 +285,11 @@ void Mars2GribRegenerateTestsTool::init(const eckit::option::CmdArgs& args) {
         std::ostringstream rules;
         rules << in.rdbuf();
         exclude_.addRules(rules.str());
+    }
+    if (args.has("overrides")) {
+        std::string path;
+        args.get("overrides", path);
+        overrides_ = metkit::mars2grib::testing_utils::run_tests::MarsOverrides::fromFile(path);
     }
 
     const long threadCount = positive(args, "num-threads");
@@ -369,6 +390,7 @@ void Mars2GribRegenerateTestsTool::execute(const eckit::option::CmdArgs&) {
     std::size_t duplicates  = 0;
     std::size_t excluded    = 0;
     std::size_t failures    = 0;
+    std::vector<std::size_t> overridden(overrides_.numberOfRules(), 0);
     std::exception_ptr fatalError;
     std::mutex fatalErrorMutex;
 
@@ -439,6 +461,7 @@ void Mars2GribRegenerateTestsTool::execute(const eckit::option::CmdArgs&) {
                     while (auto batch = input.pop()) {
                         OutputBatch result;
                         result.index = batch->index;
+                        result.overridden.assign(overrides_.numberOfRules(), 0);
 
                         eckit::blockfile::Labels blockLabels;
                         if (batch->reader != nullptr) {
@@ -450,8 +473,9 @@ void Mars2GribRegenerateTestsTool::execute(const eckit::option::CmdArgs&) {
 
                         // A block can be repacked by the worker when its labels are valid for the output and no
                         // record-level decision (deduplication) is needed; otherwise the writer regroups records.
+                        // (--overrides may change a labelled key, so it also needs the records regrouped).
                         const bool packBlock = blockOutput_ && batch->reader != nullptr && !deduplicate_ &&
-                                               !labeler_.hasDerivedKeys() &&
+                                               overrides_.empty() && !labeler_.hasDerivedKeys() &&
                                                sameKeys(batch->reader->keys(), outputKeys);
                         const bool needLabels = blockOutput_ && !packBlock;
                         std::string packed;
@@ -460,9 +484,9 @@ void Mars2GribRegenerateTestsTool::execute(const eckit::option::CmdArgs&) {
                         for (auto& record : batch->records) {
                             RecordResult item;
                             try {
-                                auto regeneratedRecord = regenerateRecord(record, parser_, exclude_, labeler_,
-                                                                          needLabels ? &item.labels : nullptr,
-                                                                          deduplicate_ ? &item.identity : nullptr);
+                                auto regeneratedRecord = regenerateRecord(
+                                    record, parser_, exclude_, overrides_, result.overridden, labeler_,
+                                    needLabels ? &item.labels : nullptr, deduplicate_ ? &item.identity : nullptr);
                                 if (!regeneratedRecord) {
                                     ++result.excluded;
                                     continue;
@@ -541,6 +565,9 @@ void Mars2GribRegenerateTestsTool::execute(const eckit::option::CmdArgs&) {
                 const auto handle = [&](OutputBatch& batch) {
                     regenerated += batch.regenerated;
                     excluded += batch.excluded;
+                    for (std::size_t i = 0; i < batch.overridden.size(); ++i) {
+                        overridden[i] += batch.overridden[i];
+                    }
                     processed += batch.excluded;
                     if (batch.block) {
                         processed += batch.block->records;
@@ -646,6 +673,9 @@ void Mars2GribRegenerateTestsTool::execute(const eckit::option::CmdArgs&) {
     if (!exclude_.empty()) {
         eckit::Log::info() << "EXCLUDED (" << exclude_.numberOfRules() << " rules): " << excluded << '\n';
     }
+    for (std::size_t i = 0; i < overridden.size(); ++i) {
+        eckit::Log::info() << "OVERRIDDEN [" << overrides_.description(i) << "]: " << overridden[i] << '\n';
+    }
     if (deduplicate_) {
         eckit::Log::info() << "DUPLICATES (dropped): " << duplicates << '\n';
     }
@@ -664,7 +694,7 @@ void Mars2GribRegenerateTestsTool::usage(const std::string& tool) const {
     eckit::Log::info() << "Usage: " << tool
                        << " --input <file>[,<file>...] --output <file> --num-threads <3..127> "
                           "[--output-format block|jsonl] [--keys <k1,k2,...>] [--exclude <rules>] [--exclude-file "
-                          "<file>] [--deduplicate] "
+                          "<file>] [--overrides <file.yaml>] [--deduplicate] "
                           "[--select <filter>] [--blocks <ids>] [--max-queue-size <N>] "
                           "[--zstd-level <1..22>] [--records-per-block <N>] [--block-bytes <N>] "
                           "[--failed-records <file.jsonl[.zst]>] [--expected-messages <N>] [--yaml-parser]"

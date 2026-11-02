@@ -1,0 +1,38 @@
+# Stripping plan reproducing the current strategy.
+# Run with:  mpirun -n <N> mars2grib-strip-tests --plan example-plan.yaml
+#
+# Every record is processed on the rank owning
+#   hash(class, stream, type, levtype, anchorType, domainType, shapeType) % N,
+# so these keys (and the time representation) are implicitly part of every action's group.
+
+feed:
+  file-list: /path/to/jsonl-files.txt   # one JSONL path per line (plain or .zst), '#' comments allowed
+  round-size: 2000                      # records read per rank per exchange round
+
+actions:
+  # 1. ensembles: one member per group; control/reference (type != pf) passes untouched
+  - { type: reduce, match: "type=pf", vary: [number], keep: 1, group-by: [mars] }
+
+  # 2. wave spectra: one frequency/direction pair
+  - { type: reduce, match: "frequency=1/to/1e9", vary: [frequency, direction], keep: 1, group-by: [mars] }
+
+  # 3. model levels: one levelist
+  - { type: reduce, match: "levtype=ml", vary: [levelist], keep: 1, group-by: [mars] }
+
+  # 4. pressure levels: one levelist below and one above 1 hPa
+  - { type: reduce, match: "levtype=pl,levelist=0/to/0.9999", vary: [levelist], keep: 1, group-by: [mars] }
+  - { type: reduce, match: "levtype=pl,levelist=1/to/1e9", vary: [levelist], keep: 1, group-by: [mars] }
+
+  # 5. one step per time representation (anchor/domain/shape), preferring its first emission
+  #    (step == outer time range, as mars2grib-prune-tests-otr)
+  - { type: first-emission }
+  - { type: reduce, vary: [step], keep: 1, group-by: [mars, time-representation] }
+
+  # finally drop exact duplicates of (mars, misc, opt)
+  - { type: deduplicate }
+
+sink:
+  file: /path/to/mars2grib-testcases.ekbf
+  keys: "class,stream,type,levtype,timeShape"
+  records-per-block: 100
+  zstd-level: 22

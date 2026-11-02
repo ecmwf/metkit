@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
+#include <cmath>
 #include <cstdlib>
 #include <optional>
 #include <sstream>
@@ -44,6 +45,16 @@ TestMode testModeFromString(const std::string& name) {
         return TestMode::Roundtrip;
     }
     throw eckit::UserError("Unknown test mode `" + name + "` (encode, decode, roundtrip)", Here());
+}
+
+DictKind dictKindFromString(const std::string& name) {
+    if (name == "eckit") {
+        return DictKind::Eckit;
+    }
+    if (name == "datamod") {
+        return DictKind::Datamod;
+    }
+    throw eckit::UserError("Unknown dictionary `" + name + "` (eckit, datamod)", Here());
 }
 
 std::string toString(TestMode mode) {
@@ -135,16 +146,15 @@ std::vector<std::string> marsValues(const eckit::LocalConfiguration& mars, const
     if (mars.isStringList(key)) {
         return mars.getStringVector(key);
     }
-    if (mars.isIntegralList(key)) {
-        std::vector<std::string> out;
-        for (long v : mars.getLongVector(key)) {
-            out.push_back(std::to_string(v));
-        }
-        return out;
-    }
-    if (mars.isFloatingPointList(key)) {
+    // eckit classifies a list by its first element only (e.g. [0, 2.00037]), so numeric lists are
+    // read as doubles; whole numbers keep their integer spelling.
+    if (mars.isIntegralList(key) || mars.isFloatingPointList(key)) {
         std::vector<std::string> out;
         for (double v : mars.getDoubleVector(key)) {
+            if (std::floor(v) == v && std::fabs(v) < 1e15) {
+                out.push_back(std::to_string(static_cast<long long>(v)));
+                continue;
+            }
             std::ostringstream os;
             os.precision(17);
             os << v;
@@ -153,6 +163,52 @@ std::vector<std::string> marsValues(const eckit::LocalConfiguration& mars, const
         return out;
     }
     return {};
+}
+
+}  // namespace
+
+namespace {
+
+std::vector<std::string> marsValues(const metkit::datamod::Dict& mars, const std::string& key) {
+    using Type                          = metkit::datamod::Value::Type;
+    const metkit::datamod::Value* value = mars.find(key);
+    if (value == nullptr) {
+        return {};
+    }
+    const auto number = [](double x) {
+        std::ostringstream os;
+        os.precision(17);
+        os << x;
+        return os.str();
+    };
+    switch (value->type()) {
+        case Type::String:
+            return {value->asString()};
+        case Type::Bool:
+            return {value->asBool() ? "true" : "false"};
+        case Type::Int:
+            return {std::to_string(value->asInt())};
+        case Type::Double:
+            return {number(value->asDouble())};
+        case Type::StringList:
+            return value->asStringList();
+        case Type::IntList: {
+            std::vector<std::string> out;
+            for (std::int64_t v : value->asIntList()) {
+                out.push_back(std::to_string(v));
+            }
+            return out;
+        }
+        case Type::DoubleList: {
+            std::vector<std::string> out;
+            for (double v : value->asDoubleList()) {
+                out.push_back(number(v));
+            }
+            return out;
+        }
+        default:
+            return {};
+    }
 }
 
 }  // namespace
@@ -250,6 +306,46 @@ bool MarsRecordFilter::matches(const eckit::LocalConfiguration& mars) const {
     return false;
 }
 
+bool MarsRecordFilter::matches(const metkit::datamod::Dict& mars) const {
+    const auto conditionMatches = [&](const Condition& condition) {
+        if (!mars.has(condition.key)) {
+            return condition.missing;
+        }
+        for (const auto& actual : marsValues(mars, condition.key)) {
+            const auto actualNumber = number(actual);
+            for (const auto& value : condition.values) {
+                if (lowercase(actual) == lowercase(value)) {
+                    return true;
+                }
+                const auto valueNumber = number(value);
+                if (actualNumber && valueNumber && *actualNumber == *valueNumber) {
+                    return true;
+                }
+            }
+            for (const auto& [from, to] : condition.ranges) {
+                if (actualNumber && from <= *actualNumber && *actualNumber <= to) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    for (const auto& rule : rules_) {
+        bool all = true;
+        for (const auto& condition : rule) {
+            if (!conditionMatches(condition)) {
+                all = false;
+                break;
+            }
+        }
+        if (all) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::vector<std::size_t> parseBlockIds(const std::string& expression, std::size_t numberOfBlocks) {
     std::vector<std::size_t> ids;
     std::vector<std::string> terms;
@@ -277,6 +373,83 @@ std::vector<std::size_t> parseBlockIds(const std::string& expression, std::size_
     std::sort(ids.begin(), ids.end());
     ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
     return ids;
+}
+
+std::map<std::string, std::pair<std::size_t, std::size_t>> topLevelMembers(std::string_view json) {
+    std::map<std::string, std::pair<std::size_t, std::size_t>> members;
+    std::size_t i         = 0;
+    const auto skipSpaces = [&]() {
+        while (i < json.size() && std::isspace(static_cast<unsigned char>(json[i]))) {
+            ++i;
+        }
+    };
+    const auto skipString = [&]() {  // json[i] == '"'
+        for (++i; i < json.size(); ++i) {
+            if (json[i] == '\\') {
+                ++i;
+            }
+            else if (json[i] == '"') {
+                ++i;
+                return;
+            }
+        }
+        throw eckit::BadValue("Unterminated string in test-case record", Here());
+    };
+
+    skipSpaces();
+    if (i >= json.size() || json[i] != '{') {
+        throw eckit::BadValue("Test-case record is not a JSON object", Here());
+    }
+    ++i;
+    while (true) {
+        skipSpaces();
+        if (i < json.size() && json[i] == '}') {
+            break;
+        }
+        if (i >= json.size() || json[i] != '"') {
+            throw eckit::BadValue("Malformed test-case record (expected a key)", Here());
+        }
+        const std::size_t keyBegin = i + 1;
+        skipString();
+        const std::string key{json.substr(keyBegin, i - 1 - keyBegin)};
+        skipSpaces();
+        if (i >= json.size() || json[i] != ':') {
+            throw eckit::BadValue("Malformed test-case record (expected ':')", Here());
+        }
+        ++i;
+        skipSpaces();
+        const std::size_t begin = i;
+        int depth               = 0;
+        while (i < json.size()) {
+            const char c = json[i];
+            if (c == '"') {
+                skipString();
+                continue;
+            }
+            if (c == '{' || c == '[') {
+                ++depth;
+            }
+            else if (c == '}' || c == ']') {
+                if (depth == 0) {
+                    break;
+                }
+                --depth;
+            }
+            else if (c == ',' && depth == 0) {
+                break;
+            }
+            ++i;
+        }
+        std::size_t end = i;
+        while (end > begin && std::isspace(static_cast<unsigned char>(json[end - 1]))) {
+            --end;
+        }
+        members[key] = {begin, end};
+        if (i < json.size() && json[i] == ',') {
+            ++i;
+        }
+    }
+    return members;
 }
 
 std::string configurationToJson(const eckit::LocalConfiguration& configuration) {

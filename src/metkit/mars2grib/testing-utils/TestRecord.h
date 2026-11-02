@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -15,6 +16,7 @@
 
 #include "eckit/blockfile/Format.h"
 #include "eckit/config/LocalConfiguration.h"
+#include "metkit/datamod/Dict.h"
 
 namespace metkit::mars2grib::testing_utils::run_tests {
 
@@ -38,6 +40,15 @@ enum class TestMode {
 };
 
 TestMode testModeFromString(const std::string& name);
+
+/// Dictionary used for mars/misc/opt and the decoded result: eckit::LocalConfiguration, or the
+/// experimental metkit::datamod::Dict.
+enum class DictKind {
+    Eckit,
+    Datamod,
+};
+
+DictKind dictKindFromString(const std::string& name);
 std::string toString(TestMode mode);
 
 eckit::LocalConfiguration parseRecord(std::string_view json, RecordParser parser);
@@ -46,6 +57,10 @@ eckit::LocalConfiguration requiredSubConfiguration(const eckit::LocalConfigurati
 
 std::optional<eckit::LocalConfiguration> optionalSubConfiguration(const eckit::LocalConfiguration& root,
                                                                   const std::string& key);
+
+/// Value spans [begin, end) of the top-level members of a JSON object, so single members can be
+/// parsed or replaced without touching the others (e.g. skip the large `out`).
+std::map<std::string, std::pair<std::size_t, std::size_t>> topLevelMembers(std::string_view json);
 
 /// Compact JSON serialisation of a configuration (doubles with 17 significant digits, so they read back exactly).
 std::string configurationToJson(const eckit::LocalConfiguration& configuration);
@@ -68,6 +83,7 @@ public:
     std::size_t numberOfRules() const { return rules_.size(); }
 
     bool matches(const eckit::LocalConfiguration& mars) const;
+    bool matches(const metkit::datamod::Dict& mars) const;
 
 private:
 

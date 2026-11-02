@@ -21,6 +21,7 @@
 #include "metkit/mars/MarsRequest.h"
 
 // dictionary access traits
+#include "metkit/grib2mars/utils/dictionary_traits/dictaccess_datamod_dict.h"
 #include "metkit/grib2mars/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/grib2mars/utils/dictionary_traits/dictaccess_mars_request.h"
 #include "metkit/grib2mars/utils/dictionary_traits/dictaccess_options.h"
@@ -99,6 +100,18 @@ Grib2MarsResult<metkit::mars::MarsRequest> Grib2Mars::convert<metkit::mars::Mars
     return withGrib2MarsApiErrorHandling<Grib2MarsResult<metkit::mars::MarsRequest>>(
         "Grib2Mars::convert<metkit::mars::MarsRequest>", opts_,
         [&]() { return rules::convertAll<metkit::mars::MarsRequest>(grib, opts_); }, Here());
+}
+
+/// @brief Convert to a `metkit::datamod::Dict` request (misc is a `datamod::Dict` too).
+template <>
+Grib2MarsResult<metkit::datamod::Dict> Grib2Mars::convert<metkit::datamod::Dict>(
+    const metkit::codes::CodesHandle& grib) {
+
+    using metkit::grib2mars::utils::exceptions::withGrib2MarsApiErrorHandling;
+
+    return withGrib2MarsApiErrorHandling<Grib2MarsResult<metkit::datamod::Dict>>(
+        "Grib2Mars::convert<metkit::datamod::Dict>", opts_,
+        [&]() { return rules::convertAll<metkit::datamod::Dict>(grib, opts_); }, Here());
 }
 
 }  // namespace metkit::grib2mars

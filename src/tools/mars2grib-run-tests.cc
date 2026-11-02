@@ -266,6 +266,7 @@ void Mars2GribRunTestsTool::executeJsonl() {
                     options.parser          = common_.parser;
                     options.mode            = common_.mode;
                     options.decodeMarsOnly  = common_.decodeMarsOnly;
+                    options.dict            = common_.dict;
                     options.failureReports  = common_.failureReports;
                     if (failedTestsPrefix_) {
                         options.failedTestsPath = failurePath(*failedTestsPrefix_, threadIndex);
@@ -421,6 +422,7 @@ void Mars2GribRunTestsTool::executeBlocks() {
                     options.parser          = common_.parser;
                     options.mode            = common_.mode;
                     options.decodeMarsOnly  = common_.decodeMarsOnly;
+                    options.dict            = common_.dict;
                     options.failureReports  = common_.failureReports;
                     if (failedTestsPrefix_) {
                         options.failedTestsPath = failurePath(*failedTestsPrefix_, threadIndex);
@@ -517,7 +519,8 @@ void Mars2GribRunTestsTool::usage(const std::string& tool) const {
         << " --test-cases <file> --num-threads <N> [--max-queue-size <N> (JSONL input)] "
            "[--select class=..,stream=..,type=..] [--blocks <ids>] (block input) [--expected-messages <N>] "
            "[--failed-tests <prefix>] [--failure-reports [--failure-reports-dir <dir>] "
-           "[--failure-reports-schema <schema>]] [--mode encode|decode|roundtrip] [--decode-mars-only] [--timings] "
+           "[--failure-reports-schema <schema>]] [--mode encode|decode|roundtrip] [--decode-mars-only] [--dict "
+           "eckit|datamod] [--timings] "
            "[--yaml-parser]"
         << std::endl;
 }

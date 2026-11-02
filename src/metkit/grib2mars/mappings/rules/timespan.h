@@ -88,15 +88,15 @@ void extractTimespan(const std::string& keyword, const metkit::codes::CodesHandl
                 Here());
         }
 
-        if (timespan == 0 && endStep > 0 && get_or_throw<bool>(opts, "tryFixBadInput_ZeroAccumulation")) {
-            detail::tryFixBadInput_ZeroAccumulation(grib, mars, stepType, startStep, endStep, opts);
-            return;
-        }
-        else if (timespan == 0 && endStep == 0 && stepType == "accum") {
-            set_or_throw<std::string>(mars, keyword, "fs");
-            return;
-        }
-        else {
+        if (timespan == 0) {
+            if (endStep > 0 && get_or_throw<bool>(opts, "tryFixBadInput_ZeroAccumulation")) {
+                detail::tryFixBadInput_ZeroAccumulation(grib, mars, stepType, startStep, endStep, opts);
+                return;
+            }
+            if (endStep == 0 && stepType == "accum") {
+                set_or_throw<std::string>(mars, keyword, "fs");
+                return;
+            }
             throw Grib2MarsGenericException(
                 "Invalid statistical window while extracting MARS keyword `" + keyword + "`: stepType=`" + stepType +
                     "`, startStep=" + std::to_string(startStep) + ", endStep=" + std::to_string(endStep) +
@@ -104,7 +104,13 @@ void extractTimespan(const std::string& keyword, const metkit::codes::CodesHandl
                 Here());
         }
 
-        set_or_throw<long>(mars, keyword, timespan);
+        // A positive window: accumulations from the start are `fs`, every other window is its length in
+        // hours, spelled as in the MARS language (`1h`, `3h`, ...) and as mars2mars produces it.
+        if (stepType == "accum" && startStep == 0) {
+            set_or_throw<std::string>(mars, keyword, "fs");
+            return;
+        }
+        set_or_throw<std::string>(mars, keyword, std::to_string(timespan) + "h");
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));

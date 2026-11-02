@@ -16,6 +16,10 @@
 
 #include "eckit/config/LocalConfiguration.h"
 
+namespace metkit::datamod {
+class Dict;
+}
+
 namespace metkit::mars2grib::testing_utils {
 
 namespace detail {
@@ -347,6 +351,8 @@ public:
 
     RecordingDictionary() = default;
     explicit RecordingDictionary(const eckit::LocalConfiguration& configuration);
+    /// Same input format as the eckit::LocalConfiguration constructor, read from a metkit::datamod::Dict.
+    explicit RecordingDictionary(const metkit::datamod::Dict& configuration);
     RecordingDictionary(const RecordingDictionary&)                = default;
     RecordingDictionary& operator=(const RecordingDictionary&)     = default;
     RecordingDictionary(RecordingDictionary&&) noexcept            = default;
@@ -416,8 +422,15 @@ public:
         record_set(key, static_cast<const std::vector<long>&>(value));
     }
 
+    /// `values` arrays up to this size are recorded exactly (e.g. the 6-value bootstrap of spectral
+    /// handles, so they can be replayed faithfully); larger ones only as a summary (size, average).
+    static constexpr std::size_t maxStoredValues = 1024;
+
     void record_set(std::string_view key, const std::vector<double>& value) {
         if (key == "values") {
+            reject_nan_values(value);
+        }
+        if (key == "values" && value.size() > maxStoredValues) {
             operations_.emplace_back(OperationKind::Set, std::string(key),
                                      std::make_unique<TypedRecordedValue<ValuesSummary>>(summarize_values(value)));
             return;
@@ -429,6 +442,9 @@ public:
 
     void record_set(std::string_view key, std::vector<double>&& value) {
         if (key == "values") {
+            reject_nan_values(value);
+        }
+        if (key == "values" && value.size() > maxStoredValues) {
             operations_.emplace_back(OperationKind::Set, std::string(key),
                                      std::make_unique<TypedRecordedValue<ValuesSummary>>(summarize_values(value)));
             return;
@@ -559,13 +575,19 @@ public:
 
 private:
 
-    static ValuesSummary summarize_values(const std::vector<double>& value) {
-        double sum = 0.0;
-
+    /// `values` with NaN cannot be recorded, neither exactly nor as a summary: JSON has no NaN.
+    static void reject_nan_values(const std::vector<double>& value) {
         for (double item : value) {
             if (std::isnan(item)) {
                 throw std::invalid_argument("RecordingDictionary does not accept NaN in `values`");
             }
+        }
+    }
+
+    static ValuesSummary summarize_values(const std::vector<double>& value) {
+        double sum = 0.0;
+
+        for (double item : value) {
             sum += item;
         }
 

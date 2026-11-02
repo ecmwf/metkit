@@ -32,6 +32,7 @@
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/value/Value.h"
+#include "metkit/datamod/Dict.h"
 #include "metkit/mars/MarsRequest.h"
 
 // Codes wrapper types
@@ -137,6 +138,10 @@ Grib2MarsResult<eckit::LocalConfiguration> Grib2Mars::convert<eckit::LocalConfig
 /// @brief Convert a `metkit::mars::MarsRequest` request.
 template <>
 Grib2MarsResult<metkit::mars::MarsRequest> Grib2Mars::convert<metkit::mars::MarsRequest>(
+    const metkit::codes::CodesHandle& grib);
+
+template <>
+Grib2MarsResult<metkit::datamod::Dict> Grib2Mars::convert<metkit::datamod::Dict>(
     const metkit::codes::CodesHandle& grib);
 
 }  // namespace metkit::grib2mars

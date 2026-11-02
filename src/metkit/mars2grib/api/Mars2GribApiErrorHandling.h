@@ -328,17 +328,20 @@ Result withMars2GribApiErrorHandling(const std::string& apiName, const metkit::m
             throw eckit::UserError(detail::buildPublicErrorMessage(inner), inner.location);
         }
 
+        // Build the message first and throw once: throwing inside the try would be caught as a
+        // failure to write the stack file.
+        std::string message;
         try {
             const eckit::PathName errorStackFilePath = detail::makeErrorStackFilePath(opts, apiName);
 
             detail::writeMars2GribExceptionStackToFile(e, apiName, errorStackFilePath, loc);
 
-            throw eckit::UserError(detail::buildPublicErrorMessage(inner, errorStackFilePath), inner.location);
+            message = detail::buildPublicErrorMessage(inner, errorStackFilePath);
         }
         catch (const std::exception& stackWriteError) {
-            throw eckit::UserError(detail::buildPublicErrorMessageWithoutStackFile(inner, stackWriteError),
-                                   inner.location);
+            message = detail::buildPublicErrorMessageWithoutStackFile(inner, stackWriteError);
         }
+        throw eckit::UserError(message, inner.location);
     }
 }
 

@@ -50,6 +50,7 @@ ecbuild_add_executable(
 ecbuild_add_executable(
     TARGET        mars2grib-regenerate-tests
     SOURCES       mars2grib-regenerate-tests.cc
+                  ../metkit/mars2grib/testing-utils/MarsOverrides.cc
                   ../metkit/mars2grib/testing-utils/TestCaseLabels.cc
                   ../metkit/mars2grib/testing-utils/Producer.cc
                   ../metkit/mars2grib/testing-utils/JsonlWriter.cc
@@ -71,6 +72,20 @@ ecbuild_add_executable(
     INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
     LIBS          metkit eckit_blockfile eckit_option eckit
+)
+
+ecbuild_add_executable(
+    TARGET        mars2grib-strip-tests
+    SOURCES       mars2grib-strip-tests.cc
+                  ../metkit/mars2grib/testing-utils/Producer.cc
+                  ../metkit/mars2grib/testing-utils/TestRecord.cc
+                  ../metkit/mars2grib/testing-utils/TestCaseLabels.cc
+                  ../metkit/mars2grib/testing-utils/strip/Envelope.cc
+                  ../metkit/mars2grib/testing-utils/strip/Plan.cc
+    CONDITION     ${_mars2grib_run_tests_condition} AND eckit_HAVE_MPI
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_blockfile eckit_mpi eckit_option eckit
 )
 
 ecbuild_add_executable(

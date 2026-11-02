@@ -70,6 +70,22 @@ mars2grib-regenerate-tests --input old.ekbf,new-cases.jsonl --output merged.ekbf
     --deduplicate --exclude "stream=enfo,type=pf;class=rd"         # or --exclude-file rules.txt
 ```
 
+### 9b. Correct a wrong mars input while regenerating
+```yaml
+# overrides.yaml: every matching rule is applied in order; `match` uses the --exclude syntax
+overrides:
+  - match: type=gbf/gwt,param=228228   # accumulation from step 0 must be timespan=fs
+    when: window-from-start              # only if timespan (<N>h) == step
+    set: {timespan: fs}
+#   remove: [key, ...]                   # optional
+```
+```sh
+mars2grib-regenerate-tests --input tests.ekbf --output new.ekbf --num-threads 32 \
+    --keys class,stream,type,levtype,timeShape --records-per-block 100 --zstd-level 22 \
+    --overrides overrides.yaml          # prints OVERRIDDEN [rule]: <records> for every rule
+```
+`--exclude` sees the original request; labels, `--deduplicate` and the encoder see the corrected one.
+
 ### 10. Regenerate in independent processes (avoids thread contention), then merge
 ```sh
 N=$(eckit-blockfile list tests.ekbf --no-header | wc -l)

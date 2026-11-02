@@ -10,6 +10,7 @@
 #include "metkit/mars2grib/api/Mars2GribApiErrorHandling.h"
 #include "metkit/mars2grib/testing-utils/RecordingDictionary.h"
 #include "metkit/mars2grib/testing-utils/dictionary_traits/dictaccess_recording_dictionary.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictaccess_datamod_dict.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_options.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
@@ -166,7 +167,27 @@ std::string readStringOption(const eckit::LocalConfiguration& conf, std::string_
     return conf.getString(std::string{key});
 }
 
-Options readOptions(const eckit::LocalConfiguration& conf) {
+bool readBoolOption(const metkit::datamod::Dict& conf, std::string_view key) {
+    const metkit::datamod::Value* value = conf.find(key);
+    if (value == nullptr || !value->isBool()) {
+        throw exceptions::Mars2GribDictException(
+            "Option `" + std::string(key) + "` must be a bool in metkit::datamod::Dict", Here());
+    }
+    return value->asBool();
+}
+
+std::string readStringOption(const metkit::datamod::Dict& conf, std::string_view key) {
+    const metkit::datamod::Value* value = conf.find(key);
+    if (value == nullptr || !value->isString()) {
+        throw exceptions::Mars2GribDictException(
+            "Option `" + std::string(key) + "` must be a string in metkit::datamod::Dict", Here());
+    }
+    return value->asString();
+}
+
+/// Options from eckit::LocalConfiguration or metkit::datamod::Dict.
+template <class Conf>
+Options readOptions(const Conf& conf) {
     Options opts;
 
     if (conf.has("applyChecks")) {
@@ -243,8 +264,9 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
     return opts;
 }
 
-std::string makeTestCaseJson(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc,
-                             const Options& opts, const testing_utils::RecordingDictionary& out) {
+template <class Dict_t>
+std::string makeTestCaseJson(const Dict_t& mars, const Dict_t& misc, const Options& opts,
+                             const testing_utils::RecordingDictionary& out) {
     using metkit::mars2grib::utils::dict_traits::dict_to_json;
 
     std::string json;
@@ -271,6 +293,8 @@ Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(const eckit::LocalConfigu
     opts_{readOptions(opts)} {}
 
 Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(OptionList opts) : opts_{readOptions(opts)} {}
+
+Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(const metkit::datamod::Dict& opts) : opts_{readOptions(opts)} {}
 
 std::string Mars2GribTestCaseGenerator::generate(const eckit::LocalConfiguration& mars,
                                                  const eckit::LocalConfiguration& misc) {
@@ -300,6 +324,24 @@ std::string Mars2GribTestCaseGenerator::generate(const eckit::LocalConfiguration
 testing_utils::RecordingDictionary Mars2GribTestCaseGenerator::generateOutput(const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
     return generateOutput(mars, misc);
+}
+
+std::string Mars2GribTestCaseGenerator::generate(const metkit::datamod::Dict& mars, const metkit::datamod::Dict& misc) {
+    const auto out = generateOutput(mars, misc);
+    return makeTestCaseJson(mars, misc, opts_, out);
+}
+
+testing_utils::RecordingDictionary Mars2GribTestCaseGenerator::generateOutput(const metkit::datamod::Dict& mars,
+                                                                              const metkit::datamod::Dict& misc) {
+    return exceptions::withMars2GribApiErrorHandling<testing_utils::RecordingDictionary>(
+        "Mars2GribTestCaseGenerator::generateOutput", opts_,
+        [&]() {
+            auto out = CoreOperations::encodeHeaderWithNormalization<metkit::datamod::Dict, metkit::datamod::Dict,
+                                                                     Options, testing_utils::RecordingDictionary>(
+                mars, misc, opts_, language_);
+            return std::move(*out);
+        },
+        Here());
 }
 
 }  // namespace metkit::mars2grib

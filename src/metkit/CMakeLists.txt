@@ -17,6 +17,11 @@ list( APPEND metkit_srcs
     metkit_version.c
     config/LibMetkit.cc
     config/LibMetkit.h
+    datamod/Dict.cc
+    datamod/Dict.h
+    datamod/Json.cc
+    datamod/Json.h
+    datamod/Value.h
     mars/BaseProtocol.cc
     mars/BaseProtocol.h
     mars/ClientTask.cc

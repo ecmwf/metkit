@@ -96,6 +96,7 @@ void Mars2GribRunTestsScalarTool::execute(const eckit::option::CmdArgs&) {
     options.parser          = common_.parser;
     options.mode            = common_.mode;
     options.decodeMarsOnly  = common_.decodeMarsOnly;
+    options.dict            = common_.dict;
     options.failureReports  = common_.failureReports;
     Consumer consumer{std::move(options)};
 
@@ -170,6 +171,7 @@ void Mars2GribRunTestsScalarTool::usage(const std::string& tool) const {
                        << " --test-cases <file> [--select class=..,stream=..,type=..] [--blocks <ids>] (block input) "
                           "[--failure-reports [--failure-reports-dir <dir>] "
                           "[--failure-reports-schema <schema>]] [--mode encode|decode|roundtrip] [--decode-mars-only] "
+                          "[--dict eckit|datamod] "
                           "[--timings] [--yaml-parser]"
                        << std::endl;
 }

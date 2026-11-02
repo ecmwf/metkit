@@ -23,8 +23,9 @@ Grib2MarsResult<OutDict_t> convertAll(const metkit::codes::CodesHandle& grib, co
 
     try {
 
-        std::unique_ptr<OutDict_t> mars                 = std::make_unique<OutDict_t>();
-        std::unique_ptr<eckit::LocalConfiguration> misc = std::make_unique<eckit::LocalConfiguration>();
+        std::unique_ptr<OutDict_t> mars  = std::make_unique<OutDict_t>();
+        using MiscDict_t                 = typename MiscDictFor<OutDict_t>::type;
+        std::unique_ptr<MiscDict_t> misc = std::make_unique<MiscDict_t>();
 
         //
         // Topology is the subset of MARS keywords that are relevant to describe the input grib message.

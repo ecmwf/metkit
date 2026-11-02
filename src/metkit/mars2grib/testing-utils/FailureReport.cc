@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <fstream>
@@ -281,8 +282,17 @@ std::string marsValue(const eckit::LocalConfiguration* mars, const std::string& 
     if (mars->isStringList(key)) {
         return join(mars->getStringVector(key));
     }
+    // eckit classifies a list by its first element only, so a list starting with an integer may
+    // still hold doubles (e.g. [0, 2.00037]): read as doubles and label only all-integral lists.
     if (mars->isIntegralList(key)) {
-        return join(mars->getLongVector(key));
+        std::vector<long long> values;
+        for (double v : mars->getDoubleVector(key)) {
+            if (std::floor(v) != v || std::fabs(v) >= 1e15) {
+                return "complex";
+            }
+            values.push_back(static_cast<long long>(v));
+        }
+        return join(values);
     }
     return "complex";
 }

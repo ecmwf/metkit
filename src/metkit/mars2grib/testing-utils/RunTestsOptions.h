@@ -33,6 +33,7 @@ struct CommonRunTestsOptions {
     RecordParser parser{RecordParser::Json};
     TestMode mode{TestMode::Encode};
     bool decodeMarsOnly{false};
+    DictKind dict{DictKind::Eckit};
     bool timings{false};
 };
 
@@ -66,6 +67,8 @@ inline void addCommonRunTestsOptions(std::vector<eckit::option::Option*>& option
         "mars/misc; roundtrip: encode check, then decode of the encoded output"));
     options.push_back(new eckit::option::SimpleOption<bool>(
         "decode-mars-only", "decode/roundtrip: compare only the decoded mars with the input (ignore misc)"));
+    options.push_back(new eckit::option::SimpleOption<std::string>(
+        "dict", "dictionary for mars/misc/opt and decoding: eckit (default) or datamod (experimental, faster)"));
 }
 
 inline CommonRunTestsOptions readCommonRunTestsOptions(const eckit::option::CmdArgs& args) {
@@ -73,6 +76,11 @@ inline CommonRunTestsOptions readCommonRunTestsOptions(const eckit::option::CmdA
     result.parser         = args.getBool("yaml-parser", false) ? RecordParser::Yaml : RecordParser::Json;
     result.timings        = args.getBool("timings", false);
     result.decodeMarsOnly = args.getBool("decode-mars-only", false);
+    if (args.has("dict")) {
+        std::string dict;
+        args.get("dict", dict);
+        result.dict = dictKindFromString(dict);
+    }
     if (args.has("mode")) {
         std::string mode;
         args.get("mode", mode);

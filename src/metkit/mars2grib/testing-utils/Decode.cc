@@ -17,7 +17,9 @@
 
 #include "eckit/exception/Exceptions.h"
 
+#include "metkit/datamod/Json.h"
 #include "metkit/grib2mars/api/Grib2Mars.h"
+#include "metkit/grib2mars/api/Options.h"
 #include "metkit/mars2grib/testing-utils/TestRecord.h"
 
 namespace metkit::mars2grib::testing_utils::run_tests {
@@ -120,14 +122,9 @@ std::optional<std::vector<std::string>> scalars(const eckit::LocalConfiguration&
     if (c.isStringList(key)) {
         return c.getStringVector(key);
     }
-    if (c.isIntegralList(key)) {
-        std::vector<std::string> out;
-        for (long v : c.getLongVector(key)) {
-            out.push_back(std::to_string(v));
-        }
-        return out;
-    }
-    if (c.isFloatingPointList(key)) {
+    // eckit classifies a list by its first element only (e.g. `pv` = [0, 2.00037, ...]), so numeric
+    // lists are read as doubles: Value converts both integers and doubles to double.
+    if (c.isIntegralList(key) || c.isFloatingPointList(key)) {
         std::vector<std::string> out;
         for (double v : c.getDoubleVector(key)) {
             out.push_back(numberText(v));
@@ -189,6 +186,78 @@ void compareSection(const std::string& section, const eckit::LocalConfiguration&
         if (!problem.empty()) {
             result.equal = false;
             result.diff += "  " + section + "." + key + ": " + problem + "\n";
+        }
+    }
+}
+
+/// The Dict counterpart of `scalars`: same normalisation, nullopt for null, objects and object lists.
+std::optional<std::vector<std::string>> scalars(const metkit::datamod::Value& v) {
+    using Type = metkit::datamod::Value::Type;
+    switch (v.type()) {
+        case Type::String:
+            return std::vector<std::string>{v.asString()};
+        case Type::Bool:
+            return std::vector<std::string>{v.asBool() ? "true" : "false"};
+        case Type::Int:
+            return std::vector<std::string>{std::to_string(v.asInt())};
+        case Type::Double:
+            return std::vector<std::string>{numberText(v.asDouble())};
+        case Type::StringList:
+            return v.asStringList();
+        case Type::IntList: {
+            std::vector<std::string> out;
+            for (std::int64_t i : v.asIntList()) {
+                out.push_back(std::to_string(i));
+            }
+            return out;
+        }
+        case Type::DoubleList: {
+            std::vector<std::string> out;
+            for (double x : v.asDoubleList()) {
+                out.push_back(numberText(x));
+            }
+            return out;
+        }
+        default:
+            return std::nullopt;
+    }
+}
+
+std::string valueText(const metkit::datamod::Value& v) {
+    if (auto values = scalars(v)) {
+        return text(*values);
+    }
+    return metkit::datamod::toJson(v);
+}
+
+void compareSection(const std::string& section, const metkit::datamod::Dict& expected,
+                    const metkit::datamod::Dict& decoded, DecodeComparison& result) {
+    for (const auto& entry : expected.entries()) {
+        std::string problem;
+        const metkit::datamod::Value* other = decoded.find(entry.key);
+        if (other == nullptr) {
+            problem = "missing in decoded (expected " + valueText(entry.value) + ")";
+        }
+        else {
+            const auto lhs = scalars(entry.value);
+            const auto rhs = scalars(*other);
+            bool equal     = false;
+            if (lhs && rhs) {
+                equal = lhs->size() == rhs->size();
+                for (std::size_t i = 0; equal && i < lhs->size(); ++i) {
+                    equal = sameScalar((*lhs)[i], (*rhs)[i]);
+                }
+            }
+            else if (!lhs && !rhs && entry.value.isDict() && other->isDict()) {
+                equal = metkit::datamod::toJson(entry.value) == metkit::datamod::toJson(*other);
+            }
+            if (!equal) {
+                problem = "expected " + valueText(entry.value) + ", decoded " + valueText(*other);
+            }
+        }
+        if (!problem.empty()) {
+            result.equal = false;
+            result.diff += "  " + section + "." + entry.key + ": " + problem + "\n";
         }
     }
 }
@@ -259,6 +328,29 @@ DecodedTestCase decodeRecording(const RecordingDictionary& recording, const ecki
 DecodeComparison compareDecoded(const eckit::LocalConfiguration& expectedMars,
                                 const eckit::LocalConfiguration& expectedMisc, const DecodedTestCase& decoded,
                                 bool compareMisc) {
+    DecodeComparison result;
+    compareSection("mars", expectedMars, decoded.mars, result);
+    if (compareMisc) {
+        compareSection("misc", expectedMisc, decoded.misc, result);
+    }
+    return result;
+}
+
+DecodedDictTestCase decodeRecording(const RecordingDictionary& recording, const metkit::datamod::Dict& options) {
+    const auto handle = replayOnCodesHandle(recording);
+
+    metkit::grib2mars::Options grib2marsOptions;
+    const metkit::datamod::Value* skipSection3 = options.find("skipSection3");
+    if (skipSection3 != nullptr && skipSection3->isBool()) {
+        grib2marsOptions.skipSection3 = skipSection3->asBool();
+    }
+    metkit::grib2mars::Grib2Mars grib2mars{grib2marsOptions};
+    auto result = grib2mars.convert<metkit::datamod::Dict>(*handle);
+    return DecodedDictTestCase{std::move(result.mars), std::move(result.misc)};
+}
+
+DecodeComparison compareDecoded(const metkit::datamod::Dict& expectedMars, const metkit::datamod::Dict& expectedMisc,
+                                const DecodedDictTestCase& decoded, bool compareMisc) {
     DecodeComparison result;
     compareSection("mars", expectedMars, decoded.mars, result);
     if (compareMisc) {
