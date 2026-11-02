@@ -41,7 +41,7 @@ fail-on-ccsds = []  # Fail on CCSDS
 
 [dependencies]
 cxx.workspace = true
-eckit-sys = { workspace = true, default-features = false }
+eckit-sys = { workspace = true, default-features = false, features = ["eckit-codec"] }
 eccodes-sys = { workspace = true, default-features = false }
 bindman.workspace = true
 
