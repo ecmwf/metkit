@@ -44,7 +44,7 @@ set( MARS2GRIB_TESTCASES_MD5     ""       CACHE STRING   "Expected MD5 of the do
 
 # Built-in defaults, used when the cache variables above are empty.
 set( _default_url     "https://sites.ecmwf.int/repository/metkit/test-data/mars2grib" )
-set( _default_version "910e7d20b76f19b1eef5f4edb16c25c5" )
+set( _default_version "6a1f8a3470abca84e1fba492ebbd474d" )
 set( MARS2GRIB_TESTCASES_MODES   "encode;decode" CACHE STRING "Test modes, ;-separated: encode;decode;roundtrip" )
 set( MARS2GRIB_TESTCASES_BLOCKS_PER_TEST 1 CACHE STRING
      "Blocks per ctest: 1 = one ctest per block and mode (default), N = chunks of N blocks of the same label combination, 0 = one ctest per label combination" )
