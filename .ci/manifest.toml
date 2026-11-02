@@ -46,6 +46,7 @@ compiler-inputs = ["cxx-compiler"]
 
 [packages.pymetkit]
 compiler-inputs = ["cxx-compiler"]
+allow-stale-deps = true
 
 [[packages.pymetkit.deps]]
 package = "metkit"
@@ -197,6 +198,7 @@ cxx-compiler-binary = "icpc"
 
 [packages.metkit-rust]
 compiler-inputs = ["cxx-compiler"]
+allow-stale-deps = true
 
 [[packages.metkit-rust.deps]]
 package = "metkit"
@@ -226,6 +228,7 @@ rust-compiler = "rust-1.90"
 
 [packages.metkit-crates]
 compiler-inputs = ["cxx-compiler", "rust-compiler"]
+allow-stale-deps = true
 
 [matrix.rust-publish]
 packages = ["metkit-crates"]
