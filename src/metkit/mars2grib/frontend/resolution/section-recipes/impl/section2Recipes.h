@@ -50,17 +50,26 @@ inline const Recipe S2_R36 =
 // Virtual (encoder-specific) templates
 //------------------------------------------------------------------------------
 
-// DestinE Climate DT products
+// DestinE Climate DT products (Naming convention is: <ExtendedType><OriginalType:3> in this case 1 -> Attidional type = ClimateDT and OriginalType = 001 -> standard mars)
 inline const Recipe S2_R1001 =
     make_recipe<1001,
         Select<MarsConcept>,
         Select<DestineConcept, DestineType::ClimateDT>
     >();
 
-// DestinE Extremes DT products
-inline const Recipe S2_R1002 =
-    make_recipe<1002,
+// DestinE Extremes DT products (Naming convention is: <ExtendedType><OriginalType:3> in this case 2 -> Attidional type = ExtremesDT and OriginalType = 001 -> standard mars)
+inline const Recipe S2_R2001 =
+    make_recipe<2001,
         Select<MarsConcept>,
+        Select<DestineConcept, DestineType::ExtremesDT>
+    >();
+
+
+// DestinE Extremes DT products (Naming convention is: <ExtendedType><OriginalType:3> in this case 2 -> Attidional type = ExtremesDT and OriginalType = 001 -> standard mars)
+inline const Recipe S2_R2036 =
+    make_recipe<2036,
+        Select<MarsConcept>,
+        Select<AnalysisConcept>,
         Select<DestineConcept, DestineType::ExtremesDT>
     >();
 
@@ -82,7 +91,8 @@ inline const Recipes Section2Recipes{ 2,
         &S2_R24,
         &S2_R36,
         &S2_R1001,
-        &S2_R1002
+        &S2_R2001,
+        &S2_R2036
     }
 };
 

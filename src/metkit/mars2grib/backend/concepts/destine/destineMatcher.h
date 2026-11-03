@@ -18,7 +18,7 @@ std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
-    if (!has(mars, "anoffset") && get_or_throw<std::string>(mars, "class") == "d1") {
+    if ( get_or_throw<std::string>(mars, "class") == "d1") {
         if (has(mars, "dataset")) {
             if (get_or_throw<std::string>(mars, "dataset") == "extremes-dt") {
                 return static_cast<std::size_t>(DestineType::ExtremesDT);

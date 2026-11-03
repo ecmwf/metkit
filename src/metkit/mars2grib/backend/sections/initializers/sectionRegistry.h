@@ -81,8 +81,8 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = 
     {36, &allocateTemplateNumber2<2, 36, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1000, &allocateTemplateNumber2<2, 1000, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1001, &allocateTemplateNumber2<2, 1001, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {1002, &allocateTemplateNumber2<2, 1002, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {1004, &allocateTemplateNumber2<2, 1004, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
+    {2001, &allocateTemplateNumber2<2, 2001, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {2036, &allocateTemplateNumber2<2, 2036, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 3 (Grid Definition Section) initializers.

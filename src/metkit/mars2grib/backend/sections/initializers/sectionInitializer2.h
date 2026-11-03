@@ -99,9 +99,17 @@ void allocateTemplateNumber2(const MarsDict_t& mars, const ParDict_t& par, const
             // ClimateDT dataset tag
             set_or_throw<std::string>(out, "dataset", "climate-dt");
         }
-        else if constexpr (TemplateNumber == 1002) {
+        else if constexpr (TemplateNumber == 2001) {
             // Minimal Section 2
             set_or_throw<long>(out, "localDefinitionNumber", 1L);
+            // DestinE metadata
+            set_or_throw<long>(out, "productionStatusOfProcessedData", 12L);
+            // ExtremesDT dataset tag
+            set_or_throw<std::string>(out, "dataset", "extremes-dt");
+        }
+        else if constexpr (TemplateNumber == 2036) {
+            // Minimal Section 2
+            set_or_throw<long>(out, "localDefinitionNumber", 36L);
             // DestinE metadata
             set_or_throw<long>(out, "productionStatusOfProcessedData", 12L);
             // ExtremesDT dataset tag
