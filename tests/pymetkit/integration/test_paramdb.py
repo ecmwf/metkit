@@ -808,9 +808,10 @@ def test_candidates_filter_no_match_raises(db):
 
 
 @_needs_lib
-def test_context_resolves_tp_class_od(db):
-    """context={'class': 'od'} resolves tp to 228 via the C++ expand engine."""
-    assert db.shortname_to_param_id("tp", context={"class": "od"}) == 228
+def test_context_resolves_tp_od(db):
+    """Full od context resolves tp to 228 via the C++ expand engine."""
+    ctx = {"class": "od", "stream": "oper", "type": "fc", "levtype": "sfc"}
+    assert db.shortname_to_param_id("tp", context=ctx) == 228
 
 
 @_needs_lib
@@ -818,6 +819,102 @@ def test_context_resolves_tp_full_ai(db):
     """Full ai context resolves tp to 228228."""
     ctx = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}
     assert db.shortname_to_param_id("tp", context=ctx) == 228228
+
+
+@_needs_lib
+def test_context_normalised_keys_accepted(db):
+    """Trailing-underscore keys (``class_``) count as their MARS names."""
+    ctx = {"class_": "ai", "stream": "oper", "type_": "fc", "levtype": "sfc"}
+    assert db.shortname_to_param_id("tp", context=ctx) == 228228
+
+
+@_needs_lib
+def test_context_extra_keys_allowed(db):
+    ctx = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc", "expver": "0001"}
+    assert db.shortname_to_param_id("tp", context=ctx) == 228228
+
+
+@_needs_lib
+def test_context_resolves_longname_and_candidates(db):
+    ctx = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}
+    cands = db.shortname_to_param_id_candidates("tp", context=ctx)
+    assert [c.param_id for c in cands] == [228228]
+    assert db.shortname_to_longname("tp", context=ctx) == db.get_metadata(228228)["longname"]
+
+
+_FULL_CTX = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}
+_REQUIRED_KEYS = ["class", "stream", "type", "levtype"]
+
+
+def _lookups(db, ctx):
+    """All three context-accepting lookups, as (name, callable) pairs."""
+    return [
+        ("shortname_to_param_id", lambda: db.shortname_to_param_id("tp", context=ctx)),
+        ("shortname_to_param_id_default", lambda: db.shortname_to_param_id("tp", context=ctx, default=True)),
+        ("shortname_to_param_id_candidates", lambda: db.shortname_to_param_id_candidates("tp", context=ctx)),
+        ("shortname_to_longname", lambda: db.shortname_to_longname("tp", context=ctx)),
+        ("shortname_to_longname_default", lambda: db.shortname_to_longname("tp", context=ctx, default=True)),
+    ]
+
+
+@_needs_lib
+@pytest.mark.parametrize("missing", _REQUIRED_KEYS)
+def test_context_missing_key_raises(db, missing):
+    ctx = {k: v for k, v in _FULL_CTX.items() if k != missing}
+    for name, call in _lookups(db, ctx):
+        with pytest.raises(ValueError, match=missing):
+            call()
+
+
+@_needs_lib
+@pytest.mark.parametrize("empty_key", _REQUIRED_KEYS)
+@pytest.mark.parametrize("empty_value", ["", "   ", "\t\n", None, [], (), {}, set()])
+def test_context_empty_value_raises(db, empty_key, empty_value):
+    ctx = {**_FULL_CTX, empty_key: empty_value}
+    for name, call in _lookups(db, ctx):
+        with pytest.raises(ValueError, match=empty_key):
+            call()
+
+
+@_needs_lib
+@pytest.mark.parametrize("key", _REQUIRED_KEYS)
+@pytest.mark.parametrize("empty_value", ["", "  ", None, []])
+def test_context_empty_alias_overrides_full_key(db, key, empty_value):
+    """``<key>_`` normalises to ``<key>`` and overwrites it, as in expansion.
+
+    A full context plus an empty trailing-underscore alias must be rejected
+    with ValueError (not pass validation and then fail with KeyError).
+    """
+    ctx = {**_FULL_CTX, f"{key}_": empty_value}
+    for name, call in _lookups(db, ctx):
+        with pytest.raises(ValueError, match=key):
+            call()
+
+
+@_needs_lib
+def test_context_alias_overrides_with_non_empty_value(db):
+    """A non-empty alias after the plain key wins and is validated/resolved."""
+    ctx = {**_FULL_CTX, "class": "od", "class_": "ai"}
+    assert db.shortname_to_param_id("tp", context=ctx) == 228228
+    ctx = {**_FULL_CTX, "class": "ai", "class_": "od"}
+    assert db.shortname_to_param_id("tp", context=ctx) == 228
+
+
+@_needs_lib
+def test_context_empty_dict_raises(db):
+    for name, call in _lookups(db, {}):
+        with pytest.raises(ValueError) as exc:
+            call()
+        msg = str(exc.value)
+        assert all(k in msg for k in _REQUIRED_KEYS)
+        assert "Omit context" in msg
+
+
+@_needs_lib
+def test_context_partial_raises_for_other_shortnames(db):
+    """Validation is independent of the shortname's ambiguity."""
+    with pytest.raises(ValueError):
+        db.shortname_to_param_id("msl", context={"class": "od"})
 
 
 @_needs_lib
@@ -831,8 +928,10 @@ def test_context_and_filter_combined(db):
 def test_candidate_context_roundtrips(db):
     """Each candidate's advertised context selects its own id.
 
-    ``{}`` (default) and any non-empty context must round-trip through
-    ``context=``; a ``None`` context means no MARS context can select it, so
+    Any advertised (non-``None``) context must round-trip through
+    ``context=``, so it has to carry all of class/stream/type/levtype (an
+    empty ``{}`` is rejected by the lookups with ``ValueError``). A ``None``
+    context means no MARS context can select it, so
     it is validated via its hard-filter selector instead. A ``None``
     hard-filter selector means no hard filter uniquely identifies the
     candidate, so that candidate is skipped (nothing to round-trip).
@@ -849,16 +948,19 @@ def test_candidate_context_roundtrips(db):
 
 
 @_needs_lib
-def test_empty_context_resolves_default_but_bare_raises(db):
-    """context={} resolves the canonical id; no context stays ambiguous."""
+def test_empty_context_raises_but_bare_context_unchanged(db):
+    """context={} is rejected; no context (None) stays ambiguous as before."""
     from pymetkit.paramdb import AmbiguousParamError
 
-    # explicit empty context -> canonical/default via C++ expand
-    assert db.shortname_to_param_id("sst", context={}) == 34
-    assert db.shortname_to_param_id("tp", context={}) == 228
+    with pytest.raises(ValueError):
+        db.shortname_to_param_id("sst", context={})
+    with pytest.raises(ValueError):
+        db.shortname_to_param_id("tp", context={})
     # no context argument -> still ambiguous
     with pytest.raises(AmbiguousParamError):
         db.shortname_to_param_id("sst")
+    assert db.shortname_to_param_id("tp", default=True) == 228
+    assert {c.param_id for c in db.shortname_to_param_id_candidates("tp")} == {228, 228228}
 
 
 @_needs_lib
