@@ -477,8 +477,8 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     const auto nside              = static_cast<long>(grid->Nside());
                     const auto orderingConvention = grid->order();
-                    const auto longitudeOfFirstGridPointInDegrees =
-                        std::get<eckit::geo::PointLonLat>(grid->first_point()).lon();
+                    // of the first ring, whatever the ordering (first_point is in the ordering)
+                    const auto longitudeOfFirstGridPointInDegrees = grid->longitudes(0).front();
 
                     // Encoding
                     set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
