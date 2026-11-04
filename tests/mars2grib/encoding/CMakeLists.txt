@@ -19,6 +19,7 @@ foreach( _src
         018_mc_cams_emission_sectors.cc
         019_enfo_ensemble_member_products.cc
         020_severe_weather_probability.cc
+        021_temperature_anomaly.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 
