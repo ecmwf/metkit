@@ -30,3 +30,7 @@ cxx.workspace = true
 
 [build-dependencies]
 bindman-utils.workspace = true
+
+[[example]]
+name = "codes"
+required-features = ["grib"]

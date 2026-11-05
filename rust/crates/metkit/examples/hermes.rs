@@ -16,8 +16,10 @@ fn retrieve(request: &MarsRequest<Expanded>, database: &eckit::Config) -> metkit
 // [end hermes]
 
 fn main() -> metkit::Result<()> {
+    // [init]
     eckit::init();
     metkit::initialize(&[("client", "metkit-rust-example"), ("version", "0.1")]);
+    // [end init]
 
     let Some(config_path) = std::env::args().nth(1) else {
         println!("usage: hermes <database.yaml>");

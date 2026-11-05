@@ -9,9 +9,7 @@ Low-level Rust bindings to ECMWF's [metkit](https://github.com/ecmwf/metkit) C++
 library.
 
 This crate provides raw FFI bindings using [cxx](https://cxx.rs/). For a safe
-API, use the higher-level [`metkit`](https://crates.io/crates/metkit) crate. The
-design of both crates is described in the Rust interface section of the metkit
-documentation (`docs/rust` in the repository).
+API, use the higher-level [`metkit`](https://crates.io/crates/metkit) crate.
 
 ## Cargo build features
 

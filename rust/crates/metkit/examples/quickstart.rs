@@ -1,5 +1,6 @@
 use metkit::{Expanded, MarsRequest};
 
+// [main]
 fn main() -> metkit::Result<()> {
     eckit::init();
 
@@ -14,3 +15,4 @@ fn main() -> metkit::Result<()> {
     println!("{}", parsed.get("param")?);
     Ok(())
 }
+// [end main]

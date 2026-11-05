@@ -1,41 +1,28 @@
 .. _Rust_Introduction:
 
-Rust interface
+Rust Interface
 ==============
 
 :Version: |version|
 
-Metkit ships with a Rust interface. It lives in the ``rust/`` directory of the
-metkit repository, is built with Cargo, and calls the same C++ library that
-:ref:`pymetkit <PyMetkit_Introduction>` and the :ref:`C API <Metkit_C_API>`
-wrap.
+The Rust interface lives in the ``rust/`` directory of the metkit repository
+and calls the metkit C++ library. This chapter is for developers writing
+applications against the crates.
 
-The interface is a Cargo workspace with two crates:
+``metkit`` is the crate applications depend on; it gives the C++ library a
+Rust API, with a ``MarsRequest`` type that records whether the MARS language
+has expanded it and a ``metkit::Error`` enum to match on. ``metkit-sys``
+builds or links the C++ library underneath it.
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
+.. note::
 
-   * - Crate
-     - Purpose
-   * - ``metkit``
-     - The high-level crate. A safe Rust API: ``Result`` instead of
-       exceptions, iterators, and a type parameter on ``MarsRequest`` that
-       records whether the MARS language has expanded it. This is the crate
-       applications depend on.
-   * - ``metkit-sys``
-     - The low-level crate. It builds (or locates) the C++ library, declares
-       the `cxx <https://cxx.rs>`__ bridge, and generates the error type from
-       metkit's exception headers. Bindings for packages built on metkit, such
-       as FDB, depend on it to pass requests across their own bridges.
+   Use ``metkit`` in your code. ``metkit-sys`` goes into a ``Cargo.toml``
+   only to switch on a build feature of the C++ library (:doc:`building`);
+   calling it directly means handling ``cxx`` pointers and raw exception
+   strings yourself.
 
-Both crates carry the version of the metkit release they wrap, and both depend
-on the ``eckit-sys`` and ``eccodes-sys`` crates for the libraries underneath.
-The design they share with the other ECMWF Rust interfaces, and the parts of it
-that are specific to metkit, are described in :doc:`approach`.
-
-What the Rust interface covers
-------------------------------
+Coverage
+--------
 
 .. list-table::
    :widths: 32 33 35
@@ -47,8 +34,7 @@ What the Rust interface covers
    * - ``metkit::MarsRequest<Raw>``,
        ``metkit::MarsRequest<Expanded>``
      - ``metkit::mars::MarsRequest``
-     - Build, read, expand, encode and decode a request. The type parameter
-       says whether the MARS language has expanded it.
+     - Build, read, expand, encode and decode a request
    * - ``metkit::parse``, ``metkit::tokenize``, ``metkit::ParsedRequests``
      - ``MarsRequest::parse``, ``MarsParser``
      - Parse MARS text holding one or more requests, with or without
@@ -58,58 +44,48 @@ What the Rust interface covers
      - Count the fields a request describes and tick them off as they arrive
    * - ``metkit::CodesHandle``
      - ``metkit::codes::CodesHandle``
-     - Typed access to the keys of one GRIB message; behind the ``grib``
-       Cargo feature, on by default
+     - Typed access to the keys of one GRIB message; feature ``grib``, on by
+       default
    * - ``metkit::MarsRequestHandle``
      - ``metkit::mars::MarsRequestHandle``
      - An ``eckit::DataHandle`` that retrieves a request over the MARS client
        protocol
-   * - ``metkit::initialize``, ``metkit::environment_request``
+   * - ``metkit::initialize``,
+       ``metkit::environment::environment_request``
      - ``metkit::mars::RequestEnvironment``
      - The client metadata sent with every protocol request
    * - ``metkit::Error``
-     - ``metkit::codes::CodesException`` and the ``eckit::Exception`` classes
-     - One enum variant per exception class
+     - ``metkit::codes::CodesException``, ``CodesWrongLength`` and the
+       ``eckit::Exception`` classes
+     - One variant per metkit exception class, ``Eckit`` for eckit's and
+       ``Other``
 
-The ``MarsRequest`` operations ``split``, ``merge``, ``subset``, ``extract``
-and ``filter`` are not bridged, nor are the ``requests`` and
-``vacantRequests`` queries of ``HyperCube``. ``metkit-sys`` also exposes the
-``sinkKeywords`` and ``isData`` queries of ``metkit::mars::MarsLanguage``
-without a high-level counterpart.
-
-Quick start
+Quick Start
 -----------
 
-Add the high-level crate to ``Cargo.toml``:
+Add the crates:
 
-.. code-block:: toml
+.. code-block:: bash
 
-   [dependencies]
-   metkit = "1.22"
-   eckit = "2.5"
+   cargo add metkit eckit
 
-The crate version is the version of the metkit release it wraps. By default
-the build compiles eckit, ecCodes and metkit from source as part of
-``cargo build``, so a C++17 compiler, CMake and git are required. To link
-libraries that are already installed, see :doc:`building`. The ``eckit`` crate
-is needed for ``eckit::init``, and for the data handles, messages and streams
-that metkit's API takes and returns.
+The crate version is the version of the metkit release it wraps. ``eckit``
+provides ``eckit::init`` and the data handles, messages and streams that the
+metkit API takes and returns. :doc:`building` lists the requirements and the
+alternative of linking installed libraries.
 
-.. literalinclude:: examples/quickstart.rs
+.. literalinclude:: ../../rust/crates/metkit/examples/quickstart.rs
    :language: rust
+   :start-after: // [main]
+   :end-before: // [end main]
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-   :hidden:
+   :caption: Contents
 
    approach
    usage
    building
 
-The per-item API reference is generated by rustdoc from the crate sources:
-
-.. code-block:: bash
-
-   cd rust
-   cargo doc -p metkit -p metkit-sys --no-deps --open
+The per-item API reference is on docs.rs: `metkit <https://docs.rs/metkit>`_
+and `metkit-sys <https://docs.rs/metkit-sys>`_.

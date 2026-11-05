@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(edition, 2);
 
     handle.set("shortName", "t")?;
-    handle.set("date", 20240101_i64)?;
+    handle.set("level", 500_i64)?;
 
     let values: Vec<f64> = handle.get("values")?;
     assert_eq!(values.len(), handle.value_count("values")?);

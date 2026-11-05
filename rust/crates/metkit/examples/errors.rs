@@ -11,7 +11,7 @@ fn main() {
         Err(Error::Eckit(eckit::Error::UserError(msg))) => {
             println!("rejected by the MARS language: {msg}");
         }
-        Err(Error::Metkit(metkit_sys::Error::CodesException(msg))) => {
+        Err(Error::CodesException(msg)) => {
             println!("ecCodes failed: {msg}");
         }
         Err(other) => println!("{other}"),
