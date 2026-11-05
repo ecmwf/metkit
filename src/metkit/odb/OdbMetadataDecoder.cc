@@ -12,11 +12,14 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <map>
+#include <set>
 #include <sstream>
 
-#include "eckit/config/Resource.h"
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/config/Resource.h"
 #include "eckit/config/YAMLConfiguration.h"
+#include "eckit/exception/Exceptions.h"
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
@@ -27,9 +30,10 @@
 
 namespace {
 
+/// A set of conditions that must all hold for a column to be applied.
+/// Each condition maps a MARS keyword to the set of accepted (lower-case) values.
 struct ConditionalRule {
-    std::string keyword;
-    std::string value;
+    std::map<std::string, std::set<std::string>> conditions;
 };
 
 class OdbColumnNameMapping {
@@ -59,22 +63,61 @@ private:  // methods
         static eckit::PathName configPath(
             eckit::Resource<eckit::PathName>("odbMarsRequestMapping", "~metkit/share/metkit/odb/marsrequest.yaml"));
         eckit::YAMLConfiguration config(configPath);
-        for (const auto& key : config.keys()) {
-            if (config.isSubConfiguration(key) && eckit::StringTools::endsWith(key, "_conditional")) {
-                std::string keyword = eckit::StringTools::lower(
-                    key.substr(0, key.size() - std::string("_conditional").size()));
-                eckit::LocalConfiguration keywordSub = config.getSubConfiguration(key);
-                for (const auto& keywordVal : keywordSub.keys()) {
-                    eckit::LocalConfiguration colsSub = keywordSub.getSubConfiguration(keywordVal);
-                    for (const auto& marsKey : colsSub.keys()) {
-                        std::string odbCol = colsSub.getString(marsKey);
-                        mapping_[odbCol] = eckit::StringTools::lower(marsKey);
-                        conditional_[odbCol] = ConditionalRule{keyword, eckit::StringTools::lower(keywordVal)};
+
+        for (const auto& rule : config.getSubConfigurations()) {
+            const std::string name = rule.getString("name", "<unnamed>");
+
+            if (!rule.has("request") || !rule.isSubConfiguration("request")) {
+                std::ostringstream msg;
+                msg << "OdbColumnNameMapping: rule '" << name << "' in " << configPath << " must have a 'request' map";
+                throw eckit::BadValue(msg.str(), Here());
+            }
+
+            bool isDefault = false;
+            ConditionalRule conditional;
+
+            if (!rule.has("matcher")) {
+                isDefault = true;
+            }
+            else if (rule.isString("matcher")) {
+                const std::string m = eckit::StringTools::lower(rule.getString("matcher"));
+                if (m != "default") {
+                    std::ostringstream msg;
+                    msg << "OdbColumnNameMapping: rule '" << name << "' has unknown matcher '" << m
+                        << "' (expected 'default' or a map)";
+                    throw eckit::BadValue(msg.str(), Here());
+                }
+                isDefault = true;
+            }
+            else if (rule.isSubConfiguration("matcher")) {
+                const eckit::LocalConfiguration matcher = rule.getSubConfiguration("matcher");
+                for (const auto& keyword : matcher.keys()) {
+                    std::vector<std::string> values = matcher.isStringList(keyword)
+                                                          ? matcher.getStringVector(keyword)
+                                                          : std::vector<std::string>{matcher.getString(keyword)};
+                    auto& accepted                  = conditional.conditions[eckit::StringTools::lower(keyword)];
+                    for (const auto& v : values) {
+                        accepted.insert(eckit::StringTools::lower(v));
                     }
                 }
+                isDefault = conditional.conditions.empty();
             }
-            else if (!config.isSubConfiguration(key)) {
-                mapping_[config.getString(key)] = eckit::StringTools::lower(key);
+            else {
+                std::ostringstream msg;
+                msg << "OdbColumnNameMapping: rule '" << name << "' has an invalid matcher";
+                throw eckit::BadValue(msg.str(), Here());
+            }
+
+            const eckit::LocalConfiguration request = rule.getSubConfiguration("request");
+            for (const auto& marsKey : request.keys()) {
+                const std::string odbCol = request.getString(marsKey);
+                mapping_[odbCol]         = eckit::StringTools::lower(marsKey);
+                if (isDefault) {
+                    conditional_.erase(odbCol);
+                }
+                else {
+                    conditional_[odbCol] = conditional;
+                }
             }
         }
 
@@ -142,24 +185,51 @@ OdbMetadataDecoder::OdbMetadataDecoder(eckit::message::MetadataGatherer& gather,
     language_(verb), gather_(gather), options_(options) {}
 
 template <typename T>
-void OdbMetadataDecoder::visitOrDefer(const std::string& columnName, const std::set<T>& vals) {
+bool OdbMetadataDecoder::deferIfConditional(const std::string& columnName, const std::set<T>& vals) {
     ConditionalRule rule;
-    if (OdbColumnNameMapping::instance().conditionalRule(columnName, rule)) {
-        deferred_[columnName] = [this, columnName, vals, rule]() {
-            auto it = keywordValues_.find(rule.keyword);
-            if (it != keywordValues_.end() && it->second.count(rule.value)) {
-                visit(columnName, vals, language_);
-            }
-        };
-        return;
+    if (!OdbColumnNameMapping::instance().conditionalRule(columnName, rule)) {
+        return false;
     }
-    visit(columnName, vals, language_);
+
+    // Conditional columns are not inspected at all (no type lookup, no value mapping, no tidy)
+    // until all the conditions of their rule have been verified in finalize().
+    deferred_[columnName] = [this, columnName, vals, rule]() {
+        for (const auto& [keyword, accepted] : rule.conditions) {
+            auto it = keywordValues_.find(keyword);
+            if (it == keywordValues_.end()) {
+                return;
+            }
+            const auto& seen = it->second;
+            if (std::none_of(seen.begin(), seen.end(), [&](const std::string& v) { return accepted.count(v); })) {
+                return;
+            }
+        }
+        process(columnName, vals);
+    };
+    return true;
 }
 
 void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<long>& vals) {
     LOG_DEBUG_LIB(LibMetkit) << "OdbMetadataDecoder::operator() columnName: " << columnName << " vals: " << vals
                              << std::endl;
+    if (!deferIfConditional(columnName, vals)) {
+        process(columnName, vals);
+    }
+}
 
+void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<double>& vals) {
+    if (!deferIfConditional(columnName, vals)) {
+        process(columnName, vals);
+    }
+}
+
+void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<std::string>& vals) {
+    if (!deferIfConditional(columnName, vals)) {
+        process(columnName, vals);
+    }
+}
+
+void OdbMetadataDecoder::process(const std::string& columnName, const std::set<long>& vals) {
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
     const std::string keyword = mapitr->second;
@@ -170,18 +240,18 @@ void OdbMetadataDecoder::operator()(const std::string& columnName, const std::se
         for (const auto& v : mapped) {
             keywordValues_[keyword].insert(eckit::StringTools::lower(t->tidy(v)));
         }
-        visitOrDefer(columnName, mapped);
+        visit(columnName, mapped, language_);
     }
     else {
         for (const auto& v : vals) {
             std::string stringVal = eckit::Translator<long, std::string>()(v);
             keywordValues_[keyword].insert(eckit::StringTools::lower(t->tidy(stringVal)));
         }
-        visitOrDefer(columnName, vals);
+        visit(columnName, vals, language_);
     }
 }
 
-void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<double>& vals) {
+void OdbMetadataDecoder::process(const std::string& columnName, const std::set<double>& vals) {
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
     const std::string keyword = mapitr->second;
@@ -190,10 +260,10 @@ void OdbMetadataDecoder::operator()(const std::string& columnName, const std::se
         std::string stringVal = eckit::Translator<double, std::string>()(v);
         keywordValues_[keyword].insert(eckit::StringTools::lower(t->tidy(stringVal)));
     }
-    visitOrDefer(columnName, vals);
+    visit(columnName, vals, language_);
 }
 
-void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<std::string>& vals) {
+void OdbMetadataDecoder::process(const std::string& columnName, const std::set<std::string>& vals) {
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
     const std::string keyword = mapitr->second;
@@ -201,7 +271,7 @@ void OdbMetadataDecoder::operator()(const std::string& columnName, const std::se
     for (const auto& v : vals) {
         keywordValues_[keyword].insert(eckit::StringTools::lower(t->tidy(v)));
     }
-    visitOrDefer(columnName, vals);
+    visit(columnName, vals, language_);
 }
 
 void OdbMetadataDecoder::finalize() {

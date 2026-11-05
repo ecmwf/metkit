@@ -55,8 +55,14 @@ private:  // methods
     template <typename T>
     void visit(const std::string& columnName, const std::set<T>& vals, const metkit::mars::MarsLanguage& language);
 
+    /// If the column belongs to a conditional rule, store it for evaluation in finalize() and return true.
     template <typename T>
-    void visitOrDefer(const std::string& columnName, const std::set<T>& vals);
+    bool deferIfConditional(const std::string& columnName, const std::set<T>& vals);
+
+    /// Decode the values of a column (type lookup, value mapping, tidy) and pass them to the gatherer.
+    void process(const std::string& columnName, const std::set<long>& vals);
+    void process(const std::string& columnName, const std::set<double>& vals);
+    void process(const std::string& columnName, const std::set<std::string>& vals);
 
 private:  // members
 
@@ -65,7 +71,7 @@ private:  // members
     eckit::message::GetMetadataOptions options_;
 
     std::map<std::string, std::set<std::string>> keywordValues_;  ///< Decoded MARS values seen per keyword
-    std::map<std::string, std::function<void()>> deferred_;  ///< Pending conditional columns
+    std::map<std::string, std::function<void()>> deferred_;       ///< Pending conditional columns
 };
 
 
