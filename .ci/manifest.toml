@@ -18,18 +18,6 @@ compiler-inputs = ["cxx-compiler"]
 allow-stale-deps = true
 git-read = ["ecmwf/bindman", "ecmwf/rust-wrappers-playground"]
 
-[[deps]]
-repo = "ecmwf/ecbuild"
-package = "ecbuild"
-ref = "develop"
-compiler-inputs = []
-
-[[deps]]
-repo = "ecmwf/stack-dependencies"
-package = "netcdf"
-ref = "master"
-compiler-inputs = ["cxx-compiler"]
-
 # GRIB2MARS and MARS2GRIB need eccodes[eckit-geo], and mir needs them.
 [[deps]]
 repo = "ecmwf/eccodes"
@@ -37,12 +25,6 @@ package = "eccodes"
 ref = "develop"
 compiler-inputs = ["cxx-compiler"]
 options = "eckit-geo"
-
-[[deps]]
-repo = "ecmwf/eckit"
-package = "eckit"
-ref = "develop"
-compiler-inputs = ["cxx-compiler"]
 
 [packages.pymetkit]
 compiler-inputs = ["cxx-compiler"]
