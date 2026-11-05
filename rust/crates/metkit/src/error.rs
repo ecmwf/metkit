@@ -1,73 +1,62 @@
 //! Error types for metkit operations.
 //!
-//! Wraps both the auto-generated [`metkit_sys::Error`] (metkit's own
-//! `metkit::codes::CodesException` family) and the [`eckit::Error`]
-//! exceptions that surface through the same bridge. A bare `cxx::Exception`
-//! whose message matches neither namespace is preserved as `Other`.
+//! Metkit's own exception classes are variants of [`Error`]; eckit
+//! exceptions that surface through the same bridge are nested as
+//! [`Error::Eckit`]. A `cxx::Exception` whose message matches neither
+//! namespace is preserved as [`Error::Other`].
 //!
 //! # Example
 //!
-//! Pattern-match on the typed variants to recover from specific failures
-//! (and route everything else to a fallback):
-//!
 //! ```no_run
 //! use metkit::{CodesHandle, Error, Result};
-//! use metkit_sys::Error as MetkitError;
-//! use eckit::Error as EckitError;
 //!
 //! fn process_grib(path: &str, key: &str) -> Result<String> {
-//!     let h = CodesHandle::from_file(path)?;   // may throw eckit::FileError
-//!     let value: String = h.get(key)?;          // may throw metkit::CodesException
+//!     let h = CodesHandle::from_file(path)?;
+//!     let value: String = h.get(key)?;
 //!     Ok(value)
 //! }
 //!
 //! match process_grib("/tmp/foo.grib", "shortName") {
 //!     Ok(v) => println!("shortName = {v}"),
-//!
-//!     // Typed metkit error — recover or report with metkit-specific context
-//!     Err(Error::Metkit(MetkitError::CodesException(msg))) => {
-//!         eprintln!("ecCodes rejected the key: {msg}");
-//!     }
-//!     Err(Error::Metkit(MetkitError::CodesWrongLength(msg))) => {
-//!         eprintln!("buffer length mismatch: {msg}");
-//!     }
-//!
-//!     // Typed eckit error — fall back, retry, or wrap
-//!     Err(Error::Eckit(EckitError::FileError(msg))) => {
-//!         eprintln!("file error: {msg} (will retry with default sample)");
-//!     }
-//!     Err(Error::Eckit(EckitError::UserError(msg))) => {
-//!         eprintln!("bad input: {msg}");
-//!     }
-//!
-//!     // Untyped fallback
-//!     Err(other) => eprintln!("unhandled: {other}"),
+//!     Err(Error::CodesException(msg)) => eprintln!("ecCodes rejected the key: {msg}"),
+//!     Err(Error::Eckit(eckit::Error::CantOpenFile(msg))) => eprintln!("cannot open: {msg}"),
+//!     Err(other) => eprintln!("{other}"),
 //! }
 //! ```
 
-use eckit::Error as EckitError; // re-export of eckit_sys::Error
-use metkit_sys::Error as MetkitError;
-
-/// Combined error type for metkit operations.
+/// Error type for metkit operations.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// Typed metkit exception (e.g. `CodesException`, `CodesWrongLength`).
-    #[error(transparent)]
-    Metkit(#[from] MetkitError),
+    /// `metkit::CodesException`
+    #[error("metkit::CodesException: {0}")]
+    CodesException(String),
+    /// `metkit::CodesWrongLength`
+    #[error("metkit::CodesWrongLength: {0}")]
+    CodesWrongLength(String),
     /// Typed eckit exception (e.g. `UserError`, `FileError`, `BadParameter`).
     #[error(transparent)]
-    Eckit(#[from] EckitError),
+    Eckit(#[from] eckit::Error),
     /// Exception from neither namespace; raw message preserved.
     #[error("{0}")]
     Other(String),
 }
 
+impl From<metkit_sys::Error> for Error {
+    fn from(e: metkit_sys::Error) -> Self {
+        match e {
+            metkit_sys::Error::CodesException(msg) => Self::CodesException(msg),
+            metkit_sys::Error::CodesWrongLength(msg) => Self::CodesWrongLength(msg),
+            metkit_sys::Error::Other(msg) => Self::Other(msg),
+        }
+    }
+}
+
 impl From<cxx::Exception> for Error {
     fn from(e: cxx::Exception) -> Self {
-        if let Some(metkit) = MetkitError::try_from_cxx(&e) {
-            return Self::Metkit(metkit);
+        if let Some(metkit) = metkit_sys::Error::try_from_cxx(&e) {
+            return Self::from(metkit);
         }
-        if let Some(eckit) = EckitError::try_from_cxx(&e) {
+        if let Some(eckit) = eckit::Error::try_from_cxx(&e) {
             return Self::Eckit(eckit);
         }
         Self::Other(e.what().to_string())
