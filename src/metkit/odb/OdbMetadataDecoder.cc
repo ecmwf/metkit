@@ -226,8 +226,8 @@ void OdbMetadataDecoder::operator()(const std::string& columnName, const std::se
 void OdbMetadataDecoder::process(const std::string& columnName, const std::set<long>& vals) {
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
-    const std::string keyword = mapitr->second;
-    metkit::mars::Type* t     = language_.type(keyword);
+    const std::string keyword   = mapitr->second;
+    const metkit::mars::Type* t = language_.type(keyword);
 
     std::set<std::string> mapped;
     if (metkit::odb::IdMapper::instance().alphanumeric(keyword, vals, mapped)) {
@@ -248,8 +248,8 @@ void OdbMetadataDecoder::process(const std::string& columnName, const std::set<l
 void OdbMetadataDecoder::process(const std::string& columnName, const std::set<double>& vals) {
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
-    const std::string keyword = mapitr->second;
-    metkit::mars::Type* t     = language_.type(keyword);
+    const std::string keyword   = mapitr->second;
+    const metkit::mars::Type* t = language_.type(keyword);
     for (const auto& v : vals) {
         std::string stringVal = eckit::Translator<double, std::string>()(v);
         keywordValues_[keyword].insert(eckit::StringTools::lower(t->tidy(stringVal)));
@@ -260,8 +260,8 @@ void OdbMetadataDecoder::process(const std::string& columnName, const std::set<d
 void OdbMetadataDecoder::process(const std::string& columnName, const std::set<std::string>& vals) {
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
-    const std::string keyword = mapitr->second;
-    metkit::mars::Type* t     = language_.type(keyword);
+    const std::string keyword   = mapitr->second;
+    const metkit::mars::Type* t = language_.type(keyword);
     for (const auto& v : vals) {
         keywordValues_[keyword].insert(eckit::StringTools::lower(t->tidy(v)));
     }
