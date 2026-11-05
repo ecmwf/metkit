@@ -480,7 +480,9 @@ _field: &_field
       - [ecmf-ifs]
       - [ecmf-aifs]
       - [ecmf-era5]
-      - [ecmf-seas]
+      - [ecmf-era5-land]
+      - [ecmf-seas5]
+      - [ecmf-seas6]
       - [edzw-icon]
       - [cosmo-cosmo]
       - [cmcc-sps]
@@ -755,6 +757,11 @@ _field: &_field
     - [momn, monthly minimum]
     - [momx, monthly maximum]
     - [mosd, monthly standard-deviation]
+    - [7dav, seven days average]
+    - [7dmn, seven days minimum]
+    - [7dmx, seven days maximum]
+    - [7dsd, seven days standard-deviation]
+    - [7dac, seven days accumulation]
     - [daac, daily accumulation]
     - [daav, daily average]
     - [damn, daily minimum]
@@ -1553,8 +1560,8 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-      - [so, second-order, second_order,second order]
-      - [av]
+      - [so, second-order, second_order, 'second order']
+      - [av, archived-value, archived_value]
       - [complex, co]
       - [simple, si]
       - [ccsds]
@@ -1709,6 +1716,8 @@ disseminate:
     category: sink
     flatten: false
     type: any
+
+  _clear_defaults: [date, time, step]
 
 ##############################################################
 
