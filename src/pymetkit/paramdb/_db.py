@@ -871,6 +871,8 @@ class ParamDB:
         ``"type_": ""`` is rejected. A value is non-empty if it is not ``None``,
         not a blank string and not an empty collection. Extra keys are allowed.
         """
+        from collections.abc import Collection
+
         normalised = {}
         for key, value in context.items():
             normalised[str(key).rstrip("_")] = value
@@ -880,7 +882,7 @@ class ParamDB:
                 continue
             if isinstance(value, str) and not value.strip():
                 continue
-            if isinstance(value, (list, tuple, set, frozenset, dict)) and not value:
+            if isinstance(value, Collection) and not value:
                 continue
             present[norm] = value
         missing = [k for k in _REQUIRED_CONTEXT_KEYS if k not in present]
