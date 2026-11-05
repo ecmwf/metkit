@@ -918,6 +918,20 @@ def test_context_partial_raises_for_other_shortnames(db):
 
 
 @_needs_lib
+@pytest.mark.parametrize("ctx", [{}, {"class": "od"}, _FULL_CTX])
+def test_unknown_shortname_raises_keyerror_before_context_validation(db, ctx):
+    """An unknown shortname raises KeyError even when the context is invalid."""
+    calls = [
+        lambda: db.shortname_to_param_id("bgs", context=ctx),
+        lambda: db.shortname_to_param_id_candidates("bgs", context=ctx),
+        lambda: db.shortname_to_longname("bgs", context=ctx),
+    ]
+    for call in calls:
+        with pytest.raises(KeyError, match="bgs"):
+            call()
+
+
+@_needs_lib
 def test_context_and_filter_combined(db):
     """context and hard filters compose to a single result."""
     ctx = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}
