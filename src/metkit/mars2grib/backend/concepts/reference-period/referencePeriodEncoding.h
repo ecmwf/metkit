@@ -40,13 +40,12 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
-#include "metkit/mars2grib/backend/deductions/numberOfAdditionalParametersForReferencePeriod.h"
-
-// Tables
-#include "metkit/mars2grib/backend/tables/timeUnits.h"
-#include "metkit/mars2grib/backend/tables/typeOfReferenceDataset.h"
-#include "metkit/mars2grib/backend/tables/typeOfRelationToReferenceDataset.h"
-#include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessingForTimeRangeForReferencePeriod.h"
+#include "metkit/mars2grib/backend/deductions/additionalParametersForReferencePeriod.h"
+#include "metkit/mars2grib/backend/deductions/modelClimateReferencePeriod.h"
+#include "metkit/mars2grib/backend/deductions/sampleSizeOfModelClimate.h"
+#include "metkit/mars2grib/backend/deductions/startOfReferencePeriod.h"
+#include "metkit/mars2grib/backend/deductions/typeOfReferenceDataset.h"
+#include "metkit/mars2grib/backend/deductions/typeOfRelationToReferenceDataset.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -66,94 +65,34 @@ constexpr bool referencePeriodApplicable() {
     return (Section == SecProductDefinitionSection) && (Stage == StageAllocate || Stage == StagePreset);
 }
 
-namespace detail {
-
-/// @brief One additional parameter of the reference period, as a GRIB2 scaled value.
-struct ReferencePeriodParameter {
-    long scaleFactor;
-    long scaledValue;
-};
-
-///
-/// @brief Split the MARS `quantile` of a SOT product into its two percentiles.
-///
-/// The MARS form is `<low>-<high>:<denominator>`, with denominator 100 * 10^k (e.g. `90-99:100`, `1-10:100`,
-/// `900-995:1000`). The percentile nearer to the median comes first (SOT90 = {90, 99}, SOT10 = {10, 1}, the order
-/// ecCodes uses to build `mars.quantile`, ECC-2000), and each value uses the smallest exact scale factor.
-///
-inline std::array<ReferencePeriodParameter, 2> sotPercentiles_or_throw(const std::string& quantile) {
-
-    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
-
-    const auto dash  = quantile.find('-');
-    const auto colon = quantile.find(':');
-    if (dash == std::string::npos || colon == std::string::npos || colon < dash) {
-        throw Mars2GribGenericException("Invalid SOT quantile `" + quantile + "`: expected `<low>-<high>:<den>`",
-                                        Here());
-    }
-
-    const long low         = std::stol(quantile.substr(0, dash));
-    const long high        = std::stol(quantile.substr(dash + 1, colon - dash - 1));
-    const long denominator = std::stol(quantile.substr(colon + 1));
-
-    long scale    = 0;
-    long expected = 100;
-    while (expected < denominator) {
-        expected *= 10;
-        ++scale;
-    }
-    if (expected != denominator || !(0 < low && low < high && high < denominator)) {
-        throw Mars2GribGenericException(
-            "Invalid SOT quantile `" + quantile + "`: expected 0 < low < high < denominator = 100 * 10^k", Here());
-    }
-
-    const auto scaled = [scale](long value) {
-        long factor = scale;
-        while (factor > 0 && value % 10 == 0) {
-            value /= 10;
-            --factor;
-        }
-        return ReferencePeriodParameter{factor, value};
-    };
-
-    if (2 * low >= denominator) {
-        return {scaled(low), scaled(high)};
-    }
-    return {scaled(high), scaled(low)};
-}
-
-}  // namespace detail
-
 ///
 /// @brief Execute the `referencePeriod` concept operation.
 ///
 /// StageAllocate:
-/// - `numberOfAdditionalParametersForReferencePeriod` (2 for SOT, else from the parameter dictionary or 0)
-/// - for SOT, the two percentiles as additional parameters. They are set here rather than in StagePreset because
-///   ecCodes builds `mars.quantile` from them as soon as the local section (`marsStream`) is set, which happens
-///   before the preset of the Product Definition Section.
-/// - the reference-period time ranges of the model climate, when the parameter dictionary provides them
-///   (`numberOfReforecastYearsInModelClimate` in years, `numberOfDaysInClimateSamplingWindow` in days)
+/// - `numberOfAdditionalParametersForReferencePeriod` (2 for SOT, else 0)
+/// - `numberOfReferencePeriodTimeRanges` (2)
 ///
 /// StagePreset:
-/// - EFI/SOT (`efi`, `efic`, `sot`): `typeOfReferenceDataset` = `TypeOfReferenceDataset::Reforecast` (code table
-///   4.100), `typeOfRelationToReferenceDataset` = `TypeOfRelationToReferenceDataset::ExtremeForecastIndex` (EFI) or
-///   `TypeOfRelationToReferenceDataset::ShiftOfTails` (SOT) (code table 4.101). For the other products the relation
-///   follows from the paramId (ecCodes).
-/// - `sampleSizeOfReferencePeriod` from `sampleSizeOfModelClimate`, when given
-///
-/// TODO: the start of the reference period (`yearOfStartOfReferencePeriod`, ...) is not encoded yet: it is not part
-///       of the input metadata.
+/// - `typeOfReferenceDataset` (code table 4.100) and `typeOfRelationToReferenceDataset` (code table 4.101), see
+///   `resolve_TypeOfReferenceDataset_or_throw` and `resolve_TypeOfRelationToReferenceDataset_or_throw`
+/// - SOT only: the two percentiles as additional parameters (`scaleFactorOfAdditionalParameterForReferencePeriod`,
+///   `scaledValueOfAdditionalParameterForReferencePeriod`), see
+///   `resolve_AdditionalParametersForReferencePeriod_or_throw`
+/// - the start of the reference period (`yearOfStartOfReferencePeriod`, `monthOfStartOfReferencePeriod`,
+///   `dayOfStartOfReferencePeriod`, `hourOfStartOfReferencePeriod`, `minuteOfStartOfReferencePeriod`,
+///   `secondOfStartOfReferencePeriod`), see `resolve_StartOfReferencePeriod_or_throw`
+/// - `sampleSizeOfReferencePeriod` from the mandatory `sampleSizeOfModelClimate`, see
+///   `resolve_SampleSizeOfModelClimate_or_throw`
+/// - the model-climate time ranges (`typeOfStatisticalProcessingForTimeRangeForReferencePeriod`,
+///   `indicatorOfUnitForTimeRangeForReferencePeriod`, `lengthOfTimeRangeForReferencePeriod`), outer (years) first
+///   and inner (days) second, see `resolve_ModelClimateReferencePeriod_or_throw`
 ///
 template <std::size_t Stage, std::size_t Section, ReferencePeriodType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
-    using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
-    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     if constexpr (referencePeriodApplicable<Stage, Section, Variant>()) {
 
@@ -161,61 +100,19 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
 
             MARS2GRIB_LOG_CONCEPT(referencePeriod);
 
-            const auto marsType = get_or_throw<std::string>(mars, "type");
 
             // =============================================================
             // StageAllocate
             // =============================================================
             if constexpr (Stage == StageAllocate) {
 
-                const long numAdditionalParametersForReferencePeriod =
-                    deductions::resolve_numberOfAdditionalParametersForReferencePeriod_or_throw(mars, par, opt);
+                constexpr long numberOfAdditionalParametersForReferencePeriod =
+                    Variant == ReferencePeriodType::Quantile ? 2 : 0;
+                constexpr long numberOfReferencePeriodTimeRanges = 2;
+
                 set_or_throw<long>(out, "numberOfAdditionalParametersForReferencePeriod",
-                                   numAdditionalParametersForReferencePeriod);
-
-                if (marsType == "sot") {
-                    const auto quantile    = get_or_throw<std::string>(mars, "quantile");
-                    const auto percentiles = detail::sotPercentiles_or_throw(quantile);
-
-                    // GRIB1 local definition 19 carries the outer percentile as `efiOrder`
-                    const auto efiOrder = get_opt<long>(par, "efiOrder");
-                    if (efiOrder && percentiles[1].scaleFactor == 0 && *efiOrder != percentiles[1].scaledValue) {
-                        throw Mars2GribGenericException("SOT `efiOrder` (" + std::to_string(*efiOrder) +
-                                                            ") does not match MARS `quantile` (" + quantile + ")",
-                                                        Here());
-                    }
-
-                    set_or_throw<std::vector<long>>(out, "scaleFactorOfAdditionalParameterForReferencePeriod",
-                                                    {percentiles[0].scaleFactor, percentiles[1].scaleFactor});
-                    set_or_throw<std::vector<long>>(out, "scaledValueOfAdditionalParameterForReferencePeriod",
-                                                    {percentiles[0].scaledValue, percentiles[1].scaledValue});
-                }
-
-                // Model climate: N reforecast years, sampled in a window of D days (code table 4.4)
-                const auto years                       = get_opt<long>(par, "numberOfReforecastYearsInModelClimate");
-                const auto days                        = get_opt<long>(par, "numberOfDaysInClimateSamplingWindow");
-                long numberOfReferencePeriodTimeRanges = 1;  // template default
-                if (years) {
-                    std::vector<long> units{static_cast<long>(tables::TimeUnit::Year)};
-                    std::vector<long> lengths{*years};
-                    if (days) {
-                        units.push_back(static_cast<long>(tables::TimeUnit::Day));
-                        lengths.push_back(*days);
-                    }
-                    numberOfReferencePeriodTimeRanges = static_cast<long>(units.size());
-                    set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", numberOfReferencePeriodTimeRanges);
-                    set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRangeForReferencePeriod", units);
-                    set_or_throw<std::vector<long>>(out, "lengthOfTimeRangeForReferencePeriod", lengths);
-                }
-
-                if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
-                    // Code table 4.102: Model climate, for every time range of the reference period
-                    set_or_throw<std::vector<long>>(
-                        out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
-                        std::vector<long>(
-                            numberOfReferencePeriodTimeRanges,
-                            static_cast<long>(tables::TypeOfStatisticalProcessingForReferencePeriod::ModelClimate)));
-                }
+                                   numberOfAdditionalParametersForReferencePeriod);
+                set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", numberOfReferencePeriodTimeRanges);
             }
 
             // =============================================================
@@ -223,21 +120,49 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
             // =============================================================
             if constexpr (Stage == StagePreset) {
 
-                if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
-                    // Code table 4.100: Reforecast (Hindcast)
-                    set_or_throw<long>(out, "typeOfReferenceDataset",
-                                       static_cast<long>(tables::TypeOfReferenceDataset::Reforecast));
-                    // Code table 4.101: Extreme Forecast Index (EFI) or Shift of Tails (SOT)
-                    set_or_throw<long>(
-                        out, "typeOfRelationToReferenceDataset",
-                        static_cast<long>(marsType == "sot"
-                                              ? tables::TypeOfRelationToReferenceDataset::ShiftOfTails
-                                              : tables::TypeOfRelationToReferenceDataset::ExtremeForecastIndex));
+                const auto typeOfReferenceDataset = deductions::resolve_TypeOfReferenceDataset_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "typeOfReferenceDataset", static_cast<long>(typeOfReferenceDataset));
+
+                const auto typeOfRelationToReferenceDataset =
+                    deductions::resolve_TypeOfRelationToReferenceDataset_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "typeOfRelationToReferenceDataset",
+                                   static_cast<long>(typeOfRelationToReferenceDataset));
+
+                if constexpr (Variant == ReferencePeriodType::Quantile) {
+                    const auto additionalParameters =
+                        deductions::resolve_AdditionalParametersForReferencePeriod_or_throw(mars, par, opt);
+
+                    set_or_throw<std::vector<long>>(
+                        out, "scaleFactorOfAdditionalParameterForReferencePeriod",
+                        {additionalParameters.first.scaleFactor, additionalParameters.second.scaleFactor});
+                    set_or_throw<std::vector<long>>(
+                        out, "scaledValueOfAdditionalParameterForReferencePeriod",
+                        {additionalParameters.first.scaledValue, additionalParameters.second.scaledValue});
                 }
 
-                if (const auto sampleSize = get_opt<long>(par, "sampleSizeOfModelClimate")) {
-                    set_or_throw<long>(out, "sampleSizeOfReferencePeriod", *sampleSize);
-                }
+                const auto startOfReferencePeriod = deductions::resolve_StartOfReferencePeriod_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "yearOfStartOfReferencePeriod", startOfReferencePeriod.year);
+                set_or_throw<long>(out, "monthOfStartOfReferencePeriod", startOfReferencePeriod.month);
+                set_or_throw<long>(out, "dayOfStartOfReferencePeriod", startOfReferencePeriod.day);
+                set_or_throw<long>(out, "hourOfStartOfReferencePeriod", startOfReferencePeriod.hour);
+                set_or_throw<long>(out, "minuteOfStartOfReferencePeriod", startOfReferencePeriod.minute);
+                set_or_throw<long>(out, "secondOfStartOfReferencePeriod", startOfReferencePeriod.second);
+
+                const auto sampleSizeOfModelClimate =
+                    deductions::resolve_SampleSizeOfModelClimate_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "sampleSizeOfReferencePeriod", sampleSizeOfModelClimate);
+
+                const auto modelClimate = deductions::resolve_ModelClimateReferencePeriod_or_throw(mars, par, opt);
+                set_or_throw<std::vector<long>>(
+                    out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
+                    {modelClimate.outer.typeOfStatisticalProcessingForTimeRangeForReferencePeriod,
+                     modelClimate.inner.typeOfStatisticalProcessingForTimeRangeForReferencePeriod});
+                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRangeForReferencePeriod",
+                                                {modelClimate.outer.indicatorOfUnitForTimeRangeForReferencePeriod,
+                                                 modelClimate.inner.indicatorOfUnitForTimeRangeForReferencePeriod});
+                set_or_throw<std::vector<long>>(out, "lengthOfTimeRangeForReferencePeriod",
+                                                {modelClimate.outer.lengthOfTimeRangeForReferencePeriod,
+                                                 modelClimate.inner.lengthOfTimeRangeForReferencePeriod});
             }
         }
         catch (...) {

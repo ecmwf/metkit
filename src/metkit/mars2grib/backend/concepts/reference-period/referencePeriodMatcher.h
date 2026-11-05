@@ -37,6 +37,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// EFI/SOT (`efi`, `efic`, `sot`), probabilities of (standardised) anomalies, and
 /// anomaly and significance parameters.
 ///
+/// SOT products (`mars.type == "sot"`) match the `Quantile` variant; all other
+/// matching products use the `Default` variant.
+///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
 ///
@@ -60,8 +63,13 @@ std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt)
         const auto marsType = get_or_throw<std::string>(mars, "type");
         const auto param    = get_or_throw<long>(mars, "param");
 
-        // EFI / SOT against the model climate
-        if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
+
+        // EFI / SOT against the model climate. SOT products additionally carry
+        // the MARS `quantile` as the two reference-period percentiles.
+        if (marsType == "sot") {
+            return static_cast<std::size_t>(ReferencePeriodType::Quantile);
+        }
+        if (marsType == "efi" || marsType == "efic") {
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 
