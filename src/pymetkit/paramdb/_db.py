@@ -11,9 +11,9 @@ context is provided. Libmetkit is required.
 import json
 import importlib.metadata
 import importlib.resources
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from itertools import combinations
 import warnings
 from pathlib import Path
 import yaml
@@ -292,7 +292,7 @@ class ParamDB:
         runs ``TypeParam::pass2`` and fills MARS defaults for unspecified keys),
         and reads back the resolved ``param`` value(s). Results are memoised on
         ``self._ctx_cache`` since each ``expand`` is a comparatively expensive
-        (~ms) C++ round-trip and the minimal-context search repeats queries.
+        (~ms) C++ round-trip.
 
         The C++ library reads its language files (``params.yaml`` etc.) from
         ``~metkit/share/metkit`` — set ``METKIT_HOME`` to this repository root
@@ -368,7 +368,8 @@ class ParamDB:
         hard-filter metadata) are always populated. ``mars_request_context`` is
         currently left as ``None``: per-candidate MARS context computation is
         deferred (see the "NOT YET IMPLEMENTED" section at the end of this class,
-        :meth:`_minimal_distinguishing_context`, dormant), so we no longer
+        :meth:`_minimal_distinguishing_context`, an unimplemented placeholder
+        for future libmetkit wiring), so we no longer
         advertise which context selects each candidate. Callers can still pass
         ``context=`` to :meth:`shortname_to_param_id` /
         :meth:`shortname_to_param_id_candidates` to narrow the lookup.
@@ -871,8 +872,6 @@ class ParamDB:
         ``"type_": ""`` is rejected. A value is non-empty if it is not ``None``,
         not a blank string and not an empty collection. Extra keys are allowed.
         """
-        from collections.abc import Collection
-
         normalised = {}
         for key, value in context.items():
             normalised[str(key).rstrip("_")] = value
@@ -908,16 +907,16 @@ class ParamDB:
         Applies the ``table``/``origin``/``access`` hard filters and the MARS
         ``context`` filter (via the C++ ``expand`` engine). 
         Does NOT compute minimal contexts — that expensive
-        step is deferred to :meth:`_make_candidate`. Raises ``ValueError`` if a
-        ``context`` is given without non-empty class/stream/type/levtype, and
-        ``KeyError`` if the
-        shortname is unknown or no entry survives the filters.
+        step is deferred to :meth:`_make_candidate`. Raises ``KeyError`` first
+        if the shortname is unknown, then ``ValueError`` if a ``context`` is
+        given without non-empty class/stream/type/levtype, and ``KeyError`` if
+        no entry survives the filters.
         """
-        if context is not None:
-            self._validate_full_context(context)
-
         if shortname not in self._by_shortname_all:
             raise KeyError(f"Short name {shortname!r} not found in database")
+
+        if context is not None:
+            self._validate_full_context(context)
 
         siblings = self._by_shortname_all[shortname]
         entries = list(siblings)
@@ -1205,65 +1204,31 @@ class ParamDB:
         return len(self._by_shortname_all[shortname]) > 1
 
     # ======================================================================
-    # NOT YET IMPLEMENTED — dormant code, pending libmetkit support
+    # NOT YET IMPLEMENTED — placeholder, pending libmetkit support
     # ----------------------------------------------------------------------
     #
-    # TODO(metkit): expose a context-enumeration API in metkit, then wire this
-    # method back into ``_make_candidate`` (honour its ``minimal=`` flag) and
-    # remove ``_warn_context_unavailable``.
+    # TODO(metkit): expose a context-enumeration API in libmetkit (C++), then
+    # implement this method on top of it, wire it back into
+    # ``_make_candidate`` (honour its ``minimal=`` flag) and remove
+    # ``_warn_context_unavailable``.
     # ======================================================================
 
     def _minimal_distinguishing_context(
         self, entry: dict, siblings: "list[dict]", shortname: str
     ) -> "dict | None":
-        """Return the smallest MARS key-subset that selects *entry* over siblings.
+        """Placeholder: return the MARS context that selects *entry* over siblings.
 
         .. warning::
-            DORMANT — not currently called from any public API. See the
-            "NOT YET IMPLEMENTED" banner above this method.
+            NOT IMPLEMENTED — not called from any public API. This signature is
+            kept as a placeholder for future wiring in libmetkit (C++).
 
-        Searches the key-subsets of *entry*'s baked ``mars_request_context``
-        dicts for the smallest subset that uniquely selects this id.
-
-        Uses ``expand`` as the authoritative oracle: a subset qualifies only if
-        ``MarsRequest(param=shortname, **subset).expand()`` resolves to exactly
-        this id. This guarantees the advertised context actually round-trips
-        (bare ``{"class": "ai"}`` is rejected for ``tp`` because ``expand``'s
-        inherited defaults resolve it to 228, not 228228).
-
-        Returns
-        -------
-        dict | None
-            * ``{}`` — *entry* is the default: an empty ``context={}`` already
-              resolves uniquely to it.
-            * a non-empty dict — the minimal distinguishing MARS context.
-            * ``None`` — no MARS context can uniquely select *entry* (residual
-              ambiguity, or no baked context).
+        Any context returned by a future implementation must be *full*, i.e.
+        contain all of :data:`_REQUIRED_CONTEXT_KEYS` (``class``, ``stream``,
+        ``type`` and ``levtype``), so that it can be passed back as ``context=``
+        to the lookups. In particular an empty ``{}`` is never a valid result.
+        ``None`` would mean that no MARS context can uniquely select *entry*.
         """
-        entry_id = int(entry["id"])
-
-        # Is this the default candidate? An empty context resolving uniquely to
-        # this id means ``context={}`` selects it.
-        if self._context_resolved_ids(shortname, {}) == {entry_id}:
-            return {}
-
-        def selects(subctx: dict) -> bool:
-            return self._context_resolved_ids(shortname, subctx) == {entry_id}
-
-        best: "dict | None" = None
-        for ctx in entry.get("mars_request_context", []):
-            keys = sorted(ctx.keys())
-            for size in range(1, len(keys) + 1):
-                if best is not None and size >= len(best):
-                    break
-                found_at_size = None
-                for combo in combinations(keys, size):
-                    subctx = {k: ctx[k] for k in combo}
-                    if selects(subctx):
-                        found_at_size = subctx
-                        break
-                if found_at_size is not None:
-                    best = found_at_size
-                    break
-        return best  # None when nothing distinguishes *entry*
-
+        raise NotImplementedError(
+            "_minimal_distinguishing_context is a placeholder pending "
+            "libmetkit support"
+        )
