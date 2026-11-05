@@ -1,13 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file ecc-1806.h
 /// @brief Conversion rules used by the mars2mars mapper.
@@ -24,14 +16,15 @@ namespace metkit::mars2mars::rules::impl {
 
 
 /// @brief Convert surface-like legacy requests into sol layer output.
-template <class InDict_t, class OutDict_t>
-inline void convertECC1806(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void convertECC1806(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc, const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
+        (void)opts;
         const auto param = get_or_throw<long>(in, "param");
 
         // See:

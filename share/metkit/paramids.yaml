@@ -2081,6 +2081,15 @@
 131256:
 - 10cogug25
 - 10 metre convective gust of at least 25 m/s
+131257:
+- hlg2
+- Hail of at least 2 cm diameter
+131258:
+- hlg5
+- Hail of at least 5 cm diameter
+131259:
+- tsprb
+- Thunderstorm in vicinity (lightning-based)
 132044:
 - capesi
 - Convective available potential energy shear index
@@ -15755,6 +15764,9 @@
 235415:
 - avg_darv
 - Time-mean depth-averaged river velocity
+235416:
+- avg_ws10thr
+- Time-mean Wind speed threshold for wind erosion
 236386:
 - acc_lshnf
 - Time-integrated land surface heat net flux
@@ -16511,6 +16523,9 @@
 237411:
 - max_cur
 - Time-maximum urban cover
+237416:
+- max_ws10thr
+- Time-maximum Wind speed threshold for wind erosion
 238001:
 - min_ttswr
 - Time-minimum temperature tendency due to short-wave radiation
@@ -17254,6 +17269,9 @@
 238411:
 - min_cur
 - Time-minimum urban cover
+238416:
+- min_ws10thr
+- Time-minimum Wind speed threshold for wind erosion
 239001:
 - std_ttswr
 - Time-standard-deviation temperature tendency due to short-wave radiation
@@ -18015,6 +18033,9 @@
 239411:
 - std_cur
 - Time-standard-deviation urban cover
+239416:
+- std_ws10thr
+- Time-standard-deviation Wind speed threshold for wind erosion
 240011:
 - chcross
 - Cross sectional area of flow in channel
@@ -20100,6 +20121,30 @@
 260694:
 - sdifswrfcs
 - Surface diffuse short-wave radiation flux, clear sky
+260695:
+- ws10thr
+- Wind speed threshold for wind erosion
+260696:
+- hlcr
+- Storm relative helicity - right moving storm
+260697:
+- hlcl
+- Storm relative helicity - left moving storm
+260698:
+- ehlm
+- Effective storm relative helicity - mean flow
+260699:
+- ehlr
+- Effective storm relative helicity - right moving storm
+260700:
+- ehll
+- Effective storm relative helicity - left moving storm
+260703:
+- fcrua
+- Fire combustion rate per unit area
+260704:
+- frpd
+- Fire radiative power density
 261001:
 - utci
 - Universal thermal climate index
@@ -23592,6 +23637,51 @@
 479000:
 - lsroh
 - Loss rate due to OH
+480000:
+- jrate
+- Photolysis rate
+480001:
+- avg_jrate
+- Time-mean Photolysis rate
+480003:
+- max_jrate
+- Time-maximum Photolysis rate
+480004:
+- min_jrate
+- Time-minimum Photolysis rate
+480005:
+- std_jrate
+- Time-standard-deviation Photolysis rate
+481000:
+- emipot
+- Emission potential
+481001:
+- avg_emipot
+- Time-mean Emission potential
+481003:
+- max_emipot
+- Time-maximum Emission potential
+481004:
+- min_emipot
+- Time-minimum Emission potential
+481005:
+- std_emipot
+- Time-standard-deviation Emission potential
+482000:
+- cssa
+- Column single scatter albedo
+482001:
+- avg_cssa
+- Time-mean Column single scatter albedo
+482003:
+- max_cssa
+- Time-maximum Column single scatter albedo
+482004:
+- min_cssa
+- Time-minimum Column single scatter albedo
+482005:
+- std_cssa
+- Time-standard-deviation Column single scatter albedo
 500000:
 - ps
 - Pressure (S) (not reduced)

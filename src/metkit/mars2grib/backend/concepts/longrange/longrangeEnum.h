@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file longrangeEnum.h
@@ -31,7 +24,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `longrange.h` / `longrangeOp` implementation.
+/// `longrangeEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -83,7 +76,8 @@ inline constexpr std::string_view longrangeName{"longrange"};
 /// tables and registries.
 ///
 enum class LongrangeType : std::size_t {
-    Default = 0
+    SeasonalForecast = 0,
+    SeasonalForecastMonthlyMean
 };
 
 
@@ -99,7 +93,7 @@ enum class LongrangeType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using LongrangeList = ValueList<LongrangeType::Default>;
+using LongrangeList = ValueList<LongrangeType::SeasonalForecast, LongrangeType::SeasonalForecastMonthlyMean>;
 
 
 ///
@@ -129,7 +123,8 @@ constexpr std::string_view longrangeTypeName();
         return NAME;                                    \
     }
 
-DEF(LongrangeType::Default, "default");
+DEF(LongrangeType::SeasonalForecast, "seasonal-forecast");
+DEF(LongrangeType::SeasonalForecastMonthlyMean, "seasonal-forecast-monthly-mean");
 
 #undef DEF
 

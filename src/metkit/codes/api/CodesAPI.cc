@@ -1,20 +1,30 @@
-/*
- * (C) Copyright 2025- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/codes/api/CodesTypes.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <exception>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "eckit/log/CodeLocation.h"
+#include "eckit/log/Log.h"
 
 #include "eccodes.h"
 
+#include "metkit/codes/api/GeoIterator.h"
+#include "metkit/codes/api/KeyIterator.h"
 #include "metkit/config/LibMetkit.h"
 
 namespace std {
@@ -46,9 +56,7 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details) {
         if (code == GRIB_WRONG_LENGTH) {
             throw CodesWrongLength(msg, l);
         }
-        else {
-            throw CodesException(msg, l);
-        }
+        throw CodesException(msg, l);
     }
 };
 
@@ -59,26 +67,35 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details, c
         if (code == GRIB_WRONG_LENGTH) {
             throw CodesWrongLength(msg, l);
         }
-        else {
-            throw CodesException(msg, l);
-        }
+        throw CodesException(msg, l);
     }
 };
 
-/// Concrete implementation of CodesHandle.
-/// OwningCodesHandle is a owning container around a codes_handle* that
-/// makes the C APi accessible to C++ for any codes_handle*.
-/// It will properly delete the underlying codes_handle* on
-/// construction.
-class OwningCodesHandle : public CodesHandle {
+/// Frees the strings of an array allocated by eccodes with malloc (e.g. by codes_get_string_array)
+class CStringArrayGuard {
 public:
 
-    OwningCodesHandle(std::unique_ptr<codes_handle> handle) : handle_{std::move(handle)} {};
-    virtual ~OwningCodesHandle() {};
+    explicit CStringArrayGuard(std::vector<char*>& strings) : strings_{strings} {}
+    CStringArrayGuard(const CStringArrayGuard&)            = delete;
+    CStringArrayGuard& operator=(const CStringArrayGuard&) = delete;
+    ~CStringArrayGuard() {
+        for (char* str : strings_) {
+            std::free(str);
+        }
+    }
 
-    OwningCodesHandle(OwningCodesHandle&&)            = default;
-    OwningCodesHandle& operator=(OwningCodesHandle&&) = default;
+private:
 
+    std::vector<char*>& strings_;
+};
+
+/// Concrete implementation of CodesHandle.
+/// ConcreteCodesHandle provides the common C++ wrapper implementation around
+/// a codes_handle* independently of the ownership model.
+class ConcreteCodesHandle : public CodesHandle {
+public:
+
+    ~ConcreteCodesHandle() override = default;
 
     size_t messageSize() const override;
     Span<const uint8_t> messageData() const override;
@@ -128,51 +145,96 @@ public:
     GeoRange values() const override;
 
     /// Release the raw `codes_handle*` - used to pass ownership out of C++ (e.g. python)
-    void* release() override { return handle_.release(); };
+    void* release() override = 0;
 
 protected:
 
     codes_handle* raw() const {
-        if (!handle_) {
+        if (!handle()) {
             throw CodesException("CodesHandle has been released.", Here());
         }
-        return handle_.get();
+        return handle();
     }
 
+    virtual codes_handle* handle() const = 0;
+};
+
+/// Concrete implementation of CodesHandle.
+/// OwningCodesHandle is a owning container around a codes_handle* that
+/// makes the C API accessible to C++ for any codes_handle*.
+/// It will properly delete the underlying codes_handle* on
+/// construction.
+class OwningCodesHandle : public ConcreteCodesHandle {
+public:
+
+    OwningCodesHandle(std::unique_ptr<codes_handle> handle) : handle_{std::move(handle)} {};
+    ~OwningCodesHandle() override = default;
+
+    OwningCodesHandle(OwningCodesHandle&&)            = default;
+    OwningCodesHandle& operator=(OwningCodesHandle&&) = default;
+
+    /// Release the raw `codes_handle*` - used to pass ownership out of C++ (e.g. python)
+    void* release() override { return handle_.release(); };
+
 private:
+
+    codes_handle* handle() const override { return handle_.get(); }
 
     std::unique_ptr<codes_handle> handle_;
 };
 
+/// Concrete implementation of CodesHandle.
+/// NonOwningCodesHandle wraps a borrowed codes_handle* without taking
+/// ownership of its lifetime.
+class NonOwningCodesHandle : public ConcreteCodesHandle {
+public:
 
-size_t OwningCodesHandle::messageSize() const {
+    NonOwningCodesHandle(codes_handle* handle) : handle_{handle} {};
+    ~NonOwningCodesHandle() override = default;
+
+    NonOwningCodesHandle(NonOwningCodesHandle&&)            = default;
+    NonOwningCodesHandle& operator=(NonOwningCodesHandle&&) = default;
+
+    void* release() override {
+        throw CodesException("CodesHandle::release() is not supported on a non-owning handle.", Here());
+    };
+
+private:
+
+    codes_handle* handle() const override { return handle_; }
+
+    codes_handle* handle_;
+};
+
+
+size_t ConcreteCodesHandle::messageSize() const {
     size_t size;
     throwOnError(codes_get_message_size(raw(), &size), Here(), "CodesHandle::messageSize()");
     return size;
 }
 
 
-bool OwningCodesHandle::isDefined(const std::string& key) const {
+bool ConcreteCodesHandle::isDefined(const std::string& key) const {
     return codes_is_defined(raw(), key.c_str()) == 1;
 }
 
-bool OwningCodesHandle::isMissing(const std::string& key) const {
+bool ConcreteCodesHandle::isMissing(const std::string& key) const {
     int err  = 0;
     bool res = codes_is_missing(raw(), key.c_str(), &err) == 1;
     throwOnError(err, Here(), "CodesHandle::isMissing()", key);
     return res;
 }
 
-bool OwningCodesHandle::has(const std::string& key) const {
+bool ConcreteCodesHandle::has(const std::string& key) const {
     return isDefined(key) && !isMissing(key);
 }
 
 /// Set a key to its missing value
-void OwningCodesHandle::setMissing(const std::string& key) {
+void ConcreteCodesHandle::setMissing(const std::string& key) {
     throwOnError(codes_set_missing(raw(), key.c_str()), Here(), "CodesHandle::setMissing()", key);
 }
 
-void OwningCodesHandle::set(const std::string& key, const std::string& value) {
+void ConcreteCodesHandle::set(const std::string& key, const std::string& value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<string>: " + key << " = '" << value << "'" << std::endl;
@@ -180,13 +242,13 @@ void OwningCodesHandle::set(const std::string& key, const std::string& value) {
     throwOnError(codes_set_string(raw(), key.c_str(), value.c_str(), &size), Here(), "CodesHandle::set(string, string)",
                  key);
 }
-void OwningCodesHandle::set(const std::string& key, double value) {
+void ConcreteCodesHandle::set(const std::string& key, double value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<double>: " + key << " = " << std::to_string(value) << std::endl;
     throwOnError(codes_set_double(raw(), key.c_str(), value), Here(), "CodesHandle::set(string, double)", key);
 }
-void OwningCodesHandle::set(const std::string& key, long value) {
+void ConcreteCodesHandle::set(const std::string& key, long value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<long>: " + key << " = " << std::to_string(value) << std::endl;
@@ -194,7 +256,7 @@ void OwningCodesHandle::set(const std::string& key, long value) {
 }
 
 /// Set arrays
-void OwningCodesHandle::set(const std::string& key, Span<const std::string> value) {
+void ConcreteCodesHandle::set(const std::string& key, Span<const std::string> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<string>>: " + key << std::endl;
@@ -206,7 +268,7 @@ void OwningCodesHandle::set(const std::string& key, Span<const std::string> valu
     }
     set(key, out);
 }
-void OwningCodesHandle::set(const std::string& key, Span<const char*> value) {
+void ConcreteCodesHandle::set(const std::string& key, Span<const char*> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<const char*>>: " + key << std::endl;
@@ -214,7 +276,7 @@ void OwningCodesHandle::set(const std::string& key, Span<const char*> value) {
     throwOnError(codes_set_string_array(raw(), key.c_str(), const_cast<const char**>(value.data()), value.size()),
                  Here(), "CodesHandle::set(string, span<const char*>)", key);
 }  /// set string array
-void OwningCodesHandle::set(const std::string& key, Span<const double> value) {
+void ConcreteCodesHandle::set(const std::string& key, Span<const double> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<double>>: " + key << std::endl;
@@ -222,7 +284,7 @@ void OwningCodesHandle::set(const std::string& key, Span<const double> value) {
     throwOnError(codes_set_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const double>)", key);
 }
-void OwningCodesHandle::set(const std::string& key, Span<const float> value) {
+void ConcreteCodesHandle::set(const std::string& key, Span<const float> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<float>>: " + key << std::endl;
@@ -230,7 +292,7 @@ void OwningCodesHandle::set(const std::string& key, Span<const float> value) {
     throwOnError(codes_set_float_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const float>)", key);
 }
-void OwningCodesHandle::set(const std::string& key, Span<const long> value) {
+void ConcreteCodesHandle::set(const std::string& key, Span<const long> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<long>>: " + key << std::endl;
@@ -238,7 +300,7 @@ void OwningCodesHandle::set(const std::string& key, Span<const long> value) {
     throwOnError(codes_set_long_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const long>)", key);
 }
-void OwningCodesHandle::set(const std::string& key, Span<const uint8_t> value) {
+void ConcreteCodesHandle::set(const std::string& key, Span<const uint8_t> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<uint8_t>>: " + key << std::endl;
@@ -247,7 +309,7 @@ void OwningCodesHandle::set(const std::string& key, Span<const uint8_t> value) {
     throwOnError(codes_set_bytes(raw(), key.c_str(), value.data(), &size), Here(),
                  "CodesHandle::set(string, span<const uint8_t>)", key);
 }
-void OwningCodesHandle::forceSet(const std::string& key, Span<const double> value) {
+void ConcreteCodesHandle::forceSet(const std::string& key, Span<const double> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<force array<double>>: " + key << std::endl;
@@ -255,7 +317,7 @@ void OwningCodesHandle::forceSet(const std::string& key, Span<const double> valu
     throwOnError(codes_set_force_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::forceSet(string, span<const double>)", key);
 }
-void OwningCodesHandle::forceSet(const std::string& key, Span<const float> value) {
+void ConcreteCodesHandle::forceSet(const std::string& key, Span<const float> value) {
 
     LOG_DEBUG_LIB(LibMetkit) << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "Codes API<force array<float>>: " + key << std::endl;
@@ -264,20 +326,20 @@ void OwningCodesHandle::forceSet(const std::string& key, Span<const float> value
                  "CodesHandle::forceSet(string, span<const float>)", key);
 }
 
-size_t OwningCodesHandle::size(const std::string& key) const {
+size_t ConcreteCodesHandle::size(const std::string& key) const {
     size_t size;
     throwOnError(codes_get_size(raw(), key.c_str(), &size), Here(), "CodesHandle::size(string)", key);
     return size;
 }
 
-size_t OwningCodesHandle::length(const std::string& key) const {
+size_t ConcreteCodesHandle::length(const std::string& key) const {
     size_t length;
     throwOnError(codes_get_length(raw(), key.c_str(), &length), Here(), "CodesHandle::length(string)", key);
     return length;
 }
 
 /// Get the value of the key
-CodesValue OwningCodesHandle::get(const std::string& key) const {
+CodesValue ConcreteCodesHandle::get(const std::string& key) const {
     NativeType ktype = type(key);
     bool isArray     = size(key) > 1;
 
@@ -317,7 +379,7 @@ CodesValue OwningCodesHandle::get(const std::string& key) const {
 }
 
 /// Get the type of the key
-NativeType OwningCodesHandle::type(const std::string& key) const {
+NativeType ConcreteCodesHandle::type(const std::string& key) const {
     int type;
     throwOnError(codes_get_native_type(raw(), key.c_str(), &type), Here(), "CodesHandle::type(string)", key);
 
@@ -342,17 +404,17 @@ NativeType OwningCodesHandle::type(const std::string& key) const {
 }
 
 /// Explicit getters
-long OwningCodesHandle::getLong(const std::string& key) const {
+long ConcreteCodesHandle::getLong(const std::string& key) const {
     long value;
     throwOnError(codes_get_long(raw(), key.c_str(), &value), Here(), "CodesHandle::getLong(string)", key);
     return value;
 }
-double OwningCodesHandle::getDouble(const std::string& key) const {
+double ConcreteCodesHandle::getDouble(const std::string& key) const {
     double value;
     throwOnError(codes_get_double(raw(), key.c_str(), &value), Here(), "CodesHandle::getDouble(string)", key);
     return value;
 }
-std::string OwningCodesHandle::getString(const std::string& key) const {
+std::string ConcreteCodesHandle::getString(const std::string& key) const {
     std::string ret;
     std::size_t keylen = 1024;
     ret.resize(keylen);
@@ -362,7 +424,7 @@ std::string OwningCodesHandle::getString(const std::string& key) const {
     return ret;
 }
 
-std::vector<long> OwningCodesHandle::getLongArray(const std::string& key) const {
+std::vector<long> ConcreteCodesHandle::getLongArray(const std::string& key) const {
     std::vector<long> ret;
     std::size_t ksize = size(key);
     ret.resize(ksize);
@@ -371,7 +433,7 @@ std::vector<long> OwningCodesHandle::getLongArray(const std::string& key) const 
     ret.resize(ksize);
     return ret;
 }
-std::vector<double> OwningCodesHandle::getDoubleArray(const std::string& key) const {
+std::vector<double> ConcreteCodesHandle::getDoubleArray(const std::string& key) const {
     std::vector<double> ret;
     std::size_t ksize = size(key);
     ret.resize(ksize);
@@ -380,7 +442,7 @@ std::vector<double> OwningCodesHandle::getDoubleArray(const std::string& key) co
     ret.resize(ksize);
     return ret;
 }
-std::vector<float> OwningCodesHandle::getFloatArray(const std::string& key) const {
+std::vector<float> ConcreteCodesHandle::getFloatArray(const std::string& key) const {
     std::vector<float> ret;
     std::size_t ksize = size(key);
     ret.resize(ksize);
@@ -389,10 +451,11 @@ std::vector<float> OwningCodesHandle::getFloatArray(const std::string& key) cons
     ret.resize(ksize);
     return ret;
 }
-std::vector<std::string> OwningCodesHandle::getStringArray(const std::string& key) const {
-    std::vector<char*> cstrings;
+std::vector<std::string> ConcreteCodesHandle::getStringArray(const std::string& key) const {
     std::size_t ksize = size(key);
-    cstrings.resize(ksize);
+    std::vector<char*> cstrings(ksize, nullptr);
+    CStringArrayGuard stringsGuard{cstrings};
+
     throwOnError(codes_get_string_array(raw(), key.c_str(), cstrings.data(), &ksize), Here(),
                  "CodesHandle::getStringArray(string)", key);
     cstrings.resize(ksize);
@@ -400,12 +463,12 @@ std::vector<std::string> OwningCodesHandle::getStringArray(const std::string& ke
     std::vector<std::string> ret;
     ret.reserve(cstrings.size());
     for (char* cstr : cstrings) {
-        ret.push_back(cstr);
+        ret.emplace_back(cstr);
     }
     return ret;
 }
 
-std::vector<uint8_t> OwningCodesHandle::getBytes(const std::string& key) const {
+std::vector<uint8_t> ConcreteCodesHandle::getBytes(const std::string& key) const {
     std::vector<uint8_t> ret;
     /// Note: The returned length for bytes often is much higher than needed.
     ///   For UIDs (i.e. "uuidOfHGrid"), the native type is BYTES, but length returns the number of characters in its
@@ -420,7 +483,7 @@ std::vector<uint8_t> OwningCodesHandle::getBytes(const std::string& key) const {
 }
 
 /// Cloning the whole handle. Expected to be wrapped by the user explicitly
-std::unique_ptr<CodesHandle> OwningCodesHandle::clone() const {
+std::unique_ptr<CodesHandle> ConcreteCodesHandle::clone() const {
     std::unique_ptr<codes_handle> ret{codes_handle_clone(raw())};
     if (!ret) {
         throw CodesException("CodesHandle::clone() failed", Here());
@@ -429,13 +492,13 @@ std::unique_ptr<CodesHandle> OwningCodesHandle::clone() const {
 }
 
 /// Copy the message into a new allocated buffer
-void OwningCodesHandle::copyInto(uint8_t* data, size_t size) const {
+void ConcreteCodesHandle::copyInto(uint8_t* data, size_t size) const {
     std::size_t s = size;
     throwOnError(codes_get_message_copy(raw(), data, &s), Here(), "CodesHandle::copy(uint8_t*, size_t*)");
 }
 
 /// Copy the message into a new allocated buffer
-Span<const uint8_t> OwningCodesHandle::messageData() const {
+Span<const uint8_t> ConcreteCodesHandle::messageData() const {
     size_t s;
     const uint8_t* data;
     throwOnError(codes_get_message(raw(), reinterpret_cast<const void**>(&data), &s), Here(),
@@ -447,12 +510,12 @@ Span<const uint8_t> OwningCodesHandle::messageData() const {
 class ConcreteKeyIterator : public KeyIterator {
 public:  // methods
 
-    ConcreteKeyIterator(const OwningCodesHandle& handle, std::unique_ptr<codes_keys_iterator> it) :
+    ConcreteKeyIterator(const ConcreteCodesHandle& handle, std::unique_ptr<codes_keys_iterator> it) :
         refHandle_{std::cref(handle)}, it_{std::move(it)}, isValid_{false} {
         next();
     }
 
-    virtual ~ConcreteKeyIterator() {}
+    ~ConcreteKeyIterator() override = default;
 
     std::string name() const override { return codes_keys_iterator_get_name(it_.get()); };
 
@@ -579,7 +642,7 @@ protected:
 
 private:
 
-    std::reference_wrapper<const OwningCodesHandle> refHandle_;
+    std::reference_wrapper<const ConcreteCodesHandle> refHandle_;
     std::unique_ptr<codes_keys_iterator> it_;
     bool isValid_;
 };
@@ -616,13 +679,13 @@ unsigned long mapFlags(KeyIteratorFlags flags) {
 }
 
 /// Iterate keys on an iterator with a range based for loop
-KeyRange OwningCodesHandle::keys(KeyIteratorFlags flags, std::optional<Namespace> ns) const {
+KeyRange ConcreteCodesHandle::keys(KeyIteratorFlags flags, std::optional<Namespace> ns) const {
     return KeyRange{
         std::make_unique<ConcreteKeyIterator>(*this, std::unique_ptr<codes_keys_iterator>(codes_keys_iterator_new(
                                                          raw(), mapFlags(flags), ns ? ns->c_str() : NULL)))};
 };
 
-KeyRange OwningCodesHandle::keys(Namespace ns) const {
+KeyRange ConcreteCodesHandle::keys(Namespace ns) const {
     return keys(KeyIteratorFlags::AllKeys, ns);
 };
 
@@ -630,7 +693,7 @@ KeyRange OwningCodesHandle::keys(Namespace ns) const {
 class ConcreteIteratedGeoData : public GeoIterator {
 public:  // methods
 
-    ConcreteIteratedGeoData(const OwningCodesHandle& handle, std::unique_ptr<codes_iterator> it) :
+    ConcreteIteratedGeoData(const ConcreteCodesHandle& handle, std::unique_ptr<codes_iterator> it) :
         refHandle_{std::ref(handle)}, it_{std::move(it)}, data_{0.0, 0.0, 0.0}, isValid_{false} {
         if (hasNext()) {
             next();
@@ -655,14 +718,14 @@ protected:
 
 private:
 
-    std::reference_wrapper<const OwningCodesHandle> refHandle_;
+    std::reference_wrapper<const ConcreteCodesHandle> refHandle_;
     std::unique_ptr<codes_iterator> it_;
     GeoData data_;
     bool isValid_;
 };
 
-/// Iterate OwningCodesHandle::values with longitude and latituted
-GeoRange OwningCodesHandle::values() const {
+/// Iterate ConcreteCodesHandle::values with longitude and latituted
+GeoRange ConcreteCodesHandle::values() const {
     int err;
     GeoRange res{std::make_unique<ConcreteIteratedGeoData>(
         *this, std::unique_ptr<codes_iterator>(codes_grib_iterator_new(raw(), 0, &err)))};
@@ -765,7 +828,7 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 
 using ReadCBCtx = std::pair<std::reference_wrapper<std::function<int64_t(uint8_t*, int64_t)>>, std::exception_ptr>;
 
-long readCallBack(void* ctx, void* buffer, long len) {
+static long readCallBack(void* ctx, void* buffer, long len) {
     auto& [func, eptr] = *static_cast<ReadCBCtx*>(ctx);
     try {
         auto r = func.get()(static_cast<uint8_t*>(buffer), len);
@@ -790,6 +853,13 @@ std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t
     throwOnError(err, Here(), "codesHandleFromStream(readFunc)");
     if (ret) {
         return std::make_unique<OwningCodesHandle>(std::move(ret));
+    }
+    return {};
+}
+
+std::unique_ptr<CodesHandle> codesHandleFromGRIBHandle(codes_handle* gribHandle) {
+    if (gribHandle) {
+        return std::make_unique<NonOwningCodesHandle>(gribHandle);
     }
     return {};
 }

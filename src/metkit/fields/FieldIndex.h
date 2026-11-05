@@ -1,33 +1,26 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
-#ifndef metkit_FieldIndex_H
-#define metkit_FieldIndex_H
+#pragma once
 
-#include "eckit/memory/NonCopyable.h"
 #include "eckit/serialisation/Stream.h"
 
-namespace eckit {
-namespace message {
+namespace eckit::message {
 class Message;
-}
-}  // namespace eckit
+}  // namespace eckit::message
 
-namespace metkit {
-namespace fields {
+namespace metkit::fields {
 
-class FieldIndex : private eckit::NonCopyable {
+class FieldIndex {
 public:
 
     FieldIndex();
     FieldIndex(const eckit::message::Message&);
+
+    FieldIndex(const FieldIndex&)            = delete;
+    FieldIndex(FieldIndex&&)                 = delete;
+    FieldIndex& operator=(const FieldIndex&) = delete;
+    FieldIndex& operator=(FieldIndex&&)      = delete;
 
     FieldIndex(eckit::Stream&);
 
@@ -52,7 +45,4 @@ protected:  // members
     std::map<std::string, double> doubleValues_;
 };
 
-}  // namespace fields
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::fields

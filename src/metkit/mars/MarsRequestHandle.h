@@ -1,35 +1,29 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 // File MarsRequestHandle.h
 // Baudouin Raoult - (c) ECMWF Feb 12
 
-#ifndef MarsRequestHandle_H
-#define MarsRequestHandle_H
+#pragma once
 
 #include <memory>
+#include <string>
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
+#include "eckit/types/Types.h"
 
 #include "metkit/mars/BaseProtocol.h"
 #include "metkit/mars/MarsRequest.h"
 
-namespace metkit {
-namespace mars {
+
+namespace metkit::mars {
 
 class MarsRequestHandle : public eckit::DataHandle {
 public:
 
     class RetryTransfer : public eckit::Exception {
-        virtual bool retryOnClient() const { return true; }
+        bool retryOnClient() const override { return true; }
 
     public:
 
@@ -47,9 +41,11 @@ public:
     ~MarsRequestHandle();
 
     // -- Overridden methods (from Streamable)
-    virtual std::string className() const override { return "MarsRequestHandle"; }
-    virtual const eckit::ReanimatorBase& reanimator() const override;
+    std::string className() const override { return "MarsRequestHandle"; }
+    const eckit::ReanimatorBase& reanimator() const override;
     static const eckit::ClassSpec& classSpec();
+
+    const eckit::StringDict& stats() const;
 
 private:  // members
 
@@ -73,7 +69,4 @@ private:  // members
     bool canSeek() const override;
 };
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

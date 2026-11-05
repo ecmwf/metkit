@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file compositionOp.h
+/// @file compositionEncoding.h
 /// @brief Implementation of the GRIB `composition` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -55,6 +48,7 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -135,6 +129,8 @@ template <std::size_t Stage, std::size_t Section, CompositionType Variant, class
           class OptDict_t, class OutDict_t>
 void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
+    using metkit::mars2grib::util::param_matcher::matchAny;
+    using metkit::mars2grib::util::param_matcher::range;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -144,6 +140,13 @@ void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
         try {
 
             MARS2GRIB_LOG_CONCEPT(composition);
+
+            const auto param = get_or_throw<long>(mars, "param");
+
+            // Special case for ERA6 params not in the chemical range for CAMS
+            if (matchAny(param, range(228080, 228085))) {
+                return;  // TODO: Set something here?
+            }
 
             // NOTE : Can also simply check if chemId is present, and if wavelength is present and set it.
 

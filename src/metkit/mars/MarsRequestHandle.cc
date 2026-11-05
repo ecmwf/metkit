@@ -1,25 +1,18 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 // File MarsRequestHandle.cc
 // Baudouin Raoult - (c) ECMWF Feb 12
 
 #include "metkit/mars/MarsRequestHandle.h"
-#include "metkit/config/LibMetkit.h"
 
 #include "eckit/types/Types.h"
 #include "eckit/utils/StringTools.h"
 
+#include "metkit/config/LibMetkit.h"
 
-namespace metkit {
-namespace mars {
+
+namespace metkit::mars {
 
 static eckit::Reanimator<MarsRequestHandle> marsRequestHandleReanimator;
 
@@ -64,6 +57,9 @@ MarsRequestHandle::~MarsRequestHandle() {
     }
 }
 
+const eckit::StringDict& MarsRequestHandle::stats() const {
+    return protocol_->stats();
+}
 
 eckit::Length MarsRequestHandle::openForRead() {
     eckit::Log::info() << "MarsRequestHandle::openForRead[" << request_ << "]" << std::endl;
@@ -133,5 +129,4 @@ bool MarsRequestHandle::canSeek() const {
     return false;
 }
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

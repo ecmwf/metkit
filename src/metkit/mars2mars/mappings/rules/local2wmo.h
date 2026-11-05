@@ -1,13 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file local2wmo.h
 /// @brief Conversion rules used by the mars2mars mapper.
@@ -24,14 +16,14 @@ namespace metkit::mars2mars::rules::impl {
 
 /// @brief Assign `param`, and `scaleFactor` together.
 template <class OutDict_t>
-inline void setParamScale(OutDict_t& out, eckit::LocalConfiguration& misc, long param, double scaleFactor) {
+inline void setParamScale(OutDict_t& out, eckit::LocalConfiguration& misc, long param, double scaleValuesBy) {
 
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
         set_or_throw<long>(out, "param", param);
-        set_or_throw<double>(misc, "scaleFactor", scaleFactor);
+        set_or_throw<double>(misc, "scaleValuesBy", scaleValuesBy);
     }
     catch (...) {
         // Rethrow nested exceptions
@@ -42,14 +34,16 @@ inline void setParamScale(OutDict_t& out, eckit::LocalConfiguration& misc, long 
 
 
 /// @brief Convert surface-like legacy requests into sol layer output.
-template <class InDict_t, class OutDict_t>
-inline void convertLocal2WMO(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void convertLocal2WMO(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc,
+                             const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
+        (void)opts;
         const auto param = get_or_throw<long>(in, "param");
 
         switch (param) {
@@ -75,7 +69,7 @@ inline void convertLocal2WMO(const InDict_t& in, OutDict_t& out, eckit::LocalCon
 
             // Snowfall water equivalent (m -> kg m-2)
             case 144:
-                return setParamScale(out, misc, 228144, 10000.0);
+                return setParamScale(out, misc, 228144, 1000.0);
 
             // Runoff and water cycle (m -> kg m-2)
             case 8:
@@ -83,7 +77,7 @@ inline void convertLocal2WMO(const InDict_t& in, OutDict_t& out, eckit::LocalCon
             case 9:
                 return setParamScale(out, misc, 231012, 1000.0);
             case 141:
-                return setParamScale(out, misc, 231141, 1000.0);
+                return setParamScale(out, misc, 228141, 1000.0);
             case 142:
                 return setParamScale(out, misc, 3062, 1000.0);
             case 182:

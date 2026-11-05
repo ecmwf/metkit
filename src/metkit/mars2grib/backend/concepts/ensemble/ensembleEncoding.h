@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file ensembleOp.h
+/// @file ensembleEncoding.h
 /// @brief Implementation of the GRIB `ensemble` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -60,6 +53,7 @@
 
 // checks
 #include "metkit/mars2grib/backend/checks/checkEnsembleProductDefinitionSection.h"
+#include "metkit/mars2grib/backend/checks/matchProductDefinitionTemplateNumber.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -98,8 +92,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <std::size_t Stage, std::size_t Section, EnsembleType Variant>
 constexpr bool ensembleApplicable() {
     // Confitions to apply concept
-    return ((Variant == EnsembleType::Individual) && (Stage == StagePreset) &&
-            (Section == SecProductDefinitionSection));
+    return ((Variant == EnsembleType::Individual || Variant == EnsembleType::ProbabilityLargeEnsemble) &&
+            (Stage == StagePreset) && (Section == SecProductDefinitionSection));
 }
 
 
@@ -114,8 +108,8 @@ constexpr bool ensembleApplicable() {
 /// 2. Deduces ensemble-related metadata from MARS and parameter dictionaries.
 /// 3. Encodes the corresponding GRIB keys in the output dictionary.
 ///
-/// The concept currently supports the **Individual** ensemble variant, which
-/// represents a single ensemble member.
+/// The concept currently supports the **Individual** and **ProbabilityLargeEnsemble** ensemble variants, which
+/// represent a single ensemble member.
 ///
 /// If the concept is invoked when not applicable, a
 /// `Mars2GribConceptException` is thrown.
@@ -169,16 +163,24 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
                 validation::check_EnsembleProductDefinitionSection_or_throw(opt, out);
 
                 // Deductions
-                tables::TypeOfEnsembleForecast typeOfEnsembleForecast =
-                    deductions::resolve_TypeOfEnsembleForecast_or_throw(mars, par, opt);
-                long numberOfForecastsInEnsemble =
+                const auto typeOfEnsembleForecast = deductions::resolve_TypeOfEnsembleForecast_or_throw(mars, par, opt);
+                const auto numberOfForecastsInEnsemble =
                     deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
-                long marsNumber = deductions::resolve_PerturbationNumber_or_throw(mars, par, opt);
+                const auto perturbationNumber = deductions::resolve_PerturbationNumber_or_throw(mars, par, opt);
 
                 // Encoding
                 set_or_throw<long>(out, "typeOfEnsembleForecast", static_cast<long>(typeOfEnsembleForecast));
                 set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
-                set_or_throw<long>(out, "perturbationNumber", marsNumber);
+                set_or_throw<long>(out, "perturbationNumber", perturbationNumber);
+            }
+
+            if constexpr (Variant == EnsembleType::ProbabilityLargeEnsemble) {
+
+                // Structural validation
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {121L, 122L});
+
+                throw utils::exceptions::Mars2GribMatcherException(
+                    "Logic for EnsembleType::ProbabilityLargeEnsemble is not implemented!", Here());
             }
         }
         catch (...) {

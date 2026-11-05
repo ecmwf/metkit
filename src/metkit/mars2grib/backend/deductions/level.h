@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file level.h
@@ -120,18 +113,28 @@ long resolve_Level_or_throw(const MarsDict_t& mars, const ParDict_t& par, const 
 
     try {
 
-        // Retrieve mandatory MARS level identifier
-        long marsLevelistVal = get_or_throw<long>(mars, "levelist");
+        const auto levtype = get_or_throw<std::string>(mars, "levtype");
 
-        // Emit RESOLVE log entry
-        MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`level` resolved from input dictionaries: value='";
-            logMsg += std::to_string(marsLevelistVal) + "'";
-            return logMsg;
-        }());
+        if (levtype == "pl") {
+            const auto levelist = get_or_throw<double>(mars, "levelist");  // in hPa
+            const long level    = levelist * 100;                          // in Pa
 
-        // Success exit point
-        return marsLevelistVal;
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return "`level` resolved from input dictionaries: levelist='" + std::to_string(levelist) +
+                       " hPa' and converted to level='" + std::to_string(level) + " Pa'";
+            }());
+
+            return level;
+        }
+        else {
+            const auto levelist = get_or_throw<long>(mars, "levelist");
+
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return "`level` resolved from input dictionaries: levelist='" + std::to_string(levelist) + "'";
+            }());
+
+            return levelist;
+        }
     }
     catch (...) {
 

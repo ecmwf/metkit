@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 
 #include "metkit/odb/OdbSplitter.h"
@@ -21,8 +14,7 @@
 #include "metkit/odb/OdbMetadataDecoder.h"
 
 
-namespace metkit {
-namespace codes {
+namespace metkit::codes {
 
 OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) :
     Splitter(handle), handleWrapper_(handle), reader_(handleWrapper_, false) {}
@@ -76,13 +68,11 @@ void OdbSplitter::print(std::ostream& s) const {
     s << "OdbSplitter[]";
 }
 
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::codes
 
 //----------------------------------------------------------------------------------------------------------------------
 
-namespace eckit {
-namespace message {
+namespace eckit::message {
 
 template <>
 bool SplitterBuilder<metkit::codes::OdbSplitter>::match(eckit::PeekHandle& handle) const {
@@ -99,7 +89,6 @@ bool SplitterBuilder<metkit::codes::OdbSplitter>::match(eckit::PeekHandle& handl
     return false;
 }
 
-}  // namespace message
-}  // namespace eckit
+}  // namespace eckit::message
 
 static eckit::message::SplitterBuilder<metkit::codes::OdbSplitter> splitter;

@@ -1,78 +1,74 @@
 ### provides MARS requests from GRIB files
 
-# ecbuild_add_executable( TARGET   grib-to-mars-request
-
-#     CONDITION HAVE_GRIB
-
-#     SOURCES  grib-to-mars-request.cc
-
-#     INCLUDES
-#         ${ECKIT_INCLUDE_DIRS}
-
-#     LIBS     metkit
-# )
-
 # ecbuild_add_executable( TARGET   grib-blob
-
-#     CONDITION HAVE_GRIB
-
-#     SOURCES  grib-blob.cc
-
-#     INCLUDES
-#         ${ECKIT_INCLUDE_DIRS}
-
-#     LIBS     metkit eckit_option eckit
-# )
-
-
-# ecbuild_add_executable( TARGET   bufr-to-mars-request
-
-#     CONDITION HAVE_BUFR
-
-#     SOURCES  bufr-to-mars-request.cc
-
-#     INCLUDES ${ECCODES_INCLUDE_DIRS} ${ECKIT_INCLUDE_DIRS}
-
-#     LIBS     metkit eckit_option eckit eccodes
+#     CONDITION     HAVE_GRIB
+#     SOURCES       grib-blob.cc
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     LIBS          metkit eckit_option eckit
 # )
 
 ecbuild_add_executable(
-    TARGET request-to-mtg2
-    SOURCES request-to-mtg2.cc
-    CONDITION HAVE_MARS2MARS AND HAVE_BUILD_TOOLS
-    INCLUDES ${ECKIT_INCLUDE_DIRS}
+    TARGET        grib-to-mtg2
+    SOURCES       grib-to-mtg2.cc
+    CONDITION     HAVE_MARS2GRIB AND HAVE_MARS2MARS AND HAVE_BUILD_GRIB2_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
-    LIBS metkit eckit_option eckit
+    LIBS          metkit eckit_option eckit
 )
 
-ecbuild_add_executable( TARGET    parse-mars-request
-    CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
-    SOURCES   parse-mars-request.cc
-    INCLUDES  ${ECKIT_INCLUDE_DIRS}
-    LIBS        metkit eckit_option eckit eccodes
+ecbuild_add_executable(
+    TARGET        convert-mars-request
+    CONDITION     HAVE_MARS2MARS AND HAVE_BUILD_GRIB2_TOOLS
+    SOURCES       convert-mars-request.cc ParseRequest.cc ParseRequest.h
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
+    LIBS          metkit eckit_option eckit
 )
 
-ecbuild_add_executable( TARGET    odb-to-request
-    SOURCES   odb-to-request.cc
-    CONDITION HAVE_ODB AND HAVE_BUILD_TOOLS
-    INCLUDES  ${ECKIT_INCLUDE_DIRS}
-    NO_AS_NEEDED
-    LIBS      metkit eckit_option )
+# ecbuild_add_executable(
+#     TARGET        grib-to-productTime
+#     SOURCES       grib-to-product-time.cc
+#     CONDITION     HAVE_MARS2GRIB AND HAVE_MARS2MARS AND HAVE_BUILD_TOOLS
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit eckit_option eckit
+# )
 
-ecbuild_add_executable( TARGET    grib-to-request
-    SOURCES   grib-to-request.cc
-    CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
-    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+ecbuild_add_executable(
+    TARGET        parse-mars-request
+    CONDITION     HAVE_BUILD_TOOLS
+    SOURCES       parse-mars-request.cc ParseRequest.cc ParseRequest.h
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
-    LIBS      metkit eckit_option )
+    LIBS          metkit eckit_option eckit
+)
 
-ecbuild_add_executable( TARGET    bufr-sanity-check
-    SOURCES   bufr-sanity-check.cc
-    CONDITION HAVE_BUFR AND HAVE_BUILD_TOOLS
-    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+ecbuild_add_executable(
+    TARGET        odb-to-request
+    SOURCES       odb-to-request.cc
+    CONDITION     HAVE_ODB AND HAVE_BUILD_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
-    LIBS      metkit eckit_option )
+    LIBS          metkit eckit_option
+)
+
+ecbuild_add_executable(
+    TARGET        grib-to-request
+    SOURCES       grib-to-request.cc
+    CONDITION     HAVE_GRIB AND HAVE_BUILD_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_option
+)
+
+ecbuild_add_executable(
+    TARGET        bufr-sanity-check
+    SOURCES       bufr-sanity-check.cc
+    CONDITION     HAVE_BUFR AND HAVE_BUILD_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_option
+)
 
 ecbuild_add_executable(
     TARGET        mars-archive-script
@@ -84,19 +80,27 @@ ecbuild_add_executable(
 )
 
 ecbuild_add_executable(
-    TARGET        check-mars2conf
-    CONDITION     HAVE_MARS2GRIB
-    SOURCES       check-mars2conf.cc
+    TARGET        create-binary-files
+    SOURCES       create-binary-files.cc
     INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
     LIBS          metkit
 )
 
-# ecbuild_add_executable( TARGET     ncmerge
-#                         SOURCES    ncmerge.cc
-#                         CONDITION  HAVE_NETCDF
-#                         LIBS       metkit NetCDF::NetCDF_C )
+# ecbuild_add_executable(
+#     TARGET        check-mars2conf
+#     CONDITION     HAVE_MARS2GRIB
+#     SOURCES       check-mars2conf.cc
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit
+# )
 
+# ecbuild_add_executable(
+#     TARGET        ncmerge
+#     SOURCES       ncmerge.cc
+#     CONDITION     HAVE_NETCDF
+#     LIBS          metkit NetCDF::NetCDF_C )
 
 if(HAVE_BUILD_TOOLS)
     list( APPEND tools nccompare.py compare-mars-requests.py )

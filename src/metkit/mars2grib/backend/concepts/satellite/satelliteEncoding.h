@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file satelliteOp.h
+/// @file satelliteEncoding.h
 /// @brief Implementation of the GRIB `satellite` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -117,6 +110,7 @@
 // Deductions
 #include "metkit/mars2grib/backend/deductions/channel.h"
 #include "metkit/mars2grib/backend/deductions/instrumentType.h"
+#include "metkit/mars2grib/backend/deductions/numberOfFrequencies.h"
 #include "metkit/mars2grib/backend/deductions/satelliteNumber.h"
 #include "metkit/mars2grib/backend/deductions/satelliteSeries.h"
 #include "metkit/mars2grib/backend/deductions/scaleFactorOfCentralWaveNumber.h"
@@ -215,13 +209,15 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37});
 
                 // Deductions
-                long channel = deductions::resolve_Channel_or_throw(mars, par, opt);
+                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
+                // long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
 
                 // Encoding
-                set_or_throw(out, "channel", channel);
+                set_or_throw<long>(out, "channelNumber", channelNumber);
+                // set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {

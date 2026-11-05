@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file make_HeaderLayout.h
@@ -65,7 +58,7 @@ namespace metkit::mars2grib::frontend {
 /// * @param[in] marsDict Input MARS request.
 /// @param[in] optDict  Encoder configuration and options.
 /// * @return A fully resolved @ref GribHeaderLayoutData.
-/// @throws Mars2GribGenericException if any phase of the resolution fails.
+/// @throws Mars2GribHeaderLayoutException if any phase of the resolution fails.
 ///
 template <class MarsDict_t, class OptDict_t>
 GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, const OptDict_t& optDict) {
@@ -76,11 +69,12 @@ GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, cons
     using metkit::mars2grib::frontend::resolution::resolve_ActiveConcepts_or_throw;
     using metkit::mars2grib::frontend::resolution::resolve_SectionsLayout_or_throw;
     using metkit::mars2grib::frontend::resolution::SectionLayoutData;
-    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+    using metkit::mars2grib::utils::exceptions::Mars2GribHeaderLayoutException;
 
     try {
         // Step 1: Semantic Analysis (What concepts are we encoding?)
-        ActiveConceptsData activeConcepts = resolve_ActiveConcepts_or_throw(marsDict, optDict);
+        ActiveConceptsData activeConcepts = resolve_ActiveConcepts_or_throw<MarsDict_t, OptDict_t>(marsDict, optDict);
 
         // Step 2: Structural Mapping (Where do these concepts live in the GRIB sections?)
         std::array<SectionLayoutData, GeneralRegistry::NSections> sectionsLayout =
@@ -91,8 +85,8 @@ GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, cons
         return GribHeaderLayoutData{{std::move(sectionsLayout)}};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribGenericException("Critical failure: Unable to resolve GRIB HeaderLayout", Here()));
+        std::throw_with_nested(Mars2GribHeaderLayoutException("Critical failure: Unable to resolve GRIB HeaderLayout",
+                                                              dict_to_json<MarsDict_t>(marsDict), Here()));
     }
 
     return {};

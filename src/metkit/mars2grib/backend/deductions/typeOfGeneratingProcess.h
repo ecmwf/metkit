@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file typeOfGeneratingProcess.h
@@ -94,23 +87,24 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_opt(
-    const MarsDict_t& mars, [[maybe_unused]] const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt) {
+    const MarsDict_t& mars, const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt) {
 
     using metkit::mars2grib::backend::tables::TypeOfGeneratingProcess;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     // N.B. Sometimes this is overwritten by eccodes as a side effect of setting `param`
     try {
 
         // Retrieve mandatory type from MARS dictionary
-        std::string marsTypeVal = get_or_throw<std::string>(mars, "type");
+        const auto type = get_or_throw<std::string>(mars, "type");
         // std::string marsStreamVal = get_or_throw<std::string>(mars, "stream");
         // std::string marsClassVal = get_or_throw<std::string>(mars, "class");
         // long paramIdVal = get_or_throw<long>(mars, "param");
 
         // Deduce the typeOfGeneratingProcess
-        if (marsTypeVal == "4i") {
+        if (type == "4i") {
 
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::AnalysisIncrement;
 
@@ -125,7 +119,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "pf" || marsTypeVal == "cf") {
+        else if (type == "pf" || type == "cf") {
 
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
 
@@ -140,15 +134,158 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (marsTypeVal == "fc") {
+        else if (type == "fc") {
 
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Forecast;
+            const auto klass  = get_or_throw<std::string>(mars, "class");
+            const auto stream = get_or_throw<std::string>(mars, "stream");
+
+            const bool isSeasonalEnsemble = (klass == "od" || klass == "rd" || klass == "c3") &&
+                                            (stream == "sfdd" || stream == "sfmd" || stream == "shdd" ||
+                                             stream == "shmd" || stream == "sfdp" || stream == "shdp");
+
+            if (isSeasonalEnsemble) {
+                return TypeOfGeneratingProcess::EnsembleForecast;
+            }
+
+            // Note: class=od,stream=oper,type=fc is a control forecast, but may not have other evidence of an ensemble
+            if (klass == "od" && stream == "oper" /* && type == "fc" */) {
+                return TypeOfGeneratingProcess::EnsembleForecast;
+            }
+
+            // Detect ensemble evidence even when MARS `type` is the generic
+            // `fc`. Legacy GRIB1 data (and some rewritten streams) may carry
+            // `type=fc` together with ensemble-describing keys; in that case
+            // the correct GRIB2 `typeOfGeneratingProcess` is EnsembleForecast
+            // (4), not Forecast (2).
+            //
+            // Signals (any of):
+            //   - par.numberOfForecastsInEnsemble > 1
+            //   - par.typeOfEnsembleForecast present
+            //   - mars.number > 0
+            const bool hasEnsembleSize =
+                has(par, "numberOfForecastsInEnsemble") && (get_or_throw<long>(par, "numberOfForecastsInEnsemble") > 1);
+            const bool hasEnsembleType   = has(par, "typeOfEnsembleForecast");
+            const bool hasEnsembleNumber = has(mars, "number") && (get_or_throw<long>(mars, "number") > 0);
+
+            const bool isEnsemble = hasEnsembleSize || hasEnsembleType || hasEnsembleNumber;
+
+            tables::TypeOfGeneratingProcess result =
+                isEnsemble ? TypeOfGeneratingProcess::EnsembleForecast : TypeOfGeneratingProcess::Forecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
                 logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
                 logMsg += "'";
+                if (isEnsemble) {
+                    logMsg += " (type='fc' with ensemble evidence:";
+                    if (hasEnsembleSize) {
+                        logMsg += " numberOfForecastsInEnsemble>1";
+                    }
+                    if (hasEnsembleType) {
+                        logMsg += " typeOfEnsembleForecast-present";
+                    }
+                    if (hasEnsembleNumber) {
+                        logMsg += " number>0";
+                    }
+                    logMsg += ")";
+                }
+                else {
+                    logMsg += " (type='fc', no ensemble evidence)";
+                }
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (type == "est" || type == "es" || type == "em" || type == "ses") {
+
+            // Ensemble-derived statistical products (ensemble statistics,
+            // ensemble standard deviation, ensemble mean, ensemble spread
+            // of estimation). No dedicated code table entry exists for
+            // "ensemble-derived analysis"; EnsembleForecast (4) is the
+            // established convention to signal ensemble provenance.
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=" + type + ")";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (type == "eme" || type == "me") {
+
+            // 4D-Var model-error fields (eme = ensemble model errors,
+            // me = model errors). Generated as part of the analysis
+            // system; the canonical ECMWF GRIB2 value is Analysis (0).
+            // Without an explicit mapping here the encoder fell back to the
+            // GRIB sample default, which only happened to be 0 by accident.
+            // Grouped with eme to mirror the {4i, 4v, me, eme} grouping
+            // already used in significanceOfReferenceTime.
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Analysis;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=eme/me)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (type == "gbf") {
+
+            // GRIB best forecast (gbf) fields. Generated as part of the forecast
+            // system; the canonical ECMWF GRIB2 value is BiasCorrectedEnsembleForecast (11).
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=gbf)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (type == "gwt") {
+
+            // GRIB generated with time (gwt) fields. Generated as part of the forecast
+            // system; the canonical ECMWF GRIB2 value is Forecast (13).
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=gwt)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (type == "ssd") {
+
+            // GRIB single site deterministic (ssd) fields. Generated as part of the forecast
+            // system; the canonical ECMWF GRIB2 value is SingleSiteForecast (4).
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=ssd)";
                 return logMsg;
             }());
 

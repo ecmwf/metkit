@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "eckit/config/Resource.h"
 #include "eckit/exception/Exceptions.h"
@@ -16,6 +9,7 @@
 
 #include "metkit/codes/GRIBDecoder.h"
 #include "metkit/codes/api/CodesAPI.h"
+#include "metkit/config/LibMetkit.h"
 
 #include "eccodes.h"
 
@@ -23,8 +17,7 @@
 #include <iostream>
 
 
-namespace metkit {
-namespace codes {
+namespace metkit::codes {
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -36,6 +29,13 @@ bool GRIBDecoder::match(const eckit::message::Message& msg) const {
                          (p[0] == 'T' and p[1] == 'I' and p[2] == 'D' and p[3] == 'E') or
                          (p[0] == 'B' and p[1] == 'U' and p[2] == 'D' and p[3] == 'G'));
 }
+
+namespace {
+bool isInteger(double val) {
+    double intpart;
+    return std::modf(val, &intpart) == 0.0;
+}
+}  // namespace
 
 
 void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGatherer& gather,
@@ -53,20 +53,45 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
         // Get key size to see if it is an array
         // Only continue for scalar values
-        if (h->size(name) != 1) {
+        const auto keySize = h->size(name);
+        if (keySize != 1) {
+            LOG_DEBUG_LIB(LibMetkit) << "GRIBDecoder::getMetadata skipping non-scalar key '" << name
+                                     << "' (size=" << keySize << ")" << std::endl;
             continue;
         }
 
         switch (options.valueRepresentation) {
             case eckit::message::ValueRepresentation::String: {
-                gather.setValue(name, k.getString());
+                // TODO - remove as soon as https://jira.ecmwf.int/browse/ECC-2113 is fixed
+                if (k.name() == "levelist") {
+                    double val = k.getDouble();
+                    if (isInteger(val)) {
+                        gather.setValue(name, eckit::translate<std::string>(static_cast<long>(val)));
+                    }
+                    else {
+                        gather.setValue(name, eckit::translate<std::string>(val));
+                    }
+                }
+                else {
+                    gather.setValue(name, k.getString());
+                }
                 break;
             }
             case eckit::message::ValueRepresentation::Native: {
                 std::visit(
                     [&](auto&& v) {
                         using Type = std::decay_t<decltype(v)>;
-                        if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
+                        // TODO - remove as soon as https://jira.ecmwf.int/browse/ECC-2113 is fixed
+                        if (k.name() == "levelist") {
+                            double val = k.getDouble();
+                            if (isInteger(val)) {
+                                gather.setValue(name, static_cast<long>(val));
+                            }
+                            else {
+                                gather.setValue(name, val);
+                            }
+                        }
+                        else if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
                             gather.setValue(name, std::forward<decltype(v)>(v));
                         }
                         else if constexpr (std::is_same_v<Type, std::vector<uint8_t>>) {
@@ -139,5 +164,4 @@ static GRIBDecoder gribDecoder;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::codes

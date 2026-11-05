@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file section3Initializer.h
@@ -85,7 +78,7 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const
 
     try {
         // Special handling for spectral grids (Template 50)
-        if constexpr (TemplateNumber == 50) {
+        if constexpr (TemplateNumber == 50 || TemplateNumber == 1001) {
             // Precondition GRIB handle for spectral representation
             set_or_throw<long>(out, "numberOfDataPoints", 6L);
             set_or_throw<long>(out, "numberOfValues", 6L);
@@ -104,7 +97,8 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const
             set_or_throw<long>(out, "interpretationOfNumberOfPoints", 0L);
             set_or_throw<long>(out, "dataRepresentationTemplateNumber", 51L);
         }
-        else {
+
+        if constexpr (TemplateNumber != 50 && TemplateNumber != 1000 && TemplateNumber != 1001) {
             // Standard grid definition template
             long drt = static_cast<long>(TemplateNumber);
             set_or_throw<long>(out, "gridDefinitionTemplateNumber", drt);

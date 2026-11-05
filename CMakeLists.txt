@@ -1,10 +1,5 @@
-# (C) Copyright 2011- ECMWF.
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-# In applying this licence, ECMWF does not waive the privileges and immunities
-# granted to it by virtue of its status as an intergovernmental organisation nor
-# does it submit to any jurisdiction.
+# SPDX-FileCopyrightText: 2011- European Centre for Medium-Range Weather Forecasts (ECMWF)
+# SPDX-License-Identifier: Apache-2.0
 
 ########################################################################################################################
 
@@ -34,6 +29,10 @@ ecbuild_find_package( NAME eckit  VERSION  1.32 REQUIRED )
 ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
                     DESCRIPTION "Build the command line tools" )
+
+ecbuild_add_option( FEATURE BUILD_GRIB2_TOOLS
+                    DEFAULT OFF
+                    DESCRIPTION "Build the command line tools to support the migration to Grib2" )
 
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
@@ -69,24 +68,27 @@ ecbuild_add_option( FEATURE ODB
 
 # MARS2GRIB encoder
 
+ecbuild_add_option( FEATURE GRIB2MARS
+                    DEFAULT ON
+                    CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO AND eccodes_HAVE_ECKIT_GEO
+                    DESCRIPTION "Build the GRIB2MARS converter" )
+
 ecbuild_add_option( FEATURE MARS2MARS
                     DEFAULT ON
-                    DESCRIPTION "Build the MARS2MARS converter" )
+                    DESCRIPTION "Build the convert-to-grib2 MarsRequest converter" )
 
 ecbuild_add_option( FEATURE MARS2GRIB
                     DEFAULT ON
-                    CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO
+                    CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO AND eccodes_HAVE_ECKIT_GEO
                     DESCRIPTION "Build the MARS2GRIB encoder" )
 
-# Python bindings for mars2grib encoder
-
-ecbuild_add_option( FEATURE MARS2GRIB_PYTHON
+# Pythonic pybind11 interface (pymetkit)
+ecbuild_add_option( FEATURE PYTHON_METKIT_INTERFACE
                     DEFAULT OFF
-                    CONDITION HAVE_MARS2GRIB
-                    DESCRIPTION "Build mars2grib python library"
+                    DESCRIPTION "Build the pybind11 pymetkit interface"
                     REQUIRED_PACKAGES
-                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development REQUIRED"
-                        "NAME pybind11 VERSION 3.0.1 REQUIRED" )
+                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
+                        "NAME pybind11 VERSION 3.0.1" )
 
 # METKIT config files support
 
@@ -99,6 +101,11 @@ ecbuild_add_option( FEATURE FAIL_ON_CCSDS
                     DESCRIPTION "Fail on CCSDS"
                     DEFAULT OFF	 )
 
+### Documentation
+ecbuild_add_option( FEATURE METKIT_DOCUMENTATION
+                    DEFAULT OFF
+                    DESCRIPTION "Enable documentation generation" )
+
 
 ############################################################################################
 # sources
@@ -108,6 +115,10 @@ include(cmake/compiler_warnings.cmake) # optionally handle compiler specific war
 add_subdirectory( src )
 add_subdirectory( share )
 add_subdirectory( tests )
+
+if(ENABLE_METKIT_DOCUMENTATION)
+    add_subdirectory(docs)
+endif()
 
 ############################################################################################
 # finalize

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file normalization.h
@@ -21,7 +14,6 @@
 // Project includes
 #include "eckit/value/Value.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::normalization {
@@ -94,15 +86,14 @@ template <class MarsDict_t, class OptDict_t>
 const MarsDict_t& normalize_MarsDict_if_enabled(const MarsDict_t& mars, const OptDict_t& opt,
                                                 const eckit::Value& language, MarsDict_t& scratch) {
 
-    using metkit::mars2grib::utils::fixMarsGridEnabled;
-    using metkit::mars2grib::utils::normalizeMarsEnabled;
     using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
     // Track if we have moved data into scratch yet
     bool modified = false;
 
-    bool needsFix      = fixMarsGridEnabled(opt) && hack::needFixMarsGrid(mars);
-    bool needsSanitize = normalizeMarsEnabled(opt);
+    bool needsFix      = get_or_throw<bool>(opt, "fixMarsGrid") && hack::needFixMarsGrid(mars);
+    bool needsSanitize = get_or_throw<bool>(opt, "normalizeMars");
 
     if (needsFix || needsSanitize) {
         // We pay the performance debt here for the user's convenience

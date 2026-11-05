@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file analysisOp.h
+/// @file analysisEncoding.h
 /// @brief Implementation of the GRIB `analysis` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -150,7 +143,7 @@ void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
             MARS2GRIB_LOG_CONCEPT(analysis);
 
             // Structural validation
-            validation::match_LocalDefinitionNumber_or_throw(opt, out, {36L});
+            validation::match_LocalDefinitionNumber_or_throw(opt, out, {36L, 37L, 38L, 39L});
 
             // Deductions
             long offsetToEndOf4DvarWindowVal = deductions::resolve_offsetToEndOf4DvarWindow_or_throw(mars, par, opt);

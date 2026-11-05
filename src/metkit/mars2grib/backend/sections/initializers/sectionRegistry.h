@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file sectionInitializerRegistry.h
@@ -77,8 +70,15 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = {
     {1, &allocateTemplateNumber2<2, 1, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {15, &allocateTemplateNumber2<2, 15, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {16, &allocateTemplateNumber2<2, 16, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {20, &allocateTemplateNumber2<2, 20, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {24, &allocateTemplateNumber2<2, 24, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {25, &allocateTemplateNumber2<2, 25, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {36, &allocateTemplateNumber2<2, 36, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {37, &allocateTemplateNumber2<2, 37, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {38, &allocateTemplateNumber2<2, 38, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {39, &allocateTemplateNumber2<2, 39, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {45, &allocateTemplateNumber2<2, 45, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1000, &allocateTemplateNumber2<2, 1000, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1001, &allocateTemplateNumber2<2, 1001, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1002, &allocateTemplateNumber2<2, 1002, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -93,7 +93,9 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec3Reg[] = 
     {40, &allocateTemplateNumber3<3, 40, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {50, &allocateTemplateNumber3<3, 50, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {101, &allocateTemplateNumber3<3, 101, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {150, &allocateTemplateNumber3<3, 150, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
+    {150, &allocateTemplateNumber3<3, 150, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {1000, &allocateTemplateNumber3<3, 1000, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {1001, &allocateTemplateNumber3<3, 1001, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 4 (Product Definition Section) initializers.
@@ -104,6 +106,7 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {1, &allocateTemplateNumber4<4, 1, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {2, &allocateTemplateNumber4<4, 2, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {8, &allocateTemplateNumber4<4, 8, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    //    {9, &allocateTemplateNumber4<4, 9, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {11, &allocateTemplateNumber4<4, 11, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {12, &allocateTemplateNumber4<4, 12, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {32, &allocateTemplateNumber4<4, 32, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -128,8 +131,16 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {100, &allocateTemplateNumber4<4, 100, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {103, &allocateTemplateNumber4<4, 103, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {104, &allocateTemplateNumber4<4, 104, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {107, &allocateTemplateNumber4<4, 107, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {121, &allocateTemplateNumber4<4, 121, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {122, &allocateTemplateNumber4<4, 122, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {131, &allocateTemplateNumber4<4, 131, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {140, &allocateTemplateNumber4<4, 140, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {142, &allocateTemplateNumber4<4, 142, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {143, &allocateTemplateNumber4<4, 143, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
+    {144, &allocateTemplateNumber4<4, 144, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {145, &allocateTemplateNumber4<4, 145, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {152, &allocateTemplateNumber4<4, 152, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {153, &allocateTemplateNumber4<4, 153, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 5 (Data Representation Section) initializers.

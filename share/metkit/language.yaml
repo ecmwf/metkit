@@ -90,6 +90,7 @@ _field: &_field
       - [uk, united kingdom]
       - [ul, ulysses]
       - [ur, uerra]
+      - [we, Wildfire emissions]
       - [yp, yopp]
       - [yt, yotc]
 
@@ -245,6 +246,7 @@ _field: &_field
       - [ewmm, ensemble wave data assimilation monthly means]
       - [ewmo, ensemble wave data assimilation monthly means of daily means]
       - [fgge, fg]
+      - [frcd, Forcing data]
       - [fsob, forecast sensitivity to observations]
       - [fsow, forecast sensitivity to observations wave]
       - [gfas, global fire assimilation system]
@@ -467,6 +469,8 @@ _field: &_field
           - [mhm]
           - [pcr-globwb]
           - [vic-wur]
+          - [geff]
+          - [sparky]
 
   forcing:
     category: data
@@ -498,6 +502,7 @@ _field: &_field
       - [v3.5]
       - [v4.0]
       - [v5.0]
+      - [v6.0]
       - [49r2-sfdd]
       - [50r1-oper]
       - [50r1-enfo]
@@ -650,7 +655,12 @@ _field: &_field
     category: data
     aliases: [levtyp]
     defaults:
-      - vals: [pl]
+      - context:
+          stream: ['!', dacw, dcwv, ewda, ewhc, ewla, ewmm, ewmo, lwwv, mawm, mawv, mfaw, mfhw, mfwm, mhwm, mnfw, mswm, scwv, swmm, waef, wamd, wamf, wamo, wams, wasf, wave, weef, weeh, wees, wehs, weov, wmfm, wvhc]
+        vals: [pl]
+      - context:
+          stream: [dacw, dcwv, ewda, ewhc, ewla, ewmm, ewmo, lwwv, mawm, mawv, mfaw, mfhw, mfwm, mhwm, mnfw, mswm, scwv, swmm, waef, wamd, wamf, wamo, wams, wasf, wave, weef, weeh, wees, wehs, weov, wmfm, wvhc]
+        vals: [sfc]
     flatten: false
     type: [enum, integer]
     values:
@@ -677,6 +687,13 @@ _field: &_field
     multiple: true
     type: to-by-list-float
     by: 1
+
+  units:
+    category: postproc
+    type: enum
+    values:
+      - [si]
+      - [av]
 
   param:
     category: data
@@ -722,6 +739,18 @@ _field: &_field
     - [none, inst, instantaneous]
     default: none
     multiple: true
+
+  paramtype:
+    category: derived
+    type: enum
+    values:
+    - [chemical]
+    - [chemical_optical]
+    - [base]
+    - [wave]
+    - [wave_spectra]
+    - [optical]
+    - [tile]
 
   stattype:
     category: data
@@ -930,6 +959,32 @@ _field: &_field
       - [itcw, 5, With intercepted water]
       - [itcs, 6, With intercepted snow]
       - [agg, 7, Aggregated]
+      - [snow_flood, Snow covered and flooded]
+      - [snow_ice, Snow covered and ice covered]
+      - [snow_itcw, Snow covered and with intercepted water]
+      - [snow_itcs, Snow covered and with intercepted snow]
+      - [flood_ice, Flooded and ice covered]
+      - [flood_itcw, Flooded and with intercepted water]
+      - [flood_itcs, Flooded and with intercepted snow]
+      - [ice_itcw, Ice covered and with intercepted water]
+      - [ice_itcs, Ice covered and with intercepted snow]
+      - [itcw_itcs, With intercepted water and with intercepted snow]
+      - [snow_flood_ice, Snow covered and flooded and ice covered]
+      - [snow_flood_itcw, Snow covered and flooded and with intercepted water]
+      - [snow_flood_itcs, Snow covered and flooded and with intercepted snow]
+      - [snow_ice_itcw, Snow covered and ice covered and with intercepted water]
+      - [snow_ice_itcs, Snow covered and ice covered and with intercepted snow]
+      - [snow_itcw_itcs, Snow covered and with intercepted water and with intercepted snow]
+      - [flood_ice_itcw, Flooded and ice covered and with intercepted water]
+      - [flood_ice_itcs, Flooded and ice covered and with intercepted snow]
+      - [flood_itcw_itcs, Flooded and with intercepted water and with intercepted snow]
+      - [ice_itcw_itcs, Ice covered and with intercepted water and with intercepted snow]
+      - [snow_flood_ice_itcw, Snow covered and flooded and ice covered and with intercepted water]
+      - [snow_flood_ice_itcs, Snow covered and flooded and ice covered and with intercepted snow]
+      - [snow_flood_itcw_itcs, Snow covered and flooded and with intercepted water and with intercepted snow]
+      - [snow_ice_itcw_itcs, Snow covered and ice covered and with intercepted water and with intercepted snow]
+      - [flood_ice_itcw_itcs, Flooded and ice covered and with intercepted water and with intercepted snow]
+      - [snow_flood_ice_itcw_itcs, Snow covered and flooded and ice covered and with intercepted water and with intercepted snow]
     default: none
     multiple: true
 
@@ -985,6 +1040,13 @@ _field: &_field
       - [10, oct, october]
       - [11, nov, november]
       - [12, dec, december]
+
+  day:
+    category: postproc
+    multiple: true
+    type: to-by-list
+    by: 1
+    range: [1, 31]
 
   hdate:
     category: data
@@ -1475,7 +1537,7 @@ _postproc: &_postproc
       - [F4000, 4000]
       - [F8000, 8000]
     regex:
-      - '^[oOfF][1-9][0-9]*$'
+      - '^[oOfFtT][1-9][0-9]*$'
       - '^[nN](32|48|64|80|96|128|160|200|256|320|400|512|640|800|1024|1280|8000)$'
       - '^[hH][rRnN]?(1|2|4|8|16|32|64|128|256|512|1024|2048|4096|8192)$'
     uppercase: true
@@ -1487,8 +1549,8 @@ _postproc: &_postproc
     values:
       - [linear]
       - [bilinear]
-      - [nearest-lsm, nlsm, nearest lsm]
-      - [nearest-neighbour, nn, nearest neighbour]
+      - [nearest-lsm, nlsm, nearest_lsm, nearest lsm]
+      - [nearest-neighbour, nn, nearest_neighbour, nearest neighbour]
       - [grid-box-average, average]
 
   packing:
@@ -1496,7 +1558,7 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-      - [so, second order]
+      - [so, second-order, second_order,second order]
       - [av]
       - [complex, co]
       - [simple, si]
@@ -1581,6 +1643,8 @@ disseminate:
   <<: *_field
   <<: *_postproc
 
+  _aliases: [filter]
+
   requirements:
     type: any
 
@@ -1591,13 +1655,6 @@ disseminate:
   # repres:
   #   category: postproc
   #   type: any
-
-  day:
-    category: postproc
-    multiple: true
-    type: to-by-list
-    by: 1
-    range: [1, 31]
 
   use:
     category: sink
@@ -1822,10 +1879,6 @@ read:
 
   _options:
     param:
-      # expand_with:  # In case not type/stream/levtype is provided
-      #   type: an
-      #   stream: oper
-      #   levtype: pl
       first_rule: true
 ##############################################################
 
@@ -1842,16 +1895,16 @@ flush:
     multiple: false
     type: enum
     values:
-      - [true, yes, y, on, 1]
-      - [false, no, n, off, 0]
+      - ['true', 'yes', 'y', 'on', '1']
+      - ['false', 'no', 'n', 'off', '0']
 
   decache:
     flatten: false
     multiple: false
     type: enum
     values:
-      - [true, yes, y, on, 1]
-      - [false, no, n, off, 0]
+      - ['true', 'yes', 'y', 'on', '1']
+      - ['false', 'no', 'n', 'off', '0']
 
   _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
 
@@ -1973,10 +2026,6 @@ pointdb:
 
   _options:
     param:
-      # expand_with:  # In case not type/stream/levtype is provided
-      #   type: an
-      #   stream: oper
-      #   levtype: pl
       first_rule: true
 
 end: {}

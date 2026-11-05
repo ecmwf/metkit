@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996-2012 ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996-2012 European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/odb/OdbToRequest.h"
 
@@ -64,13 +57,14 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
     Frame frame;
 
     std::vector<MarsRequest> requests;
+    const MarsLanguage& language = MarsLanguage::get(verb_);
 
     while ((frame = reader.next())) {
         Span span = frame.span(OdbMetadataDecoder::columnNames(frame), onlyConstantColumns_);
 
         MarsRequest r(verb_);
         MarsRequestSetter setter(r);
-        OdbMetadataDecoder decoder(setter, {}, verb_);
+        OdbMetadataDecoder decoder(setter, {}, language);
         span.visit(decoder);
         decoder.finalize();
 

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file typeOfProcessedData.h
@@ -147,25 +140,30 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
             }());
         }
         else {
-
+            const bool isSeasonalEnsemble = (marsClass == "od" || marsClass == "rd" || marsClass == "c3") &&
+                                            (marsStream == "sfdd" || marsStream == "sfmd" || marsStream == "shdd" ||
+                                             marsStream == "shmd" || marsStream == "sfdp" || marsStream == "shdp");
+            if (isSeasonalEnsemble) {
+                result = tables::TypeOfProcessedData::PerturbedForecastProducts;
+            }
             // Deduce typeOfProcessedData from mars class and type
-            if (marsClass == "ai") {  // Mars class only for AI output
+            else if (marsClass == "ai") {  // Mars class only for AI output
                 result = tables::TypeOfProcessedData::MlBasedForecast;
             }
             else {  // Mars type for everything else
-                if (marsType == "an") {
+                if (marsType == "an" || marsType == "me" || marsType == "4i") {
                     result = tables::TypeOfProcessedData::AnalysisProducts;
                 }
-                else if (marsType == "fc") {
+                else if (marsType == "ssd") {
                     result = tables::TypeOfProcessedData::ForecastProducts;
                 }
                 else if (marsType == "pf") {
                     result = tables::TypeOfProcessedData::PerturbedForecastProducts;
                 }
-                else if (marsType == "cf") {
+                else if (marsType == "fc" || marsType == "cf") {
                     result = tables::TypeOfProcessedData::ControlForecastProducts;
                 }
-                else if (marsType == "ssd" || marsType == "gsd") {
+                else if (marsType == "gsd") {
                     result = tables::TypeOfProcessedData::ProcessedSatelliteObservations;
                 }
                 else {

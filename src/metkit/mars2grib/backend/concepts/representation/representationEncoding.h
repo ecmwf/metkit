@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file representationOp.h
+/// @file representationEncoding.h
 /// @brief Implementation of the GRIB `representation` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -119,10 +112,12 @@
 #pragma once
 
 // System includes
+#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <regex>
 #include <string>
+#include <vector>
 
 // Eckit::geo includes
 #include "eckit/geo/Grid.h"
@@ -135,6 +130,8 @@
 #include "eckit/spec/Custom.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
+// Defintion of Span
+#include "metkit/codes/api/CodesTypes.h"
 
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
@@ -153,6 +150,37 @@
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
+
+
+/// This helper provides a function-local static buffer initialized with a constant value.
+/// The buffer starts with size zero and is grown on demand when the requested
+/// size exceeds the currently allocated size.
+///
+/// If the buffer is already large enough, the existing storage is reused without
+/// reallocation. The returned span is restricted to the requested size, even if
+/// the underlying buffer is larger.
+///
+/// The returned span is read-only and is intended to initialize encoded fields
+/// with the value resolved by the caller. The active span is refreshed with
+/// `std::transform` on each call.
+///
+/// @param requiredSize Number of entries requested.
+/// @param value Constant value used to initialize every entry.
+///
+/// @return Span containing exactly `requiredSize` entries set to `value`.
+///
+static metkit::codes::Span<const double> constValueSpan(std::size_t requiredSize, double value) {
+    static thread_local std::vector<double> values;
+
+    if (values.size() < requiredSize) {
+        values.resize(requiredSize);
+    }
+
+    std::transform(values.begin(), values.begin() + requiredSize, values.begin(), [value](double) { return value; });
+
+    return metkit::codes::Span<const double>{values.data(), requiredSize};
+}
+
 
 ///
 /// @brief Compile-time applicability predicate for the `representation` concept.
@@ -176,6 +204,11 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, RepresentationType Variant>
 constexpr bool representationApplicable() {
+
+    // Disable the concept for the Dummy variant
+    if constexpr (Variant == RepresentationType::Dummy || Variant == RepresentationType::DummySH) {
+        return false;
+    }
 
     bool condition1 = Stage == StageAllocate && Section == SecGridDefinitionSection;
     bool condition2 = Stage == StagePreset && Section == SecGridDefinitionSection;
@@ -358,6 +391,10 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
                     set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
                     set_or_throw(out, "jDirectionIncrementInDegrees", jDirectionIncrementInDegrees);
+
+                    // Initialize values with the deduced reference value
+                    std::size_t numberOfCoefficients = grid->size();
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::RegularGaussian) {
 
@@ -367,6 +404,10 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid =
                         dynamic_cast<const eckit::geo::grid::regular::RegularGaussian*>(genericGrid.get());
+
+                    const long Ni = grid->nlon();
+                    const long Nj = grid->nlat();
+                    const long N  = grid->N();
 
                     const auto firstPoint = std::get<eckit::geo::PointLonLat>(grid->first_point());
                     const auto lastPoint  = std::get<eckit::geo::PointLonLat>(grid->last_point());
@@ -378,15 +419,20 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     const auto iDirectionIncrementInDegrees = std::abs(grid->dx());
 
-                    // TODO (GEOM): numberOfParallelsBetweenAPoleAndTheEquator, and numberOfPointsAlongAMeridian ?
-
                     // Encoding
                     set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
+                    set_or_throw<long>(out, "Ni", Ni);
+                    set_or_throw<long>(out, "Nj", Nj);
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
                     set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
                     set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
+                    set_or_throw(out, "N", N);
+
+                    // Initialize values with the deduced reference value
+                    std::size_t numberOfCoefficients = grid->size();
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::ReducedGaussian) {
 
@@ -416,20 +462,10 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
                     set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
                     setMissing_or_throw(out, "iDirectionIncrement");
-                }
-                else if constexpr (Variant == RepresentationType::SphericalHarmonics) {
 
-                    // Deductions
-                    const auto marsTruncation = get_or_throw<long>(mars, "truncation");
-
-                    const auto pentagonalResolutionParameterJ = marsTruncation;
-                    const auto pentagonalResolutionParameterK = marsTruncation;
-                    const auto pentagonalResolutionParameterM = marsTruncation;
-
-                    // Encoding
-                    set_or_throw<long>(out, "pentagonalResolutionParameterJ", pentagonalResolutionParameterJ);
-                    set_or_throw<long>(out, "pentagonalResolutionParameterK", pentagonalResolutionParameterK);
-                    set_or_throw<long>(out, "pentagonalResolutionParameterM", pentagonalResolutionParameterM);
+                    // Initialize values with the deduced reference value
+                    std::size_t numberOfCoefficients = grid->size();
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::Healpix) {
 
@@ -449,6 +485,10 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     set_or_throw(out, "Nside", nside);
                     set_or_throw<std::string>(out, "orderingConvention", orderingConvention);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
+
+                    // Initialize values with the deduced reference value
+                    std::size_t numberOfCoefficients = grid->size();
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::Orca) {
 
@@ -466,9 +506,31 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     set_or_throw(out, "unstructuredGridType", gridType);
                     set_or_throw(out, "unstructuredGridSubtype", gridSubType);
                     set_or_throw(out, "uuidOfHGrid", uuid);
+
+                    // Initialize values with the deduced reference value
+                    std::size_t numberOfCoefficients = grid->size();
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::Fesom) {
                     MARS2GRIB_CONCEPT_THROW(representation, "Support for Fesom representation not implemented...");
+                }
+                else if constexpr (Variant == RepresentationType::SphericalHarmonics) {
+
+                    // Deductions
+                    const auto marsTruncation = get_or_throw<long>(mars, "truncation");
+
+                    const auto pentagonalResolutionParameterJ = marsTruncation;
+                    const auto pentagonalResolutionParameterK = marsTruncation;
+                    const auto pentagonalResolutionParameterM = marsTruncation;
+
+                    // Encoding
+                    set_or_throw<long>(out, "pentagonalResolutionParameterJ", pentagonalResolutionParameterJ);
+                    set_or_throw<long>(out, "pentagonalResolutionParameterK", pentagonalResolutionParameterK);
+                    set_or_throw<long>(out, "pentagonalResolutionParameterM", pentagonalResolutionParameterM);
+
+                    // Initialize values with the deduced reference value
+                    std::size_t numberOfCoefficients = (marsTruncation + 1) * (marsTruncation + 2);
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else {
                     MARS2GRIB_CONCEPT_THROW(representation, "Unknown `representation` variant...");

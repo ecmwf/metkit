@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
@@ -20,11 +13,10 @@
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ParamID.h"
+#include "metkit/mars/Type.h"
 #include "metkit/mars/TypeAny.h"
 
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -205,7 +197,7 @@ void MarsRequest::unsetValues(const std::string& name) {
     }
 }
 
-void MarsRequest::setValuesTyped(Type* type, const std::vector<std::string>& values) {
+void MarsRequest::setValuesTyped(const Type* type, const std::vector<std::string>& values) {
     std::list<Parameter>::iterator i = find(type->name());
     if (i != params_.end()) {
         (*i) = Parameter(values, type);
@@ -466,11 +458,16 @@ MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
     return req;
 }
 
-
 MarsRequest MarsRequest::extract(const std::string& category) const {
+    Category cat = category == "data"       ? Category::Data
+                   : category == "derived"  ? Category::Derived
+                   : category == "postproc" ? Category::PostProc
+                   : category == "sink"     ? Category::Sink
+                                            : Category::None;
+
     MarsRequest req(verb_);
     for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
-        if (it->type().category() == category) {
+        if (it->type().category() == cat) {
             req.params_.push_back(*it);
         }
     }
@@ -546,5 +543,4 @@ MarsRequest MarsRequest::parse(const std::string& s, bool strict) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

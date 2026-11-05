@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @author Manuel Fuentes
 /// @author Baudouin Raoult
@@ -14,8 +7,7 @@
 
 /// @date Sep 96
 
-#ifndef metkit_Parameter_H
-#define metkit_Parameter_H
+#pragma once
 
 #include "eckit/types/Date.h"
 #include "eckit/types/Double.h"
@@ -28,8 +20,7 @@ class JSON;
 class MD5;
 }  // namespace eckit
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class Type;
 class MarsRequest;
@@ -43,7 +34,7 @@ public:  // methods
     Parameter();
     ~Parameter();
 
-    Parameter(const std::vector<std::string>& values, Type* = 0);
+    Parameter(const std::vector<std::string>& values, const Type* = 0);
     Parameter(const Parameter&);
 
     Parameter& operator=(const Parameter&);
@@ -58,7 +49,7 @@ public:  // methods
 
     void merge(const Parameter& p);
 
-    Type& type() const { return *type_; }
+    const Type& type() const { return *type_; }
     const std::string& name() const;
 
     size_t count() const;
@@ -74,14 +65,11 @@ private:  // methods
 
 private:  // members
 
-    Type* type_;
+    const Type* type_;
     std::vector<std::string> values_;
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

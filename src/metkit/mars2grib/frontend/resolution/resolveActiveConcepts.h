@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file resolve_ActiveConcepts.h
@@ -59,6 +52,7 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
     using Registry = metkit::mars2grib::backend::concepts_::MatchingCallbacksRegistry<MarsDict_t, OptDict_t>;
+    using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_ActiveConceptsData_to_json;
 
     try {
 
@@ -87,6 +81,9 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
                 activeConceptsData.activeVariantIndices[i] = GeneralRegistry::missing;
             }
         }
+
+        eckit::Log::debug<LibMetkit>() << "Resolved ActiveConceptsData: "
+                                       << debug_convert_ActiveConceptsData_to_json(activeConceptsData) << std::endl;
 
         // Return the active concepts
         return activeConceptsData;

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @author Manuel Fuentes
 /// @author Baudouin Raoult
@@ -14,21 +7,17 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsExpansion_H
-#define metkit_MarsExpansion_H
-
-#include "eckit/memory/NonCopyable.h"
+#pragma once
 
 #include <map>
 #include <string>
 #include <vector>
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
-
-class MarsLanguage;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -54,31 +43,32 @@ protected:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsExpansion : public eckit::NonCopyable {
+class MarsExpansion {
 public:
 
     MarsExpansion(bool inherit, bool strict = false);
-    ~MarsExpansion();
 
     void reset();
 
     MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
+    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
 
     void expand(const MarsRequest&, ExpandCallback&);
     void flatten(const MarsRequest&, FlattenCallback&);
 
 private:
 
-    MarsLanguage& language(const std::string& verb);
+    ExpansionContext& ctxForVerb(const std::string& verb);
 
-    std::map<std::string, MarsLanguage*> languages_;
+private:
+
     bool inherit_;
     bool strict_;
+
+    std::map<std::string, ExpansionContext> ctx_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
-
-#endif

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <algorithm>
 #include <iterator>
@@ -15,8 +8,7 @@
 #include "metkit/mars/Type.h"
 
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -45,7 +37,7 @@ Parameter::~Parameter() {
     type_->detach();
 }
 
-Parameter::Parameter(const std::vector<std::string>& values, Type* type) : type_(type), values_(values) {
+Parameter::Parameter(const std::vector<std::string>& values, const Type* type) : type_(type), values_(values) {
     if (!type) {
         type_ = &undefined;
     }
@@ -58,8 +50,8 @@ Parameter::Parameter(const Parameter& other) : type_(other.type_), values_(other
 }
 
 Parameter& Parameter::operator=(const Parameter& other) {
-    Type* old = type_;
-    type_     = other.type_;
+    const Type* old = type_;
+    type_           = other.type_;
     type_->attach();
     old->detach();
 
@@ -127,5 +119,4 @@ bool Parameter::operator<(const Parameter& other) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

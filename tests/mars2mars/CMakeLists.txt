@@ -1,5 +1,3 @@
-if( HAVE_MARS2MARS )
-
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/mars2mars-test-requests.mars
     ${CMAKE_CURRENT_BINARY_DIR}/mars2mars-test-requests.mars
@@ -34,4 +32,25 @@ ecbuild_add_test(
         metkit
 )
 
+ecbuild_add_test(
+    TARGET
+        mars2mars-test-03
+
+    SOURCES
+        mars2mars-test-03.cc
+
+    NO_AS_NEEDED
+
+    LIBS
+        eckit
+        metkit
+)
+
+if( HAVE_BUILD_GRIB2_TOOLS )
+    ecbuild_configure_file( convert-mars-request.sh.in convert-mars-request.sh @ONLY )
+
+    ecbuild_add_test(
+        TARGET   convert-mars-request
+        TYPE     SCRIPT
+        COMMAND  convert-mars-request.sh )
 endif()

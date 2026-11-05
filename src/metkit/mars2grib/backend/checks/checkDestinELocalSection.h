@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 #pragma once
 
 #include <string>
@@ -15,7 +8,6 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -62,34 +54,37 @@ namespace metkit::mars2grib::backend::validation {
 template <class OptDict_t, class OutDict_t>
 void check_DestinELocalSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 
-    using metkit::mars2grib::utils::checksEnabled;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (get_or_throw<bool>(opt, "applyChecks")) {
 
-            // If Local Use Section is present, validate production status
-            if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
+                // If Local Use Section is present, validate production status
+                if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
 
-                long actualProductionStatusOfProcessedData = get_or_throw<long>(out, "productionStatusOfProcessedData");
+                    long actualProductionStatusOfProcessedData =
+                        get_or_throw<long>(out, "productionStatusOfProcessedData");
 
-                // Throw if no match
-                constexpr long kDestinEProductionStatus = 12;
-                if (actualProductionStatusOfProcessedData != kDestinEProductionStatus) {
-                    std::string errMsg = "Invalid DestinE Local Use Section (wrong productionStatusOfProcessedData): ";
-                    errMsg += "actual=" + std::to_string(actualProductionStatusOfProcessedData);
-                    errMsg += ", expected=" + std::to_string(kDestinEProductionStatus);
-                    throw Mars2GribValidationException(errMsg, Here());
+                    // Throw if no match
+                    constexpr long kDestinEProductionStatus = 12;
+                    if (actualProductionStatusOfProcessedData != kDestinEProductionStatus) {
+                        std::string errMsg =
+                            "Invalid DestinE Local Use Section (wrong productionStatusOfProcessedData): ";
+                        errMsg += "actual=" + std::to_string(actualProductionStatusOfProcessedData);
+                        errMsg += ", expected=" + std::to_string(kDestinEProductionStatus);
+                        throw Mars2GribValidationException(errMsg, Here());
+                    }
                 }
-            }
-            else {
-                throw Mars2GribValidationException("DestinE Local Use Section not allocated in the sample", Here());
-            }
+                else {
+                    throw Mars2GribValidationException("DestinE Local Use Section not allocated in the sample", Here());
+                }
 
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Validated DestinE Local Use Section");
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Validated DestinE Local Use Section");
+            }
         }
 
         // Exit on success

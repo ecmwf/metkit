@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/mars/TypeDate.h"
 
@@ -122,7 +115,7 @@ TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type
     filters_["day"] = &filterByDay;
 }
 
-void TypeDate::pass2(MarsRequest& request) {
+void TypeDate::pass2(MarsRequest& request) const {
     std::vector<std::string> values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "-1") {
         Type::expand(values, request);

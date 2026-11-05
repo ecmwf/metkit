@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file waveOp.h
+/// @file waveEncoding.h
 /// @brief Implementation of the GRIB `wave` concept.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -124,7 +117,7 @@ constexpr bool waveApplicable() {
 /// ### Variant `WaveType::Spectra`
 ///
 /// #### StageAllocate
-/// - Validates that the Product Definition Template Number is one of `{99, 100}`.
+/// - Validates that the Product Definition Template Number is one of `{99, 100, 142}`.
 /// - Deduces and encodes:
 /// - Wave direction grid (number, scale factor, scaled values)
 /// - Wave frequency grid (number, scale factor, scaled values)
@@ -138,7 +131,7 @@ constexpr bool waveApplicable() {
 /// ### Variant `WaveType::Period`
 ///
 /// #### StagePreset
-/// - Validates that the Product Definition Template Number is one of `{103, 104}`.
+/// - Validates that the Product Definition Template Number is one of `{103, 104, 140, 144, 145}`.
 /// - Deduces optional lower and/or upper wave period bounds.
 /// - Encodes wave period interval metadata according to the availability
 /// of minimum and/or maximum bounds.
@@ -204,10 +197,10 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
 
             // Checks/Validation
             if constexpr (Variant == WaveType::Spectra) {
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {99, 100});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {99, 100, 142});
             }
             else if constexpr (Variant == WaveType::Period) {
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104, 140, 144, 145});
             }
 
             if constexpr (Stage == StageAllocate) {

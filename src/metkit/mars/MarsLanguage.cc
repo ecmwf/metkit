@@ -1,17 +1,11 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/mars/MarsLanguage.h"
 
 #include <algorithm>
 #include <fstream>
+#include <mutex>
 #include <optional>
 
 #include "eckit/config/Resource.h"
@@ -58,6 +52,35 @@ static void init() {
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
+
+ExpansionContext::ExpansionContext(const MarsRequest& request) {
+    for (const auto& param : request.parameters()) {
+        values_[param.name()] = param.values();
+    }
+}
+
+ExpansionContext& ExpansionContext::operator=(ExpansionContext&& other) {
+    values_ = std::move(other.values_);
+    return *this;
+}
+
+bool ExpansionContext::has(const std::string& key) const {
+    return values_.find(key) != values_.end();
+}
+
+const std::vector<std::string>& ExpansionContext::values(const std::string& key) const {
+    static const std::vector<std::string> empty;
+    auto it = values_.find(key);
+    if (it != values_.end()) {
+        return it->second;
+    }
+    return empty;
+}
+
+void ExpansionContext::unset(const std::string& key) {
+    values_.erase(key);
+}
+
 void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
                                  const eckit::Value& mod) {
     eckit::Value keys;
@@ -133,30 +156,6 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
         if (settings.contains("aliases")) {
             aliases = settings["aliases"];
         }
-        if (settings.contains("category") && settings["category"] == "data") {
-            dataKeywords_.insert(keyword);
-            if (aliases) {
-                for (size_t j = 0; j < aliases->size(); ++j) {
-                    dataKeywords_.insert((*aliases)[j]);
-                }
-            }
-        }
-        if (settings.contains("category") && settings["category"] == "postproc") {
-            postProcKeywords_.insert(keyword);
-            if (aliases) {
-                for (auto j = 0; j < aliases->size(); ++j) {
-                    postProcKeywords_.insert((*aliases)[j]);
-                }
-            }
-        }
-        if (settings.contains("category") && settings["category"] == "sink") {
-            sinkKeywords_.insert(keyword);
-            if (aliases) {
-                for (auto j = 0; j < aliases->size(); ++j) {
-                    sinkKeywords_.insert((*aliases)[j]);
-                }
-            }
-        }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
                 aliases_[(*aliases)[j]] = keyword;
@@ -204,25 +203,35 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
         typesByAxisOrder_.emplace_back(a, t);
     }
     for (auto& [k, t] : types_) {
-        if (dataKeywords_.find(k) == dataKeywords_.end()) {
+        if (t->category() != Category::Data) {
             typesByAxisOrder_.emplace_back(k, t);
         }
     }
 }
 
-bool MarsLanguage::isData(const std::string& keyword) const {
-    return (dataKeywords_.find(keyword) != dataKeywords_.end());
+Category MarsLanguage::category(const std::string& keyword) const {
+    auto it = types_.find(keyword);
+    if (it != types_.end()) {
+        return it->second->category();
+    }
+    throw eckit::UserError("Cannot find keyword: " + keyword);
 }
 
-bool MarsLanguage::isPostProc(const std::string& keyword) const {
-    return (postProcKeywords_.find(keyword) != postProcKeywords_.end());
+bool MarsLanguage::isData(const std::string& k) const {
+    return category(k) == Category::Data;
+}
+bool MarsLanguage::isDerived(const std::string& k) const {
+    return category(k) == Category::Derived;
+}
+bool MarsLanguage::isPostProc(const std::string& k) const {
+    return category(k) == Category::PostProc;
+}
+bool MarsLanguage::isSink(const std::string& k) const {
+    return category(k) == Category::Sink;
 }
 
-bool MarsLanguage::isSink(const std::string& keyword) const {
-    return (sinkKeywords_.find(keyword) != sinkKeywords_.end());
-}
-const std::set<std::string>& MarsLanguage::sinkKeywords() const {
-    return sinkKeywords_;
+bool MarsLanguage::isKeyword(const std::string& keyword) const {
+    return types_.find(keyword) != types_.end() || aliases_.find(keyword) != aliases_.end();
 }
 
 MarsLanguage::~MarsLanguage() {
@@ -231,14 +240,25 @@ MarsLanguage::~MarsLanguage() {
     }
 }
 
-eckit::PathName MarsLanguage::languageYamlFile() {
-    return metkit::LibMetkit::languageYamlFile();
-}
+const MarsLanguage& MarsLanguage::get(const std::string& verb) {
+    static std::mutex mutex;
+    static std::map<std::string, MarsLanguage*> instances;
 
-void MarsLanguage::reset() {
-    for (auto& [k, t] : types_) {
-        t->reset();
+    std::lock_guard lock(mutex);
+    auto it = instances.find(verb);
+    if (it != instances.end()) {
+        return *(it->second);
     }
+
+    auto v = expandVerb(verb);
+    it     = instances.find(v);
+    if (it != instances.end()) {
+        return *(it->second);
+    }
+
+    auto [newIt, inserted] = instances.emplace(v, new MarsLanguage(v));
+    ASSERT(inserted);
+    return *(newIt->second);
 }
 
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
@@ -267,7 +287,6 @@ static bool isnumeric(const std::string& s) {
 
     return s.length() > 0;
 }
-
 
 std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail,
                                     bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
@@ -424,8 +443,7 @@ public:
     TypeHidden() : Type("hidden", eckit::Value()) { attach(); }
 };
 
-
-Type* MarsLanguage::type(const std::string& name) const {
+const Type* MarsLanguage::type(const std::string& name) const {
     auto k = types_.find(name);
     if (k == types_.end()) {
         if (name[0] == '_') {
@@ -438,8 +456,7 @@ Type* MarsLanguage::type(const std::string& name) const {
     return k->second;
 }
 
-
-MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
+MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
     MarsRequest result(verb_);
 
     try {
@@ -448,16 +465,25 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
         std::vector<std::string> params;
 
         for (const auto& PP : r.params()) {
-            auto c = cache_.find(PP);
-            if (c != cache_.end()) {
-                paramSet.emplace((*c).second, PP);
+            std::string p = eckit::StringTools::lower(PP);
+            bool found    = false;
+            auto it       = types_.find(p);
+            if (it != types_.end()) {
+                found = true;
             }
             else {
-                std::string p = eckit::StringTools::lower(PP);
-                paramSet.emplace(cache_[p] = bestMatch(p, keywords_, true, false, true, aliases_), PP);
+                auto itAlias = aliases_.find(p);
+                if (itAlias != aliases_.end()) {
+                    p     = itAlias->second;
+                    found = true;
+                }
             }
+            if (!found) {
+                // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
+                p = bestMatch(p, keywords_, true, false, true, aliases_);
+            }
+            paramSet.emplace(p, PP);
         }
-
         {  // sort the parameters, following the AxisOrder
             for (const auto& k : metkit::hypercube::AxisOrder::instance().axes()) {
                 auto it = paramSet.find(k);
@@ -478,7 +504,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
                 const std::string& s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
                     result.unsetValues(p);
-                    type(p)->reset();
+                    ctx.unset(p);
                     continue;
                 }
                 if (s == "all" && type(p)->multiple()) {
@@ -496,13 +522,13 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
         if (inherit) {
             for (const auto& [k, t] : typesByAxisOrder_) {
                 if (t != nullptr && result.countValues(k) == 0) {
-                    t->setDefaults(result);
+                    if (ctx.has(k)) {
+                        result.setValuesTyped(t, ctx.values(k));
+                    }
+                    else {
+                        t->setDefaults(result);
+                    }
                 }
-            }
-
-            result.getParams(params);
-            for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-                type(*k)->setInheritance(result.values(*k));
             }
         }
 
@@ -522,16 +548,18 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
         oss << e.what() << " request=" << r << ", expanded=" << result;
         throw eckit::UserError(oss.str());
     }
+    if (inherit) {
+        ctx = ExpansionContext(result);
+    }
     return result;
 }
-
 
 const std::string& MarsLanguage::verb() const {
     return verb_;
 }
 
 void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
-                           MarsRequest& result, FlattenCallback& callback) {
+                           MarsRequest& result, FlattenCallback& callback) const {
     if (i == params.size()) {
         callback(result);
         return;
@@ -539,7 +567,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
 
     const std::string& param = params[i];
 
-    Type* t = type(param);
+    const Type* t = type(param);
     if (!t->flatten()) {
         flatten(request, params, i + 1, result, callback);
         return;
@@ -553,7 +581,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
     }
 }
 
-void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) {
+void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
     std::vector<std::string> params;
     request.getParams(params);
 

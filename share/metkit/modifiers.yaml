@@ -95,7 +95,6 @@
     stream: [ssmi]
   unset: [levtype, levelist, param, grid, rotation]
 
-# new default for levtype=ml, to be enabled later
 - context:
     levtype: [ml]
   defaults:
@@ -172,7 +171,7 @@
 
 - context:
     class: ['!', to, dt]
-  unset: [leadtim, opttime]
+  unset: [leadtime, opttime]
 - context:
     stream: ['!', seap]
   unset: [leadtime, opttime]
@@ -200,10 +199,10 @@
   unset: [step]
 
 - context:
-    stream: ['!', lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
+    stream: ['!', lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, enfo, oper, ldas, ldst, xwda, efsr]
   unset: [anoffset]
 - context:
-    stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
+    stream: [efas, efcl, efse, efrf, efsr, enfo, oper, wfas, wfcl, wfse, wfrf, wfsr]
     type: ['!', go, sfo, fu]
   unset: [anoffset]
 
@@ -215,7 +214,7 @@
 - context:
     type: ['!', pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, gbf, bf, wp]
     class: ['!', ti, lw, s2]
-    stream: ['!', mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
+    stream: ['!', xwda, sfdd, sfmd, shdd, shmd, mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
   unset: [number]
 - context:
     _verb: [retrieve, archive]
@@ -260,7 +259,7 @@
     origin: [ecmf]
 
 - context:
-    class: ['!', od, en, me, c3, ci]
+    class: ['!', od, en, me, c3, ci, rd]
   unset: [system]
 
 - context:

@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file pointInTimeOp.h
+/// @file pointInTimeEncoding.h
 /// @brief Implementation of the GRIB `pointInTime` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -26,9 +19,14 @@
 ///
 /// The implementation follows the standard mars2grib concept model:
 /// - Compile-time applicability via `pointInTimeApplicable`
-/// - Runtime deduction of forecast time
+/// - Runtime extraction of forecast time from one final immutable
+///   `backend::models::product_time_spec::ProductTimeSpec`
 /// - Stage-specific encoding logic
 /// - Strict error handling with contextual concept exceptions
+///
+/// All encoded temporal payload values are sourced exclusively from the
+/// point-in-time-facing transport built by
+/// `impl::build_PointInTimeProductTimeSpec_or_throw(...)`.
 ///
 /// @note
 /// The namespace name `concepts_` is intentionally used instead of `concepts`
@@ -51,9 +49,11 @@
 
 // Tables
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
+#include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessing.h"
 
-// Deductions
-#include "metkit/mars2grib/backend/deductions/forecastTimeInSeconds.h"
+// Local details
+#include "metkit/mars2grib/backend/concepts/point-in-time/impl/PointInTimeProductTimeSpec.h"
+
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -98,7 +98,8 @@ constexpr bool pointInTimeApplicable() {
 /// This function implements the runtime logic of the GRIB `pointInTime` concept.
 /// When applicable, it:
 ///
-/// - Deduces the forecast time offset from the input dictionaries
+/// - Resolves one final immutable `ProductTimeSpec`
+/// - Extracts the forecast-time offset through the point-in-time transport
 /// - Validates that the offset is an integer number of hours
 /// - Encodes time-related GRIB keys according to the current encoding stage
 ///
@@ -154,17 +155,6 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
 
             MARS2GRIB_LOG_CONCEPT(pointInTime);
 
-            // Deductions
-            long marsStepInSeconds = deductions::resolve_ForecastTimeInSeconds_or_throw(mars, par, opt);
-
-            // Basic checks
-            if (marsStepInSeconds % 3600 != 0) {
-                throw Mars2GribConceptException(
-                    std::string(pointInTimeName), std::string(pointInTimeTypeName<Variant>()), std::to_string(Stage),
-                    std::to_string(Section), "Only full hour steps are supported currently", Here());
-            }
-            long marsStepInHours = marsStepInSeconds / 3600;
-
             // =============================================================
             // Variant-specific logic
             // =============================================================
@@ -177,14 +167,25 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
 
             if constexpr (Stage == StagePreset) {
 
+                // Resolve the `ProductTimeSpec` to ensure that the forecast
+                // time is valid and can be expressed in hours.
+                const auto spec = models::product_time_spec::ProductTimeSpec(
+                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
+                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec);
+
+                (void)pts;
+
                 // Encoding
                 set_or_throw<long>(out, "indicatorOfUnitOfTimeRange", static_cast<long>(TimeUnit::Hour));
             }
 
             if constexpr (Stage == StageRuntime) {
+                const auto spec = models::product_time_spec::ProductTimeSpec(
+                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
+                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec);
 
                 // Encoding
-                set_or_throw<long>(out, "forecastTime", marsStepInHours);
+                set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
             }
         }
         catch (...) {

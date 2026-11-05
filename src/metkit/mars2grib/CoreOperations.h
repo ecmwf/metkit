@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file CoreOperations.h
@@ -35,11 +28,13 @@
 /// At the current stage, the staged API exists to support benchmarking,
 /// comparison, and incremental integration of the future cache design.
 ///
-/// @ingroup mars2grib_core
+/// @ingroup mars2grib_bindings
 ///
 #pragma once
 
 // System includes
+#include <array>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -51,20 +46,122 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
+#include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
 #include "metkit/mars2grib/backend/encodeValues.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
 #include "metkit/mars2grib/frontend/header/SpecializedEncoder.h"
 #include "metkit/mars2grib/frontend/make_HeaderLayout.h"
 #include "metkit/mars2grib/frontend/normalization/normalization.h"
+#include "metkit/mars2grib/frontend/resolution/resolveActiveConcepts.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 // clang-format on
 
 namespace metkit::mars2grib {
+
+namespace detail {
+
+inline std::string activeConceptsToJson(const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
+    using Registry = backend::concepts_::GeneralRegistry;
+
+    std::ostringstream out;
+    out << "{\"concepts\":[";
+    for (std::size_t i = 0; i < activeConcepts.count; ++i) {
+        const std::size_t conceptId = activeConcepts.activeConceptsIndices[i];
+        const std::size_t variantId = activeConcepts.activeVariantIndices[conceptId];
+        if (i != 0) {
+            out << ',';
+        }
+        out << "{\"concept\":\"" << Registry::conceptNameArr[variantId] << "\",\"variant\":\""
+            << Registry::variantNameArr[variantId] << "\"}";
+    }
+    out << "]}";
+    return out.str();
+}
+
+inline backend::tables::TypeOfStatisticalProcessing innerStatisticalProcessing(
+    const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
+    using backend::concepts_::GeneralRegistry;
+    using backend::concepts_::StatisticsType;
+    using Type = backend::tables::TypeOfStatisticalProcessing;
+
+    constexpr std::array<Type, 18> types{Type::Average,
+                                         Type::Accumulation,
+                                         Type::Maximum,
+                                         Type::Minimum,
+                                         Type::DifferenceEndMinusStart,
+                                         Type::RootMeanSquare,
+                                         Type::StandardDeviation,
+                                         Type::Covariance,
+                                         Type::DifferenceStartMinusEnd,
+                                         Type::Ratio,
+                                         Type::StandardizedAnomaly,
+                                         Type::Summation,
+                                         Type::ReturnPeriod,
+                                         Type::Median,
+                                         Type::Severity,
+                                         Type::Mode,
+                                         Type::IndexProcessing,
+                                         Type::Missing};
+    constexpr std::size_t conceptId = GeneralRegistry::conceptId(StatisticsType::Default);
+
+    const std::size_t variantId = activeConcepts.activeVariantIndices[conceptId];
+    if (variantId == GeneralRegistry::missing) {
+        return Type::Missing;
+    }
+
+    return types.at(variantId - GeneralRegistry::offset(StatisticsType::Default));
+}
+
+}  // namespace detail
 
 
 ///
 /// @brief Internal engine providing atomic encoding and diagnostic services.
 ///
 struct CoreOperations {
+
+    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    static std::string computeActiveConcepts(const MarsDict_t& inputMars, const ParDict_t& inputMisc,
+                                             const OptDict_t& options, const eckit::Value& language) {
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+            (void)activeMisc;
+            return detail::activeConceptsToJson(
+                frontend::resolution::resolve_ActiveConcepts_or_throw(activeMars, options));
+        }
+        catch (...) {
+            std::throw_with_nested(utils::exceptions::Mars2GribCoreOperationsException(
+                "Error while computing active concepts", "{\"operation\":\"computeActiveConcepts\"}", Here()));
+        }
+
+        mars2gribUnreachable();
+    }
+
+    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    static std::string computeProductTimeSpec(const MarsDict_t& inputMars, const ParDict_t& inputMisc,
+                                              const OptDict_t& options, const eckit::Value& language) {
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+            const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(activeMars, options);
+            const auto innerType      = detail::innerStatisticalProcessing(activeConcepts);
+            return backend::models::product_time_spec::ProductTimeSpec(innerType, activeMars, activeMisc, options)
+                .to_json();
+        }
+        catch (...) {
+            std::throw_with_nested(utils::exceptions::Mars2GribCoreOperationsException(
+                "Error while computing ProductTimeSpec", "{\"operation\":\"computeProductTimeSpec\"}", Here()));
+        }
+
+        mars2gribUnreachable();
+    }
 
     ///
     /// @brief Normalize input dictionaries against the library language definition.
@@ -101,9 +198,31 @@ struct CoreOperations {
             return {activeMars, activePar};
         }
         catch (...) {
-            // Wrap any exception in a CoreOperations-specific exception to provide context
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during metadata normalization", Here()));
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"normalize_if_enabled\",";
+                    json += "\"inputMars\":";
+                    json += dict_to_json(inputMars);
+                    json += ",";
+                    json += "\"inputMisc\":";
+                    json += dict_to_json(inputMisc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(opt);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during metadata normalization", contextJson, Here()));
         }
     }
 
@@ -127,15 +246,81 @@ struct CoreOperations {
             using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
             using metkit::mars2grib::frontend::header::SpecializedEncoder;
 
-            auto layout = make_HeaderLayout_or_throw(mars, opt);
+            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(mars, opt);
 
             return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc,
                                                                                                              opt);
         }
         catch (...) {
-            // Wrap any exception in a CoreOperations-specific exception to provide context
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during header encoding", Here()));
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"encodeHeader\",";
+                    json += "\"mars\":";
+                    json += dict_to_json(mars);
+                    json += ",";
+                    json += "\"misc\":";
+                    json += dict_to_json(misc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(opt);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during header encoding", contextJson, Here()));
+        }
+    }
+
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<OutDict_t> encodeHeaderWithNormalization(const MarsDict_t& inputMars,
+                                                                    const ParDict_t& inputMisc,
+                                                                    const OptDict_t& options,
+                                                                    const eckit::Value& language) {
+
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+
+            return encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
+        }
+        catch (...) {
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"encodeHeaderWithNormalization\",";
+                    json += "\"inputMars\":";
+                    json += dict_to_json(inputMars);
+                    json += ",";
+                    json += "\"inputMisc\":";
+                    json += dict_to_json(inputMisc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(options);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during normalized header encoding", contextJson, Here()));
         }
     }
 
@@ -151,18 +336,47 @@ struct CoreOperations {
     /// @tparam OptDict_t  Encoding options dictionary type
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///
-    template <typename Val_t, class ParDict_t, class OptDict_t, class OutDict_t>
-    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const ParDict_t& misc,
-                                                   const OptDict_t& opt, std::unique_ptr<OutDict_t> handle) {
+    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const MarsDict_t& mars,
+                                                   const ParDict_t& misc, const OptDict_t& opt,
+                                                   std::unique_ptr<OutDict_t> handle) {
 
         try {
-            metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
-            return handle;
+            if (metkit::mars2grib::utils::dict_traits::get_or_throw<bool>(opt, "skipSection3")) {
+                metkit::mars2grib::backend::encodeValuesGridSpec(values, mars, misc, opt, *handle);
+                return handle;
+            }
+            else {
+                metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
+                return handle;
+            }
         }
         catch (...) {
-            // Wrap any exception in a CoreOperations-specific exception to provide context
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during value encoding", Here()));
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"encodeValues\",";
+                    json += "\"mars\":";
+                    json += dict_to_json(mars);
+                    json += ",";
+                    json += "\"misc\":";
+                    json += dict_to_json(misc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(opt);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during value encoding", contextJson, Here()));
         }
     }
 
@@ -238,8 +452,6 @@ struct CoreOperations {
                                              const MarsDict_t& inputMars, const ParDict_t& inputMisc,
                                              const OptDict_t& options, const eckit::Value& language) {
 
-        using metkit::mars2grib::utils::exceptions::printExtendedStack;
-
         // 1. Prepare Scratches for Normalization
         MarsDict_t scratchMars;
         ParDict_t scratchMisc;
@@ -265,16 +477,34 @@ struct CoreOperations {
                 encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
 
             // 4. Inject Values
-            return encodeValues(values, activeMisc, options, std::move(gribHeader));
-        }
-        catch (const std::exception& e) {
-            printExtendedStack(e);
-            throw;
+            return encodeValues(values, activeMars, activeMisc, options, std::move(gribHeader));
         }
         catch (...) {
-            // Fallback for non-standard exceptions
-            throw metkit::mars2grib::utils::exceptions::Mars2GribGenericException("Unknown error during encoding",
-                                                                                  Here());
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"encode\",";
+                    json += "\"inputMars\":";
+                    json += dict_to_json(inputMars);
+                    json += ",";
+                    json += "\"inputMisc\":";
+                    json += dict_to_json(inputMisc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(options);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during encoding", contextJson, Here()));
         }
     }
 
@@ -460,15 +690,37 @@ struct CoreOperations {
             auto [activeMars, activeMisc] =
                 normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
 
-            auto layout = make_HeaderLayout_or_throw(activeMars, options);
+            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(activeMars, options);
 
             return std::make_unique<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>>(
                 std::move(layout), activeMars, activeMisc, options);
         }
         catch (...) {
-            // Wrap any exception in a CoreOperations-specific exception to provide context
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during cache preparation", Here()));
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"prepare\",";
+                    json += "\"inputMars\":";
+                    json += dict_to_json(inputMars);
+                    json += ",";
+                    json += "\"inputMisc\":";
+                    json += dict_to_json(inputMisc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(options);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during cache preparation", contextJson, Here()));
         }
     }
 
@@ -553,12 +805,34 @@ struct CoreOperations {
             auto gribHeader =
                 cacheEntry.encoder_.finaliseEncoding(*(cacheEntry.preparedSample_), activeMars, activeMisc, options);
 
-            return encodeValues(values, activeMisc, options, std::move(gribHeader));
+            return encodeValues(values, activeMars, activeMisc, options, std::move(gribHeader));
         }
         catch (...) {
-            // Wrap any exception in a CoreOperations-specific exception to provide context
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during encoding finalisation", Here()));
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"finaliseEncoding\",";
+                    json += "\"inputMars\":";
+                    json += dict_to_json(inputMars);
+                    json += ",";
+                    json += "\"inputMisc\":";
+                    json += dict_to_json(inputMisc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(options);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during encoding finalisation", contextJson, Here()));
         }
     }
 
@@ -572,22 +846,42 @@ struct CoreOperations {
     /// @tparam MarsDict_t MARS dictionary type
     /// @tparam OptDict_t  Encoding options dictionary type
     ///
-    template <class MarsDict_t, class OptDict_t>
-    static std::string dumpHeaderTest(const MarsDict_t& mars, const OptDict_t& opt) {
-        try {
-            using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
-            using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
-
-            auto layout = make_HeaderLayout_or_throw(mars, opt);
-
-            return debug_convert_GribHeaderLayoutData_to_json(layout);
-        }
-        catch (...) {
-            // Wrap any exception in a CoreOperations-specific exception to provide context
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during header test dump", Here()));
-        }
-    }
+    // template <class MarsDict_t, class OptDict_t>
+    // static std::string dumpHeaderTest(const MarsDict_t& mars, const OptDict_t& opt) {
+    //     try {
+    //         using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
+    //         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
+    //
+    //         auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(mars, opt);
+    //
+    //         return debug_convert_GribHeaderLayoutData_to_json(layout);
+    //     }
+    //     catch (...) {
+    //         const auto contextJson = [&]() {
+    //             try {
+    //                 using metkit::mars2grib::utils::dict_traits::dict_to_json;
+    //
+    //                 std::string json;
+    //                 json += "{";
+    //                 json += "\"operation\":\"dumpHeaderTest\",";
+    //                 json += "\"mars\":";
+    //                 json += dict_to_json(mars);
+    //                 json += ",";
+    //                 json += "\"options\":";
+    //                 json += dict_to_json(opt);
+    //                 json += "}";
+    //                 return json;
+    //             }
+    //             catch (...) {
+    //                 return std::string{"Failed to generate the context"};
+    //             }
+    //         }();
+    //
+    //         std::throw_with_nested(
+    //             mars2grib::utils::exceptions::Mars2GribCoreOperationsException("Error during header test dump",
+    //                                                                           contextJson, Here()));
+    //     }
+    // }
 };
 
 }  // namespace metkit::mars2grib

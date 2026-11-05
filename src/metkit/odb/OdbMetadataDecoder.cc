@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/odb/OdbMetadataDecoder.h"
 
@@ -164,8 +157,8 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
-    std::string keyword   = eckit::StringTools::lower(mapitr->second);
-    metkit::mars::Type* t = language.type(keyword);
+    std::string keyword         = eckit::StringTools::lower(mapitr->second);
+    const metkit::mars::Type* t = language.type(keyword);
 
     ASSERT(options_.valueRepresentation == eckit::message::ValueRepresentation::String);
 
@@ -181,8 +174,9 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
 
 OdbMetadataDecoder::OdbMetadataDecoder(eckit::message::MetadataGatherer& gather,
-                                       const eckit::message::GetMetadataOptions& options, const std::string& verb) :
-    language_(verb), gather_(gather), options_(options) {}
+                                       const eckit::message::GetMetadataOptions& options,
+                                       const metkit::mars::MarsLanguage& language) :
+    language_(language), gather_(gather), options_(options) {}
 
 template <typename T>
 bool OdbMetadataDecoder::deferIfConditional(const std::string& columnName, const std::set<T>& vals) {

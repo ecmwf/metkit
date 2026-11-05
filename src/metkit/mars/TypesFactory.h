@@ -1,46 +1,38 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   TypesFactory.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypesFactory_H
-#define metkit_TypesFactory_H
+#pragma once
 
 #include <string>
 
-#include "eckit/memory/NonCopyable.h"
 #include "eckit/types/Types.h"
 
 namespace eckit {
 class Value;
 }
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class Type;
 class TypesFactory;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
-class TypesRegistry : private eckit::NonCopyable {
-    eckit::Mutex mutex_;
-    std::map<std::string, TypesFactory*> m_;
+class TypesRegistry {
 
 public:
 
     static TypesRegistry& instance();
+
+    TypesRegistry(const TypesRegistry&)            = delete;
+    TypesRegistry(TypesRegistry&&)                 = delete;
+    TypesRegistry& operator=(const TypesRegistry&) = delete;
+    TypesRegistry& operator=(TypesRegistry&&)      = delete;
 
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
@@ -48,6 +40,15 @@ public:
     Type* build(const std::string& keyword, const eckit::Value&);
 
     void list(std::ostream& s);
+
+private:  // methods
+
+    TypesRegistry() = default;
+
+private:  // members
+
+    eckit::Mutex mutex_;
+    std::map<std::string, TypesFactory*> m_;
 };
 
 /// A self-registering factory for producing TypesFactory instances
@@ -86,7 +87,4 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

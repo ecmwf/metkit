@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file normalization.h
@@ -22,7 +15,6 @@
 
 // Project includes
 #include "eckit/value/Value.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::normalization {
@@ -49,10 +41,10 @@ template <class MiscDict_t, class OptDict_t>
 const MiscDict_t& normalize_MiscDict_if_enabled(const MiscDict_t& miscDict, const OptDict_t& optDict,
                                                 const eckit::Value& language, MiscDict_t& scratch) {
 
-    using metkit::mars2grib::utils::normalizeMiscEnabled;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
     // TODO: Implement sanitization trigger logic based on optDict settings
-    if (normalizeMiscEnabled(optDict)) {
+    if (get_or_throw<bool>(optDict, "normalizeMisc")) {
 
         // [Development Stub]
         // Example: logic to prune illegal keys or normalize units

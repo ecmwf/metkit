@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/log/JSON.h"
 #include "metkit/mars2mars/utils/generalUtils.h"
 
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
@@ -215,7 +216,8 @@ struct DictToJsonTraits<eckit::LocalConfiguration> {
     static std::string to_json(const eckit::LocalConfiguration& cfg) noexcept(true) {
         try {
             std::ostringstream os;
-            os << cfg;
+            eckit::JSON json(os);
+            json << cfg;
             return os.str();
         }
         catch (...) {
@@ -262,6 +264,49 @@ struct DictHas<eckit::LocalConfiguration> {
         catch (...) {
             std::throw_with_nested(exceptions::Mars2marsDictException(
                 "Internal error while checking presence of key `"s + k + "` in dictionary type `"s +
+                    std::string(type_name<eckit::LocalConfiguration>()) + "`",
+                Here()));
+        }
+        mars2marsUnreachable();
+    }
+};
+
+// -----------------------------------------------------------------------------
+// DictMissing
+// -----------------------------------------------------------------------------
+template <>
+struct DictMissing<eckit::LocalConfiguration> {
+    static bool isMissing(const eckit::LocalConfiguration& cfg, std::string_view key) noexcept(false) {
+        const std::string k{key};
+
+        try {
+            return !cfg.has(k);
+        }
+        catch (const exceptions::Mars2marsGenericException&) {
+            throw;
+        }
+        catch (...) {
+            std::throw_with_nested(exceptions::Mars2marsDictException(
+                "Internal error while checking absence of key `"s + k + "` in dictionary type `"s +
+                    std::string(type_name<eckit::LocalConfiguration>()) + "`",
+                Here()));
+        }
+        mars2marsUnreachable();
+    }
+
+    static void setMissing(eckit::LocalConfiguration& cfg, std::string_view key) noexcept(false) {
+        const std::string k{key};
+        cfg.remove(k);
+
+        try {
+            cfg.remove(k);
+        }
+        catch (const exceptions::Mars2marsGenericException&) {
+            throw;
+        }
+        catch (...) {
+            std::throw_with_nested(exceptions::Mars2marsDictException(
+                "Internal error while removing key `"s + k + "` in dictionary type `"s +
                     std::string(type_name<eckit::LocalConfiguration>()) + "`",
                 Here()));
         }

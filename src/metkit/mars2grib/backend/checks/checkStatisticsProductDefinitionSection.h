@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 #pragma once
 
 #include <string>
@@ -15,7 +8,6 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -61,24 +53,26 @@ namespace metkit::mars2grib::backend::validation {
 template <class OptDict_t, class OutDict_t>
 void check_StatisticsProductDefinitionSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 
-    using metkit::mars2grib::utils::checksEnabled;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (get_or_throw<bool>(opt, "applyChecks")) {
 
-            bool hasNumberOfTimeRanges          = has(out, "numberOfTimeRanges");
-            bool hasTypeOfStatisticalProcessing = has(out, "typeOfStatisticalProcessing");
+                bool hasNumberOfTimeRanges          = has(out, "numberOfTimeRanges");
+                bool hasTypeOfStatisticalProcessing = has(out, "typeOfStatisticalProcessing");
 
-            // Statistics product needs to have numberOfTimeRanges defined in the Product Definition Section
-            if (!hasNumberOfTimeRanges || !hasTypeOfStatisticalProcessing) {
-                throw Mars2GribValidationException("Product Definition Section is not of Statistics type", Here());
+                // Statistics product needs to have numberOfTimeRanges defined in the Product Definition Section
+                if (!hasNumberOfTimeRanges || !hasTypeOfStatisticalProcessing) {
+                    throw Mars2GribValidationException("Product Definition Section is not of Statistics type", Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Product Definition Section is of Statistics type");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Product Definition Section is of Statistics type");
         }
 
         // Exit point with success

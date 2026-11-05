@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   test_time.cc
 /// @author Simon Smart
@@ -32,8 +25,7 @@ using ::eckit::Value;
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    static MarsLanguage language("retrieve");
-    language.type(name)->expand(values);
+    MarsLanguage::get("retrieve").type(name)->expand(values);
     EXPECT_EQUAL(values.size(), expected.size());
     EXPECT_EQUAL(expected, values);
 }

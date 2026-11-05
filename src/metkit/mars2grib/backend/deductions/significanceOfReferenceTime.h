@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file significanceOfReferenceTime.h
@@ -41,8 +34,7 @@
 /// - @ref referenceTimeEncoding.h
 ///
 /// Related deductions:
-/// - @ref standardReferenceDateTime.h
-/// - @ref hindcastReferenceDateTime.h
+/// - @ref productTime.h
 ///
 /// @ingroup mars2grib_backend_deductions
 ///
@@ -118,10 +110,10 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
         constexpr std::array<std::string_view, 17> analysisTypes = {
             {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
 
-        constexpr std::array<std::string_view, 35> forecastTypes = {
-            {"fc",    "cf",      "pf",  "cm", "fp",  "em",   "ep",     "es", "fa", "efi", "efic",   "bf",
-             "cd",    "wem",     "wes", "cr", "ses", "taem", "taes",   "sg", "sf", "if",  "fcmean", "fcmax",
-             "fcmin", "fcstdev", "ssd", "tf", "bf",  "cd",   "hcmean", "s3", "si", "gbf", "gwt"}};
+        constexpr std::array<std::string_view, 39> forecastTypes = {
+            {"fc",  "cf",  "pf", "cm",  "fp",     "em",   "ep", "es",  "fa",  "efi",    "efic",  "bf",    "cd",
+             "wem", "wes", "cr", "ses", "taem",   "taes", "sg", "sf",  "if",  "fcmean", "fcmax", "fcmin", "fcstdev",
+             "ssd", "tf",  "bf", "cd",  "hcmean", "s3",   "si", "gbf", "gwt", "est",    "icp",   "pfc",   "sot"}};
 
         constexpr std::array<std::string_view, 4> startOfDataAssimilationTypes = {{"4i", "4v", "me", "eme"}};
 

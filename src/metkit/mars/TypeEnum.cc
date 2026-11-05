@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/mars/TypeEnum.h"
 
@@ -25,7 +18,7 @@ void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicate
     std::string value = eckit::StringTools::lower(vv);
     if (!allowDuplicates && values_.find(value) != values_.end()) {
         std::ostringstream oss;
-        oss << "Redefined enum value '" << value << "'";
+        oss << "Redefined enum value '" << value << "' while parsing " << name_;
         throw eckit::SeriousBug(oss.str());
     }
     values_[value] = idx;
@@ -136,11 +129,6 @@ std::optional<std::reference_wrapper<const std::vector<std::string>>> TypeEnum::
         return groups_.at(it->second).second;
     }
     return std::nullopt;
-}
-
-
-void TypeEnum::reset() {
-    Type::reset();
 }
 
 static TypeBuilder<TypeEnum> type("enum");

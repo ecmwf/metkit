@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file packingOp.h
+/// @file packingEncoding.h
 /// @brief Implementation of the GRIB `packing` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -55,7 +48,6 @@
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/bitsPerValue.h"
-#include "metkit/mars2grib/backend/deductions/laplacianOperator.h"
 #include "metkit/mars2grib/backend/deductions/subSetTrunc.h"
 
 // Utils
@@ -81,7 +73,12 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, PackingType Variant>
 constexpr bool packingApplicable() {
-    return (Stage == StagePreset && Section == SecDataRepresentationSection);
+
+    if constexpr (Stage == StagePreset && Section == SecDataRepresentationSection) {
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -159,10 +156,8 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 // Check sample structure
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {0});
 
-                // Get bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-
                 // Set bits per value
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
             }
 
@@ -171,10 +166,8 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 // Check sample structure
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {42});
 
-                // Get bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-
                 // Set bits per value
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
             }
 
@@ -183,14 +176,11 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 // Check sample structure
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {51});
 
-                // Get bits per value
-                long bitsPerValue        = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
-                double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
-                long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
-
                 // Set bits per value
+                long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
-                set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
+
+                long subSetTruncation = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "subSetJ", subSetTruncation);
                 set_or_throw<long>(out, "subSetK", subSetTruncation);
                 set_or_throw<long>(out, "subSetM", subSetTruncation);

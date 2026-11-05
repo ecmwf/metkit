@@ -1,28 +1,22 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 // File BaseProtocol.h
 // Baudouin Raoult - (c) ECMWF Feb 12
 
-#ifndef BaseProtocol_H
-#define BaseProtocol_H
+#pragma once
+
+#include <string>
 
 #include "eckit/io/Length.h"
 #include "eckit/serialisation/Streamable.h"
+#include "eckit/types/Types.h"
 
 namespace eckit {
 class Configuration;
 }
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class MarsRequest;
 
@@ -34,8 +28,6 @@ public:
     BaseProtocol(eckit::Stream&);
     BaseProtocol(const eckit::Configuration&);
 
-    virtual ~BaseProtocol() override;
-
     virtual eckit::Length retrieve(const MarsRequest&)             = 0;
     virtual void archive(const MarsRequest&, const eckit::Length&) = 0;
 
@@ -43,13 +35,15 @@ public:
     virtual long write(const void* buffer, long len) = 0;
     virtual void cleanup()                           = 0;
 
+    virtual const eckit::StringDict& stats() const;
+
     // -- Overridden methods (from Streamable)
     static const eckit::ClassSpec& classSpec();
 
 protected:
 
     virtual void print(std::ostream&) const = 0;
-    virtual void encode(eckit::Stream&) const override;
+    void encode(eckit::Stream&) const override;
 
 private:
 
@@ -82,14 +76,11 @@ public:
 
 template <class T>
 class ProtocolBuilder : public ProtocolFactory {
-    virtual BaseProtocol* make(const eckit::Configuration& param) override { return new T(param); }
+    BaseProtocol* make(const eckit::Configuration& param) override { return new T(param); }
 
 public:
 
     ProtocolBuilder(const std::string& name) : ProtocolFactory(name) {}
 };
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

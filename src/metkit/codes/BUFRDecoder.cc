@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <cstring>
 #include <type_traits>
@@ -25,8 +18,7 @@
 
 #include "eccodes.h"
 
-namespace metkit {
-namespace codes {
+namespace metkit::codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -98,7 +90,10 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
         // Get key size to see if it is an array
         // Only continue for scalar values
-        if (h->size(name) != 1) {
+        const auto keySize = h->size(name);
+        if (keySize != 1) {
+            LOG_DEBUG_LIB(LibMetkit) << "BUFRDecoder::getMetadata skipping non-scalar key '" << name
+                                     << "' (size=" << keySize << ")" << std::endl;
             continue;
         }
 
@@ -157,5 +152,4 @@ static BUFRDecoder bufrDecoder;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::codes

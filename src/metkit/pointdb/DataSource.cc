@@ -1,34 +1,18 @@
-/*
- * (C) Copyright 1996-2013 ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996-2013 European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/pointdb/DataSource.h"
 #include "metkit/pointdb/PointIndex.h"
 
-
-namespace metkit {
-namespace pointdb {
-
-DataSource::~DataSource() {}
-
+namespace metkit::pointdb {
 
 size_t DataSource::batch() const {
     return 0;
 }
 
-
 void PointResult::print(std::ostream& s) const {
     s << "PointResult[lat=" << lat_ << ",lon=" << lon_ << ",value=" << value_ << "]";
 }
 
-
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace pointdb
-
-}  // namespace metkit
+}  // namespace metkit::pointdb

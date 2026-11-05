@@ -1,19 +1,11 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
 /// @date   August 2016
 
-#ifndef mir_LibMetkit_H
-#define mir_LibMetkit_H
+#pragma once
 
 #include "eckit/filesystem/PathName.h"
 #include "eckit/system/Library.h"
@@ -29,11 +21,14 @@ public:
 
     static eckit::PathName configFile(const std::string& filename);
 
+    static uint16_t binaryFilesVersion() { return 2; }
+
     static eckit::PathName languageYamlFile();
     static std::vector<eckit::PathName> modifiersYamlFiles();
     static eckit::PathName paramYamlFile();
     static eckit::PathName paramStaticYamlFile();
     static eckit::PathName paramIDYamlFile();
+    static eckit::PathName paramsBinaryFile();
     static eckit::PathName paramMatchingYamlFile();
     static eckit::PathName shortnameContextYamlFile();
     static eckit::PathName bufrSubtypesYamlFile();
@@ -52,5 +47,3 @@ protected:
 }  // namespace metkit
 
 //----------------------------------------------------------------------------------------------------------------------
-
-#endif

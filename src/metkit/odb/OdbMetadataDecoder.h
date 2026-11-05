@@ -1,18 +1,10 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_OdbMetadataDecoder_h
-#define metkit_OdbMetadataDecoder_h
+#pragma once
 
 #include <functional>
 #include <map>
@@ -26,8 +18,7 @@
 #include "odc/api/Odb.h"
 
 
-namespace metkit {
-namespace codes {
+namespace metkit::codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -39,7 +30,7 @@ class OdbMetadataDecoder : public odc::api::SpanVisitor {
 public:
 
     OdbMetadataDecoder(eckit::message::MetadataGatherer& gatherer, const eckit::message::GetMetadataOptions& options,
-                       const std::string& verb = "retrieve");
+                       const metkit::mars::MarsLanguage& language);
 
     virtual void operator()(const std::string& columnName, const std::set<long>& vals);
     virtual void operator()(const std::string& columnName, const std::set<double>& vals);
@@ -66,7 +57,7 @@ private:  // methods
 
 private:  // members
 
-    metkit::mars::MarsLanguage language_;
+    const metkit::mars::MarsLanguage& language_;
     eckit::message::MetadataGatherer& gather_;
     eckit::message::GetMetadataOptions options_;
 
@@ -77,7 +68,4 @@ private:  // members
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::codes

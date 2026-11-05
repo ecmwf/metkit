@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file bitsPerValue.h
@@ -51,7 +44,6 @@
 /// - @ref packingEncoding.h
 ///
 /// Related deductions:
-/// - @ref laplacianOperator.h
 /// - @ref subSetTrunc.h
 ///
 /// @ingroup mars2grib_backend_deductions
@@ -63,7 +55,6 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -267,7 +258,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
             // Retrieve auxiliary values for default lookup
             long param            = get_or_throw<long>(mars, "param");
             std::string levtype   = get_or_throw<std::string>(mars, "levtype");
-            bool applyCompression = utils::bitsPerValueCompressionEnabled(opt);
+            bool applyCompression = get_or_throw<bool>(opt, "enableBitsPerValueCompression");
 
             // Resolve bitsPerValue from default mapping
             bitsPerValue = details::lookup_bitsPerValueGridded_default(param, levtype, applyCompression);

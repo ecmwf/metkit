@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+resolver = "2"
+members = ["crates/metkit-sys", "crates/metkit"]
+
+[workspace.package]
+version = "1.22.0"
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/ecmwf/metkit"
+rust-version = "1.90"
+readme = "README.md"
+keywords = ["ecmwf", "weather", "meteorology", "grib"]
+categories = ["science"]
+
+[workspace.dependencies]
+# Internal
+metkit-sys = { version = "1.22", path = "crates/metkit-sys", default-features = false, features = ["metkit-config"] }
+metkit = { version = "1.22", path = "crates/metkit" }
+
+# Foundation crates
+eckit-sys = { version = "2.5", default-features = false }
+eccodes-sys = { version = "2.50", default-features = false }
+# High-level wrappers
+eckit = { version = "2.5", default-features = false }
+
+# Build tools
+bindman = "0.2"
+bindman-build = "0.2"
+bindman-utils = "0.2"
+
+# External
+cxx = "1.0"
+cxx-build = "1.0"
+thiserror = "2"

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file derivedForecast.h
@@ -146,8 +139,11 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
             if (marsType == "em" || marsType == "taem") {
                 derivedForecast = tables::DerivedForecast::UnweightedMeanAllMembers;
             }
-            else if (marsType == "es" || marsType == "taes") {
+            else if (marsType == "es" || marsType == "ses" || marsType == "taes") {
                 derivedForecast = tables::DerivedForecast::SpreadAllMembers;
+            }
+            else if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
+                derivedForecast = tables::DerivedForecast::LargeAnomalyIndexAllMembers;
             }
             else {
                 throw Mars2GribDeductionException(

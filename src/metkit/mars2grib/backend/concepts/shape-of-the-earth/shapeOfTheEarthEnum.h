@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file shapeOfTheEarthEnum.h
@@ -31,7 +24,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `shapeOfTheEarth.h` / `shapeOfTheEarthOp` implementation.
+/// `shapeOfTheEarthEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -85,7 +78,8 @@ inline constexpr std::string_view shapeOfTheEarthName{"shapeOfTheEarth"};
 /// tables and registries.
 ///
 enum class ShapeOfTheEarthType : std::size_t {
-    Default = 0
+    Dummy = 0,  // Used to skip section3 resolution and delegate to gridSpec
+    Default
 };
 
 
@@ -101,7 +95,7 @@ enum class ShapeOfTheEarthType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using ShapeOfTheEarthList = ValueList<ShapeOfTheEarthType::Default>;
+using ShapeOfTheEarthList = ValueList<ShapeOfTheEarthType::Dummy, ShapeOfTheEarthType::Default>;
 
 
 ///
@@ -131,6 +125,7 @@ constexpr std::string_view shapeOfTheEarthTypeName();
         return NAME;                                          \
     }
 
+DEF(ShapeOfTheEarthType::Dummy, "dummy");
 DEF(ShapeOfTheEarthType::Default, "default");
 
 #undef DEF

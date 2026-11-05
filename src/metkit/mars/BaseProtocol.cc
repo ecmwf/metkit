@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 // File BaseProtocol.cc
 // Baudouin Raoult - (c) ECMWF Feb 12
@@ -14,14 +7,19 @@
 
 #include "metkit/mars/BaseProtocol.h"
 
+#include <pthread.h>
+
+#include <string>
+
 #include "eckit/config/Configuration.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/log/Log.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/thread/Mutex.h"
-#include "eckit/thread/Once.h"
+#include "eckit/types/Types.h"
 
-namespace metkit {
-namespace mars {
+
+namespace metkit::mars {
 
 
 static eckit::Mutex* local_mutex                  = 0;
@@ -35,7 +33,7 @@ static void init() {
 }
 
 
-BaseProtocol::BaseProtocol() {}
+BaseProtocol::BaseProtocol() = default;
 
 BaseProtocol::BaseProtocol(eckit::Stream& s) : eckit::Streamable(s) {}
 
@@ -43,7 +41,10 @@ BaseProtocol::BaseProtocol(eckit::Stream& s) : eckit::Streamable(s) {}
 BaseProtocol::BaseProtocol(const eckit::Configuration&) {}
 
 
-BaseProtocol::~BaseProtocol() {}
+const eckit::StringDict& BaseProtocol::stats() const {
+    static const eckit::StringDict empty{};
+    return empty;
+}
 
 const eckit::ClassSpec& BaseProtocol::classSpec() {
     static eckit::ClassSpec spec = {&Streamable::classSpec(), "BaseProtocol"};
@@ -109,5 +110,4 @@ void ProtocolFactory::list(std::ostream& out) {
 }
 
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

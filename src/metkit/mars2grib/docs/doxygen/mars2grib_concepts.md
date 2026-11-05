@@ -32,6 +32,40 @@ Concept::Variant
 Each `(Concept, Variant)` pair represents a distinct semantic realization and
 is treated as an independent entity by the Encoder.
 
+@subsection concepts_new_concept_or_variant New Concept or New Variant
+
+Before changing the concept system, decide whether the behavior belongs to a new
+concept or to a new variant of an existing concept.
+
+- A new concept is appropriate for an independent semantic axis that must be
+  composable with other concepts.
+- A new variant is appropriate for an alternative realization inside an existing
+  semantic axis when independent composability is not required.
+
+This is a domain decision and is not always apparent from the code structure.
+
+@section concepts_level_guardrail Level Concept Guardrail
+
+The `level` concept deliberately hides the raw fixed-surface representation used
+by GRIB. GRIB vertical levels are ultimately represented by:
+
+- `typeOfFirstFixedSurface`
+- `scaleFactorOfFirstFixedSurface`
+- `scaledValueOfFirstFixedSurface`
+- `typeOfSecondFixedSurface`
+- `scaleFactorOfSecondFixedSurface`
+- `scaledValueOfSecondFixedSurface`
+
+These keys must not be set directly by mars2grib concept changes. Although many
+combinations are technically possible, most are not meaningful ECMWF levels.
+
+Level encoding must go through the official abstraction: `typeOfLevel` plus, when
+needed, `level`, `topLevel`, `bottomLevel`, and PV-array data. Each supported
+`typeOfLevel` corresponds to a `LevelType` variant or to a small number of
+virtual type-of-level values maintained in mars2grib for backward-compatibility
+reasons. If new level behavior is required, update the `LevelType` variant,
+matcher mapping, or deduction instead of writing fixed-surface keys directly.
+
 @section concepts_registration_value Registration Value
 
 The value associated with each `Concept::Variant` key is a **dense, fixed-size
@@ -132,4 +166,3 @@ Concepts intentionally do not:
 
 Concepts are purely declarative, statically registered contributors to the
 encoding process.
-

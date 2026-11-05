@@ -1,13 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file Mars2Grib.h
@@ -73,7 +65,10 @@
 #pragma once
 
 // System includes
+#include <initializer_list>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 // eckit
@@ -129,6 +124,9 @@ namespace metkit::mars2grib {
 class Mars2Grib {
 public:
 
+    using OptionEntry = std::pair<std::string, eckit::Value>;
+    using OptionList  = std::initializer_list<OptionEntry>;
+
     template <typename T>
     using Span = metkit::codes::Span<T>;
 
@@ -159,6 +157,20 @@ public:
     /// Configuration object describing encoder options.
     ///
     explicit Mars2Grib(const eckit::LocalConfiguration& opts);
+
+    ///
+    /// @brief Construct a Mars2Grib encoder from inline option entries.
+    ///
+    /// This constructor supports compact inline configuration such as:
+    ///
+    /// @code
+    /// Mars2Grib{{"saveErrorStack", false}, {"errorStackPath", "./errors"}}
+    /// @endcode
+    ///
+    /// @param[in] opts
+    /// Initializer-list option entries.
+    ///
+    explicit Mars2Grib(OptionList opts);
 
     Mars2Grib(const Mars2Grib&)           = delete;
     Mars2Grib(Mars2Grib&&)                = delete;

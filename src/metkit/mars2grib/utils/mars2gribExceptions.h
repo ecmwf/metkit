@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file mars2gribExceptions.h
 /// @brief Unified exception hierarchy for the mars2grib framework.
@@ -38,6 +31,7 @@
 // System includes
 #include <exception>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <typeinfo>
 
@@ -71,8 +65,18 @@ public:
 
     virtual ~Mars2GribGenericException() = default;
 
-    virtual void printFrame(const std::string& pad) const {
+    virtual void printFrame(std::ostream& os, const std::string& pad) const {
 
+        const auto& loc = location();
+
+        os << pad << "+ file:     " << loc.file() << "\n"
+           << pad << "+ function: " << loc.func() << "\n"
+           << pad << "+ line:     " << loc.line() << "\n"
+           << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
+           << pad << "+ message:  " << what() << "\n";
+    }
+
+    virtual void printFrame(const std::string& pad) const {
         const auto& loc = location();
 
         LOG_DEBUG_LIB(LibMetkit) << pad << "+ file:     " << loc.file() << "\n"
@@ -81,6 +85,85 @@ public:
                                  << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
                                  << pad << "+ message:  " << what() << "\n";
     }
+};
+
+
+/// @brief Exception raised during GRIB section layout resolution.
+///
+/// Used when the structural resolution layer fails while building
+/// the layout for a specific GRIB section.
+///
+/// This exception extends the generic exception with section-specific
+/// diagnostic context, including:
+///
+/// - The GRIB section identifier being resolved
+/// - A serialized snapshot of the active concepts state
+///
+/// The additional metadata is emitted via `printFrame()` to support
+/// structured debugging of section selection failures.
+class Mars2GribSectionResolutionException : public Mars2GribGenericException {
+public:
+
+    Mars2GribSectionResolutionException(std::string reason, std::size_t sectionId,
+                                        const std::string& activeConceptsJson,
+                                        const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), sectionId_(sectionId), activeConceptsJson_(activeConceptsJson) {}
+
+    virtual ~Mars2GribSectionResolutionException() = default;
+
+    void printFrame(std::ostream& os, const std::string& pad) const override {
+
+        Mars2GribGenericException::printFrame(os, pad);
+        os << pad << "+ section:  " << sectionId_ << "\n"
+           << pad << "+ activeConcepts:  " << activeConceptsJson_ << "\n";
+    }
+
+    virtual void printFrame(const std::string& pad) const {
+        Mars2GribGenericException::printFrame(pad);
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ section:  " << sectionId_ << "\n"
+                                 << pad << "+ activeConcepts:  " << activeConceptsJson_ << "\n";
+    }
+
+private:
+
+    std::size_t sectionId_;
+    std::string activeConceptsJson_;
+};
+
+
+/// @brief Exception raised during top-level header layout construction.
+///
+/// Used when the frontend resolution pipeline fails while assembling
+/// the complete GRIB header layout from the input MARS request.
+///
+/// This exception extends the generic exception with a serialized
+/// representation of the originating MARS request for diagnostics.
+///
+/// The captured request payload is emitted via `printFrame()` to aid
+/// debugging of end-to-end layout resolution failures.
+class Mars2GribHeaderLayoutException : public Mars2GribGenericException {
+public:
+
+    Mars2GribHeaderLayoutException(std::string reason, const std::string& marsJson,
+                                   const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), marsJson_(marsJson) {}
+
+    virtual ~Mars2GribHeaderLayoutException() = default;
+
+    void printFrame(std::ostream& os, const std::string& pad) const override {
+
+        Mars2GribGenericException::printFrame(os, pad);
+        os << pad << "+ marsJson:  " << marsJson_ << "\n";
+    }
+
+    virtual void printFrame(const std::string& pad) const {
+        Mars2GribGenericException::printFrame(pad);
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ marsJson:  " << marsJson_ << "\n";
+    }
+
+private:
+
+    std::string marsJson_;
 };
 
 
@@ -118,8 +201,18 @@ public:
     const std::string levtype() const { return levtype_.has_value() ? levtype_.value() : "undefined"; }
     const std::string param() const { return param_.has_value() ? param_.value() : "undefined"; }
 
-    void printFrame(const std::string& pad) const override {
+    void printFrame(std::ostream& os, const std::string& pad) const override {
 
+        Mars2GribGenericException::printFrame(os, pad);
+        if (param_) {
+            os << pad << "+ param:   " << param() << '\n';
+        }
+        if (levtype_) {
+            os << pad << "+ levtype:    " << levtype() << '\n';
+        }
+    }
+
+    void printFrame(const std::string& pad) const override {
         Mars2GribGenericException::printFrame(pad);
         if (param_) {
             LOG_DEBUG_LIB(LibMetkit) << pad << "+ param:   " << param() << std::endl;
@@ -192,6 +285,67 @@ public:
         Mars2GribGenericException(reason, loc) {}
 };
 
+/// @brief Exception raised by CoreOperations orchestration steps.
+///
+/// This exception marks failures caught and rethrown by the core orchestration
+/// layer, without adding extra diagnostic payload yet.
+class Mars2GribCoreOperationsException : public Mars2GribGenericException {
+public:
+
+    Mars2GribCoreOperationsException(std::string reason, std::string contextJson,
+                                     const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), contextJson_(std::move(contextJson)) {}
+
+    void printFrame(std::ostream& os, const std::string& pad) const override {
+        Mars2GribGenericException::printFrame(os, pad);
+        os << pad << "+ coreContext: " << contextJson_ << "\n";
+    }
+
+    void printFrame(const std::string& pad) const override {
+        Mars2GribGenericException::printFrame(pad);
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ coreContext: " << contextJson_ << "\n";
+    }
+
+private:
+
+    std::string contextJson_;
+};
+
+/// @brief Exception raised in the backend model layer.
+///
+/// Used when model-local orchestration fails while assembling normalized model
+/// input or constructing a backend model object from already-resolved
+/// deduction outputs.
+class Mars2GribModelException : public Mars2GribGenericException {
+public:
+
+    Mars2GribModelException(std::string reason, const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc) {}
+
+    Mars2GribModelException(std::string reason, std::string normalizedInputJson,
+                            const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), normalizedInputJson_(std::move(normalizedInputJson)) {}
+
+    void printFrame(std::ostream& os, const std::string& pad) const override {
+
+        Mars2GribGenericException::printFrame(os, pad);
+        if (normalizedInputJson_) {
+            os << pad << "+ normalizedInputJson:  " << *normalizedInputJson_ << "\n";
+        }
+    }
+
+    void printFrame(const std::string& pad) const override {
+        Mars2GribGenericException::printFrame(pad);
+        if (normalizedInputJson_) {
+            LOG_DEBUG_LIB(LibMetkit) << pad << "+ normalizedInputJson:  " << *normalizedInputJson_ << "\n";
+        }
+    }
+
+private:
+
+    std::optional<std::string> normalizedInputJson_;
+};
+
 /// @brief Exception raised during concept execution.
 ///
 /// This is the most context-rich exception in the hierarchy.
@@ -232,13 +386,29 @@ public:
     const std::optional<std::string>& stage() const { return stage_; }
     const std::optional<std::string>& section() const { return section_; }
 
-    void printFrame(const std::string& pad) const override {
+    void printFrame(std::ostream& os, const std::string& pad) const override {
 
+        Mars2GribGenericException::printFrame(os, pad);
+
+        auto print_opt = [&](const char* k, const std::optional<std::string>& v) {
+            if (v) {
+                os << pad << "+ " << k << ": " << *v << "\n";
+            }
+        };
+
+        print_opt("concept", conceptName_);
+        print_opt("variant", conceptVariant_);
+        print_opt("stage", stage_);
+        print_opt("section", section_);
+    }
+
+    void printFrame(const std::string& pad) const override {
         Mars2GribGenericException::printFrame(pad);
 
         auto print_opt = [&](const char* k, const std::optional<std::string>& v) {
-            if (v)
+            if (v) {
                 LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << k << ": " << *v << "\n";
+            }
         };
 
         print_opt("concept", conceptName_);
@@ -288,8 +458,16 @@ public:
     const std::string& optDict_json() const { return optDict_json_; }
     const std::string& encoderCfg_json() const { return encoderCfg_json_; }
 
-    void printFrame(const std::string& pad) const override {
+    void printFrame(std::ostream& os, const std::string& pad) const override {
 
+        Mars2GribGenericException::printFrame(os, pad);
+        os << pad << "+ marsDict:   " << marsDict_json_ << "\n"
+           << pad << "+ parDict:    " << parDict_json_ << "\n"
+           << pad << "+ optDict:    " << optDict_json_ << "\n"
+           << pad << "+ encoderCfg: " << encoderCfg_json_ << "\n";
+    }
+
+    void printFrame(const std::string& pad) const override {
         Mars2GribGenericException::printFrame(pad);
 
         LOG_DEBUG_LIB(LibMetkit) << pad << "+ marsDict:   " << marsDict_json_ << "\n"
@@ -329,9 +507,21 @@ inline void printExceptionStack(const std::exception& e, std::ostream& os, std::
     // stampa tipo + messaggio
     os << indent << "- [" << typeid(e).name() << "] " << e.what() << '\n';
 
+    const auto* nested = dynamic_cast<const std::nested_exception*>(&e);
+
+    if (nested == nullptr) {
+        return;
+    }
+
+    const std::exception_ptr nestedPtr = nested->nested_ptr();
+
+    if (!nestedPtr) {
+        return;
+    }
+
     // verifica eccezione annidata
     try {
-        std::rethrow_if_nested(e);
+        std::rethrow_exception(nestedPtr);
     }
     catch (const std::exception& nested) {
         printExceptionStack(nested, os, level + 1);
@@ -381,8 +571,20 @@ inline void printExtendedStack(const std::exception& e, std::size_t level = 0, s
 
     LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << std::string(lineSize, '+') << std::endl;
 
+    const auto* nested = dynamic_cast<const std::nested_exception*>(&e);
+
+    if (nested == nullptr) {
+        return;
+    }
+
+    const std::exception_ptr nestedPtr = nested->nested_ptr();
+
+    if (!nestedPtr) {
+        return;
+    }
+
     try {
-        std::rethrow_if_nested(e);
+        std::rethrow_exception(nestedPtr);
     }
     catch (const std::exception& nested) {
         printExtendedStack(nested, level + 1, frame + 1);

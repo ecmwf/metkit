@@ -1,10 +1,5 @@
-# (C) Copyright 1996- ECMWF.
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-# In applying this licence, ECMWF does not waive the privileges and immunities
-# granted to it by virtue of its status as an intergovernmental organisation
-# nor does it submit to any jurisdiction.
+# SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+# SPDX-License-Identifier: Apache-2.0
 
 list(APPEND metkit_env "METKIT_HOME=${CMAKE_BINARY_DIR}")
 
@@ -12,6 +7,10 @@ if( DEFINED ECCODES_DEFINITION_PATH )
   list(APPEND metkit_env "ECCODES_DEFINITION_PATH=${ECCODES_DEFINITION_PATH}")
 elseif( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
   list(APPEND metkit_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/eccodes/definitions")
+endif()
+
+if( DEFINED ECCODES_SAMPLES_PATH )
+      list(APPEND metkit_env "ECCODES_SAMPLES_PATH=${ECCODES_SAMPLES_PATH}")
 endif()
 
 
@@ -24,6 +23,9 @@ ecbuild_get_test_multidata( TARGET metkit_get_odb_data
                             NAMES multiodb.odb
                                   multiodb2.odb
                             NOCHECK )
+
+configure_file(pl.grib pl.grib COPYONLY)
+configure_file(sol.grib sol.grib COPYONLY)
 
 add_custom_target(soft_link_expand_test_data ALL
                   COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_CURRENT_SOURCE_DIR}/expand" "${CMAKE_CURRENT_BINARY_DIR}/expand")
@@ -105,6 +107,18 @@ ecbuild_add_test( TARGET        metkit_test_c_compiled
 
 add_subdirectory(regressions)
 add_subdirectory(marsgen)
-add_subdirectory(mars2grib)
-add_subdirectory(mars2mars)
 add_subdirectory(tools)
+
+if(HAVE_MARS2GRIB)
+    add_subdirectory(mars2grib)
+endif()
+if(HAVE_MARS2MARS)
+    add_subdirectory(mars2mars)
+endif()
+if(HAVE_GRIB2MARS AND HAVE_MARS2GRIB)
+    add_subdirectory(grib2grib)
+endif()
+
+if( HAVE_PYTHON_METKIT_INTERFACE )
+    add_subdirectory(pymetkit)
+endif()

@@ -1,13 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file sfc2sol.h
 /// @brief Conversion rules used by the mars2mars mapper.
@@ -22,14 +14,15 @@
 namespace metkit::mars2mars::rules::impl {
 
 /// @brief Convert surface-like legacy requests into sol layer output.
-template <class InDict_t, class OutDict_t>
-inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc, const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::get_opt;
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
+        (void)opts;
         const auto param = get_or_throw<long>(in, "param");
 
         switch (param) {
@@ -67,10 +60,31 @@ inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfi
             case 33:
             case 238:
             case 228038:
+            case 228141:
+            case 235077:
+            case 235078:
             case 235080:
+            case 235094:
+            case 235238:
+            case 235406:
+            case 237077:
+            case 237078:
             case 237080:
+            case 237094:
+            case 237238:
+            case 237406:
+            case 238077:
+            case 238078:
             case 238080:
+            case 238094:
+            case 238238:
+            case 238406:
+            case 239077:
+            case 239078:
             case 239080:
+            case 239094:
+            case 239238:
+            case 239406:
             case 260199:
             case 260360:
             case 262000:

@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file referenceTimeOp.h
+/// @file referenceTimeEncoding.h
 /// @brief Implementation of the GRIB `referenceTime` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -39,6 +32,12 @@
 /// - Strict validation of GRIB template compatibility
 /// - Context-rich error handling
 ///
+/// All encoded temporal date/time payload values are sourced exclusively from
+/// the resolved `backend::models::product_time_spec::ProductTimeAnchorSpec`
+/// through `impl::build_ReferenceTimeProductTimeSpec_or_throw(...)`. The
+/// separate `significanceOfReferenceTime` GRIB key remains sourced from its
+/// dedicated deduction.
+///
 /// @note
 /// The namespace name `concepts_` is intentionally used instead of `concepts`
 /// to avoid ambiguity and potential conflicts with the C++20 `concept` language
@@ -62,12 +61,13 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
-#include "metkit/mars2grib/backend/deductions/hindcastDateTime.h"
-#include "metkit/mars2grib/backend/deductions/referenceDateTime.h"
 #include "metkit/mars2grib/backend/deductions/significanceOfReferenceTime.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/significanceOfReferenceTime.h"
+
+// Local details
+#include "metkit/mars2grib/backend/concepts/reference-time/impl/ReferenceTimeProductTimeSpec.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchProductDefinitionTemplateNumber.h"
@@ -130,6 +130,9 @@ constexpr bool referenceTimeApplicable() {
 /// - Sets the reference date and time fields
 /// - Optionally encodes model version date/time metadata for reforecasts
 ///
+/// Temporal date/time payload values are sourced from the reference-time-facing
+/// transport built from `ProductTimeAnchorSpec`.
+///
 /// The behavior is driven by:
 /// - the concept variant (`Standard` vs `Reforecast`)
 /// - the target GRIB section
@@ -178,12 +181,19 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             MARS2GRIB_LOG_CONCEPT(referenceTime);
 
+            // Resolve the canonical ProductTimeSpec anchor state once per
+            // concept invocation. All three date/time branches below source
+            // their encoded values exclusively from this object.
+            const auto anchorSpec = models::product_time_spec::ProductTimeAnchorSpec(mars, par, opt);
+            const auto rt         = impl::build_ReferenceTimeProductTimeSpec_or_throw(anchorSpec);
+
             // =============================================================
             // Variant-specific logic
             // =============================================================
             if constexpr (Section == SecIdentificationSection) {
 
-                // Deductions
+                // Deductions: significanceOfReferenceTime is orthogonal to the
+                // resolved ProductTimeSpec anchor state.
                 tables::SignificanceOfReferenceTime significanceOfReferenceTime =
                     deductions::resolve_SignificanceOfReferenceTime_or_throw(mars, par, opt);
 
@@ -193,8 +203,9 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Standard)) {
 
-                // Deductions
-                eckit::DateTime dateTime = deductions::resolve_ReferenceDateTime_or_throw(mars, par, opt);
+                // For a standard product, the GRIB reference date/time is the
+                // resolved ProductTimeSpec reference datetime.
+                const eckit::DateTime& dateTime = rt.referenceDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "year", dateTime.date().year());
@@ -207,8 +218,12 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Reforecast)) {
 
-                // Deductions
-                eckit::DateTime referenceDateTime = deductions::resolve_HindcastDateTime_or_throw(mars, par, opt);
+                // For a reforecast product, the Identification Section's
+                // reference date/time is the resolved ProductTimeSpec label
+                // datetime. The Product Definition Section branch below writes
+                // the model-version date from the resolved reference datetime
+                // instead.
+                const eckit::DateTime& referenceDateTime = rt.labelDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "year", referenceDateTime.date().year());
@@ -222,11 +237,12 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
             if constexpr ((Section == SecProductDefinitionSection) && (Variant == ReferenceTimeType::Reforecast)) {
 
                 // Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {60L, 61L});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out,
+                                                                           {60L, 61L, 140L, 142L, 152L, 153L});
 
-
-                // Deduction
-                eckit::DateTime dateTime = deductions::resolve_ReferenceDateTime_or_throw(mars, par, opt);
+                // Model-version date/time is the resolved ProductTimeSpec
+                // reference datetime.
+                const eckit::DateTime& dateTime = rt.referenceDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "YearOfModelVersion", dateTime.date().year());

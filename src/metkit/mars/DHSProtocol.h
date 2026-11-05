@@ -1,40 +1,34 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 // File DHSProtocol.h
 // Baudouin Raoult - (c) ECMWF Feb 12
 
-#ifndef DHSProtocol_H
-#define DHSProtocol_H
+#pragma once
 
+#include <iosfwd>
+#include <map>
 #include <memory>
+#include <string>
 
+#include "eckit/io/Length.h"
 #include "eckit/net/Endpoint.h"
-#include "eckit/net/TCPServer.h"
 #include "eckit/net/TCPSocket.h"
+#include "eckit/serialisation/Streamable.h"
+#include "eckit/types/Types.h"
 
 #include "metkit/mars/BaseProtocol.h"
 #include "metkit/mars/ClientTask.h"
 #include "metkit/mars/MarsRequest.h"
 
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 class BaseCallbackConnection : public eckit::Streamable {
 public:
 
-    BaseCallbackConnection() {}
-    virtual ~BaseCallbackConnection() {}
+    BaseCallbackConnection() = default;
 
     static BaseCallbackConnection* build(const eckit::Configuration& config, const std::string& host = "");
 
@@ -42,12 +36,11 @@ public:
 
     virtual eckit::net::TCPSocket& connect() = 0;
 
-    virtual void encode(eckit::Stream&) const override = 0;
+    void encode(eckit::Stream&) const override = 0;
     static const eckit::ClassSpec& classSpec();
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
-
 
 class DHSProtocol : public BaseProtocol {
 
@@ -57,16 +50,17 @@ public:
 
     DHSProtocol(const eckit::Configuration&, const std::map<std::string, std::string>& env);
 
-    DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
+    DHSProtocol(const std::string& name, const std::string& host, int port, bool forwardMessages = false);
 
     DHSProtocol(eckit::Stream&);
-    ~DHSProtocol();
+    ~DHSProtocol() override;
 
     // -- Overridden methods (from Streamable)
 
-    virtual std::string className() const override { return "DHSProtocol"; }
-    virtual const eckit::ReanimatorBase& reanimator() const override;
+    std::string className() const override { return "DHSProtocol"; }
+    const eckit::ReanimatorBase& reanimator() const override;
     static const eckit::ClassSpec& classSpec();
+    const eckit::StringDict& stats() const override { return stats_; }
 
 private:
 
@@ -83,24 +77,22 @@ private:
     bool sending_;
     bool forward_;
     MarsRequest env_;
+    eckit::StringDict stats_;
 
     // -- Methods
     bool wait(eckit::Length&);
 
     // -- Overridden methods
     // From BaseProtocol
-    virtual eckit::Length retrieve(const MarsRequest& request) override;
-    virtual void archive(const MarsRequest& request, const eckit::Length&) override;
-    virtual long read(void* buffer, long len) override;
-    virtual long write(const void* buffer, long len) override;
-    virtual void cleanup() override;
-    virtual void print(std::ostream&) const override;
-    virtual void encode(eckit::Stream&) const override;
+    eckit::Length retrieve(const MarsRequest& request) override;
+    void archive(const MarsRequest& request, const eckit::Length&) override;
+    long read(void* buffer, long len) override;
+    long write(const void* buffer, long len) override;
+    void cleanup() override;
+    void print(std::ostream&) const override;
+    void encode(eckit::Stream&) const override;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

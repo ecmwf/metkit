@@ -1,0 +1,3 @@
+retrieve,class=od,type=pf,stream=enfo,levtype=sfc,date=20260901,time=0000,step=6/12,expver=0001,number=1/2/3,param=167/228164,domain=g,timespan=none
+retrieve,class=od,type=pf,stream=enfo,levtype=sfc,date=20260901,time=0000,step=6/12,expver=0001,number=1/2/3,param=228228,domain=g,timespan=fs
+retrieve,class=od,type=pf,stream=enfo,levtype=sfc,date=20260901,time=0000,step=6/12,expver=0001,number=1/2/3,param=237167,domain=g,timespan=6h

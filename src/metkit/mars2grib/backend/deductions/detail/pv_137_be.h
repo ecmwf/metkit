@@ -1,17 +1,16 @@
-#pragma once
-#include "metkit/mars2grib/utils/generalUtils.h"
-
-// namespace metkit::mars2grib::backend::deductions::pv_detail::data {
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
+/// @file detail/pv_137_be.h
 /// @brief Predefined PV coefficient table extracted from IFS binary output.
 ///
 /// This file contains a statically defined table of PV coefficients used by
 /// the PV lookup and decoding infrastructure in the mars2grib backend.
 ///
 /// The values in this table have been obtained by performing a **binary dump
-/// in the IFS** of the PV array associated
-/// with a specific hybrid vertical coordinate configuration.
+/// in the IFS** of the PV array associated with a specific hybrid vertical
+/// coordinate configuration.
 ///
 /// The dumped binary values were:
 /// - captured verbatim from IFS runtime memory,
@@ -53,6 +52,13 @@
 /// No attempt must be made to modify, regenerate, or reinterpret the
 /// coefficients manually.
 ///
+/// @ingroup mars2grib_backend_deductions
+///
+
+#pragma once
+
+#include "metkit/mars2grib/utils/generalUtils.h"
+
 static constexpr std::array<HexDouble, 1002> pv_137_1002_be = {
     {{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, {0x40, 0x00, 0x00, 0xbf, 0x60, 0x00, 0x00, 0x00},
      {0x40, 0x08, 0xd1, 0x63, 0xc0, 0x00, 0x00, 0x00}, {0x40, 0x12, 0xaa, 0x11, 0xe0, 0x00, 0x00, 0x00},

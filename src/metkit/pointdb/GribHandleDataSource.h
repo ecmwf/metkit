@@ -1,15 +1,7 @@
-/*
- * (C) Copyright 1996-2013 ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996-2013 European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
-#ifndef metkit_GribHandleDataSource_H
-#define metkit_GribHandleDataSource_H
+#pragma once
 
 #include "metkit/pointdb/GribDataSource.h"
 #include "metkit/pointdb/GribFieldInfo.h"
@@ -18,8 +10,7 @@ namespace eckit {
 class DataHandle;
 }
 
-namespace metkit {
-namespace pointdb {
+namespace metkit::pointdb {
 
 
 class GribHandleDataSource : public GribDataSource {
@@ -29,8 +20,7 @@ public:
     GribHandleDataSource(eckit::DataHandle&, const eckit::Offset& = 0);
     GribHandleDataSource(eckit::DataHandle*, const eckit::Offset& = 0);
 
-
-    ~GribHandleDataSource();
+    ~GribHandleDataSource() override;
 
 private:
 
@@ -52,7 +42,4 @@ private:
     void open() const;
 };
 
-}  // namespace pointdb
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::pointdb

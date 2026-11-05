@@ -1,5 +1,4 @@
-#ifndef metkit_version_h
-#define metkit_version_h
+#pragma once
 
 #define metkit_VERSION_STR "@metkit_VERSION_STR@"
 #define metkit_VERSION     "@metkit_VERSION@"
@@ -26,5 +25,3 @@ const char * metkit_git_sha1();
 }
 #endif
 
-
-#endif // metkit_version_h

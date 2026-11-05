@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996-2013 ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996-2013 European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "metkit/pointdb/GribFieldInfo.h"
 #include "metkit/codes/api/CodesAPI.h"
@@ -22,8 +15,7 @@ unsigned long grib_decode_unsigned_long(const unsigned char* p, long* offset, in
 double grib_power(long s, long n);
 }
 
-namespace metkit {
-namespace pointdb {
+namespace metkit::pointdb {
 
 static Mutex mutex;
 
@@ -174,5 +166,4 @@ double GribFieldInfo::value(const GribDataSource& f, size_t index) const {
     return v;
 }
 
-}  // namespace pointdb
-}  // namespace metkit
+}  // namespace metkit::pointdb

@@ -1,15 +1,8 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
-/// @file paramOp.h
+/// @file paramEncoding.h
 /// @brief Implementation of the GRIB `param` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -125,23 +118,28 @@ template <std::size_t Stage, std::size_t Section, ParamType Variant, class MarsD
           class OutDict_t>
 void ParamOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
+    using metkit::mars2grib::utils::dict_traits::dump_or_ignore;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
     if constexpr (paramApplicable<Stage, Section, Variant>()) {
+
+        long paramId;
 
         try {
 
             MARS2GRIB_LOG_CONCEPT(param);
 
             // Deductions
-            long paramId = deductions::resolve_ParamId_or_throw(mars, par, opt);
+            paramId = deductions::resolve_ParamId_or_throw(mars, par, opt);
 
             // Encoding
             set_or_throw<long>(out, "paramId", paramId);
         }
         catch (...) {
-            MARS2GRIB_CONCEPT_RETHROW(param, "Unable to set `param` concept...");
+            dump_or_ignore(out, "mars2grib_param_concept_failure.grib");
+            MARS2GRIB_CONCEPT_RETHROW(
+                param, [&]() { return "Unable to set `param` concept with paramId=" + std::to_string(paramId); }());
         }
 
         // Successful operation

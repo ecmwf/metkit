@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file allowedReferenceValue.h
@@ -68,26 +61,32 @@ namespace metkit::mars2grib::backend::deductions {
 /// @brief Resolve the GRIB allowed reference value from input dictionaries.
 ///
 /// @section Deduction contract
-/// - Reads: `mars["param"]`
+/// - Reads: exactly one of `mars["grid"]` or `mars["truncation"]`; `mars["param"]` for grid-point products
 /// - Writes: none
 /// - Side effects: logging (RESOLVE)
 /// - Failure mode: throws
 ///
-/// This deduction resolves the GRIB `allowedReferenceValue` by retrieving
-/// the mandatory MARS parameter identifier (`param`) and consulting a
-/// statically defined table of admissible reference value ranges.
+/// This deduction resolves the GRIB `allowedReferenceValue` by first determining
+/// whether the request describes a grid-point or spectral representation. Exactly
+/// one of `grid` or `truncation` must be present in the MARS dictionary.
 ///
-/// For parameters with an explicit range definition, the resolved reference
-/// value is chosen as the midpoint of the corresponding `[min, max]` interval.
-/// If no explicit range is defined for the parameter, a default reference
-/// value of `0.0` is returned.
+/// For grid-point products, the mandatory MARS parameter identifier (`param`) is
+/// retrieved and used to consult a statically defined table of admissible
+/// reference value ranges. For parameters with an explicit range definition, the
+/// resolved reference value is chosen as the midpoint of the corresponding
+/// `[min, max]` interval. If no explicit range is defined for the parameter, a
+/// default reference value of `0.0` is returned.
+///
+/// For spectral products identified by `truncation`, the resolved reference
+/// value is `0.0`.
 ///
 /// No semantic interpretation beyond the explicit range table is applied.
 /// The admissible ranges are defined locally and are not validated against
 /// external GRIB tables.
 ///
 /// @tparam MarsDict_t
-/// Type of the MARS dictionary. Must support keyed access to `param`
+/// Type of the MARS dictionary. Must support presence checks for `grid` and
+/// `truncation`; grid-point products must also support keyed access to `param`
 /// and conversion to an integral type.
 ///
 /// @tparam ParDict_t
@@ -109,8 +108,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// The resolved allowed reference value.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If the key `param` is missing, cannot be retrieved as an integral value,
-/// or if any unexpected error occurs during deduction.
+/// If neither or both of `grid` and `truncation` are present, if `param` is
+/// missing or malformed for a grid-point product, or if any unexpected error
+/// occurs during deduction.
 ///
 /// @note
 /// This deduction applies a local, table-driven rule and does not
@@ -120,6 +120,7 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t>
 double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
@@ -190,10 +191,26 @@ double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParD
             {263501, {173.0, 1000.0}},
         };
 
-        // Default reference value
+        const bool hasGrid       = has(mars, "grid");
+        const bool hasTruncation = has(mars, "truncation");
+
+        if (hasGrid == hasTruncation) {
+            throw Mars2GribDeductionException(
+                "`allowedReferenceValue` requires exactly one of MARS keys `grid` or `truncation`", Here());
+        }
+
+        if (hasTruncation) {
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return std::string{"`allowedReferenceValue` resolved for spectral representation: value='0.000000'"};
+            }());
+
+            return 0.0;
+        }
+
+        // Default reference value for grid-point products
         double ret = 0.0;
 
-        // Retrieve mandatory MARS allowedReferenceValue
+        // Retrieve mandatory MARS parameter identifier
         long marsParamVal = get_or_throw<long>(mars, "param");
 
         // Lookup allowed value in the mid of the allowed range

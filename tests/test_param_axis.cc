@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file   test_param_axis.cc
 /// @author Baudouin Raoult
@@ -70,10 +63,11 @@ static void test_param_axis(const std::vector<std::string>& user, const std::vec
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    static MarsLanguage language("retrieve");
+    const MarsLanguage& language = MarsLanguage::get("retrieve");
     MarsRequest req;
+    ExpansionContext ctx;
     req.setValuesTyped(language.type(name), values);
-    req = language.expand(req, false, true);
+    req = language.expand(req, ctx, false, true);
     EXPECT_EQUAL(expected, req.values(name));
 }
 

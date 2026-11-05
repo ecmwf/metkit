@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #pragma once
 
@@ -14,8 +7,11 @@
 #include "metkit/codes/api/GeoIterator.h"
 #include "metkit/codes/api/KeyIterator.h"
 
+#include "eccodes.h"
+
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 #include <type_traits>
@@ -390,6 +386,20 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 ///         returned from eccodes, any expected propagated from readFunc.
 std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t*, int64_t)> readFunc);
 
+
+/// Temporary workaround.
+///
+/// This function is a transitional API introduced to unblock the current
+/// implementation. It is intentionally not part of the intended long-term
+/// design and should be removed as soon as the underlying workflow is
+/// refactored.
+///
+/// The returned wrapper borrows `gribHandle` without taking ownership.
+/// The caller keeps ownership of `gribHandle` and needs to maintain its
+/// lifetime for the whole lifetime of the returned `CodesHandle`.
+/// @param gribHandle Pointer to a `codes_handle` that is a GRIB handle.
+/// @return Instance of a `CodesHandle` wrapped in a `std::unique_ptr`.
+std::unique_ptr<CodesHandle> codesHandleFromGRIBHandle(codes_handle* gribHandle);
 
 //----------------------------------------------------------------------------------------------------------------------
 

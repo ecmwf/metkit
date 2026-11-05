@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file AllConcepts.h
@@ -83,6 +76,10 @@
 /// compile-time registry engine.
 ///
 
+///
+/// @ingroup mars2grib_backend_concepts
+///
+
 #pragma once
 
 // System includes
@@ -93,20 +90,25 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/backend/concepts/analysis/analysisConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/brightness-temperature/brightnessTemperatureConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/composition/compositionConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/data-type/dataTypeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/derived/derivedConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/destine/destineConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/iteration/iterationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/level/levelConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/mars/marsConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/model-error/modelErrorConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/nil/nilConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/origin/originConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/packing/packingConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/param/paramConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/probability/probabilityConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/representation/representationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/satellite/satelliteConceptDescriptor.h"
@@ -170,8 +172,9 @@ using TypeList = metkit::mars2grib::backend::compile_time_registry_engine::TypeL
 ///
 using AllConcepts =
     TypeList<AnalysisConcept, CompositionConcept, DataTypeConcept, DerivedConcept, DestineConcept, EnsembleConcept,
-             GeneratingProcessConcept, LevelConcept, LongrangeConcept, MarsConcept, NilConcept, OriginConcept,
-             PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept,
-             SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept>;
+             GeneratingProcessConcept, LevelConcept, LongrangeConcept, IterationConcept, MarsConcept, NilConcept,
+             OriginConcept, PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept,
+             RepresentationConcept, SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept,
+             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, ProbabilityConcept, ReferencePeriodConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail

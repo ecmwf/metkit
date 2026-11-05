@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 #pragma once
 
 #include <algorithm>
@@ -17,7 +10,6 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -70,38 +62,39 @@ template <class OptDict_t, class OutDict_t>
 void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t& out,
                                           const std::vector<long>& expectedLocalDefinitionNumber) {
 
-    using metkit::mars2grib::utils::checksEnabled;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::joinNumbers;
     using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (get_or_throw<bool>(opt, "applyChecks")) {
 
-            // If Local Use Section is present, check definition number
-            if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
+                // If Local Use Section is present, check definition number
+                if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
 
-                long actualLocalDefinitionNumber = get_or_throw<long>(out, "localDefinitionNumber");
+                    long actualLocalDefinitionNumber = get_or_throw<long>(out, "localDefinitionNumber");
 
-                // Compare against expected values
-                bool match = std::find(expectedLocalDefinitionNumber.begin(), expectedLocalDefinitionNumber.end(),
-                                       actualLocalDefinitionNumber) != expectedLocalDefinitionNumber.end();
+                    // Compare against expected values
+                    bool match = std::find(expectedLocalDefinitionNumber.begin(), expectedLocalDefinitionNumber.end(),
+                                           actualLocalDefinitionNumber) != expectedLocalDefinitionNumber.end();
 
-                // Throw if no match
-                if (!match) {
-                    std::string errMsg = "Local Definition Number mismatch in Local Use Section: ";
-                    errMsg += "actual=" + std::to_string(actualLocalDefinitionNumber);
-                    errMsg += ", expected=" + joinNumbers(expectedLocalDefinitionNumber);
-                    throw Mars2GribValidationException(errMsg, Here());
+                    // Throw if no match
+                    if (!match) {
+                        std::string errMsg = "Local Definition Number mismatch in Local Use Section: ";
+                        errMsg += "actual=" + std::to_string(actualLocalDefinitionNumber);
+                        errMsg += ", expected=" + joinNumbers(expectedLocalDefinitionNumber);
+                        throw Mars2GribValidationException(errMsg, Here());
+                    }
                 }
-            }
-            else {
-                throw Mars2GribValidationException("Local Use Section not present in the sample", Here());
-            }
+                else {
+                    throw Mars2GribValidationException("Local Use Section not present in the sample", Here());
+                }
 
-            // Useful for debugging
-            MARS2GRIB_LOG_MATCH("Local Definition Number matches expected values");
+                // Useful for debugging
+                MARS2GRIB_LOG_MATCH("Local Definition Number matches expected values");
+            }
         }
 
         // Exit on success
