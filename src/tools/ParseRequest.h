@@ -24,7 +24,8 @@ public:
     ParseRequest(int argc, char** argv, bool convertToGrib2 = false) : MetkitTool(argc, argv), grib2_(convertToGrib2) {
         options_.push_back(new SimpleOption<bool>("json", "Format request in json, default = false"));
         options_.push_back(new SimpleOption<bool>("compact", "Compact output, default = false"));
-        options_.push_back(new SimpleOption<bool>("block", "Stable output that can be used as input to other tools. One keyword per line"));
+        options_.push_back(new SimpleOption<bool>(
+            "block", "Stable output that can be used as input to other tools. One keyword per line"));
     }
 
     virtual ~ParseRequest() {}

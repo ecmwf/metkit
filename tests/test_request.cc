@@ -211,52 +211,82 @@ CASE("test_request_count_single_level_params") {
 CASE("test_request_data_type_classification") {
     {
         MarsRequest request = requestWith("type", {"ob"});
-        EXPECT(request.is_bufr());
-        EXPECT(!request.is_grib());
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
     }
     {
         MarsRequest request = requestWith("type", {"fb"});
-        EXPECT(request.is_bufr());
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
     }
     {
         MarsRequest request = requestWith("type", {"ob", "fb"});
-        EXPECT(request.is_bufr());
-        EXPECT(!request.is_grib());
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
     }
     {
         MarsRequest request = requestWith("type", {"ai"});
-        EXPECT(request.is_bufr());
-        EXPECT(!request.is_grib());
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
     }
     {
         MarsRequest request = requestWith("type", {"af"});
-        EXPECT(request.is_bufr());
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
     }
     {
         MarsRequest request = requestWith("type", {"ab"});
-        EXPECT(request.is_bufr());
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
     }
     {
         MarsRequest request = requestWith("type", {"tf"});
-        EXPECT(request.is_bufr());
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"an", "tf"});
+        EXPECT(request.dataType() == DataType::Unknown);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 0.5);
     }
 
     for (const std::string& type : {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"}) {
-        EXPECT(requestWith("type", {type}).is_odb());
+        MarsRequest request = requestWith("type", {type});
+        EXPECT(request.dataType() == DataType::Odb);
+        auto odb = request.is_odb();
+        EXPECT(odb == 1.0);
     }
-    EXPECT(!requestWith("type", {"an"}).is_odb());
-
-    EXPECT(requestWith("type", {"an"}).is_grib());
-    EXPECT(MarsRequest().is_grib());
+    {
+        auto odb = requestWith("type", {"an"}).is_odb();
+        EXPECT(odb == 0.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"an"});
+        auto buf            = request.is_bufr();
+        auto odb            = request.is_odb();
+        EXPECT(buf.numerator() == 0 && odb.numerator() == 0);
+        EXPECT(request.dataType() == DataType::Grib);
+    }
 }
 
 CASE("test_request_multiple_type_values") {
     const MarsRequest feedback = requestWith("type", {"ai", "af"});
-    EXPECT(feedback.is_bufr());
-    EXPECT(!feedback.is_grib());
-    const MarsRequest mixed = requestWith("type", {"ob", "ai"});
-    EXPECT(mixed.is_bufr());
-    EXPECT(!mixed.is_grib());
+    EXPECT(feedback.dataType() == DataType::Bufr);
+    EXPECT(feedback.is_bufr() == 1.0);
+    EXPECT(feedback.is_odb() == 0.0);
+
+    const MarsRequest mixed = requestWith("type", {"ob", "ofb"});
+    EXPECT(mixed.dataType() == DataType::Unknown);
+    EXPECT(mixed.is_bufr() == 0.5);
+    EXPECT(mixed.is_odb() == 0.5);
 }
 
 //-----------------------------------------------------------------------------

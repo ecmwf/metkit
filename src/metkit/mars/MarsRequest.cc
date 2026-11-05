@@ -387,33 +387,50 @@ MarsRequest::operator eckit::Value() const {
 }
 
 
-bool MarsRequest::checkValues(const std::string& key, const std::vector<std::string>& c) const {
+eckit::Fraction MarsRequest::valuesIncluded(const std::string& key, const std::set<std::string>& filter) const {
     auto t = find(key);
     if (t == params_.end() || t->values().empty()) {
-        return false;
+        return eckit::Fraction(0, 1);
     }
-    return std::all_of(t->values().begin(), t->values().end(),
-                       [&c](const std::string& value) { return std::find(c.begin(), c.end(), value) != c.end(); });
+    const size_t num = std::count_if(t->values().begin(), t->values().end(), [&filter](const std::string& value) {
+        return filter.find(eckit::StringTools::lower(value)) != filter.end();
+    });
+    return eckit::Fraction(num, t->values().size());
 }
 
-bool MarsRequest::is_bufr() const {
-    return checkValues("type", {"ai", "af", "ob", "fb", "ab", "tf"}) || checkValues("stream", {"ssmi"});
+eckit::Fraction MarsRequest::is_bufr() const {
+    static const std::set<std::string> bufr_types   = {"ai", "af", "ob", "fb", "ab", "tf"};
+    static const std::set<std::string> bufr_streams = {"ssmi"};
+
+    auto stream = valuesIncluded("stream", bufr_streams);
+    if (stream.numerator() == stream.denominator()) {
+        return stream;
+    }
+    return valuesIncluded("type", bufr_types);
 }
-bool MarsRequest::is_odb() const {
-    return checkValues("type", {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"});
-}
-bool MarsRequest::is_grib() const {
-    return !is_bufr() && !is_odb();
+
+eckit::Fraction MarsRequest::is_odb() const {
+    static const std::set<std::string> odb_types = {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"};
+    return valuesIncluded("type", odb_types);
 }
 
 DataType MarsRequest::dataType() const {
-    if (is_bufr()) {
-        return Bufr;
+    auto bufr = is_bufr();
+    auto odb  = is_odb();
+    if (bufr.numerator() == 0) {
+        if (odb.numerator() == 0) {
+            return Grib;
+        }
+        if (odb.numerator() == odb.denominator()) {
+            return Odb;
+        }
     }
-    if (is_odb()) {
-        return Odb;
+    if (bufr.numerator() == bufr.denominator()) {
+        if (odb.numerator() == 0) {
+            return Bufr;
+        }
     }
-    return Grib;
+    return Unknown;
 }
 
 // recursively expand along keys in expvalues
