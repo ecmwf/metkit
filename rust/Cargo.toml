@@ -1,8 +1,12 @@
+# SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+# SPDX-License-Identifier: Apache-2.0
+
 [workspace]
 resolver = "2"
 members = ["crates/metkit-sys", "crates/metkit"]
 
 [workspace.package]
+version = "1.22.0"
 edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/ecmwf/metkit"
@@ -13,19 +17,19 @@ categories = ["science"]
 
 [workspace.dependencies]
 # Internal
-metkit-sys = { path = "crates/metkit-sys", default-features = false, features = ["metkit-config"] }
-metkit = { path = "crates/metkit" }
+metkit-sys = { version = "1.22", path = "crates/metkit-sys", default-features = false, features = ["metkit-config"] }
+metkit = { version = "1.22", path = "crates/metkit" }
 
 # Foundation crates
-eckit-sys = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop", default-features = false }
-eccodes-sys = { git = "ssh://git@github.com/ecmwf/rust-wrappers-playground.git", rev = "d6b582fd", default-features = false }
+eckit-sys = { version = "2.5", default-features = false }
+eccodes-sys = { version = "2.50", default-features = false }
 # High-level wrappers
-eckit = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop", default-features = false }
+eckit = { version = "2.5", default-features = false }
 
 # Build tools
-bindman = { git = "ssh://git@github.com/ecmwf/bindman.git", rev = "25726ab" }
-bindman-build = { git = "ssh://git@github.com/ecmwf/bindman.git", rev = "25726ab" }
-bindman-utils = { git = "ssh://git@github.com/ecmwf/bindman.git", rev = "25726ab" }
+bindman = "0.2"
+bindman-build = "0.2"
+bindman-utils = "0.2"
 
 # External
 cxx = "1.0"

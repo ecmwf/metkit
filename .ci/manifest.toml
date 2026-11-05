@@ -15,19 +15,8 @@ repo = "ecmwf/metkit"
 visibility = "public"
 fork-pull-requests = true
 compiler-inputs = ["cxx-compiler"]
+allow-stale-deps = true
 git-read = ["ecmwf/bindman", "ecmwf/rust-wrappers-playground"]
-
-[[deps]]
-repo = "ecmwf/ecbuild"
-package = "ecbuild"
-ref = "develop"
-compiler-inputs = []
-
-[[deps]]
-repo = "ecmwf/stack-dependencies"
-package = "netcdf"
-ref = "master"
-compiler-inputs = ["cxx-compiler"]
 
 # GRIB2MARS and MARS2GRIB need eccodes[eckit-geo], and mir needs them.
 [[deps]]
@@ -37,14 +26,9 @@ ref = "develop"
 compiler-inputs = ["cxx-compiler"]
 options = "eckit-geo"
 
-[[deps]]
-repo = "ecmwf/eckit"
-package = "eckit"
-ref = "develop"
-compiler-inputs = ["cxx-compiler"]
-
 [packages.pymetkit]
 compiler-inputs = ["cxx-compiler"]
+allow-stale-deps = true
 
 [[packages.pymetkit.deps]]
 package = "metkit"
@@ -178,6 +162,7 @@ platform = "hpc-atos-nvidia"
 modules = ["load prgenv/nvidia", "unload nvidia", "load nvidia/26.1", "load cmake", "load ninja"]
 c-compiler-binary = "nvc"
 cxx-compiler-binary = "nvc++"
+sccache = false
 
 [[matrix.build-hpc.include]]
 cxx-compiler = "icpx-2025.3.1"
@@ -195,6 +180,7 @@ cxx-compiler-binary = "icpc"
 
 [packages.metkit-rust]
 compiler-inputs = ["cxx-compiler"]
+allow-stale-deps = true
 
 [[packages.metkit-rust.deps]]
 package = "metkit"
@@ -221,6 +207,23 @@ platform = "ubuntu-24.04"
 
 [[matrix.rust.include]]
 rust-compiler = "rust-1.90"
+
+[packages.metkit-crates]
+compiler-inputs = ["cxx-compiler", "rust-compiler"]
+allow-stale-deps = true
+
+[matrix.rust-publish]
+packages = ["metkit-crates"]
+publishes = false
+
+[[matrix.rust-publish.include]]
+job-script = "./.ci/runner/rust-publish.sh.j2"
+runs-on = "arc-runner-very-large"
+cxx-compiler = "g++-13"
+c-compiler = "gcc-13"
+rust-compiler = "rust-1.90"
+container = "eccr.ecmwf.int/public-ci-images/ubuntu24.04-gcc13-gfortran13-boost-qt6-rust1.90"
+platform = "ubuntu-24.04"
 
 [[trigger-downstream]]
 repo = "ecmwf/mir"

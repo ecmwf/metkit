@@ -287,7 +287,10 @@ impl<S: RequestState> MarsRequest<S> {
         self.inner.values(key).map_err(crate::Error::from)
     }
 
-    /// Get the first value for a key.
+    /// The value of a key that has exactly one.
+    ///
+    /// Fails with `eckit::UserError` when the key has several values; use
+    /// [`values`](Self::values) for those.
     pub fn get(&self, key: &str) -> Result<String> {
         self.inner.get_first(key).map_err(crate::Error::from)
     }
@@ -298,7 +301,9 @@ impl<S: RequestState> MarsRequest<S> {
         self.inner.empty()
     }
 
-    /// Number of parameters.
+    /// Number of fields the request describes: the product of the value
+    /// counts, with the C++ `MarsRequest::count` rules for model levels and
+    /// for `all` and `any`. The number of keywords is `params().len()`.
     #[must_use]
     pub fn count(&self) -> usize {
         self.inner.count()
