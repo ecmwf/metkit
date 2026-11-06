@@ -99,6 +99,9 @@ tables::TypeOfRelationToReferenceDataset resolve_TypeOfRelationToReferenceDatase
             if (marsType == "ep" && matchAny(marsParam, range(131020, 131025))) {
                 return tables::TypeOfRelationToReferenceDataset::Anomaly;
             }
+            if (marsType == "ep" && matchAny(marsParam, range(133093, 133098))) {
+                return tables::TypeOfRelationToReferenceDataset::StandardizedAnomaly;
+            }
             throw Mars2GribDeductionException(
                 "Logic not implemented for this product with Reference Period: type='" + marsType + "'", Here());
         };

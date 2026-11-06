@@ -88,7 +88,7 @@ tables::TypeOfReferenceDataset resolve_TypeOfReferenceDataset_or_throw(const Mar
         const auto marsParam = get_or_throw<long>(mars, "param");
 
         if (marsType == "efi" || marsType == "efic" || marsType == "sot" ||
-            (marsType == "ep" && matchAny(marsParam, range(131020, 131025)))) {
+            (marsType == "ep" && matchAny(marsParam, range(131020, 131025), range(133093, 133098)))) {
 
             const auto result = tables::TypeOfReferenceDataset::Reforecast;
 
