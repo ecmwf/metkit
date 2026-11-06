@@ -12,7 +12,9 @@
 /// `secondOfStartOfReferencePeriod`).
 ///
 /// The values are taken verbatim from the misc (parameter) dictionary:
-/// - year, month and day are mandatory;
+/// - if none of the keys are present, the deduction returns `std::nullopt`
+///   and the keys are left missing in the GRIB header;
+/// - otherwise year, month and day are mandatory;
 /// - hour, minute and second are optional and default to 0.
 ///
 /// Error handling follows a strict fail-fast strategy:
@@ -22,6 +24,7 @@
 ///
 /// Logging follows the mars2grib deduction policy:
 /// - RESOLVE: value resolved from input dictionaries
+/// - DEFAULT: value defaulted to MISSING (nullopt) when all keys are absent
 ///
 /// @section References
 /// Concept:
@@ -32,6 +35,7 @@
 #pragma once
 
 // System includes
+#include <optional>
 #include <string>
 
 // Core deduction includes
@@ -75,10 +79,10 @@ inline void checkRange_or_throw(const char* key, long value, long min, long max)
 ///
 /// @section Deduction contract
 /// - Reads (par): `yearOfStartOfReferencePeriod`, `monthOfStartOfReferencePeriod`, `dayOfStartOfReferencePeriod`
-///                (mandatory), `hourOfStartOfReferencePeriod`, `minuteOfStartOfReferencePeriod`,
-///                `secondOfStartOfReferencePeriod` (optional, default 0)
+///                (mandatory if any key is present), `hourOfStartOfReferencePeriod`,
+///                `minuteOfStartOfReferencePeriod`, `secondOfStartOfReferencePeriod` (optional, default 0)
 /// - Writes: none
-/// - Side effects: logging (RESOLVE)
+/// - Side effects: logging (RESOLVE, DEFAULT)
 /// - Failure mode: throws
 ///
 /// Validation: month in [1, 12], day in [1, 31], hour in [0, 23], minute in [0, 59], second in [0, 59].
@@ -92,23 +96,34 @@ inline void checkRange_or_throw(const char* key, long value, long min, long max)
 /// @param[in] par   Misc dictionary providing the keys listed above.
 /// @param[in] opt   Options dictionary (unused).
 ///
-/// @return The resolved start date and time of the reference period.
+/// @return The resolved start date and time of the reference period, or `std::nullopt` if none of the keys
+///         are present.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If a mandatory key is missing, a value is out of range, or any unexpected error occurs during deduction.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-StartOfReferencePeriod resolve_StartOfReferencePeriod_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                               const OptDict_t& opt) {
+std::optional<StartOfReferencePeriod> resolve_StartOfReferencePeriod_opt(const MarsDict_t& mars, const ParDict_t& par,
+                                                                         const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     (void)mars;
     (void)opt;
 
     try {
+
+        if (!(has(par, "yearOfStartOfReferencePeriod") || has(par, "monthOfStartOfReferencePeriod") ||
+              has(par, "dayOfStartOfReferencePeriod") || has(par, "hourOfStartOfReferencePeriod") ||
+              has(par, "minuteOfStartOfReferencePeriod") || has(par, "secondOfStartOfReferencePeriod"))) {
+
+            MARS2GRIB_LOG_DEFAULT([]() { return "`startOfReferencePeriod` defaulted to MISSING (nullopt)"; }());
+
+            return std::nullopt;
+        }
 
         StartOfReferencePeriod result{};
 
