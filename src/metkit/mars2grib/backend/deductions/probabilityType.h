@@ -99,7 +99,7 @@ tables::ProbabilityType resolve_ProbabilityType_or_throw(const MarsDict_t& mars,
             probabilityType = tables::ProbabilityType::BelowLowerLimit;
         }
         else if (matchAny(param, range(131001, 131003), range(131006, 131010), 131021, 131024, 131025,
-                          range(131060, 131063), range(131066, 131071), range(131074, 131077), range(131082, 131088),
+                          range(131060, 131063), range(131066, 131072), range(131074, 131077), range(131082, 131088),
                           range(131098, 131100), range(131256, 131259), range(133093, 133095))) {
             probabilityType = tables::ProbabilityType::AboveLowerLimit;
         }
