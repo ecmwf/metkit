@@ -536,11 +536,6 @@ _field: &_field
     multiple: true
     type: to-by-list
     by: 1
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [me, eme]
 
   obscutoff:
     category: data
@@ -1781,7 +1776,7 @@ archive:
 ##############################################################
 
 retrieve:
-  _aliases: [r, ret, retr]
+  _aliases: [r, ret, retr, verb] # verb is for marsgen tool
 
   <<: *_field
   <<: *_observation

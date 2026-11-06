@@ -9,10 +9,14 @@
 
 #pragma once
 
+#include <bitset>
+#include <fstream>
 #include <functional>
 #include <iosfwd>
+#include <list>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -20,8 +24,21 @@
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/SymbolTable.h"
 
 namespace metkit::mars {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class NotInSet {
+    std::set<std::string> set_;
+
+public:
+
+    NotInSet(const std::vector<std::string>& f) : set_(f.begin(), f.end()) {}
+
+    bool operator()(const std::string& s) const { return set_.find(s) == set_.end(); }
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -30,13 +47,20 @@ namespace metkit::mars {
 class ContextRule {
 public:
 
-    ContextRule(const std::string& k) : key_(k) {}
+    ContextRule(MarsKeyword k) : key_(k) {}
 
     virtual ~ContextRule() = default;
 
-    const std::string& key() const { return key_; }
+    MarsKeyword key() const { return key_; }
 
-    virtual bool matches(MarsRequest req) const = 0;
+    virtual bool matches(const MarsRequest& req) const = 0;
+
+    bool operator<(const ContextRule& other) const;
+    bool operator==(const ContextRule& other) const;
+
+    virtual void write(std::ofstream& file) const = 0;
+
+    static std::unique_ptr<ContextRule> parse(MMapFileReader& file);
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
         r.print(s);
@@ -45,7 +69,7 @@ public:
 
 protected:
 
-    std::string key_;
+    MarsKeyword key_;
 
 private:  // methods
 
@@ -59,22 +83,10 @@ private:  // methods
 class Include : public ContextRule {
 public:
 
-    Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    Include(MarsKeyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    bool matches(const MarsRequest& req) const override;
 
-    bool matches(MarsRequest req) const override {
-        if (key_ == "_verb") {
-            return (vals_.find(req.verb()) != vals_.end());
-        }
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
@@ -90,18 +102,9 @@ private:
 class Exclude : public ContextRule {
 public:
 
-    Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-    bool matches(MarsRequest req) const override {
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return false;
-            }
-        }
-        return true;
-    }
+    Exclude(MarsKeyword k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    bool matches(const MarsRequest& req) const override;
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
@@ -116,8 +119,9 @@ private:
 class Undef : public ContextRule {
 public:
 
-    Undef(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return !req.has(key_); }
+    Undef(MarsKeyword k) : ContextRule(k) {}
+    bool matches(const MarsRequest& req) const override;
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
@@ -128,8 +132,9 @@ private:  // methods
 class Def : public ContextRule {
 public:
 
-    Def(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return req.has(key_); }
+    Def(MarsKeyword k) : ContextRule(k) {}
+    bool matches(const MarsRequest& req) const override;
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
@@ -144,14 +149,22 @@ private:  // methods
 class Context {
 public:
 
-    static std::unique_ptr<Context> parseContext(eckit::Value c);
+    Context(size_t id, const eckit::Value& c);
+    Context(size_t id, MMapFileReader& file);
+
+    size_t id() const { return id_; }
 
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
 
-    size_t maxAxisIndex() const;
+    MarsKeyword maxAxisIndex() const;
 
-    bool matches(MarsRequest req) const;
+    bool matches(const MarsRequest& req) const;
+
+    bool operator<(const Context& other) const;
+    bool operator==(const Context& other) const;
+
+    void write(std::ofstream& file) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
 
@@ -161,6 +174,7 @@ private:  // methods
 
 private:
 
+    size_t id_;
     std::vector<std::unique_ptr<ContextRule>> rules_;
 };
 
@@ -170,27 +184,22 @@ class ITypeToByList {
 public:
 
     virtual ~ITypeToByList()                                                                      = default;
+    virtual void write(std::ofstream& file) const                                                 = 0;
     virtual void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-enum class Category : uint8_t {
-    None = 0,
-    Data,
-    Derived,
-    PostProc,
-    Sink
-};
+class TypesFactory;
 
-//----------------------------------------------------------------------------------------------------------------------
+class Type {  // : public std::enable_shared_from_this<Type> {
 
-class Type : public eckit::Counted {
 public:  // methods
 
-    Type(const std::string& name, const eckit::Value& settings);
+    Type(const std::string& type, MarsKeyword key, const eckit::Value& settings);
+    Type(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
-    ~Type() noexcept override = default;
+    virtual ~Type() = default;
 
     virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
     void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;
@@ -209,16 +218,18 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
-    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter,
+    virtual bool filter(MarsKeyword keyword, const std::vector<std::string>& filter,
                         std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
-    const std::string& name() const;
-    const Category& category() const;
+    MarsKeyword id() const { return id_; }
+    const std::string& name() const { return name_; }
 
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
 
     virtual size_t count(const std::vector<std::string>& values) const;
+
+    virtual void write(std::ofstream& file) const;
 
 protected:  // methods
 
@@ -229,30 +240,41 @@ protected:  // methods
 
     friend class MarsLanguage;
 
-    void defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values);
-    void set(std::shared_ptr<Context> context, const std::vector<std::string>& values);
-    void unset(std::shared_ptr<Context> context);
+    // write() = writeCommon() + writeToByList(). Subclasses that serialise extra state must write it in the same
+    // order in which their file constructor reads it (base class first, then the to-by-list, then their own state)
+    void writeCommon(std::ofstream& file) const;
+    void writeToByList(std::ofstream& file) const;
+
+    void defaults(const Context& context, const std::vector<std::string>& values);
+    void set(const Context& context, const std::vector<std::string>& values);
+    void unset(const Context& context);
 
 protected:  // members
 
-    std::string name_;
+    std::string typeName_;
 
-    bool flatten_;
-    bool multiple_;
-    bool duplicates_;
-    Category category_;
+    MarsKeyword id_;
+    const std::string& name_;
 
-    std::map<std::shared_ptr<Context>, std::vector<std::string>> defaults_;
-    std::map<std::shared_ptr<Context>, std::vector<std::string>> sets_;
-    std::set<std::shared_ptr<Context>> unsets_;
+    std::bitset<8> flags_;
+    // flags_[0] --> flatten
+    // flags_[1] --> multiple
+    // flags_[2] --> duplicates
+    // flags_[3] --> uppercase (enum/regex)
+    // flags_[4] --> firstRule (param)
+    // flags_[5] --> hasGroups: only meaningful in the binary file, use hasGroups() at runtime
+
+    std::list<std::pair<std::reference_wrapper<const Context>, std::vector<std::string>>> defaults_;
+    std::list<std::pair<std::reference_wrapper<const Context>, std::vector<std::string>>> sets_;
+    std::list<std::reference_wrapper<const Context>> unsets_;
 
     std::unique_ptr<ITypeToByList> toByList_;
 
-    std::map<std::string, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
+    std::map<MarsKeyword, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
 
-    virtual void print(std::ostream& out) const = 0;
+    virtual void print(std::ostream& out) const {}
     void patchRequest(MarsRequest& request, const std::vector<std::string>& values) const;
 };
 

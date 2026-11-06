@@ -17,8 +17,8 @@ namespace metkit::mars {
 class TypeExpver : public Type {
 public:  // methods
 
-    TypeExpver(const std::string& name, const eckit::Value& settings);
-
+    TypeExpver(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeExpver(const std::string& type, MarsKeyword key, MMapFileReader& file);
     ~TypeExpver() noexcept override = default;
 
     bool expand(std::string& value, const MarsRequest& request) const override;

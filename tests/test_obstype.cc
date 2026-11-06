@@ -17,11 +17,11 @@ namespace metkit::mars::test {
 
 using ::eckit::UserError;
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    MarsLanguage::get("retrieve").type(name)->expand(values);
+    MarsLanguage::get("retrieve").typeRef(name).expand(values);
     EXPECT_EQUAL(expected, values);
 }
 
@@ -36,7 +36,7 @@ CASE("Test Obstype expansions") {
     assertTypeExpansion("obstype", {"trmm", "qscat"}, {"129", "130", "137", "138"});
     {
         std::vector<std::string> values{"sd"};
-        MarsLanguage::get("retrieve").type("obstype")->expand(values);
+        MarsLanguage::get("retrieve").typeRef("obstype").expand(values);
         std::vector<std::string> expected{"121", "122", "123", "124", "210", "212", "213", "214", "216", "217", "218",
                                           "51",  "53",  "54",  "55",  "56",  "57",  "59",  "60",  "61",  "62",  "63",
                                           "65",  "71",  "72",  "73",  "75",  "138", "139", "153", "155", "211", "240",
@@ -53,7 +53,7 @@ CASE("Test Obstype expansions") {
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 

@@ -12,6 +12,9 @@
 
 #include "eckit/types/Types.h"
 
+#include "metkit/mars/SymbolTable.h"
+#include "metkit/mars/Type.h"
+
 namespace eckit {
 class Value;
 }
@@ -37,7 +40,8 @@ public:
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
 
-    Type* build(const std::string& keyword, const eckit::Value&);
+    std::unique_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
+    std::unique_ptr<Type> build(const std::string& name, MarsKeyword key, MMapFileReader& file);
 
     void list(std::ostream& s);
 
@@ -56,9 +60,11 @@ private:  // members
 class TypesFactory {
 public:
 
-    virtual Type* make(const std::string& keyword, const eckit::Value& settings) const = 0;
+    virtual std::unique_ptr<Type> make(MarsKeyword key, const eckit::Value& val) const = 0;
+    virtual std::unique_ptr<Type> make(MarsKeyword key, MMapFileReader& file) const    = 0;
 
-    static Type* build(const std::string& keyword, const eckit::Value& settings);
+    static std::unique_ptr<Type> build(MarsKeyword key, const eckit::Value& val);
+    static std::unique_ptr<Type> build(const std::string& name, MarsKeyword key, MMapFileReader& file);
 
     static void list(std::ostream& s);
 
@@ -76,8 +82,11 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    Type* make(const std::string& keyword, const eckit::Value& settings) const override {
-        return new T(keyword, settings);
+    std::unique_ptr<Type> make(MarsKeyword key, const eckit::Value& settings) const override {
+        return std::make_unique<T>(name_, key, settings);
+    }
+    std::unique_ptr<Type> make(MarsKeyword key, MMapFileReader& file) const override {
+        return std::make_unique<T>(name_, key, file);
     }
 
 public:
