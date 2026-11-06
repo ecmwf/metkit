@@ -32,7 +32,7 @@ eckit::message::Message OdbSplitter::next() {
 
     eckit::BufferList buffers;
 
-    odc::api::Span reference = lastFrame_.span(OdbMetadataDecoder::columnNames(), true);
+    odc::api::Span reference = lastFrame_.span(OdbMetadataDecoder::columnNames(lastFrame_), true);
 
     buffers.append(lastFrame_.encodedData());
     handleWrapper_.clear();
@@ -44,7 +44,7 @@ eckit::message::Message OdbSplitter::next() {
     odc::api::Frame frame;
     // aggregate all frames with the same metadata Span as reference Span
     while ((frame = reader_.next())) {
-        odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
+        odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(frame), true);
         if (span == reference) {
             buffers.append(frame.encodedData());
             handleWrapper_.clear();
