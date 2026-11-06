@@ -80,12 +80,12 @@ constexpr bool referencePeriodApplicable() {
 ///   `resolve_AdditionalParametersForReferencePeriod_or_throw`
 /// - the start of the reference period (`yearOfStartOfReferencePeriod`, `monthOfStartOfReferencePeriod`,
 ///   `dayOfStartOfReferencePeriod`, `hourOfStartOfReferencePeriod`, `minuteOfStartOfReferencePeriod`,
-///   `secondOfStartOfReferencePeriod`), see `resolve_StartOfReferencePeriod_or_throw`
-/// - `sampleSizeOfReferencePeriod` from the mandatory `sampleSizeOfModelClimate`, see
-///   `resolve_SampleSizeOfModelClimate_or_throw`
+///   `secondOfStartOfReferencePeriod`), only set when resolved, see `resolve_StartOfReferencePeriod_opt`
+/// - `sampleSizeOfReferencePeriod` from the optional `sampleSizeOfModelClimate`, only set when resolved, see
+///   `resolve_SampleSizeOfModelClimate_opt`
 /// - the model-climate time ranges (`typeOfStatisticalProcessingForTimeRangeForReferencePeriod`,
 ///   `indicatorOfUnitForTimeRangeForReferencePeriod`, `lengthOfTimeRangeForReferencePeriod`), outer (years) first
-///   and inner (days) second, see `resolve_ModelClimateReferencePeriod_or_throw`
+///   and inner (days) second, only set when resolved, see `resolve_ModelClimateReferencePeriod_opt`
 ///
 template <std::size_t Stage, std::size_t Section, ReferencePeriodType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
@@ -140,29 +140,35 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
                         {additionalParameters.first.scaledValue, additionalParameters.second.scaledValue});
                 }
 
-                const auto startOfReferencePeriod = deductions::resolve_StartOfReferencePeriod_or_throw(mars, par, opt);
-                set_or_throw<long>(out, "yearOfStartOfReferencePeriod", startOfReferencePeriod.year);
-                set_or_throw<long>(out, "monthOfStartOfReferencePeriod", startOfReferencePeriod.month);
-                set_or_throw<long>(out, "dayOfStartOfReferencePeriod", startOfReferencePeriod.day);
-                set_or_throw<long>(out, "hourOfStartOfReferencePeriod", startOfReferencePeriod.hour);
-                set_or_throw<long>(out, "minuteOfStartOfReferencePeriod", startOfReferencePeriod.minute);
-                set_or_throw<long>(out, "secondOfStartOfReferencePeriod", startOfReferencePeriod.second);
+                const auto startOfReferencePeriod = deductions::resolve_StartOfReferencePeriod_opt(mars, par, opt);
+                if (startOfReferencePeriod.has_value()) {
+                    set_or_throw<long>(out, "yearOfStartOfReferencePeriod", startOfReferencePeriod->year);
+                    set_or_throw<long>(out, "monthOfStartOfReferencePeriod", startOfReferencePeriod->month);
+                    set_or_throw<long>(out, "dayOfStartOfReferencePeriod", startOfReferencePeriod->day);
+                    set_or_throw<long>(out, "hourOfStartOfReferencePeriod", startOfReferencePeriod->hour);
+                    set_or_throw<long>(out, "minuteOfStartOfReferencePeriod", startOfReferencePeriod->minute);
+                    set_or_throw<long>(out, "secondOfStartOfReferencePeriod", startOfReferencePeriod->second);
+                }
 
-                const auto sampleSizeOfModelClimate =
-                    deductions::resolve_SampleSizeOfModelClimate_or_throw(mars, par, opt);
-                set_or_throw<long>(out, "sampleSizeOfReferencePeriod", sampleSizeOfModelClimate);
+                const auto sampleSizeOfModelClimate = deductions::resolve_SampleSizeOfModelClimate_opt(mars, par, opt);
+                if (sampleSizeOfModelClimate.has_value()) {
+                    set_or_throw<long>(out, "sampleSizeOfReferencePeriod", sampleSizeOfModelClimate.value());
+                }
 
-                const auto modelClimate = deductions::resolve_ModelClimateReferencePeriod_or_throw(mars, par, opt);
-                set_or_throw<std::vector<long>>(
-                    out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
-                    {modelClimate.outer.typeOfStatisticalProcessingForTimeRangeForReferencePeriod,
-                     modelClimate.inner.typeOfStatisticalProcessingForTimeRangeForReferencePeriod});
-                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRangeForReferencePeriod",
-                                                {modelClimate.outer.indicatorOfUnitForTimeRangeForReferencePeriod,
-                                                 modelClimate.inner.indicatorOfUnitForTimeRangeForReferencePeriod});
-                set_or_throw<std::vector<long>>(out, "lengthOfTimeRangeForReferencePeriod",
-                                                {modelClimate.outer.lengthOfTimeRangeForReferencePeriod,
-                                                 modelClimate.inner.lengthOfTimeRangeForReferencePeriod});
+                const auto modelClimate = deductions::resolve_ModelClimateReferencePeriod_opt(mars, par, opt);
+                if (modelClimate.has_value()) {
+                    set_or_throw<std::vector<long>>(
+                        out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
+                        {modelClimate->outer.typeOfStatisticalProcessingForTimeRangeForReferencePeriod,
+                         modelClimate->inner.typeOfStatisticalProcessingForTimeRangeForReferencePeriod});
+                    set_or_throw<std::vector<long>>(
+                        out, "indicatorOfUnitForTimeRangeForReferencePeriod",
+                        {modelClimate->outer.indicatorOfUnitForTimeRangeForReferencePeriod,
+                         modelClimate->inner.indicatorOfUnitForTimeRangeForReferencePeriod});
+                    set_or_throw<std::vector<long>>(out, "lengthOfTimeRangeForReferencePeriod",
+                                                    {modelClimate->outer.lengthOfTimeRangeForReferencePeriod,
+                                                     modelClimate->inner.lengthOfTimeRangeForReferencePeriod});
+                }
             }
         }
         catch (...) {

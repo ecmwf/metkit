@@ -9,16 +9,17 @@
 /// the **sample size of the model climate**, encoded in the GRIB key
 /// `sampleSizeOfReferencePeriod`.
 ///
-/// The value is not derivable from MARS alone. It must be supplied via the
-/// misc (parameter) dictionary by the upstream tool.
+/// The value is not derivable from MARS alone. It may be supplied via the
+/// misc (parameter) dictionary by the upstream tool; if absent, the deduction
+/// returns `std::nullopt` and the key is left missing in the GRIB header.
 ///
 /// Error handling follows a strict fail-fast strategy:
-/// - a missing key causes immediate failure
 /// - errors are reported using domain-specific deduction exceptions
 /// - original errors are preserved via nested exception propagation
 ///
 /// Logging follows the mars2grib deduction policy:
 /// - RESOLVE: value resolved directly from input dictionaries
+/// - DEFAULT: value defaulted to MISSING (nullopt) when the key is absent
 ///
 /// @section References
 /// Concept:
@@ -33,6 +34,7 @@
 #pragma once
 
 // System includes
+#include <optional>
 #include <string>
 
 // Core deduction includes
@@ -48,9 +50,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// @brief Resolve the sample size of the model climate.
 ///
 /// @section Deduction contract
-/// - Reads: `par["sampleSizeOfModelClimate"]` (mandatory)
+/// - Reads: `par["sampleSizeOfModelClimate"]` (optional)
 /// - Writes: none
-/// - Side effects: logging (RESOLVE)
+/// - Side effects: logging (RESOLVE, DEFAULT)
 /// - Failure mode: throws
 ///
 /// @tparam MarsDict_t  Type of the MARS dictionary (unused).
@@ -61,21 +63,30 @@ namespace metkit::mars2grib::backend::deductions {
 /// @param[in] par   Misc dictionary providing `sampleSizeOfModelClimate`.
 /// @param[in] opt   Options dictionary (unused).
 ///
-/// @return The sample size of the model climate.
+/// @return The sample size of the model climate, or `std::nullopt` if the key is absent.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If the key is missing, cannot be converted to `long`, or any unexpected error occurs during deduction.
+/// If the key cannot be converted to `long` or any unexpected error occurs during deduction.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_SampleSizeOfModelClimate_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+std::optional<long> resolve_SampleSizeOfModelClimate_opt(const MarsDict_t& mars, const ParDict_t& par,
+                                                         const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     (void)mars;
     (void)opt;
 
     try {
+
+        if (!has(par, "sampleSizeOfModelClimate")) {
+
+            MARS2GRIB_LOG_DEFAULT([]() { return "`sampleSizeOfModelClimate` defaulted to MISSING (nullopt)"; }());
+
+            return std::nullopt;
+        }
 
         const long sampleSizeOfModelClimate = get_or_throw<long>(par, "sampleSizeOfModelClimate");
 
