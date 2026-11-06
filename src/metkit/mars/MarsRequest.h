@@ -112,6 +112,7 @@ public:  // methods
     size_t count() const;
 
     MarsRequest extract(const std::string& category) const;
+    MarsRequest expandAlternatives() const;
 
     void erase(const std::string& param);
 
