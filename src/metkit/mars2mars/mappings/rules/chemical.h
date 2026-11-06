@@ -26,8 +26,9 @@ inline void setParamChem(OutDict_t& out, long param, long chem) {
         set_or_throw<long>(out, "param", param);
         set_or_throw<long>(out, "chem", chem);
 
-        // Reset timespan for instant params
-        if (param % 10 == 0) {
+        // Reset timespan for instant params. 444000/445000 (accumulated deposition) end in 0 but are accumulations
+        // (ecCodes paramId.chemsplit.def), see the `statistics` matcher
+        if (param % 10 == 0 && param != 444000 && param != 445000) {
             set_or_throw<std::string>(out, "timespan", "none");
         }
     }
@@ -51,8 +52,9 @@ inline void setParamChemWavelength(OutDict_t& out, long param, long chem, double
         set_or_throw<long>(out, "chem", chem);
         set_or_throw<double>(out, "wavelength", wavelength);
 
-        // Reset timespan for instant params
-        if (param % 10 == 0) {
+        // Reset timespan for instant params. 444000/445000 (accumulated deposition) end in 0 but are accumulations
+        // (ecCodes paramId.chemsplit.def), see the `statistics` matcher
+        if (param % 10 == 0 && param != 444000 && param != 445000) {
             set_or_throw<std::string>(out, "timespan", "none");
         }
     }
@@ -109,10 +111,6 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                     return setParamChem(out, 402000, 910);
                 case 210011:
                     return setParamChem(out, 402000, 911);
-                case 210022:
-                    return setParamChem(out, 453000, 922);
-                case 210025:
-                    return setParamChem(out, 453000, 922);
                 case 210048:
                     return setParamChem(out, 402000, 924);
                 case 210071:
@@ -234,7 +232,7 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 case 210248:
                     return setParamChem(out, 402000, 913);
                 case 210249:
-                    return setParamChem(out, 402000, 21);
+                    return setParamChem(out, 402000, 914);
                 case 210250:
                     return setParamChemWavelength(out, 457000, 900, 550.0);
                 case 210251:
@@ -280,15 +278,470 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 case 211203:
                     return setParamChem(out, 402000, 236);
                 case 211247:
-                    return setParamChem(out, 402000, 900);
+                    return setParamChem(out, 402000, 912);
                 case 211248:
-                    return setParamChem(out, 402000, 903);
+                    return setParamChem(out, 402000, 913);
                 case 211249:
                     return setParamChem(out, 402000, 914);
                 case 211252:
                     return setParamChem(out, 402000, 915);
                 case 211253:
                     return setParamChem(out, 402000, 916);
+                // 212xxx (CAMS, "experimental" table): surface emission fluxes, one per species and sector, as assigned
+                // by the CAMS emission spec (compo_emissions_nrt_50r1_esuite): param = sector, chem = species. Also
+                // aviation NOx. Inferred from the IFS setup; to be confirmed by CAMS.
+                case 212002:
+                    return setParamChem(out, 423000, 12);
+                case 212003:
+                    return setParamChem(out, 424000, 12);
+                case 212004:
+                    return setParamChem(out, 425000, 12);
+                case 212006:
+                    return setParamChem(out, 464000, 12);
+                case 212007:
+                    return setParamChem(out, 427000, 12);
+                case 212008:
+                    return setParamChem(out, 428000, 12);
+                case 212009:
+                    return setParamChem(out, 429000, 12);
+                case 212010:
+                    return setParamChem(out, 430000, 12);
+                case 212012:
+                    return setParamChem(out, 423000, 49);
+                case 212013:
+                    return setParamChem(out, 424000, 49);
+                case 212014:
+                    return setParamChem(out, 425000, 49);
+                case 212015:
+                    return setParamChem(out, 464000, 49);
+                case 212016:
+                    return setParamChem(out, 427000, 49);
+                case 212017:
+                    return setParamChem(out, 428000, 49);
+                case 212018:
+                    return setParamChem(out, 429000, 49);
+                case 212019:
+                    return setParamChem(out, 426000, 49);
+                case 212020:
+                    return setParamChem(out, 465000, 10);
+                case 212022:
+                    return setParamChem(out, 413000, 10);
+                case 212023:
+                    return setParamChem(out, 423000, 10);
+                case 212024:
+                    return setParamChem(out, 424000, 10);
+                case 212025:
+                    return setParamChem(out, 425000, 10);
+                case 212026:
+                    return setParamChem(out, 464000, 10);
+                case 212027:
+                    return setParamChem(out, 427000, 10);
+                case 212028:
+                    return setParamChem(out, 428000, 10);
+                case 212029:
+                    return setParamChem(out, 429000, 10);
+                case 212030:
+                    return setParamChem(out, 430000, 10);
+                case 212032:
+                    return setParamChem(out, 423000, 46);
+                case 212033:
+                    return setParamChem(out, 424000, 46);
+                case 212034:
+                    return setParamChem(out, 425000, 46);
+                case 212035:
+                    return setParamChem(out, 464000, 46);
+                case 212036:
+                    return setParamChem(out, 427000, 46);
+                case 212037:
+                    return setParamChem(out, 428000, 46);
+                case 212038:
+                    return setParamChem(out, 429000, 46);
+                case 212039:
+                    return setParamChem(out, 430000, 46);
+                case 212040:
+                    return setParamChem(out, 465000, 46);
+                case 212042:
+                    return setParamChem(out, 413000, 45);
+                case 212043:
+                    return setParamChem(out, 423000, 45);
+                case 212044:
+                    return setParamChem(out, 424000, 45);
+                case 212045:
+                    return setParamChem(out, 425000, 45);
+                case 212046:
+                    return setParamChem(out, 464000, 45);
+                case 212047:
+                    return setParamChem(out, 427000, 45);
+                case 212048:
+                    return setParamChem(out, 428000, 45);
+                case 212049:
+                    return setParamChem(out, 429000, 45);
+                case 212050:
+                    return setParamChem(out, 430000, 45);
+                case 212052:
+                    return setParamChem(out, 413000, 48);
+                case 212053:
+                    return setParamChem(out, 423000, 48);
+                case 212054:
+                    return setParamChem(out, 424000, 48);
+                case 212055:
+                    return setParamChem(out, 425000, 48);
+                case 212056:
+                    return setParamChem(out, 464000, 48);
+                case 212057:
+                    return setParamChem(out, 427000, 48);
+                case 212058:
+                    return setParamChem(out, 428000, 48);
+                case 212059:
+                    return setParamChem(out, 429000, 48);
+                case 212060:
+                    return setParamChem(out, 430000, 48);
+                case 212062:
+                    return setParamChem(out, 413000, 47);
+                case 212063:
+                    return setParamChem(out, 423000, 47);
+                case 212064:
+                    return setParamChem(out, 424000, 47);
+                case 212065:
+                    return setParamChem(out, 425000, 47);
+                case 212066:
+                    return setParamChem(out, 464000, 47);
+                case 212067:
+                    return setParamChem(out, 427000, 47);
+                case 212068:
+                    return setParamChem(out, 428000, 47);
+                case 212069:
+                    return setParamChem(out, 429000, 47);
+                case 212070:
+                    return setParamChem(out, 430000, 47);
+                case 212072:
+                    return setParamChem(out, 423000, 16);
+                case 212073:
+                    return setParamChem(out, 424000, 16);
+                case 212074:
+                    return setParamChem(out, 425000, 16);
+                case 212075:
+                    return setParamChem(out, 464000, 16);
+                case 212076:
+                    return setParamChem(out, 427000, 16);
+                case 212077:
+                    return setParamChem(out, 428000, 16);
+                case 212078:
+                    return setParamChem(out, 429000, 16);
+                case 212079:
+                    return setParamChem(out, 430000, 16);
+                case 212080:
+                    return setParamChem(out, 465000, 16);
+                case 212082:
+                    return setParamChem(out, 423000, 5);
+                case 212083:
+                    return setParamChem(out, 424000, 5);
+                case 212084:
+                    return setParamChem(out, 425000, 5);
+                case 212085:
+                    return setParamChem(out, 464000, 5);
+                case 212086:
+                    return setParamChem(out, 427000, 5);
+                case 212087:
+                    return setParamChem(out, 428000, 5);
+                case 212088:
+                    return setParamChem(out, 429000, 5);
+                case 212089:
+                    return setParamChem(out, 430000, 5);
+                case 212090:
+                    return setParamChem(out, 426000, 5);
+                case 212092:
+                    return setParamChem(out, 423000, 52);
+                case 212093:
+                    return setParamChem(out, 424000, 52);
+                case 212094:
+                    return setParamChem(out, 425000, 52);
+                case 212095:
+                    return setParamChem(out, 464000, 52);
+                case 212096:
+                    return setParamChem(out, 427000, 52);
+                case 212097:
+                    return setParamChem(out, 428000, 52);
+                case 212098:
+                    return setParamChem(out, 429000, 52);
+                case 212099:
+                    return setParamChem(out, 430000, 52);
+                case 212100:
+                    return setParamChem(out, 465000, 52);
+                case 212101:
+                    return setParamChem(out, 463000, 49);
+                case 212102:
+                    return setParamChem(out, 463000, 10);
+                case 212103:
+                    return setParamChem(out, 463000, 46);
+                case 212104:
+                    return setParamChem(out, 463000, 45);
+                case 212105:
+                    return setParamChem(out, 463000, 48);
+                case 212106:
+                    return setParamChem(out, 463000, 47);
+                case 212107:
+                    return setParamChem(out, 463000, 16);
+                case 212108:
+                    return setParamChem(out, 463000, 5);
+                case 212109:
+                    return setParamChem(out, 463000, 52);
+                case 212110:
+                    return setParamChem(out, 465000, 42);
+                case 212112:
+                    return setParamChem(out, 423000, 42);
+                case 212113:
+                    return setParamChem(out, 424000, 42);
+                case 212114:
+                    return setParamChem(out, 425000, 42);
+                case 212115:
+                    return setParamChem(out, 464000, 42);
+                case 212116:
+                    return setParamChem(out, 427000, 42);
+                case 212117:
+                    return setParamChem(out, 428000, 42);
+                case 212118:
+                    return setParamChem(out, 429000, 42);
+                case 212119:
+                    return setParamChem(out, 430000, 42);
+                case 212120:
+                    return setParamChem(out, 465000, 2);
+                case 212122:
+                    return setParamChem(out, 413000, 2);
+                case 212123:
+                    return setParamChem(out, 423000, 2);
+                case 212124:
+                    return setParamChem(out, 424000, 2);
+                case 212125:
+                    return setParamChem(out, 425000, 2);
+                case 212126:
+                    return setParamChem(out, 464000, 2);
+                case 212127:
+                    return setParamChem(out, 427000, 2);
+                case 212128:
+                    return setParamChem(out, 428000, 2);
+                case 212129:
+                    return setParamChem(out, 429000, 2);
+                case 212130:
+                    return setParamChem(out, 430000, 2);
+                case 212131:
+                    return setParamChem(out, 441000, 18);
+                case 212132:
+                    return setParamChem(out, 412000, 18);
+                case 212133:
+                    return setParamChem(out, 426000, 10);
+                case 212134:
+                    return setParamChem(out, 465000, 45);
+                case 212135:
+                    return setParamChem(out, 465000, 48);
+                case 212136:
+                    return setParamChem(out, 465000, 47);
+                case 212137:
+                    return setParamChem(out, 426000, 46);
+                case 212138:
+                    return setParamChem(out, 465000, 19);
+                case 212139:
+                    return setParamChem(out, 465000, 9);
+                case 212140:
+                    return setParamChem(out, 426000, 42);
+                case 212142:
+                    return setParamChem(out, 423000, 43);
+                case 212143:
+                    return setParamChem(out, 424000, 43);
+                case 212144:
+                    return setParamChem(out, 425000, 43);
+                case 212145:
+                    return setParamChem(out, 464000, 43);
+                case 212146:
+                    return setParamChem(out, 427000, 43);
+                case 212147:
+                    return setParamChem(out, 428000, 43);
+                case 212148:
+                    return setParamChem(out, 429000, 43);
+                case 212149:
+                    return setParamChem(out, 430000, 43);
+                case 212152:
+                    return setParamChem(out, 423000, 44);
+                case 212153:
+                    return setParamChem(out, 424000, 44);
+                case 212154:
+                    return setParamChem(out, 425000, 44);
+                case 212155:
+                    return setParamChem(out, 464000, 44);
+                case 212156:
+                    return setParamChem(out, 427000, 44);
+                case 212157:
+                    return setParamChem(out, 428000, 44);
+                case 212158:
+                    return setParamChem(out, 429000, 44);
+                case 212159:
+                    return setParamChem(out, 430000, 44);
+                case 212161:
+                    return setParamChem(out, 412000, 19);
+                case 212162:
+                    return setParamChem(out, 413000, 19);
+                case 212163:
+                    return setParamChem(out, 419000, 19);
+                case 212164:
+                    return setParamChem(out, 420000, 19);
+                case 212165:
+                    return setParamChem(out, 423000, 19);
+                case 212166:
+                    return setParamChem(out, 425000, 19);
+                case 212167:
+                    return setParamChem(out, 464000, 19);
+                case 212169:
+                    return setParamChem(out, 426000, 19);
+                case 212170:
+                    return setParamChem(out, 428000, 19);
+                case 212171:
+                    return setParamChem(out, 429000, 19);
+                case 212172:
+                    return setParamChem(out, 430000, 19);
+                case 212173:
+                    return setParamChem(out, 442000, 27);
+                case 212174:
+                    return setParamChem(out, 419000, 27);
+                case 212176:
+                    return setParamChem(out, 423000, 27);
+                case 212177:
+                    return setParamChem(out, 424000, 27);
+                case 212178:
+                    return setParamChem(out, 425000, 27);
+                case 212179:
+                    return setParamChem(out, 464000, 27);
+                case 212180:
+                    return setParamChem(out, 427000, 27);
+                case 212181:
+                    return setParamChem(out, 428000, 27);
+                case 212182:
+                    return setParamChem(out, 429000, 27);
+                case 212183:
+                    return setParamChem(out, 430000, 27);
+                case 212184:
+                    return setParamChem(out, 465000, 27);
+                case 212185:
+                    return setParamChem(out, 426000, 45);
+                case 212186:
+                    return setParamChem(out, 426000, 48);
+                case 212187:
+                    return setParamChem(out, 426000, 47);
+                case 212188:
+                    return setParamChem(out, 429000, 311);
+                case 212189:
+                    return setParamChem(out, 426000, 12);
+                case 212190:
+                    return setParamChem(out, 426000, 52);
+                case 212192:
+                    return setParamChem(out, 423000, 311);
+                case 212193:
+                    return setParamChem(out, 424000, 311);
+                case 212194:
+                    return setParamChem(out, 425000, 311);
+                case 212195:
+                    return setParamChem(out, 464000, 311);
+                case 212196:
+                    return setParamChem(out, 427000, 311);
+                case 212197:
+                    return setParamChem(out, 428000, 311);
+                case 212198:
+                    return setParamChem(out, 426000, 16);
+                case 212199:
+                    return setParamChem(out, 430000, 311);
+                case 212200:
+                    return setParamChem(out, 465000, 311);
+                case 212202:
+                    return setParamChem(out, 423000, 9);
+                case 212203:
+                    return setParamChem(out, 424000, 9);
+                case 212204:
+                    return setParamChem(out, 425000, 9);
+                case 212205:
+                    return setParamChem(out, 464000, 9);
+                case 212206:
+                    return setParamChem(out, 427000, 9);
+                case 212207:
+                    return setParamChem(out, 428000, 9);
+                case 212208:
+                    return setParamChem(out, 429000, 9);
+                case 212209:
+                    return setParamChem(out, 430000, 9);
+                case 212210:
+                    return setParamChem(out, 413000, 11);
+                case 212211:
+                    return setParamChem(out, 413000, 233);
+                case 212212:
+                    return setParamChem(out, 423000, 233);
+                case 212213:
+                    return setParamChem(out, 424000, 233);
+                case 212214:
+                    return setParamChem(out, 425000, 233);
+                case 212215:
+                    return setParamChem(out, 464000, 233);
+                case 212216:
+                    return setParamChem(out, 427000, 233);
+                case 212218:
+                    return setParamChem(out, 429000, 233);
+                case 212219:
+                    return setParamChem(out, 430000, 233);
+                case 212220:
+                    return setParamChem(out, 465000, 233);
+                case 212221:
+                    return setParamChem(out, 423000, 933);
+                case 212222:
+                    return setParamChem(out, 424000, 933);
+                case 212223:
+                    return setParamChem(out, 425000, 933);
+                case 212224:
+                    return setParamChem(out, 464000, 933);
+                case 212225:
+                    return setParamChem(out, 427000, 933);
+                case 212226:
+                    return setParamChem(out, 428000, 933);
+                case 212227:
+                    return setParamChem(out, 429000, 933);
+                case 212228:
+                    return setParamChem(out, 430000, 933);
+                case 212229:
+                    return setParamChem(out, 465000, 933);
+                case 212231:
+                    return setParamChem(out, 423000, 934);
+                case 212232:
+                    return setParamChem(out, 424000, 934);
+                case 212233:
+                    return setParamChem(out, 425000, 934);
+                case 212234:
+                    return setParamChem(out, 464000, 934);
+                case 212235:
+                    return setParamChem(out, 427000, 934);
+                case 212236:
+                    return setParamChem(out, 428000, 934);
+                case 212237:
+                    return setParamChem(out, 429000, 934);
+                case 212238:
+                    return setParamChem(out, 430000, 934);
+                case 212239:
+                    return setParamChem(out, 465000, 934);
+                case 212240:
+                    return setParamChem(out, 426000, 43);
+                case 212241:
+                    return setParamChem(out, 426000, 44);
+                case 212242:
+                    return setParamChem(out, 426000, 311);
+                case 212243:
+                    return setParamChem(out, 426000, 9);
+                case 212244:
+                    return setParamChem(out, 469000, 107);
+                case 212245:
+                    return setParamChem(out, 463000, 42);
+                case 212246:
+                    return setParamChem(out, 463000, 2);
+                case 212247:
+                    return setParamChem(out, 476000, 361);
+                case 212248:
+                    return setParamChem(out, 476000, 360);
+                case 212255:
+                    return setParamChem(out, 418000, 17);
                 case 215001:
                     return setParamChem(out, 453000, 901);
                 case 215002:
@@ -717,6 +1170,188 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                     return setParamChem(out, 401000, 916);
                 case 215226:
                     return setParamChemWavelength(out, 457000, 918, 550.0);
+                // 216xxx (CAMS, "experimental" table): aerosol optics at 10 um, lidar profiles, tropospheric columns
+                // and per-type AOD at 550 nm. Inferred from the IFS setup; to be confirmed by CAMS.
+                case 216008:
+                    return setParamChemWavelength(out, 457000, 922, 10000.0);
+                case 216009:
+                    return setParamChemWavelength(out, 472000, 922, 10000.0);
+                case 216010:
+                    return setParamChemWavelength(out, 457000, 923, 10000.0);
+                case 216011:
+                    return setParamChemWavelength(out, 458000, 922, 10000.0);
+                case 216012:
+                    return setParamChemWavelength(out, 459000, 922, 10000.0);
+                case 216016:
+                    return setParamChemWavelength(out, 475000, 922, 355.0);
+                case 216017:
+                    return setParamChemWavelength(out, 475000, 922, 532.0);
+                case 216018:
+                    return setParamChemWavelength(out, 475000, 922, 1064.0);
+                case 216019:
+                    return setParamChemWavelength(out, 462000, 922, 910.0);
+                case 216020:
+                    return setParamChemWavelength(out, 458000, 922, 910.0);
+                case 216021:
+                    return setParamChemWavelength(out, 460000, 922, 910.0);
+                case 216022:
+                    return setParamChemWavelength(out, 461000, 922, 910.0);
+                case 216024:
+                    return setParamChemWavelength(out, 475000, 922, 910.0);
+                case 216025:
+                    return setParamChemWavelength(out, 462000, 922, 340.0);
+                case 216026:
+                    return setParamChemWavelength(out, 462000, 922, 440.0);
+                case 216027:
+                    return setParamChemWavelength(out, 462000, 922, 800.0);
+                case 216028:
+                    return setParamChemWavelength(out, 458000, 922, 340.0);
+                case 216029:
+                    return setParamChemWavelength(out, 458000, 922, 440.0);
+                case 216030:
+                    return setParamChemWavelength(out, 458000, 922, 800.0);
+                case 216033:
+                    return setParamChem(out, 473000, 236);
+                case 216034:
+                    return setParamChem(out, 473000, 2);
+                case 216035:
+                    return setParamChem(out, 473000, 17);
+                case 216042:
+                    return setParamChemWavelength(out, 457000, 914, 550.0);
+                case 216098:
+                    return setParamChemWavelength(out, 457000, 915, 550.0);
+                case 216099:
+                    return setParamChemWavelength(out, 457000, 916, 550.0);
+                case 216114:
+                    return setParamChem(out, 463000, 233);
+                case 216115:
+                    return setParamChem(out, 463000, 99);
+                case 216116:
+                    return setParamChem(out, 463000, 100);
+                case 216117:
+                    return setParamChem(out, 420000, 188);
+                case 216118:
+                    return setParamChem(out, 463000, 188);
+                case 216119:
+                    return setParamChem(out, 463000, 933);
+                case 216120:
+                    return setParamChem(out, 463000, 934);
+                case 216121:
+                    return setParamChem(out, 463000, 12);
+                case 216123:
+                    return setParamChem(out, 421000, 49);
+                case 216124:
+                    return setParamChem(out, 421000, 10);
+                case 216126:
+                    return setParamChem(out, 421000, 45);
+                case 216127:
+                    return setParamChem(out, 421000, 48);
+                case 216128:
+                    return setParamChem(out, 421000, 47);
+                case 216129:
+                    return setParamChem(out, 421000, 16);
+                case 216130:
+                    return setParamChem(out, 421000, 5);
+                case 216131:
+                    return setParamChem(out, 421000, 52);
+                case 216133:
+                    return setParamChem(out, 421000, 2);
+                case 216134:
+                    return setParamChem(out, 421000, 19);
+                case 216135:
+                    return setParamChem(out, 421000, 27);
+                case 216136:
+                    return setParamChem(out, 421000, 311);
+                case 216137:
+                    return setParamChem(out, 421000, 9);
+                case 216138:
+                    return setParamChem(out, 421000, 233);
+                case 216139:
+                    return setParamChem(out, 421000, 99);
+                case 216140:
+                    return setParamChem(out, 421000, 100);
+                case 216141:
+                    return setParamChem(out, 421000, 188);
+                case 216142:
+                    return setParamChem(out, 421000, 933);
+                case 216143:
+                    return setParamChem(out, 421000, 934);
+                case 216144:
+                    return setParamChem(out, 463000, 43);
+                case 216145:
+                    return setParamChem(out, 421000, 12);
+                case 216146:
+                    return setParamChem(out, 463000, 44);
+                case 216147:
+                    return setParamChem(out, 463000, 311);
+                case 216148:
+                    return setParamChem(out, 463000, 9);
+                case 216149:
+                    return setParamChem(out, 463000, 19);
+                case 216201:
+                    return setParamChem(out, 423000, 99);
+                case 216202:
+                    return setParamChem(out, 424000, 99);
+                case 216203:
+                    return setParamChem(out, 425000, 99);
+                case 216204:
+                    return setParamChem(out, 465000, 99);
+                case 216205:
+                    return setParamChem(out, 464000, 99);
+                case 216206:
+                    return setParamChem(out, 427000, 99);
+                case 216207:
+                    return setParamChem(out, 426000, 99);
+                case 216208:
+                    return setParamChem(out, 428000, 99);
+                case 216209:
+                    return setParamChem(out, 429000, 99);
+                case 216210:
+                    return setParamChem(out, 430000, 99);
+                case 216211:
+                    return setParamChem(out, 423000, 100);
+                case 216212:
+                    return setParamChem(out, 424000, 100);
+                case 216213:
+                    return setParamChem(out, 425000, 100);
+                case 216214:
+                    return setParamChem(out, 465000, 100);
+                case 216215:
+                    return setParamChem(out, 464000, 100);
+                case 216216:
+                    return setParamChem(out, 427000, 100);
+                case 216217:
+                    return setParamChem(out, 426000, 100);
+                case 216218:
+                    return setParamChem(out, 428000, 100);
+                case 216219:
+                    return setParamChem(out, 429000, 100);
+                case 216220:
+                    return setParamChem(out, 430000, 100);
+                case 216221:
+                    return setParamChem(out, 419000, 188);
+                case 216222:
+                    return setParamChem(out, 423000, 188);
+                case 216223:
+                    return setParamChem(out, 424000, 188);
+                case 216224:
+                    return setParamChem(out, 425000, 188);
+                case 216225:
+                    return setParamChem(out, 465000, 188);
+                case 216226:
+                    return setParamChem(out, 464000, 188);
+                case 216227:
+                    return setParamChem(out, 427000, 188);
+                case 216228:
+                    return setParamChem(out, 426000, 188);
+                case 216229:
+                    return setParamChem(out, 428000, 188);
+                case 216230:
+                    return setParamChem(out, 429000, 188);
+                case 216231:
+                    return setParamChem(out, 430000, 188);
+                case 216251:
+                    return setParamChem(out, 463000, 27);
                 case 217003:
                     return setParamChem(out, 402000, 3);
                 case 217004:
@@ -1105,8 +1740,6 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                     return setParamChem(out, 401000, 101);
                 case 218107:
                     return setParamChem(out, 401000, 107);
-                case 218117:
-                    return setParamChem(out, 401000, 14);
                 case 218159:
                     return setParamChem(out, 401000, 159);
                 case 218161:

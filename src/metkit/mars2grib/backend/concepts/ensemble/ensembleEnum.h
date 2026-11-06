@@ -79,7 +79,7 @@ enum class EnsembleType : std::size_t {
     Individual = 0,
     PerturbedParameters,
     RandomPatterns,
-    ProbabilityLargeEnsemble
+    LargeEnsemble
 };
 
 
@@ -96,7 +96,7 @@ enum class EnsembleType : std::size_t {
 /// for registry construction and diagnostics.
 ///
 using EnsembleList = ValueList<EnsembleType::Individual, EnsembleType::PerturbedParameters,
-                               EnsembleType::RandomPatterns, EnsembleType::ProbabilityLargeEnsemble>;
+                               EnsembleType::RandomPatterns, EnsembleType::LargeEnsemble>;
 
 
 ///
@@ -129,7 +129,7 @@ constexpr std::string_view ensembleTypeName();
 DEF(EnsembleType::Individual, "individual");
 DEF(EnsembleType::PerturbedParameters, "perturbedParameters");
 DEF(EnsembleType::RandomPatterns, "randomPatterns");
-DEF(EnsembleType::ProbabilityLargeEnsemble, "probabilityLargeEnsemble");
+DEF(EnsembleType::LargeEnsemble, "largeEnsemble");
 
 #undef DEF
 

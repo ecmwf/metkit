@@ -15,8 +15,11 @@
 /// - `numberOfForecastsInEnsemble`
 /// - `perturbationNumber`
 ///
-/// The concept currently supports the **Individual ensemble variant**, which
-/// represents a single ensemble member within an ensemble forecast system.
+/// The concept currently supports the **Individual** variant, which represents
+/// a single ensemble member within an ensemble forecast system, and the
+/// **LargeEnsemble** variant, used by the large-ensemble product definition
+/// templates (PDT 4.121/4.122), which sets only `typeOfEnsembleForecast` and
+/// `numberOfForecastsInEnsemble`.
 ///
 /// The implementation follows the standard mars2grib concept model:
 /// - Compile-time applicability via `ensembleApplicable`
@@ -92,8 +95,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <std::size_t Stage, std::size_t Section, EnsembleType Variant>
 constexpr bool ensembleApplicable() {
     // Confitions to apply concept
-    return ((Variant == EnsembleType::Individual || Variant == EnsembleType::ProbabilityLargeEnsemble) &&
-            (Stage == StagePreset) && (Section == SecProductDefinitionSection));
+    return ((Variant == EnsembleType::Individual || Variant == EnsembleType::LargeEnsemble) && (Stage == StagePreset) &&
+            (Section == SecProductDefinitionSection));
 }
 
 
@@ -108,8 +111,8 @@ constexpr bool ensembleApplicable() {
 /// 2. Deduces ensemble-related metadata from MARS and parameter dictionaries.
 /// 3. Encodes the corresponding GRIB keys in the output dictionary.
 ///
-/// The concept currently supports the **Individual** and **ProbabilityLargeEnsemble** ensemble variants, which
-/// represent a single ensemble member.
+/// The concept currently supports the **Individual** variant, which represents a single ensemble member, and the
+/// **LargeEnsemble** variant, which describes the ensemble used by large-ensemble products (PDT 4.121/4.122).
 ///
 /// If the concept is invoked when not applicable, a
 /// `Mars2GribConceptException` is thrown.
@@ -174,13 +177,19 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
                 set_or_throw<long>(out, "perturbationNumber", perturbationNumber);
             }
 
-            if constexpr (Variant == EnsembleType::ProbabilityLargeEnsemble) {
+            if constexpr (Variant == EnsembleType::LargeEnsemble) {
 
                 // Structural validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {121L, 122L});
 
-                throw utils::exceptions::Mars2GribMatcherException(
-                    "Logic for EnsembleType::ProbabilityLargeEnsemble is not implemented!", Here());
+                // Deductions
+                const auto typeOfEnsembleForecast = deductions::resolve_TypeOfEnsembleForecast_or_throw(mars, par, opt);
+                const auto numberOfForecastsInEnsemble =
+                    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
+
+                // Encoding
+                set_or_throw<long>(out, "typeOfEnsembleForecast", static_cast<long>(typeOfEnsembleForecast));
+                set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
             }
         }
         catch (...) {
