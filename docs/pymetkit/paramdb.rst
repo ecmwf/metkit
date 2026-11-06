@@ -37,12 +37,16 @@ Some short names map to more than one parameter ID (e.g. ``tp`` → ``228`` and
        for cand in exc.candidates:       # every ParamIDCandidate, sorted
            print(cand.param_id, cand.table)
 
-Resolve the ambiguity in three ways:
+Resolve the ambiguity in three ways (a ``context=`` must contain non-empty
+``class``, ``stream``, ``type`` and ``levtype``, otherwise ``ValueError`` is
+raised; omit it to see all candidates):
 
 .. code-block:: python
 
-   # 1. Narrow with a MARS context (resolved via the C++ expand engine)
-   db.shortname_to_param_id("tp", context={"class": "od"})   # 228
+   # 1. Narrow with a full MARS context (resolved via the C++ expand engine).
+   #    class, stream, type and levtype are all required; otherwise ValueError.
+   db.shortname_to_param_id("tp", context={"class": "od", "stream": "oper", "type": "fc", "levtype": "sfc"})  # 228
+   db.shortname_to_param_id("tp", context={"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"})  # 228228
 
    # 2. Narrow with hard metadata filters (no MARS request constructed)
    db.shortname_to_param_id("tp", table=128)                 # 228
