@@ -105,14 +105,13 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
             // StageAllocate
             // =============================================================
             if constexpr (Stage == StageAllocate) {
-
-                constexpr long numberOfAdditionalParametersForReferencePeriod =
-                    Variant == ReferencePeriodType::Quantile ? 2 : 0;
-                constexpr long numberOfReferencePeriodTimeRanges = 2;
-
-                set_or_throw<long>(out, "numberOfAdditionalParametersForReferencePeriod",
-                                   numberOfAdditionalParametersForReferencePeriod);
-                set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", numberOfReferencePeriodTimeRanges);
+                if constexpr (Variant == ReferencePeriodType::Quantile) {
+                    set_or_throw<long>(out, "numberOfAdditionalParametersForReferencePeriod", 2);
+                }
+                else {
+                    set_or_throw<long>(out, "numberOfAdditionalParametersForReferencePeriod", 0);
+                }
+                set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", 2);
             }
 
             // =============================================================
