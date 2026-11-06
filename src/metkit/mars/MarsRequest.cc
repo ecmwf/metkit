@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
 // SPDX-License-Identifier: Apache-2.0
 
+#include <algorithm>
+
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/types/Types.h"
@@ -382,6 +384,53 @@ std::vector<std::string> MarsRequest::params() const {
 
 MarsRequest::operator eckit::Value() const {
     NOTIMP;
+}
+
+
+eckit::Fraction MarsRequest::valuesIncluded(const std::string& key, const std::set<std::string>& filter) const {
+    auto t = find(key);
+    if (t == params_.end() || t->values().empty()) {
+        return eckit::Fraction(0, 1);
+    }
+    const size_t num = std::count_if(t->values().begin(), t->values().end(), [&filter](const std::string& value) {
+        return filter.find(eckit::StringTools::lower(value)) != filter.end();
+    });
+    return eckit::Fraction(num, t->values().size());
+}
+
+eckit::Fraction MarsRequest::is_bufr() const {
+    static const std::set<std::string> bufr_types   = {"ai", "af", "ob", "fb", "ab", "tf"};
+    static const std::set<std::string> bufr_streams = {"ssmi"};
+
+    auto stream = valuesIncluded("stream", bufr_streams);
+    if (stream.numerator() == stream.denominator()) {
+        return stream;
+    }
+    return valuesIncluded("type", bufr_types);
+}
+
+eckit::Fraction MarsRequest::is_odb() const {
+    static const std::set<std::string> odb_types = {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"};
+    return valuesIncluded("type", odb_types);
+}
+
+DataType MarsRequest::dataType() const {
+    auto bufr = is_bufr();
+    auto odb  = is_odb();
+    if (bufr.numerator() == 0) {
+        if (odb.numerator() == 0) {
+            return Grib;
+        }
+        if (odb.numerator() == odb.denominator()) {
+            return Odb;
+        }
+    }
+    if (bufr.numerator() == bufr.denominator()) {
+        if (odb.numerator() == 0) {
+            return Bufr;
+        }
+    }
+    return Unknown;
 }
 
 // recursively expand along keys in expvalues
