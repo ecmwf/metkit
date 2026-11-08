@@ -8,6 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
+#include <array>
 #include <exception>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@
 #include "eckit/log/CodeLocation.h"
 #include "eckit/testing/Test.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
+#include "metkit/mars2grib/api/Mars2GribClassify.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace {
@@ -179,6 +181,114 @@ CASE("sot efiOrder inconsistent with quantile is rejected") {
     auto misc = climateMisc(51);
     misc.set("efiOrder", 1L);
     EXPECT_THROWS(metkit::mars2grib::Mars2Grib().encode(std::vector<double>(200, 0.5), mars, misc));
+}
+
+CASE("All index parameters preserve their GRIB operations and agree with classification") {
+    struct IndexCase {
+        long param;
+        long inner;
+        const char* name;
+    };
+    const std::array<IndexCase, 11> cases{{
+        {132044, 2, "Maximum"},
+        {132045, 0, "Average"},
+        {132049, 2, "Maximum"},
+        {132059, 2, "Maximum"},
+        {132144, 1, "Accumulation"},
+        {132165, 0, "Average"},
+        {132167, 0, "Average"},
+        {132201, 2, "Maximum"},
+        {132202, 3, "Minimum"},
+        {132216, 2, "Maximum"},
+        {132228, 1, "Accumulation"},
+    }};
+    run([&] {
+        auto encoder    = metkit::mars2grib::Mars2Grib();
+        auto classifier = metkit::mars2grib::Mars2GribClassify();
+        for (const auto& test : cases) {
+            for (const std::string& type : {"efi", "efic", "sot"}) {
+                auto mars = indexRequest(type, test.param, 96, 24);
+                if (type == "sot") {
+                    mars.set("quantile", "90-99:100");
+                }
+                const auto misc   = climateMisc(type == "efic" ? 1 : 51);
+                const auto handle = encoder.encode(std::vector<double>(200, 0.5), mars, misc);
+                expectModelClimate(handle, type == "sot" ? 21 : 20);
+                expectIndexTimeRanges(handle, test.inner, 72, 24);
+                EXPECT_EQUAL(handle->getLong("paramId"), test.param);
+                EXPECT(handle->getLongArray("indicatorOfUnitForTimeRange") == (std::vector<long>{1, 1}));
+                EXPECT(handle->getLongArray("typeOfTimeIncrement") == (std::vector<long>{2, 255}));
+                EXPECT(handle->getLongArray("indicatorOfUnitForTimeIncrement") == (std::vector<long>{13, 255}));
+                EXPECT(handle->getLongArray("timeIncrement") == (std::vector<long>{86400, 0}));
+                EXPECT_EQUAL(handle->getLong("yearOfEndOfOverallTimeInterval"), 2026);
+                EXPECT_EQUAL(handle->getLong("monthOfEndOfOverallTimeInterval"), 10);
+                EXPECT_EQUAL(handle->getLong("dayOfEndOfOverallTimeInterval"), 4);
+                EXPECT_EQUAL(handle->getLong("hourOfEndOfOverallTimeInterval"), 0);
+                EXPECT_EQUAL(handle->getLong("minuteOfEndOfOverallTimeInterval"), 0);
+                EXPECT_EQUAL(handle->getLong("secondOfEndOfOverallTimeInterval"), 0);
+                const auto classification = classifier.computeProductTimeSpec(mars, misc);
+                EXPECT_EQUAL(classification.classification,
+                             std::string("IndexProcessing(86400,") + test.name + "(86400))");
+            }
+        }
+    });
+}
+
+CASE("Index statistics preserve explicit increments in medium-range, extended-range and wave streams") {
+    run([] {
+        auto encoder    = metkit::mars2grib::Mars2Grib();
+        auto classifier = metkit::mars2grib::Mars2GribClassify();
+        for (const std::string& stream : {"enfo", "eefo", "waef"}) {
+            const bool wave = stream == "waef";
+            auto mars       = indexRequest("efi", wave ? 132216 : 132045, 168, 24);
+            mars.set("stream", stream);
+            auto misc = climateMisc(51);
+            misc.set("timeIncrementInSeconds", 600L);
+            const auto handle = encoder.encode(std::vector<double>(200, 0.5), mars, misc);
+            const std::string expectedClassification =
+             wave ? "IndexProcessing(86400,Maximum(86400))"
+                 : "IndexProcessing(86400,Average(86400))";
+            expectIndexTimeRanges(handle, wave ? 2 : 0, 144, 24);
+            EXPECT(handle->getLongArray("typeOfTimeIncrement") == (std::vector<long>{2, 2}));
+            EXPECT(handle->getLongArray("indicatorOfUnitForTimeIncrement") == (std::vector<long>{13, 13}));
+            EXPECT(handle->getLongArray("timeIncrement") == (std::vector<long>{86400, 600}));
+            EXPECT_EQUAL(classifier.computeProductTimeSpec(mars, misc).classification,
+              expectedClassification);
+         }
+    });
+}
+
+CASE("Index statistics reject from-start, absent-duration and explicit-stattype representations") {
+    auto encoder    = metkit::mars2grib::Mars2Grib();
+    auto classifier = metkit::mars2grib::Mars2GribClassify();
+    const auto misc = climateMisc(51);
+    for (const std::string& timespan : {"fs", "none"}) {
+        auto mars = indexRequest("efi", 132144, 96, 24);
+        mars.set("timespan", timespan);
+        EXPECT_THROWS(encoder.encode(std::vector<double>(200, 0.5), mars, misc));
+        EXPECT_THROWS(classifier.computeProductTimeSpec(mars, misc));
+    }
+    auto mars = indexRequest("efi", 132144, 96, 24);
+    mars.set("stattype", "daav");
+    EXPECT_THROWS(encoder.encode(std::vector<double>(200, 0.5), mars, misc));
+    EXPECT_THROWS(classifier.computeProductTimeSpec(mars, misc));
+}
+
+CASE("Ordinary accumulation still has one range and unchanged temporal metadata") {
+    run([] {
+        auto mars = indexRequest("em", 228, 96, 24);
+        eckit::LocalConfiguration misc;
+        misc.set("numberOfForecastsInEnsemble", 51L);
+        auto encoder      = metkit::mars2grib::Mars2Grib();
+        auto classifier   = metkit::mars2grib::Mars2GribClassify();
+        const auto handle = encoder.encode(std::vector<double>(200, 0.5), mars, misc);
+        EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 12);
+        EXPECT_EQUAL(handle->getLong("numberOfTimeRanges"), 1);
+        EXPECT(handle->getLongArray("typeOfStatisticalProcessing") == (std::vector<long>{1}));
+        EXPECT(handle->getLongArray("lengthOfTimeRange") == (std::vector<long>{24}));
+        EXPECT_EQUAL(handle->getLong("forecastTime"), 72);
+        EXPECT_EQUAL(classifier.computeProductTimeSpec(mars, misc).classification, "Accumulation(86400)");
+    });
 }
 
 int main(int argc, char** argv) {

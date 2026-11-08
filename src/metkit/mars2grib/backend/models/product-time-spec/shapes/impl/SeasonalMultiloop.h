@@ -43,6 +43,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the SeasonalMultiloop shape.
  *
+ * - the parameter does not identify index statistics;
  * - the product uses the seasonal class/stream discriminator:
  *   - `marsClass` is `od`, `rd`, or `c3`;
  *   - `marsStream` is `sfmd` or `shmd`;
@@ -64,6 +65,7 @@ inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool hasSeasonalClass = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
         const bool hasSeasonalStream =
             input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd";
@@ -75,8 +77,8 @@ inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input) {
         const bool hasTimespanDuration    = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks = !input.stattype.empty();
 
-        return hasSeasonalClass && hasSeasonalStream && hasNoStep && hasFcmonth && isForecast && isNotSynoptic &&
-               hasDurationTimespan && hasTimespanDuration && hasOuterStattypeBlocks;
+        return isNotIndexStatistics && hasSeasonalClass && hasSeasonalStream && hasNoStep && hasFcmonth && isForecast &&
+               isNotSynoptic && hasDurationTimespan && hasTimespanDuration && hasOuterStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
@@ -381,6 +383,7 @@ inline bool check_SeasonalMultiloop_Shape(
                                           Here());
         }
 
+        const bool isNotIndexStatistics   = !input.isIndexStatistics;
         const bool hasSeasonalClass    = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
         const bool hasSeasonalStream   = input.marsStream == "sfmd" || input.marsStream == "shmd";
         const bool hasNoStep           = !input.step.has_value();
@@ -391,8 +394,8 @@ inline bool check_SeasonalMultiloop_Shape(
         const bool hasTimespanDuration = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks = !input.stattype.empty();
 
-        if (!hasSeasonalClass || !hasSeasonalStream || !hasNoStep || !hasFcmonth || !isForecast || !isNotSynoptic ||
-            !hasDurationTimespan || !hasTimespanDuration || !hasOuterStattypeBlocks) {
+        if (!isNotIndexStatistics || !hasSeasonalClass || !hasSeasonalStream || !hasNoStep || !hasFcmonth ||
+            !isForecast || !isNotSynoptic || !hasDurationTimespan || !hasTimespanDuration || !hasOuterStattypeBlocks) {
             throw Mars2GribModelException("SeasonalMultiloop input semantics are not satisfied", input.to_json(),
                                           Here());
         }

@@ -36,7 +36,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @brief Match the `statistics` concept variant.
 ///
 /// The matcher maps known statistical MARS parameter codes onto the appropriate
-/// local `StatisticsType` variant.
+/// local `StatisticsType` variant for the innermost operation. Index products
+/// use the operation of their underlying field; their outer IndexProcessing
+/// window is supplied by the ProductTimeSpec shape.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -180,8 +182,19 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(StatisticsType::Accumulation);
         }
 
-        if (matchAny(param, 132044, 132045, 132049, 132059, 132144, 132165, 132167, 132201, 132202, 132216, 132228)) {
-            return static_cast<std::size_t>(StatisticsType::IndexProcessing);
+        // Index products: the variant is the innermost operation. The ProductTimeSpec
+        // shape supplies the implicit outer IndexProcessing window.
+        if (matchAny(param, 132045, 132165, 132167)) {
+            return static_cast<std::size_t>(StatisticsType::Average);
+        }
+        if (matchAny(param, 132144, 132228)) {
+            return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
+        if (matchAny(param, 132044, 132049, 132059, 132201, 132216)) {
+            return static_cast<std::size_t>(StatisticsType::Maximum);
+        }
+        if (matchAny(param, 132202)) {
+            return static_cast<std::size_t>(StatisticsType::Minimum);
         }
 
         // event probability standardised anomaly products
