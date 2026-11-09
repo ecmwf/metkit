@@ -111,19 +111,19 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(paramInstant, 406000, 407000, 410000, 411000, 451000)) {
+            else if (matchAny(paramInstant, 406000, 407000, 410000, 411000, 451000, 453000)) {
                 if (matchAny(chem, range(901, 916))) {
-                    return static_cast<std::size_t>(CompositionType::Aerosol);
-                }
-            }
-            else if (matchAny(paramInstant, 453000)) {
-                if (matchAny(chem, range(901, 916), 922)) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
             }
             else if (matchAny(paramInstant, 400000)) {
                 if (matchAny(chem, range(929, 931))) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
+                }
+            }
+            else if (matchAny(paramInstant, 473000)) {
+                if (matchAny(chem, 2, 17, 236)) {
+                    return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
             else if (matchAny(paramInstant, 444000)) {
@@ -141,12 +141,6 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
-            else if (matchAny(paramInstant, 473000)) {
-                if (matchAny(chem, 2, 17, 236)) {
-                    return static_cast<std::size_t>(CompositionType::Chem);
-                }
-            }
-            // pH of cloud water (361) and rain water (360)
             else if (matchAny(paramInstant, 476000)) {
                 if (matchAny(chem, 360, 361)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
@@ -164,11 +158,74 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
-            // Emission fluxes by sector (CAMS 212xxx): the sector is in the param (sourceSinkChemicalPhysicalProcess)
-            else if (matchAny(paramInstant, 412000, 413000, 418000, 419000, 420000, 421000, 423000, 424000, 425000,
-                              426000, 427000, 428000, 429000, 430000, 441000, 442000, 463000, 464000, 465000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 11, 12, 16, 17, 18, 19, 27, range(42, 49), 52, 99, 100, 188, 233, 311,
-                             933, 934)) {
+            else if (matchAny(paramInstant, 423000, 425000, 429000, 463000, 464000)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 49), 52, 99, 100, 188, 233, 311, 933, 934)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 428000)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 49), 52, 99, 100, 188, 311, 933, 934)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 430000)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 48), 52, 99, 100, 188, 233, 311, 933, 934)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 421000)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, 45, range(47, 49), 52, 99, 100, 188, 233, 311, 933,
+                             934)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 424000, 427000)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 27, range(42, 49), 52, 99, 100, 188, 233, 311, 933, 934)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 465000)) {
+                if (matchAny(chem, 2, 9, 10, 16, 19, 27, 42, range(45, 48), 52, 99, 100, 188, 233, 311, 933, 934)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 413000)) {
+                if (matchAny(chem, 2, 10, 11, 19, 45, 47, 48, 233)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 426000)) {
+                if (matchAny(chem, 5, 9, 10, 12, 16, 19, range(42, 49), 52, 99, 100, 188, 311)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 418000)) {
+                if (matchAny(chem, 17)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 441000)) {
+                if (matchAny(chem, 18)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 412000)) {
+                if (matchAny(chem, 18, 19)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 419000)) {
+                if (matchAny(chem, 19, 27, 188)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 420000)) {
+                if (matchAny(chem, 19, 188)) {
+                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                }
+            }
+            else if (matchAny(paramInstant, 442000)) {
+                if (matchAny(chem, 27)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
