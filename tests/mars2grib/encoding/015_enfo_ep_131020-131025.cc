@@ -149,7 +149,7 @@ CASE("point-in-time temperature anomaly") {
 
         SECTION(name + " (" + std::to_string(paramId) + ")") {
             const auto handle =
-                metkit::mars2grib::Mars2Grib().encode(randomPercentage(), mars(paramId, "120h"), misc(20, 1));
+                metkit::mars2grib::Mars2Grib().encode(randomPercentage(), mars(paramId, "none"), misc(20, 1));
 
             // MARS
             EXPECT(handle->getLong("param") == paramId);

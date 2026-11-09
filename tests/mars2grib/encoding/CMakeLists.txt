@@ -13,13 +13,8 @@ foreach( _src
         012_seas6_stat_failure.cc
         013_aifs-single_as_non_ensemble.cc
         014_seas6_ensemble.cc
-        015_enfo_pfc_quantile.cc
-        016_enfo_index_products.cc
-        017_enfo_probabilities.cc
-        018_mc_cams_emission_sectors.cc
-        019_enfo_ensemble_member_products.cc
-        020_severe_weather_probability.cc
-        021_temperature_anomaly.cc
+        015_enfo_ep_131020-131025.cc
+        016_enfo_ep_131089-131091.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 
