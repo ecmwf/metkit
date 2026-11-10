@@ -47,13 +47,6 @@ inline const Recipe S2_R20 =
     >();
 
 // Satellite-related products
-inline const Recipe S2_R24 =
-    make_recipe<24,
-        Select<MarsConcept>,
-        Select<SatelliteConcept>
-    >();
-
-// Satellite-related products
 inline const Recipe S2_R24a =
     make_recipe<924,
         Select<MarsConcept>,
@@ -76,19 +69,11 @@ inline const Recipe S2_R36 =
     >();
 
 // Brightness temperature satellite products
-inline const Recipe S2_R37A =
+inline const Recipe S2_R37 =
     make_recipe<37,
         Select<MarsConcept>,
         Select<AnalysisConcept>,
         Select<BrightnessTemperatureConcept, BrightnessTemperatureType::EnsembleMean>
-    >();
-
-inline const Recipe S2_R37B =
-    make_recipe<37,
-        Select<MarsConcept>,
-        Select<AnalysisConcept>,
-        Select<SatelliteConcept>,
-        Select<BrightnessTemperatureConcept, BrightnessTemperatureType::Default>
     >();
 
 // 4i Analysis-related products
@@ -150,12 +135,10 @@ inline const Recipes Section2Recipes{ 2,
         &S2_R15,
         &S2_R16,
         &S2_R20,
-        &S2_R24,
         &S2_R24a,
         &S2_R25,
         &S2_R36,
-        &S2_R37A,
-        &S2_R37B,
+        &S2_R37,
         &S2_R38,
         &S2_R39,
         &S2_R45,
