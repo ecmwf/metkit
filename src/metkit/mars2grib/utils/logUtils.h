@@ -48,14 +48,14 @@
     } while (0)
 
 
-#define MARS2GRIB_LOG_CONCEPT_MSG(CONCEPTNAME,BRIEF,MSG)                                                            \
-    do {                                                                                                      \
-        LOG_DEBUG_LIB(LibMetkit) << "       MARS2GRIB-CONCEPT:"                                               \
-                                 << "[Concept " << std::string(CONCEPTNAME##Name) << "] "                     \
-                                 << "Op called: "                                                             \
-                                 << "Stage=" << Stage << ", "                                                 \
-                                 << "Section=" << Section << ", "                                             \
-                                 << "Variant=" << std::string(CONCEPTNAME##TypeName<Variant>()) << ", "       \
-                                 << "Brief=" << BRIEF << ", "                                                 \
-                                 << "Message=" << MSG << std::endl; \
+#define MARS2GRIB_LOG_CONCEPT_MSG(CONCEPTNAME, BRIEF, MSG)                                              \
+    do {                                                                                                \
+        LOG_DEBUG_LIB(LibMetkit) << "       MARS2GRIB-CONCEPT:"                                         \
+                                 << "[Concept " << std::string(CONCEPTNAME##Name) << "] "               \
+                                 << "Op called: "                                                       \
+                                 << "Stage=" << Stage << ", "                                           \
+                                 << "Section=" << Section << ", "                                       \
+                                 << "Variant=" << std::string(CONCEPTNAME##TypeName<Variant>()) << ", " \
+                                 << "Brief=" << BRIEF << ", "                                           \
+                                 << "Message=" << MSG << std::endl;                                     \
     } while (0)
