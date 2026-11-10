@@ -10,7 +10,10 @@
 #pragma once
 
 #include <optional>
+
+#include "eckit/types/Fraction.h"
 #include "eckit/value/Value.h"
+
 #include "metkit/mars/Parameter.h"
 
 namespace eckit {
@@ -26,6 +29,13 @@ namespace metkit::mars {
 
 class Type;
 class MarsRequest;
+
+enum DataType {
+    Bufr,
+    Odb,
+    Grib,
+    Unknown
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -111,6 +121,10 @@ public:  // methods
 
     size_t count() const;
 
+    eckit::Fraction is_bufr() const;
+    eckit::Fraction is_odb() const;
+    DataType dataType() const;
+
     MarsRequest extract(const std::string& category) const;
 
     void erase(const std::string& param);
@@ -131,6 +145,8 @@ private:  // members
     std::list<Parameter> params_;
 
 private:  // methods
+
+    eckit::Fraction valuesIncluded(const std::string& key, const std::set<std::string>& filter) const;
 
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
