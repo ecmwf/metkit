@@ -412,8 +412,8 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const auto* grid =
                         dynamic_cast<const eckit::geo::grid::regular::RegularGaussian*>(genericGrid.get());
 
-                    const long Ni = grid->nlon();
-                    const long Nj = grid->nlat();
+                    const long Ni = grid->nx();
+                    const long Nj = grid->ny();
                     const long N  = grid->N();
 
                     const auto firstPoint = std::get<eckit::geo::PointLonLat>(grid->first_point());
