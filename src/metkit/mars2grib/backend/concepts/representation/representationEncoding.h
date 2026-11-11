@@ -430,6 +430,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
                     set_or_throw<long>(out, "Ni", Ni);
                     set_or_throw<long>(out, "Nj", Nj);
+                    set_or_throw<long>(out, "N", N);
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
