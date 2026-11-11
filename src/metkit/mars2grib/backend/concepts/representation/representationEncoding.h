@@ -412,6 +412,10 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const auto* grid =
                         dynamic_cast<const eckit::geo::grid::regular::RegularGaussian*>(genericGrid.get());
 
+                    const long Ni = grid->nlon();
+                    const long Nj = grid->nlat();
+                    const long N  = grid->N();
+
                     const auto firstPoint = std::get<eckit::geo::PointLonLat>(grid->first_point());
                     const auto lastPoint  = std::get<eckit::geo::PointLonLat>(grid->last_point());
 
@@ -422,10 +426,10 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     const auto iDirectionIncrementInDegrees = std::abs(grid->dx());
 
-                    // TODO (GEOM): numberOfParallelsBetweenAPoleAndTheEquator, and numberOfPointsAlongAMeridian ?
-
                     // Encoding
                     set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
+                    set_or_throw<long>(out, "Ni", Ni);
+                    set_or_throw<long>(out, "Nj", Nj);
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
