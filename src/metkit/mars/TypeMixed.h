@@ -18,16 +18,19 @@ class TypeMixed : public Type {
 
 public:  // methods
 
-    TypeMixed(const std::string& name, const eckit::Value& settings);
+    TypeMixed(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeMixed(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
-    ~TypeMixed() noexcept override;
+    ~TypeMixed() noexcept override = default;
+
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
     void print(std::ostream& out) const override;
     bool expand(std::string& value, const MarsRequest& request) const override;
 
-    std::vector<std::pair<std::unique_ptr<Context>, Type*>> types_;
+    std::list<std::pair<std::reference_wrapper<const Context>, std::unique_ptr<Type>>> types_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

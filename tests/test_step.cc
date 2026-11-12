@@ -17,11 +17,11 @@ namespace metkit::mars::test {
 
 using ::eckit::BadValue;
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    MarsLanguage::get("retrieve").type(name)->expand(values);
+    MarsLanguage::get("retrieve").typeRef(name).expand(values);
     EXPECT_EQUAL(expected, values);
 }
 
@@ -58,7 +58,7 @@ CASE("Test Step expansions") {
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 
