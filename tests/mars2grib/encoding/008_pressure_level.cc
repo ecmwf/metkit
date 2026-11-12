@@ -27,7 +27,7 @@ static const eckit::LocalConfiguration mars = []() {
 }();
 
 static const std::vector<double> randomTemps = []() {
-    std::vector<double> vals(200);
+    std::vector<double> vals(213988);
     std::mt19937 rng(42);
     std::uniform_real_distribution<double> dist(237.15 - 40, 237.15 + 40);
     for (auto& v : vals) {

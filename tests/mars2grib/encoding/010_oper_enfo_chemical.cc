@@ -31,7 +31,7 @@ CASE("stream=oper,type=fc,param=228080") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228080, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -50,7 +50,7 @@ CASE("stream=oper,type=fc,param=228081") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228081, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -69,7 +69,7 @@ CASE("stream=oper,type=fc,param=228082") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228082, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -88,7 +88,7 @@ CASE("stream=oper,type=fc,param=228083") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228083);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -107,7 +107,7 @@ CASE("stream=oper,type=fc,param=228084") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228084);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -126,7 +126,7 @@ CASE("stream=oper,type=fc,param=228085") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228085);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -146,7 +146,7 @@ CASE("stream=enfo,type=pf,param=228080") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228080, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -165,7 +165,7 @@ CASE("stream=enfo,type=pf,param=228081") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228081, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -184,7 +184,7 @@ CASE("stream=enfo,type=pf,param=228082") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228082, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -203,7 +203,7 @@ CASE("stream=enfo,type=pf,param=228083") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228083);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -222,7 +222,7 @@ CASE("stream=enfo,type=pf,param=228084") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228084);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -241,7 +241,7 @@ CASE("stream=enfo,type=pf,param=228085") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228085);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
