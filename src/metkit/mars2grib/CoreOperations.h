@@ -347,7 +347,7 @@ struct CoreOperations {
                 return handle;
             }
             else {
-                metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
+                metkit::mars2grib::backend::encodeValues(values, mars, misc, opt, *handle);
                 return handle;
             }
         }

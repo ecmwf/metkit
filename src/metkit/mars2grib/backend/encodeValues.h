@@ -27,10 +27,13 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 // Project includes
+#include "eckit/geo/Grid.h"
+#include "eckit/spec/Custom.h"
 #include "metkit/codes/api/CodesTypes.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -70,18 +73,21 @@ using Span = metkit::codes::Span<T>;
 /// ------------------------------------------------------------------------
 ///
 /// @tparam Val_t      Numeric precision of input (must be `float` or `double`)
+/// @tparam MarsDict_t Type of the MARS dictionary
 /// @tparam MiscDict_t Type of the dictionary containing auxiliary metadata
 /// @tparam OptDict_t  Type of the dictionary containing auxiliary metadata
 ///
 /// @param[in]     values  Non-owning span of numeric values (Payload)
+/// @param[in]     mars    Read-only MARS dictionary (uses `truncation` for spherical harmonics, otherwise `grid`)
 /// @param[in]     misc    Dictionary containing bitmap and missing value keys
 /// @param[in]     opt     Dictionary containing options
 /// @param[in,out] handle  The GRIB handle to be updated
 ///
 /// @return The updated GRIB handle containing the encoded payload
 ///
-template <typename Val_t, class MiscDict_t, class OptDict_t, class OutDict_t>
-void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDict_t& opt, OutDict_t& handle) {
+template <typename Val_t, class MarsDict_t, class MiscDict_t, class OptDict_t, class OutDict_t>
+void encodeValues(Span<const Val_t> values, const MarsDict_t& mars, const MiscDict_t& misc, const OptDict_t& opt,
+                  OutDict_t& handle) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -91,6 +97,13 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
 
     try {
         static_assert(std::is_floating_point_v<Val_t>, "encodeValues: Val_t must be float or double");
+
+        // Create the grid from mars.truncation (spherical harmonics) or mars.grid
+        const std::unique_ptr<const eckit::geo::Grid> grid(
+            has(mars, "truncation") ? eckit::geo::GridFactory::build(eckit::spec::Custom{
+                                          {"type", "sh"}, {"truncation", get_or_throw<long>(mars, "truncation")}})
+                                    : eckit::geo::GridFactory::build(
+                                          eckit::spec::Custom{{"grid", get_or_throw<std::string>(mars, "grid")}}));
 
         // 1. Configure Bitmap and Metadata State
         const bool bitmapPresent = get_opt<bool>(misc, "bitmapPresent").value_or(false);
@@ -104,6 +117,13 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
         }
 
         // 2. Physical Value Injection
+        if (values.size() != grid->size()) {
+            throw Mars2GribGenericException("Size of values array is not equal to the size of the grid! (" +
+                                                std::to_string(values.size()) + " != " + std::to_string(grid->size()) +
+                                                ")",
+                                            Here());
+        }
+
         // Current ecCodes implementation requires double-precision for the 'values' key.
         // If input is float, we perform an explicit deep-copy cast to double.
         if constexpr (std::is_same_v<Val_t, double>) {
@@ -174,7 +194,7 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
 /// @tparam OptDict_t  Type of the dictionary containing auxiliary metadata
 ///
 /// @param[in]     values  Non-owning span of numeric values (Payload)
-/// @param[in]     mars    Read-only MARS dictionary
+/// @param[in]     mars    Read-only MARS dictionary (`grid` must contain a gridSpec)
 /// @param[in]     misc    Dictionary containing bitmap and missing value keys
 /// @param[in]     opt     Dictionary containing options
 /// @param[in,out] handle  The GRIB handle to be updated
@@ -195,6 +215,10 @@ void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, cons
 
         // Recover the value of the gridSpec from Mars dictionary
         auto GridSpec = get_or_throw<std::string>(mars, "grid");
+
+        // Create the grid from the gridSpec
+        const std::unique_ptr<const eckit::geo::Grid> grid(eckit::geo::GridFactory::make_from_string(GridSpec));
+
         set_or_throw(handle, "gridSpec", GridSpec);
 
 
@@ -212,6 +236,13 @@ void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, cons
         }
 
         // 2. Physical Value Injection
+        if (values.size() != grid->size()) {
+            throw Mars2GribGenericException("Size of values array is not equal to the size of the grid! (" +
+                                                std::to_string(values.size()) + " != " + std::to_string(grid->size()) +
+                                                ")",
+                                            Here());
+        }
+
         // Current ecCodes implementation requires double-precision for the 'values' key.
         // If input is float, we perform an explicit deep-copy cast to double.
         if constexpr (std::is_same_v<Val_t, double>) {
