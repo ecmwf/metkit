@@ -26,7 +26,7 @@ static const eckit::LocalConfiguration mars = []() {
 }();
 
 static const std::vector<double> randomTemps = []() {
-    std::vector<double> vals(200);
+    std::vector<double> vals(213988);
     std::mt19937 rng(42);
     std::uniform_real_distribution<double> dist(237.15 - 40, 237.15 + 40);
     for (auto& v : vals) {
@@ -36,7 +36,7 @@ static const std::vector<double> randomTemps = []() {
 }();
 
 static const std::vector<double> randomZeroToOne = []() {
-    std::vector<double> vals(200);
+    std::vector<double> vals(213988);
     std::mt19937 rng(42);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
     for (auto& v : vals) {
@@ -49,7 +49,7 @@ static const std::vector<double> randomZeroToOne = []() {
 CASE("bitsPerValue=0 (constant)") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
-    std::vector<double> vals(200, 237.15);
+    std::vector<double> vals(213988, 237.15);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -96,7 +96,7 @@ CASE("bitsPerValue=8 (default for cloud cover)") {
     auto customMars = mars;
     customMars.set("param", 248);  // Cloud Cover
 
-    const auto handle = encoder.encode(randomTemps, customMars);
+    const auto handle = encoder.encode(randomZeroToOne, customMars);
 
     // GRIB
     EXPECT_EQUAL(handle->getLong("bitsPerValue"), 8);
