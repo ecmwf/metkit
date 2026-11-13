@@ -79,16 +79,16 @@ inline const Recipe S4_R12 =
         Select<DerivedConcept>
     >();
 
-inline const Recipe S4_R32 =
-    make_recipe<32,
+inline const Recipe S4_R30 =
+    make_recipe<30,
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
         Select<SatelliteConcept>,
         Select<ParamConcept>
     >();
 
-inline const Recipe S4_R33 =
-    make_recipe<33,
+inline const Recipe S4_R35 =
+    make_recipe<35,
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
         Select<SatelliteConcept>,
@@ -404,7 +404,7 @@ inline const Recipes Section4Recipes{ 4,
     std::vector<const Recipe*>{
         &S4_R0,  &S4_R1,  &S4_R2,
         &S4_R8,  &S4_R11, &S4_R12,
-        &S4_R32, &S4_R33,
+        &S4_R30, &S4_R35,
         &S4_R40, &S4_R41, &S4_R42, &S4_R43,
         &S4_R50, &S4_R45, &S4_R46, &S4_R85,
         &S4_R48, &S4_R49,

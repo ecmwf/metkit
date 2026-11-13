@@ -144,12 +144,11 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <std::size_t Stage, std::size_t Section, SatelliteType Variant>
 constexpr bool satelliteApplicable() {
 
-    bool condition1 = (Stage == StagePreset && Section == SecLocalUseSection);
-    bool condition2 = (Stage == StageAllocate && Section == SecProductDefinitionSection);
-    bool condition3 = (Stage == StagePreset && Section == SecProductDefinitionSection);
+    bool condition1 = (Stage == StageAllocate && Section == SecProductDefinitionSection);
+    bool condition2 = (Stage == StagePreset && Section == SecProductDefinitionSection);
 
 
-    return (condition1 || condition2 || condition3);
+    return (condition1 || condition2);
 }
 
 ///
@@ -206,24 +205,11 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
 
             MARS2GRIB_LOG_CONCEPT(satellite);
 
-            if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
-
-                // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37});
-
-                // Deductions
-                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
-                // long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
-
-                // Encoding
-                set_or_throw<long>(out, "channelNumber", channelNumber);
-                // set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
-            }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {30, 35});
 
                 // Encoding
                 set_or_throw<long>(out, "numberOfContributingSpectralBands", 1L);
@@ -232,9 +218,11 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {30, 35});
 
                 // Deductions
+                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
+
                 long satelliteNumber = deductions::resolve_satelliteNumber_or_throw(mars, par, opt);
                 long instrumentType  = deductions::resolve_InstrumentType_or_throw(mars, par, opt);
 
@@ -245,6 +233,9 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
                     deductions::resolve_ScaledValueOfCentralWaveNumber_or_throw(mars, par, opt);
 
                 // Encoding
+                // MIVAL - TODO: there are additional keywords in templates 4.30 and 4.32
+                // for which we rely on eccodes default
+                set_or_throw<long>(out, "channelNumber", channelNumber);
                 set_or_throw<long>(out, "satelliteSeries", satelliteSeries);
                 set_or_throw<long>(out, "satelliteNumber", satelliteNumber);
                 set_or_throw<long>(out, "instrumentType", instrumentType);
