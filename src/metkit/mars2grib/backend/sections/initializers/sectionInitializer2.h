@@ -100,6 +100,13 @@ void allocateTemplateNumber2(const MarsDict_t& mars, const ParDict_t& par, const
             // ExtremesDT dataset tag
             set_or_throw<std::string>(out, "dataset", "extremes-dt");
         }
+        else if constexpr (TemplateNumber == 924) {
+
+            // Minimal Section 2
+            set_or_throw<long>(out, "localDefinitionNumber", 192L);
+            set_or_throw<long>(out, "subLocalDefinitionNumber1", 24L);
+            set_or_throw<long>(out, "subLocalDefinitionNumber2", 36L);
+        }
         else {
             set_or_throw<long>(out, "localDefinitionNumber", TemplateNumber);
         }

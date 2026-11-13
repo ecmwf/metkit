@@ -53,6 +53,14 @@ inline const Recipe S2_R24 =
         Select<SatelliteConcept>
     >();
 
+// Satellite-related products
+inline const Recipe S2_R24a =
+    make_recipe<924,
+        Select<MarsConcept>,
+        Select<AnalysisConcept>,
+        Select<SatelliteConcept>
+    >();
+
 // 4DVar model errors
 inline const Recipe S2_R25 =
     make_recipe<25,
@@ -143,6 +151,7 @@ inline const Recipes Section2Recipes{ 2,
         &S2_R16,
         &S2_R20,
         &S2_R24,
+        &S2_R24a,
         &S2_R25,
         &S2_R36,
         &S2_R37A,
