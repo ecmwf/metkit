@@ -42,6 +42,16 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
             }
         }
 
+        if (type == "efi" || type == "efic" || type == "sot" || type == "ep") {
+            // Ensemble size and model climate of the index products (GRIB1 local definition 19).
+            for (const char* key : {"numberOfForecastsInEnsemble", "numberOfReforecastYearsInModelClimate",
+                                    "numberOfDaysInClimateSamplingWindow", "sampleSizeOfModelClimate"}) {
+                if (grib.has(key)) {
+                    misc.set(key, grib.getLong(key));
+                }
+            }
+        }
+
         if (type == "es" || type == "em" || type == "ses") {
             if (!grib.has("numberOfForecastsInEnsemble")) {
                 throw Grib2MarsGenericException(

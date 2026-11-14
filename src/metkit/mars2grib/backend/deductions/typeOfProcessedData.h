@@ -44,6 +44,7 @@
 
 // Tables includes
 #include "metkit/mars2grib/backend/tables/typeOfProcessedData.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
@@ -158,6 +159,22 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                     result = tables::TypeOfProcessedData::ForecastProducts;
                 }
                 else if (marsType == "pf") {
+                    result = tables::TypeOfProcessedData::PerturbedForecastProducts;
+                }
+                else if (marsType == "gbf" || marsType == "gwt") {
+                    // ecPoint, as in the operational GRIB2: of a forecast in oper, of a perturbed member otherwise
+                    result = (marsStream == "oper") ? tables::TypeOfProcessedData::ForecastProducts
+                                                    : tables::TypeOfProcessedData::PerturbedForecastProducts;
+                }
+                else if (marsType == "efi" || marsType == "sot") {
+                    // Index products computed from the control and the perturbed members
+                    result = tables::TypeOfProcessedData::ControlAndPerturbedForecastProducts;
+                }
+                else if (marsType == "efic") {
+                    // EFI of the control forecast
+                    result = tables::TypeOfProcessedData::ControlForecastProducts;
+                }
+                else if (marsType == "icp") {
                     result = tables::TypeOfProcessedData::PerturbedForecastProducts;
                 }
                 else if (marsType == "fc" || marsType == "cf") {

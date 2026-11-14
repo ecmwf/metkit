@@ -59,25 +59,21 @@ inline constexpr std::string_view probabilityName{"probability"};
 ///
 /// @brief Enumeration of all supported `probability` concept variants.
 ///
-/// The concept defines variants for the supported probability products.
+/// The concept defines a single `Default` variant, active for all ensemble
+/// probability products (MARS `type=ep`). The probability-specific keys are
+/// deduced from the `param` by the dedicated deductions.
 ///
 /// The numeric values of the enumerators are **not semantically relevant**;
 /// they are required only to:
 /// - provide a stable compile-time identifier
 /// - allow array indexing and table generation
 ///
-/// @note
-/// Additional variants may be introduced later once the probability
-/// semantics are finalized.
-///
 /// @warning
 /// Do not reorder existing enumerators, as they are used in compile-time
 /// tables and registries.
 ///
 enum class ProbabilityType : std::size_t {
-    StrikeProbability = 0,
-    StandardisedAnomaly,
-    Default
+    Default = 0
 };
 
 
@@ -93,8 +89,7 @@ enum class ProbabilityType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using ProbabilityList =
-    ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly, ProbabilityType::Default>;
+using ProbabilityList = ValueList<ProbabilityType::Default>;
 
 
 ///
@@ -124,8 +119,6 @@ constexpr std::string_view probabilityTypeName();
         return NAME;                                      \
     }
 
-DEF(ProbabilityType::StrikeProbability, "strikeProbability");
-DEF(ProbabilityType::StandardisedAnomaly, "standardisedAnomaly");
 DEF(ProbabilityType::Default, "default");
 
 #undef DEF

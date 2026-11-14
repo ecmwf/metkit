@@ -49,7 +49,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * - `timespan` is duration-valued;
  * - no outer `stattype` blocks are present;
  * - the product does not require the fake-double-loop compatibility case;
- * - the product does not require the fake-single-loop-double-loop compatibility case.
+ * - the parameter does not identify index statistics.
  *
  * @param[in] input Fully normalized ProductTimeSpec input snapshot.
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
@@ -74,12 +74,11 @@ inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input)
         const bool hasDurationTimespan                    = input.timespan.kind == TimespanKind::Duration;
         const bool hasNoStattypeBlocks                    = input.stattype.empty();
         const bool requiresFakeDoubleLoop                 = input.requiresFakeDoubleLoopSingleLoopRepresentation;
-        const bool requiresFakeSecondLoop                 = input.requiresFakeSingleLoopDoubleLoopRepresentation;
         const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
-        const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
+        const bool isNotIndexStatistics                   = !input.isIndexStatistics;
 
         return isIfs && isForecastAnalysis && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
-               hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
+               hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && isNotIndexStatistics;
     }
     catch (...) {
         std::throw_with_nested(
@@ -339,12 +338,11 @@ inline bool check_IFSStandardSingleLoop_Shape(
         const bool hasDurationValue                       = input.timespan.duration.has_value();
         const bool hasNoStattypeBlocks                    = input.stattype.empty();
         const bool requiresFakeDoubleLoop                 = input.requiresFakeDoubleLoopSingleLoopRepresentation;
-        const bool requiresFakeSecondLoop                 = input.requiresFakeSingleLoopDoubleLoopRepresentation;
         const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
-        const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
+        const bool isNotIndexStatistics                   = !input.isIndexStatistics;
 
         if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !hasDurationTimespan || !hasDurationValue ||
-            !hasNoStattypeBlocks || !doesNotRequireFakeDoubleLoop || !doesNotRequireFakeSingleLoopDoubleLoop) {
+            !hasNoStattypeBlocks || !doesNotRequireFakeDoubleLoop || !isNotIndexStatistics) {
             throw Mars2GribModelException("IFSStandardSingleLoop input semantics are not satisfied", input.to_json(),
                                           Here());
         }
