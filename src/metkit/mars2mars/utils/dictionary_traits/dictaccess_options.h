@@ -91,7 +91,7 @@ inline bool isBoolKey(std::string_view key) noexcept {
 }
 
 inline bool isStringKey(std::string_view key) noexcept {
-    return key == "errorStackPath";
+    return key == "errorStackPath" || key == "outputScheduleFile";
 }
 
 inline bool isKnownKey(std::string_view key) noexcept {
@@ -126,6 +126,9 @@ inline std::string getStringOrThrow(const Options& opts, std::string_view key) {
     if (key == "errorStackPath") {
         return opts.errorStackPath;
     }
+    if (key == "outputScheduleFile") {
+        return opts.outputScheduleFile;
+    }
 
     throw exceptions::Mars2marsDictException("Key `" + std::string(key) + "` cannot be read as `" + "std::string" +
                                                  "` from dictionary type `metkit::mars2mars::Options`",
@@ -147,6 +150,7 @@ struct DictToJsonTraits<Options> {
             options_detail::appendJsonBool(json, "tryFixBadInput_ZeroAccumulation",
                                            opts.tryFixBadInput_ZeroAccumulation, true);
             options_detail::appendJsonString(json, "errorStackPath", opts.errorStackPath, true);
+            options_detail::appendJsonString(json, "outputScheduleFile", opts.outputScheduleFile, true);
             options_detail::appendJsonBool(json, "printErrorStackToStdErr", opts.printErrorStackToStdErr, false);
             json += '}';
             return json;

@@ -36,6 +36,7 @@ inline constexpr const char* errorStackPath           = "./";
 inline constexpr bool printErrorStackToStdErr         = false;
 inline constexpr bool skipSection3                    = false;
 inline constexpr bool tryFixBadInput_ZeroAccumulation = false;
+inline constexpr const char* outputScheduleFile       = "";
 
 }  // namespace defaults
 
@@ -102,6 +103,17 @@ struct Options {
     /// @default false
     ///
     bool tryFixBadInput_ZeroAccumulation = defaults::tryFixBadInput_ZeroAccumulation;
+
+    ///
+    /// @brief Output schedule of the model (YAML), see `utils/outputSchedule.h`.
+    ///
+    /// The window of the "since previous post-processing" params on a single step is
+    /// the output interval of their context. An empty value selects the default
+    /// `share/metkit/mars2mars-output-schedule.yaml`.
+    ///
+    /// @default ""
+    ///
+    std::string outputScheduleFile = defaults::outputScheduleFile;
 };
 
 }  // namespace metkit::mars2mars

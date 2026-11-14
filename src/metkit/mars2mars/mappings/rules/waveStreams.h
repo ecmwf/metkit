@@ -13,15 +13,16 @@
 
 namespace metkit::mars2mars::rules::impl {
 
-/// @brief Wave streams and the atmospheric streams they are converted to.
+/// @brief Wave streams and the atmospheric streams they are converted to, and retired streams and their
+/// successors.
 ///
 /// Pairs follow the ecCodes stream table (definitions/mars/stream.table). The legacy seasonal and monthly
-/// forecast wave streams are not converted.
+/// forecast wave streams are not converted. The short cut-off streams scda and scwv stopped in 50r1, when
+/// the 06 and 18 UTC runs moved to oper and wave; both are converted to oper.
 inline const std::unordered_map<std::string, std::string>& waveToAtmosphericStreams() {
     static const std::unordered_map<std::string, std::string> streams{
         // Deterministic and data assimilation
         {"wave", "oper"},
-        {"scwv", "scda"},
         {"dcwv", "dcda"},
         {"lwwv", "lwda"},
         {"ewda", "enda"},
@@ -44,6 +45,9 @@ inline const std::unordered_map<std::string, std::string>& waveToAtmosphericStre
         {"ewmm", "edmm"},
         {"ewmo", "edmo"},
         {"dacw", "dacl"},
+        // Retired streams (50r1): the 06 and 18 UTC short cut-off runs are now oper and wave
+        {"scda", "oper"},
+        {"scwv", "oper"},
     };
     return streams;
 }
@@ -64,15 +68,6 @@ inline void convertWaveStreams(const InDict_t& in, OutDict_t& out, eckit::LocalC
         const auto it       = streams.find(get_or_throw<std::string>(in, "stream"));
         if (it != streams.end()) {
             set_or_throw<std::string>(out, "stream", it->second);
-        }
-        else if (get_or_throw<std::string>(in, "stream") == "enwh") {
-            set_or_throw<std::string>(out, "stream", "enfh");
-        }
-        else if (get_or_throw<std::string>(in, "stream") == "weef") {
-            set_or_throw<std::string>(out, "stream", "eefo");
-        }
-        else if (get_or_throw<std::string>(in, "stream") == "weeh") {
-            set_or_throw<std::string>(out, "stream", "eefh");
         }
     }
     catch (...) {
