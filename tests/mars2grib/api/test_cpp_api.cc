@@ -28,7 +28,7 @@ CASE("mars2grib_api") {
         mars.set("time", 00'00'00);
         mars.set("step", 0);
 
-        std::vector<double> vals(200, 237.15);
+        std::vector<double> vals(213988, 237.15);
 
         encoder.encode(vals, mars);
     }

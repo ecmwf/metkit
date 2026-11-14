@@ -36,7 +36,7 @@ def test_typed_dict_mars2mars_then_mars2grib():
 
     encoder = Mars2Grib()
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
     return_bytes = encoder.encode(vals, request, misc)
 
     assert return_bytes
@@ -71,6 +71,6 @@ def test_mars_request_mars2mars_then_mars2grib():
 
     encoder = Mars2Grib()
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
     with pytest.raises(RuntimeError, match="type"):
         encoder.encode(vals, request)

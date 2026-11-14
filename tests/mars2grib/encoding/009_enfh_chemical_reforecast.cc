@@ -62,7 +62,7 @@ void run(F&& f) {
 CASE("enfh pf non-chemical param stays on the reforecast template") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
-        const auto handle = encoder.encode(std::vector<double>(200, 280.0), enfhRequest("pf", 167));
+        const auto handle = encoder.encode(std::vector<double>(213988, 280.0), enfhRequest("pf", 167));
 
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 60);
         expectReforecastDates(handle);
@@ -72,7 +72,7 @@ CASE("enfh pf non-chemical param stays on the reforecast template") {
 CASE("enfh pf instantaneous CO2 flux is a chemical reforecast (PDT 152)") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
-        const auto handle = encoder.encode(std::vector<double>(200, 1.0e-6), enfhRequest("pf", 228083));
+        const auto handle = encoder.encode(std::vector<double>(213988, 1.0e-6), enfhRequest("pf", 228083));
 
         EXPECT_EQUAL(handle->getLong("paramId"), 228083);
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 152);
@@ -85,7 +85,7 @@ CASE("enfh pf instantaneous CO2 flux is a chemical reforecast (PDT 152)") {
 CASE("enfh pf accumulated CO2 is a chemical reforecast (PDT 153)") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
-        const auto handle = encoder.encode(std::vector<double>(200, 1.0e-3), enfhRequest("pf", 228080, "fs"));
+        const auto handle = encoder.encode(std::vector<double>(213988, 1.0e-3), enfhRequest("pf", 228080, "fs"));
 
         EXPECT_EQUAL(handle->getLong("paramId"), 228080);
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 153);
@@ -99,7 +99,7 @@ CASE("enfh pf accumulated CO2 is a chemical reforecast (PDT 153)") {
 CASE("enfh cf instantaneous CO2 flux is a chemical reforecast (PDT 152)") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
-        const auto handle = encoder.encode(std::vector<double>(200, 1.0e-6), enfhRequest("cf", 228084));
+        const auto handle = encoder.encode(std::vector<double>(213988, 1.0e-6), enfhRequest("cf", 228084));
 
         EXPECT_EQUAL(handle->getLong("paramId"), 228084);
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 152);
