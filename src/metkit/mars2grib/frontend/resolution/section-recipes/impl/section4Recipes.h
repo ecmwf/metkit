@@ -88,16 +88,17 @@ inline const Recipe S4_R12 =
         Select<DerivedConcept>
     >();
 
-inline const Recipe S4_R30 =
-    make_recipe<30,
+// Simulated (synthetic) satellite data with channel, bandwidth and polarisation (WMO FT2026-1, ecCodes ECC-2272)
+inline const Recipe S4_R204 =
+    make_recipe<204,
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
         Select<SatelliteConcept>,
         Select<ParamConcept>
     >();
 
-inline const Recipe S4_R35 =
-    make_recipe<35,
+inline const Recipe S4_R205 =
+    make_recipe<205,
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
         Select<SatelliteConcept>,
@@ -535,7 +536,6 @@ inline const Recipes Section4Recipes{ 4,
     std::vector<const Recipe*>{
         &S4_R0,  &S4_R1,  &S4_R2, &S4_R5, &S4_R9,
         &S4_R8,  &S4_R11, &S4_R12,
-        &S4_R30, &S4_R35,
         &S4_R40, &S4_R41, &S4_R42, &S4_R43,
         &S4_R50, &S4_R45, &S4_R46, &S4_R85,
         &S4_R48, &S4_R49,
@@ -548,7 +548,8 @@ inline const Recipes Section4Recipes{ 4,
         &S4_R121, &S4_R122, &S4_R131,
         &S4_R132, &S4_R133, &S4_R134, &S4_R135,
         &S4_R144, &S4_R145,
-        &S4_R152, &S4_R153
+        &S4_R152, &S4_R153,
+        &S4_R204, &S4_R205
     }
 };
 

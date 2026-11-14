@@ -72,8 +72,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// `false` otherwise.
 ///
 /// @note
-/// The default applicability rule enables the concept only when:
-/// - `Variant == BrightnessTemperatureType::Default`
+/// The applicability rule enables the concept only when:
 /// - `Stage == StagePreset`
 /// - `Section == SecLocalUseSection`
 template <std::size_t Stage, std::size_t Section, BrightnessTemperatureType Variant>
@@ -118,8 +117,8 @@ constexpr bool brightnessTemperatureApplicable() {
 /// @note
 /// - All runtime errors are wrapped with full concept context
 ///   concept name, variant, stage, section.
-/// - This concept does not decide whether the surrounding product is encoded
-///   through the satellite path or the derived-product path.
+/// - Satellite products (with `ident` and `instrument`) do not use this concept:
+///   their channel is encoded in Section 4 by the `satellite` concept.
 ///
 /// @see brightnessTemperatureApplicable
 template <std::size_t Stage, std::size_t Section, BrightnessTemperatureType Variant, class MarsDict_t, class ParDict_t,
@@ -139,12 +138,9 @@ void BrightnessTemperatureOp(const MarsDict_t& mars, const ParDict_t& par, const
             auto numberOfFrequenciesVal = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
             set_or_throw(out, "numberOfFrequencies", numberOfFrequenciesVal);
 
-            // In Ensemble Mean variant, channel number is required; in Default variant it is already set by the
-            // satellite concept
-            if constexpr (Variant == BrightnessTemperatureType::EnsembleMean) {
-                auto channelNumberVal = deductions::resolve_Channel_or_throw(mars, par, opt);
-                set_or_throw(out, "channelNumber", channelNumberVal);
-            }
+            // The ensemble mean has no satellite identification: its channel is encoded here, in the local section
+            auto channelNumberVal = deductions::resolve_Channel_or_throw(mars, par, opt);
+            set_or_throw(out, "channelNumber", channelNumberVal);
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(brightnessTemperature, "Unable to set `brightnessTemperature` concept...");

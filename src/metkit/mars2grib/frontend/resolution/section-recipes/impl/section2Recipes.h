@@ -46,14 +46,6 @@ inline const Recipe S2_R20 =
         Select<IterationConcept>
     >();
 
-// Satellite-related products
-inline const Recipe S2_R24a =
-    make_recipe<924,
-        Select<MarsConcept>,
-        Select<AnalysisConcept>,
-        Select<SatelliteConcept>
-    >();
-
 // 4DVar model errors
 inline const Recipe S2_R25 =
     make_recipe<25,
@@ -68,7 +60,8 @@ inline const Recipe S2_R36 =
         Select<AnalysisConcept>
     >();
 
-// Brightness temperature satellite products
+// Brightness temperature ensemble mean (no satellite identification: the channel stays in the local section).
+// Satellite products carry the channel in Section 4 (templates 4.204/4.205) and use local definition 1 or 36.
 inline const Recipe S2_R37 =
     make_recipe<37,
         Select<MarsConcept>,
@@ -135,7 +128,6 @@ inline const Recipes Section2Recipes{ 2,
         &S2_R15,
         &S2_R16,
         &S2_R20,
-        &S2_R24a,
         &S2_R25,
         &S2_R36,
         &S2_R37,

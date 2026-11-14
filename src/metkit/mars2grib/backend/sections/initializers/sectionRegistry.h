@@ -78,7 +78,6 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = 
     {38, &allocateTemplateNumber2<2, 38, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {39, &allocateTemplateNumber2<2, 39, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {45, &allocateTemplateNumber2<2, 45, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {924, &allocateTemplateNumber2<2, 924, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1001, &allocateTemplateNumber2<2, 1001, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1002, &allocateTemplateNumber2<2, 1002, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
@@ -108,8 +107,6 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {9, &allocateTemplateNumber4<4, 9, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {11, &allocateTemplateNumber4<4, 11, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {12, &allocateTemplateNumber4<4, 12, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {30, &allocateTemplateNumber4<4, 30, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {35, &allocateTemplateNumber4<4, 35, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {40, &allocateTemplateNumber4<4, 40, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {41, &allocateTemplateNumber4<4, 41, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {42, &allocateTemplateNumber4<4, 42, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -151,7 +148,9 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {144, &allocateTemplateNumber4<4, 144, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {145, &allocateTemplateNumber4<4, 145, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {152, &allocateTemplateNumber4<4, 152, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {153, &allocateTemplateNumber4<4, 153, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
+    {153, &allocateTemplateNumber4<4, 153, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {204, &allocateTemplateNumber4<4, 204, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {205, &allocateTemplateNumber4<4, 205, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 5 (Data Representation Section) initializers.
