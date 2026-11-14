@@ -1,9 +1,27 @@
 ---
-CLASS: class
-DATE: andate
-TIME: antime
-TYPE: type
-OBSGROUP: groupid@hdr
-REPORTYPE: reportype
-STREAM: stream
-EXPVER: expver
+# Mapping of MARS keywords (keys) to ODB column names (values).
+#
+# Each rule has:
+#   name:    a descriptive label
+#   matcher: either "default" (always applies) or a map of MARS keyword -> value
+#            (or list of values). All entries in the map must match the values
+#            decoded from the data for the rule's request entries to be applied.
+#   request: MARS keyword -> ODB column name
+- name: base
+  matcher: default
+  request:
+    CLASS: class
+    DATE: andate
+    TIME: antime
+    TYPE: type
+    OBSGROUP: groupid@hdr
+    REPORTYPE: reportype
+    STREAM: stream
+    EXPVER: expver
+
+- name: XWDA overrides
+  matcher:
+    stream: xwda
+  request:
+    ANOFFSET: anoffset
+    OBSCUTOFF: obscutoff
