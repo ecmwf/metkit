@@ -91,9 +91,15 @@ CASE("weeh cf is converted to eefh") {
     EXPECT_EQUAL(convertedStream(waveRequest("weeh", "cf")), "eefh");
 }
 
+CASE("the retired short cut-off streams are converted to oper") {
+    EXPECT_EQUAL(convertedStream(waveRequest("scda", "fc")), "oper");
+    EXPECT_EQUAL(convertedStream(waveRequest("scwv", "fc")), "oper");
+    EXPECT_EQUAL(convertedStream(waveRequest("dcda", "fc")), "dcda");
+}
+
 CASE("every wave stream is converted to its atmospheric counterpart") {
     const std::vector<std::pair<std::string, std::string>> streams{
-        {"wave", "oper"}, {"scwv", "scda"}, {"dcwv", "dcda"}, {"lwwv", "lwda"}, {"ewda", "enda"}, {"ewla", "elda"},
+        {"wave", "oper"}, {"scwv", "oper"}, {"dcwv", "dcda"}, {"lwwv", "lwda"}, {"ewda", "enda"}, {"ewla", "elda"},
         {"fsow", "fsob"}, {"waef", "enfo"}, {"enwh", "enfh"}, {"weef", "eefo"}, {"weeh", "eefh"}, {"ewho", "efho"},
         {"weov", "efov"}, {"ewhc", "efhc"}, {"wehs", "efhs"}, {"wees", "eehs"}, {"wamo", "mnth"}, {"wamd", "moda"},
         {"ewmm", "edmm"}, {"ewmo", "edmo"}, {"dacw", "dacl"},
