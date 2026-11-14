@@ -149,8 +149,8 @@ void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
             set_or_throw<long>(out, "probabilityType", static_cast<long>(probabilityType));
             setMissing_or_throw(out, "scaleFactorOfLowerLimit");
             setMissing_or_throw(out, "scaledValueOfLowerLimit");
-            setMissing_or_throw(out, "scaleFactorOfLowerLimit");
-            setMissing_or_throw(out, "scaledValueOfLowerLimit");
+            setMissing_or_throw(out, "scaleFactorOfUpperLimit");
+            setMissing_or_throw(out, "scaledValueOfUpperLimit");
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(probability, "Unable to set `probability` concept...");
