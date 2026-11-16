@@ -501,7 +501,7 @@ inline std::size_t matchSOL(const long param) {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
 
-        if (matchAny(param, 262000, 262024)) {
+        if (matchAny(param, 262000, 262024, 263024, 265024, 266024, 267024)) {
             return static_cast<std::size_t>(LevelType::SeaIceLayer);
         }
         if (matchAny(param, 33, 74, 238, 228038, 228141, 235078, 235080, 235238, 235406, 237078, 237080, 237238, 237406,
