@@ -171,8 +171,9 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 263024, 265024, 266024, 267024)) {
             return static_cast<std::size_t>(LevelType::SeaIceLayer);
         }
+        // Soil family: single-level on SFC; the layered form lives on SOL as SoilLayer
         if (matchAny(param, 235077, 235094, 237077, 237094, 238077, 238094, 239077, 239094)) {
-            return static_cast<std::size_t>(LevelType::SoilLayer);
+            return static_cast<std::size_t>(LevelType::Surface);
         }
         if (matchAny(param, 8, 9, range(15, 18), 20, range(26, 45), 47, 50, 57, 58, 66, 67, 74, 129, 134, 139,
                      range(141, 148), range(159, 163), 169, 170, range(172, 177), range(180, 182), 189, range(195, 198),
