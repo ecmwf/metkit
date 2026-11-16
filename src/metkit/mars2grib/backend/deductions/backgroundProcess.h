@@ -117,18 +117,19 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// @brief Component of the coupled system that produced a field, from the MARS keys of the field.
 ///
-/// The legacy archive tells the components apart by MARS keys only: the fire emissions are `stream=gfas`,
-/// the land surface analysis is `stream=ldas`, atmospheric composition is `class=mc` (IFS-compo), the native
-/// ocean fields are on `levtype=o2d`/`o3d` (nemo), the wave fields carry table-140 params (ecwam), and
-/// everything else is the atmosphere (IFS). The IFS ocean diagnostics (t20d, pt300m, sc300m, ...) are on
-/// `levtype=sfc` and therefore IFS, which is what makes ecCodes keep them on `sfc`.
+/// The legacy archive tells the components apart by MARS keys only: the fire emissions are `stream=gfas`
+/// or `stream=gfra` (gfas in reanalysis mode), the land surface analysis is `stream=ldas`, atmospheric
+/// composition is `class=mc`, `cr` or `a5` (IFS-compo), the native ocean fields are on `levtype=o2d`/`o3d`
+/// (nemo), the wave fields carry table-140 params or their time statistics (ecwam), and everything else
+/// is the atmosphere (IFS). The IFS ocean diagnostics (t20d, pt300m, sc300m, ...) are on `levtype=sfc` and
+/// therefore IFS, which is what makes ecCodes keep them on `sfc`.
 ///
 template <class MarsDict_t>
 tables::BackgroundProcess componentOfField(const MarsDict_t& mars) {
     using metkit::mars2grib::utils::dict_traits::get_opt;
 
     const std::optional<std::string> stream = get_opt<std::string>(mars, "stream");
-    if (stream && *stream == "gfas") {
+    if (stream && (*stream == "gfas" || *stream == "gfra")) {
         return tables::BackgroundProcess::gfas;
     }
     if (stream && *stream == "ldas") {
@@ -136,7 +137,7 @@ tables::BackgroundProcess componentOfField(const MarsDict_t& mars) {
     }
 
     const std::optional<std::string> marsClass = get_opt<std::string>(mars, "class");
-    if (marsClass && *marsClass == "mc") {
+    if (marsClass && (*marsClass == "mc" || *marsClass == "cr" || *marsClass == "a5")) {
         return tables::BackgroundProcess::ifs_compo;
     }
 
@@ -145,9 +146,13 @@ tables::BackgroundProcess componentOfField(const MarsDict_t& mars) {
         return tables::BackgroundProcess::nemo;
     }
 
+    // Table 140 (wave) and its time statistics: 141 mean, 143 maximum, 144 minimum, 145 standard deviation
     const std::optional<long> param = get_opt<long>(mars, "param");
-    if (param && *param >= 140000 && *param < 141000) {
-        return tables::BackgroundProcess::ecwam;
+    if (param) {
+        const long table = *param / 1000;
+        if (table == 140 || table == 141 || table == 143 || table == 144 || table == 145) {
+            return tables::BackgroundProcess::ecwam;
+        }
     }
 
     return tables::BackgroundProcess::ifs;

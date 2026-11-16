@@ -74,21 +74,6 @@ enum class BackgroundProcess : long {
     ifs_legacy            = 255
 };
 
-/// @brief Whether the code belongs to the component scheme of ECC-2354 (model version in the new numbering).
-inline bool isComponentScheme(BackgroundProcess value) {
-    switch (value) {
-        case BackgroundProcess::gfas:
-        case BackgroundProcess::ldas:
-        case BackgroundProcess::ecwam:
-        case BackgroundProcess::nemo:
-        case BackgroundProcess::ifs_compo:
-        case BackgroundProcess::ifs:
-            return true;
-        default:
-            return false;
-    }
-}
-
 ///
 /// @brief Map a MARS model identifier to a GRIB `BackgroundProcess` enumeration.
 ///
