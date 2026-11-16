@@ -209,7 +209,7 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24L, 37L, 192L});
 
                 // Deductions
                 long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
@@ -223,7 +223,7 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32L, 33L, 192L});
 
                 // Encoding
                 set_or_throw<long>(out, "numberOfContributingSpectralBands", 1L);
@@ -232,7 +232,7 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32L, 33L, 192L});
 
                 // Deductions
                 long satelliteNumber = deductions::resolve_satelliteNumber_or_throw(mars, par, opt);

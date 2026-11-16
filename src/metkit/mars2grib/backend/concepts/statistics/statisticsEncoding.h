@@ -84,9 +84,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant>
 constexpr bool statisticsApplicable() {
-    return (Section == SecProductDefinitionSection && Variant != StatisticsType::IndexProcessing);
+    return (Section == SecProductDefinitionSection);
 }
-
 
 ///
 /// @brief Execute the `statistics` concept operation.
@@ -161,6 +160,15 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
                                                                              mars, par, opt);
                 const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+
+                MARS2GRIB_LOG_CONCEPT_MSG(statistics, "Building ProductTimeSpec for runtime stage", spec.to_json());
+
+                // Set time range if the product is "FromStart"
+                if (spec.isFromStart()) {
+                    set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange",
+                                                    pts.indicatorOfUnitForTimeRange);
+                    set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
+                }
 
                 set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
 
