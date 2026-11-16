@@ -16,7 +16,6 @@ visibility = "public"
 fork-pull-requests = true
 compiler-inputs = ["cxx-compiler"]
 allow-stale-deps = true
-git-read = ["ecmwf/bindman", "ecmwf/rust-wrappers-playground"]
 
 # GRIB2MARS and MARS2GRIB need eccodes[eckit-geo], and mir needs them.
 [[deps]]
@@ -213,6 +212,7 @@ compiler-inputs = ["cxx-compiler", "rust-compiler"]
 allow-stale-deps = true
 
 [matrix.rust-publish]
+ci = false
 packages = ["metkit-crates"]
 publishes = false
 
