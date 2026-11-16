@@ -266,6 +266,14 @@ CASE("fire emissions: stream=gfra (gfas in reanalysis mode) is gfas (deduction o
     EXPECT(componentOfField(mars) == BackgroundProcess::gfas);
 }
 
+CASE("fire emissions: stream=gfas with class=we (wildfire emissions) is gfas (deduction only)") {
+    auto mars = operRequest(167, "sfc");
+    mars.set("class", "we");
+    mars.set("stream", "gfas");
+
+    EXPECT(componentOfField(mars) == BackgroundProcess::gfas);
+}
+
 CASE("fire emissions: the stream is tested before the class (deduction only)") {
     auto mars = operRequest(167, "sfc");
     mars.set("class", "mc");
