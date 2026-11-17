@@ -408,7 +408,8 @@ CASE("test_metkit_expand_multirequest-2") {
     std::string expectedStr =
         "retrieve,class=od,domain=g,expver=0001,levelist=1000/850/700/500/400/"
         "300,levtype=pl,param=129,step=0,stream=oper,time=1200,type=an";
-    expand(text, {expectedStr, expectedStr}, false, {{-5, -4, -3, -2}, {-1}});
+    expand(text, std::vector<std::string>{expectedStr, expectedStr}, false,
+           std::vector<std::vector<long>>{{-5, -4, -3, -2}, {-1}});
 }
 
 CASE("test_metkit_expand_multirequest-3") {
@@ -509,7 +510,7 @@ CASE("test_metkit_expand_multirequest-5") {
     const std::string text = "ret,class=dm,type=fc,levtype=ml,date=-2\nret,date=-1";
     std::string expectedStr =
         "retrieve,class=dm,type=fc,stream=oper,levtype=ml,time=0,step=0,expver=0001,domain=g,levelist=1,param=129";
-    expand(text, {expectedStr, expectedStr}, false, {{-2}, {-1}});
+    expand(text, std::vector<std::string>{expectedStr, expectedStr}, false, std::vector<std::vector<long>>{{-2}, {-1}});
 }
 
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
