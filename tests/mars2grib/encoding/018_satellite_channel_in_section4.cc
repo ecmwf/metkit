@@ -152,6 +152,52 @@ CASE("brightness temperature of stream=oper without the satellite identification
     EXPECT_THROWS(encoder.encode(values, mars, satelliteMisc()));
 }
 
+// The `channel` of the elda brightness temperature is an index over instrument and channel, not a real channel:
+// it is not a satellite product and keeps the channel in the local section.
+CASE("brightness temperature of stream=elda, type=em: derived forecast template 4.2, channel in local definition 37") {
+    run([] {
+        eckit::LocalConfiguration mars;
+        mars.set("class", "od");
+        mars.set("stream", "elda");
+        mars.set("type", "em");
+        mars.set("expver", "0001");
+        mars.set("grid", "N200");
+        mars.set("packing", "ccsds");
+        mars.set("param", 194);
+        mars.set("levtype", "sfc");
+        mars.set("date", 2026'11'14);
+        mars.set("time", 00'00);
+        mars.set("step", 6);
+        mars.set("anoffset", 9);
+        mars.set("channel", 7);
+
+        auto encoder      = metkit::mars2grib::Mars2Grib();
+        const auto handle = encoder.encode(values, mars, eckit::LocalConfiguration{});
+
+        EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 2);
+        EXPECT_EQUAL(handle->getLong("localDefinitionNumber"), 37);
+        EXPECT_EQUAL(handle->getLong("channel"), 7);
+        EXPECT_EQUAL(handle->getLong("paramId"), 194);
+        EXPECT_EQUAL(handle->getString("mars.type"), "em");
+    });
+}
+
+CASE("brightness temperature of stream=elda is not a satellite product even with ident and instrument") {
+    run([] {
+        auto mars = satelliteRequest(194);
+        mars.set("stream", "elda");
+        mars.set("type", "em");
+        mars.set("anoffset", 9);
+
+        auto encoder      = metkit::mars2grib::Mars2Grib();
+        const auto handle = encoder.encode(values, mars, satelliteMisc());
+
+        EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 2);
+        EXPECT_EQUAL(handle->getLong("localDefinitionNumber"), 37);
+        EXPECT_EQUAL(handle->getLong("channel"), 7);
+    });
+}
+
 CASE("the channel is recovered from Section 4 when decoding, and the product re-encodes to the same") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();

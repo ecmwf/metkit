@@ -34,6 +34,7 @@
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
+#include "metkit/mars2grib/backend/concepts/satellite/satelliteMatcher.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -675,8 +676,8 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         using metkit::mars2grib::utils::dict_traits::has;
 
         // Skip wave spectra and satellite products
-        if ((has(mars, "frequency") && has(mars, "direction")) ||                    // Wave spectra
-            (has(mars, "channel") && has(mars, "ident") && has(mars, "instrument"))  // Satellite
+        if ((has(mars, "frequency") && has(mars, "direction")) ||  // Wave spectra
+            isSatelliteProduct(mars)                               // Satellite
         ) {
             return compile_time_registry_engine::MISSING;
         }
