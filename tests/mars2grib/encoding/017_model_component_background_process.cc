@@ -75,7 +75,7 @@ eckit::LocalConfiguration miscWithGeneratingProcessIdentifier(long generatingPro
 std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
                                                    const eckit::LocalConfiguration& misc) {
     auto encoder = metkit::mars2grib::Mars2Grib();
-    return encoder.encode(std::vector<double>(200, 1.0), mars, misc);
+    return encoder.encode(std::vector<double>(213988, 1.0), mars, misc);
 }
 
 /// Print the exception stack of the encoder if a case throws.
