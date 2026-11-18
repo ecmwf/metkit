@@ -15,6 +15,7 @@ foreach( _src
         014_seas6_ensemble.cc
         015_enfo_ep_131020-131025.cc
         016_enfo_ep_131089-131091.cc
+        018_satellite_channel_in_section4.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 
