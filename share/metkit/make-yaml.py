@@ -18,7 +18,7 @@ import re
 import os
 
 connectionDetails = dict(
-	host = "webapps-db-prod",
+	host = os.environ['PARAM_DB_HOST'],
 	user = os.environ['PARAM_DB_USER'],
 	passwd = os.environ['PARAM_DB_PASSWORD'])
 
