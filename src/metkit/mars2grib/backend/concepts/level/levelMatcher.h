@@ -170,11 +170,13 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 178, 179, 208, 209, 212, 235039, 235040, 235049, 235050, 235053)) {
             return static_cast<std::size_t>(LevelType::NominalTop);
         }
-        if (matchAny(param, 263024, 265024, 266024, 267024)) {
-            return static_cast<std::size_t>(LevelType::SeaIceLayer);
+        // Sea ice temperature family: single-level on SFC; the layered form lives on SOL as SeaIceLayer
+        if (matchAny(param, 262024, 263024, 265024, 266024, 267024)) {
+            return static_cast<std::size_t>(LevelType::Surface);
         }
+        // Soil family: single-level on SFC; the layered form lives on SOL as SoilLayer
         if (matchAny(param, 235077, 235094, 237077, 237094, 238077, 238094, 239077, 239094, 260199, 260360)) {
-            return static_cast<std::size_t>(LevelType::SoilLayer);
+            return static_cast<std::size_t>(LevelType::Surface);
         }
         if (matchAny(param, 8, 9, range(15, 18), 20, range(26, 45), 47, 50, 57, 58, 66, 67, 74, 129, 134,
                      range(141, 148), range(159, 163), 169, range(172, 177), range(180, 182), 189, range(195, 198), 205,
@@ -198,8 +200,8 @@ inline std::size_t matchSFC(const long param) {
                      238238, 238263, 238406, 239041, 239042, 239078, 239080, 239083, 239084, 239093, 239134, 239159,
                      239238, 239263, 239406, 260004, 260005, 260015, 260038, 260048, 260109, 260121, 260123, 260255,
                      260259, 260289, 260292, 260293, range(260318, 260321), 260338, 260339, 260509, 260682, 260683,
-                     260688, 261001, 261002, range(261014, 261016), 261018, 261023, 262000, 262024, 262100, 262124,
-                     262139, 262140, 262144, 141231, 143231, 144231, 145231, 237079, 238079, 239079)) {
+                     260688, 261001, 261002, range(261014, 261016), 261018, 261023, 262000, 262100, 262124, 262139,
+                     262140, 262144, 141231, 143231, 144231, 145231, 237079, 238079, 239079)) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
         // Strike-probability
@@ -496,7 +498,7 @@ inline std::size_t matchSOL(const long param) {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
 
-        if (matchAny(param, 262000, 262024)) {
+        if (matchAny(param, 262000, 262024, 263024, 265024, 266024, 267024)) {
             return static_cast<std::size_t>(LevelType::SeaIceLayer);
         }
         if (matchAny(param, 33, 238, 228038, 228141, 235078, 235080, 235238, 235406, 237078, 237080, 237238, 237406,
