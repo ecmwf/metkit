@@ -203,7 +203,10 @@ CASE("the channel is recovered from Section 4 when decoding, and the product re-
         auto encoder      = metkit::mars2grib::Mars2Grib();
         const auto handle = encoder.encode(values, satelliteRequest(260510), satelliteMisc());
 
-        auto [mars, misc] = metkit::grib2mars::Grib2Mars().convert<eckit::LocalConfiguration>(*handle);
+        // No structured binding: lambdas (EXPECT_EQUAL) cannot capture one before C++20 (icpc rejects it).
+        const auto converted = metkit::grib2mars::Grib2Mars().convert<eckit::LocalConfiguration>(*handle);
+        const auto& mars     = converted.mars;
+        const auto& misc     = converted.misc;
         EXPECT_EQUAL(mars.getLong("channel"), 7);
         EXPECT_EQUAL(mars.getLong("ident"), 57);
         EXPECT_EQUAL(mars.getLong("instrument"), 207);
