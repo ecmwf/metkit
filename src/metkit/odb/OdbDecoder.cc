@@ -43,9 +43,10 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg, eckit::message:
     OdbMetadataDecoder setter(gather, options, language);
 
     while ((frame = reader.next())) {
-        odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
+        odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(frame), true);
 
         span.visit(setter);
+        setter.finalize();
     }
 }
 
