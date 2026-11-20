@@ -1,13 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file mars2mars-test-03.cc
 /// @brief The wave streams are converted to their atmospheric counterparts.
@@ -99,9 +91,15 @@ CASE("weeh cf is converted to eefh") {
     EXPECT_EQUAL(convertedStream(waveRequest("weeh", "cf")), "eefh");
 }
 
+CASE("the retired short cut-off streams are converted to oper") {
+    EXPECT_EQUAL(convertedStream(waveRequest("scda", "fc")), "oper");
+    EXPECT_EQUAL(convertedStream(waveRequest("scwv", "fc")), "oper");
+    EXPECT_EQUAL(convertedStream(waveRequest("dcda", "fc")), "dcda");
+}
+
 CASE("every wave stream is converted to its atmospheric counterpart") {
     const std::vector<std::pair<std::string, std::string>> streams{
-        {"wave", "oper"}, {"scwv", "scda"}, {"dcwv", "dcda"}, {"lwwv", "lwda"}, {"ewda", "enda"}, {"ewla", "elda"},
+        {"wave", "oper"}, {"scwv", "oper"}, {"dcwv", "dcda"}, {"lwwv", "lwda"}, {"ewda", "enda"}, {"ewla", "elda"},
         {"fsow", "fsob"}, {"waef", "enfo"}, {"enwh", "enfh"}, {"weef", "eefo"}, {"weeh", "eefh"}, {"ewho", "efho"},
         {"weov", "efov"}, {"ewhc", "efhc"}, {"wehs", "efhs"}, {"wees", "eehs"}, {"wamo", "mnth"}, {"wamd", "moda"},
         {"ewmm", "edmm"}, {"ewmo", "edmo"}, {"dacw", "dacl"},

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file IFSStandardMultiLoop.h
@@ -48,6 +41,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the IFSStandardMultiLoop shape.
  *
+ * - the parameter does not identify index statistics;
  * - the regime is IFS;
  * - the product is forecast;
  * - the product does not satisfy both the seasonal class/stream discriminator
@@ -67,6 +61,7 @@ inline bool match_IFSStandardMultiLoop_Shape(const ProductTimeSpecInput& input) 
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -79,8 +74,8 @@ inline bool match_IFSStandardMultiLoop_Shape(const ProductTimeSpecInput& input) 
         const bool hasTimespanDuration      = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks   = !input.stattype.empty();
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasTimespanDuration &&
-               hasOuterStattypeBlocks;
+        return isNotIndexStatistics && isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
+               hasTimespanDuration && hasOuterStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
@@ -350,6 +345,7 @@ inline bool check_IFSStandardMultiLoop_Shape(
                                           input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -362,8 +358,8 @@ inline bool check_IFSStandardMultiLoop_Shape(
         const bool hasTimespanDuration      = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks   = !input.stattype.empty();
 
-        if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !hasDurationTimespan || !hasTimespanDuration ||
-            !hasOuterStattypeBlocks) {
+        if (!isNotIndexStatistics || !isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic ||
+            !hasDurationTimespan || !hasTimespanDuration || !hasOuterStattypeBlocks) {
             throw Mars2GribModelException("IFSStandardMultiLoop input semantics are not satisfied", input.to_json(),
                                           Here());
         }

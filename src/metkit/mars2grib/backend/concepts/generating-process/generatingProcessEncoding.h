@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file generatingProcessEncoding.h
@@ -167,39 +160,22 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
     if constexpr (generatingProcessApplicable<Stage, Section, Variant>()) {
 
         try {
-
             MARS2GRIB_LOG_CONCEPT(generatingProcess);
 
-            // Retrieve the information
-            std::optional<long> generatingProcessIdentifier =
-                deductions::resolve_GeneratingProcessIdentifier_opt(mars, par, opt);
-            std::optional<TypeOfGeneratingProcess> typeOfGeneratingProcess =
+            // Deductions
+            const std::optional<TypeOfGeneratingProcess> typeOfGeneratingProcess =
                 deductions::resolve_TypeOfGeneratingProcess_opt(mars, par, opt);
-
-            tables::BackgroundProcess backgroundProcess =
+            const tables::BackgroundProcess backgroundProcess =
                 deductions::resolve_BackgroundProcess_or_throw(mars, par, opt);
-            set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess));
+            const long generatingProcessIdentifier = deductions::resolve_GeneratingProcessIdentifier_opt(
+                mars, par, opt, static_cast<long>(backgroundProcess));
 
-            /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
-            /// Remove this logic.
-            ///
-            /// Deductions must not forward `std::optional` values directly.
-            /// A proper deduction must:
-            ///   - set an explicit value (e.g. `Missing`),
-            ///   - apply a DGOV-approved default,
-            ///   - or throw if the value is mandatory.
-            if (generatingProcessIdentifier.has_value()) {
-                set_or_throw<long>(out, "generatingProcessIdentifier", generatingProcessIdentifier.value());
-            }
-
-            /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
-            /// Remove this logic.
-            ///
-            /// Relying on pre-existing GRIB header values is not reproducible
-            /// and must be eliminated.
+            // Encoding
             if (typeOfGeneratingProcess.has_value()) {
                 set_or_throw<long>(out, "typeOfGeneratingProcess", static_cast<long>(typeOfGeneratingProcess.value()));
             }
+            set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess));
+            set_or_throw<long>(out, "generatingProcessIdentifier", generatingProcessIdentifier);
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(generatingProcess, "Unable to set `generatingProcess` concept...");

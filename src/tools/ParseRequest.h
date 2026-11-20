@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #pragma once
 
@@ -31,6 +24,8 @@ public:
     ParseRequest(int argc, char** argv, bool convertToGrib2 = false) : MetkitTool(argc, argv), grib2_(convertToGrib2) {
         options_.push_back(new SimpleOption<bool>("json", "Format request in json, default = false"));
         options_.push_back(new SimpleOption<bool>("compact", "Compact output, default = false"));
+        options_.push_back(new SimpleOption<bool>(
+            "block", "Stable output that can be used as input to other tools. One keyword per line"));
     }
 
     virtual ~ParseRequest() {}
@@ -51,5 +46,6 @@ private:  // members
 
     bool json_    = false;
     bool compact_ = false;
+    bool block_   = false;
     bool grib2_   = false;
 };

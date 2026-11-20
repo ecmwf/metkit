@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file AIFSFakeDoubleLoopSingleLoop.h
@@ -51,6 +44,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the AIFSFakeDoubleLoopSingleLoop shape.
  *
+ * - the parameter does not identify index statistics;
  * - the regime is AIFS;
  * - the product is forecast;
  * - the product does not satisfy both the seasonal class/stream discriminator
@@ -74,6 +68,7 @@ inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(const ProductTimeSpecInput&
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isAifs     = input.regime == SimulationRegime::AIFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -89,8 +84,9 @@ inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(const ProductTimeSpecInput&
         const bool hasExactlyOneStattypeBlock = input.stattype.size() == 1;
         const bool requiresFakeDoubleLoop     = input.requiresFakeDoubleLoopSingleLoopRepresentation;
 
-        return isAifs && isForecast && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
-               hasAcceptedTimespanRepresentation && hasExactlyOneStattypeBlock && requiresFakeDoubleLoop;
+        return isNotIndexStatistics && isAifs && isForecast && isNotSeasonal && isNotSynoptic &&
+               sourceIncrementIsMissing && hasAcceptedTimespanRepresentation && hasExactlyOneStattypeBlock &&
+               requiresFakeDoubleLoop;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_AIFSFakeDoubleLoopSingleLoop_Shape`",
@@ -303,6 +299,7 @@ inline bool check_AIFSFakeDoubleLoopSingleLoop_Shape(
                                           input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isAifs     = input.regime == SimulationRegime::AIFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -318,8 +315,9 @@ inline bool check_AIFSFakeDoubleLoopSingleLoop_Shape(
         const bool hasExactlyOneStattypeBlock = input.stattype.size() == 1;
         const bool requiresFakeDoubleLoop     = input.requiresFakeDoubleLoopSingleLoopRepresentation;
 
-        if (!isAifs || !isForecast || !isNotSeasonal || !isNotSynoptic || !sourceIncrementIsMissing ||
-            !hasAcceptedTimespanRepresentation || !hasExactlyOneStattypeBlock || !requiresFakeDoubleLoop) {
+        if (!isNotIndexStatistics || !isAifs || !isForecast || !isNotSeasonal || !isNotSynoptic ||
+            !sourceIncrementIsMissing || !hasAcceptedTimespanRepresentation || !hasExactlyOneStattypeBlock ||
+            !requiresFakeDoubleLoop) {
             throw Mars2GribModelException("AIFSFakeDoubleLoopSingleLoop input semantics are not satisfied",
                                           input.to_json(), Here());
         }

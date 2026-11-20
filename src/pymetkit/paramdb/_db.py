@@ -11,9 +11,9 @@ context is provided. Libmetkit is required.
 import json
 import importlib.metadata
 import importlib.resources
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from itertools import combinations
 import warnings
 from pathlib import Path
 import yaml
@@ -45,6 +45,9 @@ from pymetkit._internal import MetKitException as _MetKitException
 
 _HAVE_EXPAND = True
 
+#: MARS keys a ``context=`` must carry (non-empty) for a shortname lookup.
+_REQUIRED_CONTEXT_KEYS = ("class", "stream", "type", "levtype")
+
 
 
 @dataclass(frozen=True)
@@ -65,10 +68,12 @@ class ParamIDCandidate:
     mars_request_context:
         The minimal set of MARS key/value pairs that, when passed as
         ``context=`` to :meth:`ParamDB.shortname_to_param_id`, selects this
-        candidate (e.g. ``{"class": "ai"}``). Special values:
+        candidate (e.g. ``{"class": "ai", "stream": "oper", "type": "fc",
+        "levtype": "sfc"}``). Special values:
 
-        * ``{}`` — this candidate is the **default**: an empty ``context={}``
-          resolves to it via the C++ ``expand`` layer.
+        * ``{}`` — this candidate is the **default** (legacy marker). Note that
+          an empty ``context={}`` is no longer accepted by the lookup methods:
+          a context must contain class, stream, type and levtype.
         * ``None`` — no MARS context can select this candidate; use the
           hard filters instead (see :attr:`hard_filter_selector`).
     hard_filter_selector:
@@ -150,7 +155,9 @@ class ParamDB:
       first in sorted order (lowest table, then origin/access, then lowest id).
 
     To resolve a collision explicitly, narrow the lookup with a MARS
-    ``context=`` (resolved via the C++ ``expand`` engine) or the
+    ``context=`` (resolved via the C++ ``expand`` engine; it must contain
+    non-empty ``class``, ``stream``, ``type`` and ``levtype``, otherwise
+    ``ValueError`` is raised) or the
     ``table=``/``origin=``/``access=`` hard filters, both accepted by
     :meth:`shortname_to_param_id` and :meth:`shortname_to_longname`.
     """
@@ -285,7 +292,7 @@ class ParamDB:
         runs ``TypeParam::pass2`` and fills MARS defaults for unspecified keys),
         and reads back the resolved ``param`` value(s). Results are memoised on
         ``self._ctx_cache`` since each ``expand`` is a comparatively expensive
-        (~ms) C++ round-trip and the minimal-context search repeats queries.
+        (~ms) C++ round-trip.
 
         The C++ library reads its language files (``params.yaml`` etc.) from
         ``~metkit/share/metkit`` — set ``METKIT_HOME`` to this repository root
@@ -297,13 +304,16 @@ class ParamDB:
             The set of resolved numeric ids (empty if the selection is invalid
             or resolves to no ``param`` value).
         """
-        cache_key = (shortname, tuple(sorted((str(k).rstrip("_"), str(v)) for k, v in context.items())))
+        # Normalise first (trailing underscores stripped, later duplicates
+        # overwrite earlier ones) so the cache key reflects the request that is
+        # actually expanded, not the raw (order-insensitive) key/value pairs.
+        selection = {"param": shortname}
+        for key, value in context.items():
+            selection[str(key).rstrip("_")] = value
+        cache_key = (shortname, tuple(sorted((k, str(v)) for k, v in selection.items())))
         cached = self._ctx_cache.get(cache_key)
         if cached is not None:
             return cached
-        selection = {"param": shortname}
-        for key, value in context.items():
-            selection[key.rstrip("_")] = value
         try:
             expanded = _MarsRequest("retrieve", selection).expand()
         except _MetKitException:
@@ -358,7 +368,8 @@ class ParamDB:
         hard-filter metadata) are always populated. ``mars_request_context`` is
         currently left as ``None``: per-candidate MARS context computation is
         deferred (see the "NOT YET IMPLEMENTED" section at the end of this class,
-        :meth:`_minimal_distinguishing_context`, dormant), so we no longer
+        :meth:`_minimal_distinguishing_context`, an unimplemented placeholder
+        for future libmetkit wiring), so we no longer
         advertise which context selects each candidate. Callers can still pass
         ``context=`` to :meth:`shortname_to_param_id` /
         :meth:`shortname_to_param_id_candidates` to narrow the lookup.
@@ -717,8 +728,12 @@ class ParamDB:
         shortname:
             ECMWF short name (e.g. ``"t"``, ``"tp"``).
         context:
-            Optional dict of MARS keys resolved via the C++ ``expand`` engine
-            (e.g. ``{"class": "ai"}``). Partial context is usually sufficient.
+            Optional dict of MARS keys resolved via the C++ ``expand`` engine.
+            If given, it must contain non-empty ``class``, ``stream``, ``type``
+            and ``levtype`` (extra keys allowed), e.g.
+            ``{"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}``;
+            otherwise ``ValueError`` is raised (also for ``{}``). Omit it to
+            see all candidates.
         default:
             When ``True``, return the canonical (first-sorted) candidate's long
             name instead of raising on ambiguity. Off by default.
@@ -737,6 +752,9 @@ class ParamDB:
 
         Raises
         ------
+        ValueError
+            If *context* is given but lacks any of class/stream/type/levtype
+            (or has an empty value for one of them).
         KeyError
             If *shortname* is unknown, or no candidate survives the filters.
         AmbiguousParamError
@@ -798,9 +816,12 @@ class ParamDB:
         shortname:
             ECMWF short name (e.g. ``"t"``, ``"tp"``).
         context:
-            Optional dict of MARS keys used to pre-narrow the candidate set
-            (e.g. ``{"class": "ai"}``). When omitted, all candidates surviving
-            the hard filters are returned.
+            Optional dict of MARS keys used to pre-narrow the candidate set.
+            If given, it must contain non-empty ``class``, ``stream``, ``type``
+            and ``levtype`` (extra keys allowed), e.g.
+            ``{"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}``;
+            otherwise ``ValueError`` is raised (also for ``{}``). When omitted,
+            all candidates surviving the hard filters are returned.
         table:
             Optional hard filter — GRIB parameter table number.
         origin:
@@ -818,6 +839,9 @@ class ParamDB:
 
         Raises
         ------
+        ValueError
+            If *context* is given but lacks any of class/stream/type/levtype
+            (or has an empty value for one of them).
         KeyError
             If *shortname* is unknown, or no candidate survives the filters.
         """
@@ -836,6 +860,39 @@ class ParamDB:
         candidates.sort(key=self._candidate_sort_key)
         return candidates
 
+    @staticmethod
+    def _validate_full_context(context: dict) -> None:
+        """Raise ``ValueError`` unless *context* has all of :data:`_REQUIRED_CONTEXT_KEYS`.
+
+        Keys are normalised exactly as :meth:`_context_resolved_ids` builds the
+        MARS request: trailing underscores are stripped (so ``class_`` counts as
+        ``class``) and, when several keys normalise to the same name, the last
+        one in dict order wins (it overwrites the earlier one, as in expansion).
+        The *final* normalised dict is validated, so e.g. a full context plus
+        ``"type_": ""`` is rejected. A value is non-empty if it is not ``None``,
+        not a blank string and not an empty collection. Extra keys are allowed.
+        """
+        normalised = {}
+        for key, value in context.items():
+            normalised[str(key).rstrip("_")] = value
+        present = {}
+        for norm, value in normalised.items():
+            if value is None:
+                continue
+            if isinstance(value, str) and not value.strip():
+                continue
+            if isinstance(value, Collection) and not value:
+                continue
+            present[norm] = value
+        missing = [k for k in _REQUIRED_CONTEXT_KEYS if k not in present]
+        if missing:
+            raise ValueError(
+                "context= must contain non-empty values for all of "
+                f"{', '.join(_REQUIRED_CONTEXT_KEYS)}; missing or empty: "
+                f"{', '.join(missing)}. Omit context to see all candidates "
+                "(e.g. via shortname_to_param_id_candidates)."
+            )
+
     def _filter_shortname_entries(
         self,
         shortname: str,
@@ -850,11 +907,16 @@ class ParamDB:
         Applies the ``table``/``origin``/``access`` hard filters and the MARS
         ``context`` filter (via the C++ ``expand`` engine). 
         Does NOT compute minimal contexts — that expensive
-        step is deferred to :meth:`_make_candidate`. Raises ``KeyError`` if the
-        shortname is unknown or no entry survives the filters.
+        step is deferred to :meth:`_make_candidate`. Raises ``KeyError`` first
+        if the shortname is unknown, then ``ValueError`` if a ``context`` is
+        given without non-empty class/stream/type/levtype, and ``KeyError`` if
+        no entry survives the filters.
         """
         if shortname not in self._by_shortname_all:
             raise KeyError(f"Short name {shortname!r} not found in database")
+
+        if context is not None:
+            self._validate_full_context(context)
 
         siblings = self._by_shortname_all[shortname]
         entries = list(siblings)
@@ -868,10 +930,9 @@ class ParamDB:
             entries = [e for e in entries if access in e.get("access_ids", [])]
 
         # --- MARS context filter (C++ expand engine) ----------------------
-        # ``context is not None`` so an *explicit* empty ``context={}`` 
-        # still runs ``expand``: that resolves the shortname to its canonical/default 
-        # paramid via the C++ layer. A bare ``context=None`` (no context argument) 
-        # skips this and leaves the collision ambiguous.
+        # ``context is not None`` is validated first (all of class/stream/type/
+        # levtype required, ``{}`` included), then resolved via ``expand``. A bare
+        # ``context=None`` skips this and leaves the collision ambiguous.
         if context is not None:
             resolved = self._context_resolved_ids(shortname, context)
             entries = [e for e in entries if int(e["id"]) in resolved]
@@ -929,9 +990,12 @@ class ParamDB:
         shortname:
             ECMWF short name (e.g. ``"t"``, ``"tp"``).
         context:
-            Optional dict of MARS keys resolved via the C++ ``expand`` engine
-            (e.g. ``{"class": "ai"}``). Partial context is usually sufficient —
-            ``expand`` fills defaults for unspecified keys.
+            Optional dict of MARS keys resolved via the C++ ``expand`` engine.
+            If given, it must contain non-empty ``class``, ``stream``, ``type``
+            and ``levtype`` (extra keys allowed), e.g.
+            ``{"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}``;
+            otherwise ``ValueError`` is raised (also for ``{}``). Omit it to
+            see all candidates.
         default:
             When ``True``, return the canonical (first-sorted) candidate instead
             of raising on ambiguity. Off by default.
@@ -950,6 +1014,9 @@ class ParamDB:
 
         Raises
         ------
+        ValueError
+            If *context* is given but lacks any of class/stream/type/levtype
+            (or has an empty value for one of them).
         KeyError
             If *shortname* is unknown, or no candidate survives the filters.
         AmbiguousParamError
@@ -1137,65 +1204,31 @@ class ParamDB:
         return len(self._by_shortname_all[shortname]) > 1
 
     # ======================================================================
-    # NOT YET IMPLEMENTED — dormant code, pending libmetkit support
+    # NOT YET IMPLEMENTED — placeholder, pending libmetkit support
     # ----------------------------------------------------------------------
     #
-    # TODO(metkit): expose a context-enumeration API in metkit, then wire this
-    # method back into ``_make_candidate`` (honour its ``minimal=`` flag) and
-    # remove ``_warn_context_unavailable``.
+    # TODO(metkit): expose a context-enumeration API in libmetkit (C++), then
+    # implement this method on top of it, wire it back into
+    # ``_make_candidate`` (honour its ``minimal=`` flag) and remove
+    # ``_warn_context_unavailable``.
     # ======================================================================
 
     def _minimal_distinguishing_context(
         self, entry: dict, siblings: "list[dict]", shortname: str
     ) -> "dict | None":
-        """Return the smallest MARS key-subset that selects *entry* over siblings.
+        """Placeholder: return the MARS context that selects *entry* over siblings.
 
         .. warning::
-            DORMANT — not currently called from any public API. See the
-            "NOT YET IMPLEMENTED" banner above this method.
+            NOT IMPLEMENTED — not called from any public API. This signature is
+            kept as a placeholder for future wiring in libmetkit (C++).
 
-        Searches the key-subsets of *entry*'s baked ``mars_request_context``
-        dicts for the smallest subset that uniquely selects this id.
-
-        Uses ``expand`` as the authoritative oracle: a subset qualifies only if
-        ``MarsRequest(param=shortname, **subset).expand()`` resolves to exactly
-        this id. This guarantees the advertised context actually round-trips
-        (bare ``{"class": "ai"}`` is rejected for ``tp`` because ``expand``'s
-        inherited defaults resolve it to 228, not 228228).
-
-        Returns
-        -------
-        dict | None
-            * ``{}`` — *entry* is the default: an empty ``context={}`` already
-              resolves uniquely to it.
-            * a non-empty dict — the minimal distinguishing MARS context.
-            * ``None`` — no MARS context can uniquely select *entry* (residual
-              ambiguity, or no baked context).
+        Any context returned by a future implementation must be *full*, i.e.
+        contain all of :data:`_REQUIRED_CONTEXT_KEYS` (``class``, ``stream``,
+        ``type`` and ``levtype``), so that it can be passed back as ``context=``
+        to the lookups. In particular an empty ``{}`` is never a valid result.
+        ``None`` would mean that no MARS context can uniquely select *entry*.
         """
-        entry_id = int(entry["id"])
-
-        # Is this the default candidate? An empty context resolving uniquely to
-        # this id means ``context={}`` selects it.
-        if self._context_resolved_ids(shortname, {}) == {entry_id}:
-            return {}
-
-        def selects(subctx: dict) -> bool:
-            return self._context_resolved_ids(shortname, subctx) == {entry_id}
-
-        best: "dict | None" = None
-        for ctx in entry.get("mars_request_context", []):
-            keys = sorted(ctx.keys())
-            for size in range(1, len(keys) + 1):
-                if best is not None and size >= len(best):
-                    break
-                found_at_size = None
-                for combo in combinations(keys, size):
-                    subctx = {k: ctx[k] for k in combo}
-                    if selects(subctx):
-                        found_at_size = subctx
-                        break
-                if found_at_size is not None:
-                    best = found_at_size
-                    break
-        return best  # None when nothing distinguishes *entry*
-
+        raise NotImplementedError(
+            "_minimal_distinguishing_context is a placeholder pending "
+            "libmetkit support"
+        )

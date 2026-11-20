@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file pointInTimeMatcher.h
@@ -63,6 +56,7 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
+        using metkit::mars2grib::utils::dict_traits::get_opt;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
         const auto param = get_or_throw<long>(mars, "param");
@@ -91,6 +85,11 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 
+        // CAMS fire injection height (WMO discipline 2)
+        if (matchAny(param, 210060)) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
+
         // Satellite products
         if (matchAny(param, 194, range(260510, 260512))) {
             return static_cast<std::size_t>(PointInTimeType::Default);
@@ -101,24 +100,17 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 
-        // Chemical products
-        if (matchAny(param, range(400000, 499999))) {
+        // Chemical products (444000, 445000: accumulated deposition, see the `statistics` matcher)
+        if (matchAny(param, range(400000, 499999)) && !matchAny(param, 444000, 445000)) {
             if (param % 10 != 0) {
                 return compile_time_registry_engine::MISSING;
             }
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 
-        // Strike-probability products
-        if (matchAny(param, 131068, 131069, 131073, range(131074, 131077), 131089, 131090, 131091)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
-        }
         // Probability products
-        if (matchAny(param, 131020, 131021, 131022, 131023, 131024, 131025)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
-        }
-
-        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+        if (matchAny(param, range(131022, 131025), 131068, 131069, range(131073, 131081), range(131089, 131091),
+                     range(133093, 133098))) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 

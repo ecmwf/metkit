@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file referencePeriodEnum.h
@@ -83,7 +76,8 @@ inline constexpr std::string_view referencePeriodName{"referencePeriod"};
 /// tables and registries.
 ///
 enum class ReferencePeriodType : std::size_t {
-    Default = 0
+    Default  = 0,
+    Quantile = 1
 };
 
 
@@ -99,7 +93,7 @@ enum class ReferencePeriodType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using ReferencePeriodList = ValueList<ReferencePeriodType::Default>;
+using ReferencePeriodList = ValueList<ReferencePeriodType::Default, ReferencePeriodType::Quantile>;
 
 
 ///
@@ -130,6 +124,7 @@ constexpr std::string_view referencePeriodTypeName();
     }
 
 DEF(ReferencePeriodType::Default, "default");
+DEF(ReferencePeriodType::Quantile, "quantile");
 
 #undef DEF
 

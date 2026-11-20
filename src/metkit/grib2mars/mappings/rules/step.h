@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <optional>
 #include <string>
 
 #include "metkit/codes/api/CodesAPI.h"
@@ -13,6 +15,45 @@ bool isStrikeProbability(long paramId) {
 
     return (paramId == 131074 || paramId == 131075 || paramId == 131076 || paramId == 131077 || paramId == 131089 ||
             paramId == 131090 || paramId == 131091);
+}
+
+/// Seconds per unit of time of code table 4.4, for the units of fixed length (month, year, ... have none)
+inline std::optional<long> secondsPerUnitOfTime(long indicatorOfUnitOfTime) {
+    switch (indicatorOfUnitOfTime) {
+        case 0:  // minute
+            return 60;
+        case 1:  // hour
+            return 3600;
+        case 2:  // day
+            return 86400;
+        case 10:  // 3 hours
+            return 3 * 3600;
+        case 11:  // 6 hours
+            return 6 * 3600;
+        case 12:  // 12 hours
+            return 12 * 3600;
+        case 13:  // second
+            return 1;
+        default:
+            return std::nullopt;
+    }
+}
+
+/// Time increment of the statistical processing in seconds, from the GRIB2 header: the innermost time range that has
+/// one. None when the message has no time ranges, or every increment is missing or in a unit without a fixed length.
+inline std::optional<long> timeIncrementInSecondsFromHeader(const metkit::codes::CodesHandle& grib) {
+    if (!grib.has("timeIncrement") || !grib.has("indicatorOfUnitForTimeIncrement")) {
+        return std::nullopt;
+    }
+    const auto increments = grib.getLongArray("timeIncrement");
+    const auto units      = grib.getLongArray("indicatorOfUnitForTimeIncrement");
+    for (std::size_t i = std::min(increments.size(), units.size()); i-- > 0;) {
+        const auto secondsPerUnit = secondsPerUnitOfTime(units[i]);
+        if (secondsPerUnit && increments[i] > 0) {
+            return increments[i] * *secondsPerUnit;
+        }
+    }
+    return std::nullopt;
 }
 
 template <class MarsDict, class MiscDict, class OptDict_t>
@@ -63,11 +104,9 @@ void extractStep(const std::string& keyword, const metkit::codes::CodesHandle& g
             set_or_throw<std::string>(mars, keyword, stepRange);
         }
 
-        if (grib.has("timeIncrement")) {
-            const long timeIncrement = grib.getLong("timeIncrement");
-            if (timeIncrement > 0) {
-                misc.set("timeIncrementInSeconds", timeIncrement);
-            }
+        // `timeIncrement` is in the unit of `indicatorOfUnitForTimeIncrement`, not necessarily seconds
+        if (const auto timeIncrementInSeconds = timeIncrementInSecondsFromHeader(grib)) {
+            misc.set("timeIncrementInSeconds", *timeIncrementInSeconds);
         }
     }
     catch (...) {

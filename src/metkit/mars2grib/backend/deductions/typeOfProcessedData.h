@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file typeOfProcessedData.h
@@ -51,6 +44,7 @@
 
 // Tables includes
 #include "metkit/mars2grib/backend/tables/typeOfProcessedData.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
@@ -165,6 +159,22 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
                     result = tables::TypeOfProcessedData::ForecastProducts;
                 }
                 else if (marsType == "pf") {
+                    result = tables::TypeOfProcessedData::PerturbedForecastProducts;
+                }
+                else if (marsType == "gbf" || marsType == "gwt") {
+                    // ecPoint, as in the operational GRIB2: of a forecast in oper, of a perturbed member otherwise
+                    result = (marsStream == "oper") ? tables::TypeOfProcessedData::ForecastProducts
+                                                    : tables::TypeOfProcessedData::PerturbedForecastProducts;
+                }
+                else if (marsType == "efi" || marsType == "sot") {
+                    // Index products computed from the control and the perturbed members
+                    result = tables::TypeOfProcessedData::ControlAndPerturbedForecastProducts;
+                }
+                else if (marsType == "efic") {
+                    // EFI of the control forecast
+                    result = tables::TypeOfProcessedData::ControlForecastProducts;
+                }
+                else if (marsType == "icp") {
                     result = tables::TypeOfProcessedData::PerturbedForecastProducts;
                 }
                 else if (marsType == "fc" || marsType == "cf") {

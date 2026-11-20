@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file IFSSynopticSingleLoop.h
@@ -48,6 +41,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the IFSSynopticSingleLoop shape.
  *
+ * - the parameter does not identify index statistics;
  * - the regime is IFS;
  * - the product does not satisfy both the seasonal class/stream discriminator
  *   and the seasonal lead discriminator;
@@ -65,6 +59,7 @@ inline bool match_IFSSynopticSingleLoop_Shape(const ProductTimeSpecInput& input)
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs = input.regime == SimulationRegime::IFS;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
@@ -75,7 +70,7 @@ inline bool match_IFSSynopticSingleLoop_Shape(const ProductTimeSpecInput& input)
         const bool isAnalysis               = input.simulationType == SimulationType::Analysis;
         const bool hasNoStattypeBlocks      = input.stattype.empty();
 
-        return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasNoStattypeBlocks;
+        return isNotIndexStatistics && isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasNoStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
@@ -260,6 +255,7 @@ inline bool check_IFSSynopticSingleLoop_Shape(
                                           input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs = input.regime == SimulationRegime::IFS;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
@@ -270,7 +266,7 @@ inline bool check_IFSSynopticSingleLoop_Shape(
         const bool isAnalysis               = input.simulationType == SimulationType::Analysis;
         const bool hasNoStattypeBlocks      = input.stattype.empty();
 
-        if (!isIfs || !isNotSeasonal || !isSynoptic || !isAnalysis || !hasNoStattypeBlocks) {
+        if (!isNotIndexStatistics || !isIfs || !isNotSeasonal || !isSynoptic || !isAnalysis || !hasNoStattypeBlocks) {
             throw Mars2GribModelException("IFSSynopticSingleLoop input semantics are not satisfied", input.to_json(),
                                           Here());
         }

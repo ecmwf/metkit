@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file AIFSFromStartSingleLoopAtZero.h
@@ -38,6 +31,7 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -47,6 +41,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the AIFSFromStartSingleLoopAtZero shape.
  *
+ * - the parameter does not identify index statistics;
  * - the regime is AIFS;
  * - the product is forecast;
  * - the product does not satisfy both the seasonal class/stream discriminator
@@ -71,6 +66,7 @@ inline bool match_AIFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isAifs     = input.regime == SimulationRegime::AIFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -86,8 +82,9 @@ inline bool match_AIFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput
         const bool stepZeroIsAllowed        = input.allowZeroLengthFsWindow;
         const bool operationIsAllowed       = input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero;
 
-        return isAifs && isForecast && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
-               usesFromStartTimespan && hasNoStattypeBlocks && hasZeroStep && stepZeroIsAllowed && operationIsAllowed;
+        return isNotIndexStatistics && isAifs && isForecast && isNotSeasonal && isNotSynoptic &&
+               sourceIncrementIsMissing && usesFromStartTimespan && hasNoStattypeBlocks && hasZeroStep &&
+               stepZeroIsAllowed && operationIsAllowed;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_AIFSFromStartSingleLoopAtZero_Shape`",
@@ -250,6 +247,7 @@ inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
                                           input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isAifs     = input.regime == SimulationRegime::AIFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -265,9 +263,9 @@ inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
         const bool stepZeroIsAllowed        = input.allowZeroLengthFsWindow;
         const bool operationIsAllowed       = input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero;
 
-        if (!isAifs || !isForecast || !isNotSeasonal || !isNotSynoptic || !sourceIncrementIsMissing ||
-            !usesFromStartTimespan || !hasNoStattypeBlocks || !hasZeroStep || !stepZeroIsAllowed ||
-            !operationIsAllowed) {
+        if (!isNotIndexStatistics || !isAifs || !isForecast || !isNotSeasonal || !isNotSynoptic ||
+            !sourceIncrementIsMissing || !usesFromStartTimespan || !hasNoStattypeBlocks || !hasZeroStep ||
+            !stepZeroIsAllowed || !operationIsAllowed) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero input semantics are not satisfied",
                                           input.to_json(), Here());
         }

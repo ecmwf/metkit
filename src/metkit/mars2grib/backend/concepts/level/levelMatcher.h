@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file levelMatcher.h
@@ -41,6 +34,7 @@
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
+#include "metkit/mars2grib/backend/concepts/satellite/satelliteMatcher.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -122,6 +116,10 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 132167, 132201, 132202)) {
             return static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
         }
+        // Probabilities of 2 metre temperature anomalies (eefo)
+        if (matchAny(param, range(131001, 131005))) {
+            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+        }
         if (matchAny(param, 140233, 140245, 140249, 141233, 141245, 143233, 143245, 144233, 144245, 145233, 145245)) {
             return static_cast<std::size_t>(LevelType::HeightAboveSeaAt10M);
         }
@@ -149,6 +147,10 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 151, 235151, 237151, 238151, 239151)) {
             return static_cast<std::size_t>(LevelType::MeanSea);
         }
+        // Probabilities of mean sea level pressure anomalies (eefo)
+        if (matchAny(param, 131010)) {
+            return static_cast<std::size_t>(LevelType::MeanSea);
+        }
         if (matchAny(param, 187, 3074)) {
             return static_cast<std::size_t>(LevelType::MediumCloudLayer);
         }
@@ -168,11 +170,13 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 178, 179, 208, 209, 212, 235039, 235040, 235049, 235050, 235053)) {
             return static_cast<std::size_t>(LevelType::NominalTop);
         }
-        if (matchAny(param, 263024, 265024, 266024, 267024)) {
-            return static_cast<std::size_t>(LevelType::SeaIceLayer);
+        // Sea ice temperature family: single-level on SFC; the layered form lives on SOL as SeaIceLayer
+        if (matchAny(param, 262024, 263024, 265024, 266024, 267024)) {
+            return static_cast<std::size_t>(LevelType::Surface);
         }
+        // Soil family: single-level on SFC; the layered form lives on SOL as SoilLayer
         if (matchAny(param, 235077, 235094, 237077, 237094, 238077, 238094, 239077, 239094, 260199, 260360)) {
-            return static_cast<std::size_t>(LevelType::SoilLayer);
+            return static_cast<std::size_t>(LevelType::Surface);
         }
         if (matchAny(param, 8, 9, range(15, 18), 20, range(26, 45), 47, 50, 57, 58, 66, 67, 74, 129, 134,
                      range(141, 148), range(159, 163), 169, range(172, 177), range(180, 182), 189, range(195, 198), 205,
@@ -196,17 +200,25 @@ inline std::size_t matchSFC(const long param) {
                      238238, 238263, 238406, 239041, 239042, 239078, 239080, 239083, 239084, 239093, 239134, 239159,
                      239238, 239263, 239406, 260004, 260005, 260015, 260038, 260048, 260109, 260121, 260123, 260255,
                      260259, 260289, 260292, 260293, range(260318, 260321), 260338, 260339, 260509, 260682, 260683,
-                     260688, 261001, 261002, range(261014, 261016), 261018, 261023, 262000, 262024, 262100, 262124,
-                     262139, 262140, 262144, 141231, 143231, 144231, 145231, 237079, 238079, 239079)) {
+                     260688, 261001, 261002, range(261014, 261016), 261018, 261023, 262000, 262100, 262124, 262139,
+                     262140, 262144, 141231, 143231, 144231, 145231, 237079, 238079, 239079)) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
         // Strike-probability
         if (matchAny(param, 131022, 131024, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067,
-                     range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099, 133096, 133097)) {
+                     range(131074, 131081), 131085, 131089, 131090, 131091, 131098, 131099, 133096, 133097)) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
         // efi
-        if (matchAny(param, 132228, 132144)) {
+        if (matchAny(param, 132228, 132144, 132216)) {
+            return static_cast<std::size_t>(LevelType::Surface);
+        }
+        // CAMS (class=mc): temperature at the surface, fire injection height (WMO discipline 2)
+        if (matchAny(param, 130, 210060)) {
+            return static_cast<std::size_t>(LevelType::Surface);
+        }
+        // Probabilities of total precipitation and skin temperature anomalies (eefo)
+        if (matchAny(param, range(131006, 131009))) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
 
@@ -486,7 +498,7 @@ inline std::size_t matchSOL(const long param) {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
 
-        if (matchAny(param, 262000, 262024)) {
+        if (matchAny(param, 262000, 262024, 263024, 265024, 266024, 267024)) {
             return static_cast<std::size_t>(LevelType::SeaIceLayer);
         }
         if (matchAny(param, 33, 238, 228038, 228141, 235078, 235080, 235238, 235406, 237078, 237080, 237238, 237406,
@@ -581,7 +593,7 @@ inline std::size_t matchO2D(const long param) {
         if (matchAny(param, 262116)) {
             return static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
         }
-        if (matchAny(param, 262118, 262119, 262121, 262122, 262146, 262147)) {
+        if (matchAny(param, 262118, 262119, 262121, 262122, 262144, 262146, 262147)) {
             return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
         }
         if (matchAny(param, 262120, 262123, 262148)) {
@@ -666,13 +678,18 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         using metkit::mars2grib::utils::dict_traits::has;
 
         // Skip wave spectra and satellite products
-        if ((has(mars, "frequency") && has(mars, "direction")) ||                    // Wave spectra
-            (has(mars, "channel") && has(mars, "ident") && has(mars, "instrument"))  // Satellite
+        if ((has(mars, "frequency") && has(mars, "direction")) ||  // Wave spectra
+            isSatelliteProduct(mars)                               // Satellite
         ) {
             return compile_time_registry_engine::MISSING;
         }
 
-        const auto param   = get_or_throw<long>(mars, "param");
+        // Anomaly (171xxx, 173xxx) and significance (234xxx) parameters are on the level of their base parameter
+        const auto marsParam      = get_or_throw<long>(mars, "param");
+        const bool isAnomalyParam = (171000 <= marsParam && marsParam <= 171999) ||
+                                    (173000 <= marsParam && marsParam <= 173999) ||
+                                    (234000 <= marsParam && marsParam <= 234999);
+        const long param   = isAnomalyParam ? marsParam % 1000 : marsParam;
         const auto levtype = get_or_throw<std::string>(mars, "levtype");
 
         if (levtype == "sfc") {

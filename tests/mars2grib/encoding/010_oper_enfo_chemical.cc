@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/testing/Test.h"
@@ -38,7 +31,7 @@ CASE("stream=oper,type=fc,param=228080") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228080, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -57,7 +50,7 @@ CASE("stream=oper,type=fc,param=228081") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228081, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -76,7 +69,7 @@ CASE("stream=oper,type=fc,param=228082") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228082, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -95,7 +88,7 @@ CASE("stream=oper,type=fc,param=228083") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228083);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -114,7 +107,7 @@ CASE("stream=oper,type=fc,param=228084") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228084);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -133,7 +126,7 @@ CASE("stream=oper,type=fc,param=228085") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("oper", "fc", 228085);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -153,7 +146,7 @@ CASE("stream=enfo,type=pf,param=228080") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228080, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -172,7 +165,7 @@ CASE("stream=enfo,type=pf,param=228081") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228081, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -191,7 +184,7 @@ CASE("stream=enfo,type=pf,param=228082") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228082, "fs");
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -210,7 +203,7 @@ CASE("stream=enfo,type=pf,param=228083") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228083);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -229,7 +222,7 @@ CASE("stream=enfo,type=pf,param=228084") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228084);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 
@@ -248,7 +241,7 @@ CASE("stream=enfo,type=pf,param=228085") {
     auto encoder = metkit::mars2grib::Mars2Grib();
 
     const auto mars = getMars("enfo", "pf", 228085);
-    std::vector<double> vals(200, 0);
+    std::vector<double> vals(213988, 0);
 
     const auto handle = encoder.encode(vals, mars);
 

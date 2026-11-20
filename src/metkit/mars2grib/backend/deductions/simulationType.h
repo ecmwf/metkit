@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file simulationType.h
@@ -88,13 +81,15 @@ SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const Par
     (void)par;
     (void)opt;
 
-    constexpr std::array<std::string_view, 17> analysisTypes = {
-        {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
-    constexpr std::array<std::string_view, 40> forecastTypes = {
-        {"fc",     "cf", "pf",     "cm",    "fp",    "em",      "ep",  "es",   "fa",   "efi",
-         "efic",   "bf", "cd",     "wem",   "wes",   "cr",      "ses", "taem", "taes", "sg",
-         "sf",     "if", "fcmean", "fcmax", "fcmin", "fcstdev", "ssd", "tf",   "bf",   "cd",
-         "hcmean", "s3", "si",     "gbf",   "gwt",   "est",     "icp", "pfc",  "sot",  "4v"}};
+    // GFAS analysis (`ga`) products are means over a window that starts at the reference time (step 0-1, 0-24), encoded
+    // like forecasts (significanceOfReferenceTime 1, forecastTime 0), as in the operational GRIB2
+    constexpr std::array<std::string_view, 14> analysisTypes = {
+        {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "gai", "ai", "af", "ab", "oai"}};
+    constexpr std::array<std::string_view, 41> forecastTypes = {
+        {"fc",     "cf",    "pf",    "cm",      "fp",  "em",  "ep",   "es",   "fa",     "efi", "efic",
+         "bf",     "cd",    "wem",   "wes",     "cr",  "ses", "taem", "taes", "sg",     "sf",  "if",
+         "fcmean", "fcmax", "fcmin", "fcstdev", "ssd", "tf",  "bf",   "cd",   "hcmean", "s3",  "si",
+         "gbf",    "gwt",   "est",   "icp",     "pfc", "sot", "4v",   "ga"}};
     constexpr std::array<std::string_view, 3> startOfDataAssimilationTypes = {{"4i", "me", "eme"}};
 
     try {

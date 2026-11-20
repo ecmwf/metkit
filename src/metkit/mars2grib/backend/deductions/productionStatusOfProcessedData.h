@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file productionStatusOfProcessedData.h
@@ -49,6 +42,7 @@
 
 // Table includes
 #include "metkit/mars2grib/backend/tables/productionStatusOfProcessedData.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
@@ -119,17 +113,38 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
         std::optional<tables::ProductionStatusOfProcessedData> productionStatusOfProcessedData = std::nullopt;
 
         // Retrieve mandatory MARS class
-        const auto marsClass = get_or_throw<std::string>(mars, "class");
+        const auto marsClass  = get_or_throw<std::string>(mars, "class");
+        const auto marsExpver = get_or_throw<std::string>(mars, "expver");
 
-        // Deduce productionStatusOfProcessedData from mars class
+        // The following logic is partially inspired to ifs code:
+        // "ifs-source/arpifs/dia/preset_grib_template.F90:~151:170" Deduce productionStatusOfProcessedData from mars
+        // class
         if (marsClass == "d1") {
             // This is mandatory for DestinE because it is used inside eccodes to allocate the proper "localUseSection"
             // template. Setting this keyword reallocate the local use section.
             productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::DestinationEarth;
         }
-        else if (marsClass == "e6") {
-            // Special handling for ERA6
+        else if (marsClass == "e6" || marsClass == "a5") {
             productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::ReanalysisProducts;
+        }
+        else if (marsClass == "od") {
+            if (marsExpver == "0001") {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::OperationalProducts;
+            }
+            else {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::OperationalTestProducts;
+            }
+        }
+        else if (marsClass == "rd" || marsClass == "cr") {
+            productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::ResearchProducts;
+        }
+        else if (marsClass == "s2") {
+            if (marsExpver == "prod") {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::S2SOperationalProducts;
+            }
+            else {
+                productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::S2STestProducts;
+            }
         }
 
         // Emit log entry based on deduction outcome

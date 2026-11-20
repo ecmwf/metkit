@@ -1,13 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation
- * nor does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @file brightnessTemperatureEnum.h
 /// @brief Definition of the `brightnessTemperature` concept variants and compile-time metadata.
@@ -64,8 +56,10 @@ inline constexpr std::string_view brightnessTemperatureName{"brightnessTemperatu
 
 /// @brief Enumeration of all supported `brightnessTemperature` concept variants.
 ///
-/// The concept currently has a single variant because both supported streams
-/// share the same Local Use Section encoding logic.
+/// The concept has a single variant, the ensemble mean (`stream=elda`), which has
+/// no satellite identification and keeps the channel in the Local Use Section
+/// (local definition 37). Brightness temperatures of `stream=oper` are satellite
+/// products: their channel is encoded in Section 4 by the `satellite` concept.
 ///
 /// The numeric values of the enumerators are **not semantically relevant**;
 /// they are required only to:
@@ -76,8 +70,7 @@ inline constexpr std::string_view brightnessTemperatureName{"brightnessTemperatu
 /// Do not reorder existing enumerators, as they are used in compile-time
 /// tables and registries.
 enum class BrightnessTemperatureType : std::size_t {
-    EnsembleMean = 0,
-    Default
+    EnsembleMean = 0
 };
 
 /// @brief Compile-time list of all `brightnessTemperature` concept variants.
@@ -90,8 +83,7 @@ enum class BrightnessTemperatureType : std::size_t {
 /// @note
 /// The order of this list must match the intended iteration order for
 /// registry construction and diagnostics.
-using BrightnessTemperatureList =
-    ValueList<BrightnessTemperatureType::EnsembleMean, BrightnessTemperatureType::Default>;
+using BrightnessTemperatureList = ValueList<BrightnessTemperatureType::EnsembleMean>;
 
 /// @brief Compile-time mapping from `BrightnessTemperatureType` to human-readable name.
 ///
@@ -119,7 +111,6 @@ constexpr std::string_view brightnessTemperatureTypeName();
     }
 
 DEF(BrightnessTemperatureType::EnsembleMean, "ensembleMean");
-DEF(BrightnessTemperatureType::Default, "default");
 
 #undef DEF
 

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2017- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2017- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 /// @author Baudouin Raoult
 /// @date   Jun 2020
@@ -18,8 +11,7 @@
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
 
-namespace metkit {
-namespace codes {
+namespace metkit::codes {
 
 OdbContent::OdbContent(eckit::Buffer&& buffer) : frame_(std::move(buffer)) {}
 
@@ -50,5 +42,4 @@ void OdbContent::print(std::ostream& s) const {
 }
 
 
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::codes

@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file probabilityMatcher.h
@@ -20,8 +13,8 @@
 /// - return `compile_time_registry_engine::MISSING` when it is not active,
 /// - wrap runtime failures as nested `Mars2GribMatcherException` instances.
 ///
-/// The current implementation intentionally keeps the concept inactive until
-/// matching semantics are defined.
+/// The matcher activates the concept for all ensemble probability products
+/// (MARS `type=ep`).
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -30,19 +23,20 @@
 // System include
 #include <cstddef>
 #include <exception>
+#include <string>
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/probability/probabilityEnum.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
-#include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
 ///
 /// @brief Match the `probability` concept variant.
 ///
-/// The probability concept currently selects strike-probability products.
+/// The probability concept is active for all ensemble probability products (MARS `type=ep`).
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -60,27 +54,15 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <class MarsDict_t, class OptDict_t>
 std::size_t probabilityMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
-        using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-        const auto param = get_or_throw<long>(mars, "param");
+        const auto marsType = get_or_throw<std::string>(mars, "type");
 
-        // Standard Probability
-        // TODO: Add probability matching semantics when they are defined.
-        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
-            return static_cast<std::size_t>(ProbabilityType::StandardisedAnomaly);
+        if (marsType == "ep") {
+            return static_cast<std::size_t>(ProbabilityType::Default);
         }
 
-        // Strike Probability
-        if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
-                     131071, 131072, 131073, range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099,
-                     131100)) {
-            return static_cast<std::size_t>(ProbabilityType::StrikeProbability);
-        }
-        else {
-            return compile_time_registry_engine::MISSING;
-        }
+        return compile_time_registry_engine::MISSING;
     }
     catch (...) {
         std::throw_with_nested(

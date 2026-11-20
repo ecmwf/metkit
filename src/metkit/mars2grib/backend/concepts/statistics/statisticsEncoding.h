@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file statisticsEncoding.h
@@ -91,9 +84,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant>
 constexpr bool statisticsApplicable() {
-    return (Section == SecProductDefinitionSection && Variant != StatisticsType::IndexProcessing);
+    return (Section == SecProductDefinitionSection);
 }
-
 
 ///
 /// @brief Execute the `statistics` concept operation.
@@ -168,6 +160,15 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
                                                                              mars, par, opt);
                 const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+
+                MARS2GRIB_LOG_CONCEPT_MSG(statistics, "Building ProductTimeSpec for runtime stage", spec.to_json());
+
+                // Set time range if the product is "FromStart"
+                if (spec.isFromStart()) {
+                    set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange",
+                                                    pts.indicatorOfUnitForTimeRange);
+                    set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
+                }
 
                 set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
 

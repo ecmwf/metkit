@@ -82,6 +82,7 @@ fn build_cxx_bridge(include: &std::path::Path) {
     let eccodes_include = std::env::var("DEP_ECCODES_SYS_INCLUDE")
         .expect("DEP_ECCODES_SYS_INCLUDE not set — eccodes-sys must be a dependency");
 
+    println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=cpp/MetkitBridge.h");
     println!("cargo:rerun-if-changed=cpp/MarsRequest.h");
     println!("cargo:rerun-if-changed=cpp/MarsRequest.cc");
@@ -131,9 +132,20 @@ fn build_system() -> std::path::PathBuf {
     println!("cargo:rustc-link-lib=dylib=metkit");
     bindman_utils::link_cpp_stdlib();
 
-    // Export for downstream crates
+    // Rpaths for this crate's own test binaries; consumers emit their own.
+    println!("cargo:rustc-link-arg=-Wl,-rpath,{}", lib_dir.display());
+    bindman_utils::emit_rpaths();
+
+    // Export for downstream crates. The extra `*_root` keys surface as
+    // `DEP_METKIT_SYS_*_ROOT` so dependents' `emit_rpaths()` see the chain.
     println!("cargo:root={}", root.display());
     println!("cargo:include={}", include.display());
+    if let Ok(eckit_root) = std::env::var("DEP_ECKIT_SYS_ROOT") {
+        println!("cargo:eckit_root={eckit_root}");
+    }
+    if let Ok(eccodes_root) = std::env::var("DEP_ECCODES_SYS_ROOT") {
+        println!("cargo:eccodes_root={eccodes_root}");
+    }
 
     include
 }

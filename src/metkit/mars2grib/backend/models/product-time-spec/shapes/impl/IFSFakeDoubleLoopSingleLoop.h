@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file IFSFakeDoubleLoopSingleLoop.h
@@ -61,7 +54,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  *   statistical-product rule allows that source representation;
  * - exactly one outer `stattype` block is present;
  * - the product requires the fake-double-loop compatibility case;
- * - the product does not require the fake-single-loop-double-loop compatibility case.
+ * - the parameter does not identify index statistics.
  *
  * @param[in] input Fully normalized ProductTimeSpec input snapshot.
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
@@ -87,12 +80,11 @@ inline bool match_IFSFakeDoubleLoopSingleLoop_Shape(const ProductTimeSpecInput& 
             timespanIsNone(input) ||
             timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasExactlyOneStattypeBlock             = input.stattype.size() == 1;
-        const bool requiresFakeSecondLoop                 = input.requiresFakeSingleLoopDoubleLoopRepresentation;
         const bool requiresFakeDoubleLoop                 = input.requiresFakeDoubleLoopSingleLoopRepresentation;
-        const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
+        const bool isNotIndexStatistics                   = !input.isIndexStatistics;
 
         return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasAcceptedTimespanRepresentation &&
-               hasExactlyOneStattypeBlock && requiresFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
+               hasExactlyOneStattypeBlock && requiresFakeDoubleLoop && isNotIndexStatistics;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_IFSFakeDoubleLoopSingleLoop_Shape`",
@@ -369,12 +361,11 @@ inline bool check_IFSFakeDoubleLoopSingleLoop_Shape(
             timespanIsNone(input) ||
             timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasExactlyOneStattypeBlock             = input.stattype.size() == 1;
-        const bool requiresFakeSecondLoop                 = input.requiresFakeSingleLoopDoubleLoopRepresentation;
         const bool requiresFakeDoubleLoop                 = input.requiresFakeDoubleLoopSingleLoopRepresentation;
-        const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
+        const bool isNotIndexStatistics                   = !input.isIndexStatistics;
 
         if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !hasAcceptedTimespanRepresentation ||
-            !hasExactlyOneStattypeBlock || !requiresFakeDoubleLoop || !doesNotRequireFakeSingleLoopDoubleLoop) {
+            !hasExactlyOneStattypeBlock || !requiresFakeDoubleLoop || !isNotIndexStatistics) {
             throw Mars2GribModelException("IFSFakeDoubleLoopSingleLoop input semantics are not satisfied",
                                           input.to_json(), Here());
         }

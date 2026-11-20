@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include <exception>
 #include <string>
@@ -93,7 +86,7 @@ void run(F&& f) {
 CASE("enfh pf integrated wave param stays on the reforecast template") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
-        const auto handle = encoder.encode(std::vector<double>(200, 1.5), waveRequest("enfh", "pf", 140229));
+        const auto handle = encoder.encode(std::vector<double>(213988, 1.5), waveRequest("enfh", "pf", 140229));
 
         EXPECT_EQUAL(handle->getLong("paramId"), 140229);
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 60);
@@ -105,7 +98,7 @@ CASE("enfh pf wave 2D spectra is an ensemble reforecast (PDT 142)") {
     run([] {
         auto encoder = metkit::mars2grib::Mars2Grib();
         const auto handle =
-            encoder.encode(std::vector<double>(200, 0.1), waveRequest("enfh", "pf", 140251), spectraMisc());
+            encoder.encode(std::vector<double>(213988, 0.1), waveRequest("enfh", "pf", 140251), spectraMisc());
 
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 142);
         EXPECT_EQUAL(handle->getLong("perturbationNumber"), 4);
@@ -118,7 +111,7 @@ CASE("enfh cf wave 2D spectra is an ensemble reforecast (PDT 142)") {
     run([] {
         auto encoder = metkit::mars2grib::Mars2Grib();
         const auto handle =
-            encoder.encode(std::vector<double>(200, 0.1), waveRequest("enfh", "cf", 140251), spectraMisc());
+            encoder.encode(std::vector<double>(213988, 0.1), waveRequest("enfh", "cf", 140251), spectraMisc());
 
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 142);
         EXPECT_EQUAL(handle->getLong("perturbationNumber"), 0);
@@ -130,7 +123,7 @@ CASE("enfh cf wave 2D spectra is an ensemble reforecast (PDT 142)") {
 CASE("enfh pf wave period range is an ensemble reforecast (PDT 140)") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
-        const auto handle = encoder.encode(std::vector<double>(200, 0.5), waveRequest("enfh", "pf", 140114));
+        const auto handle = encoder.encode(std::vector<double>(213988, 0.5), waveRequest("enfh", "pf", 140114));
 
         EXPECT_EQUAL(handle->getLong("paramId"), 140114);
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 140);
@@ -143,7 +136,7 @@ CASE("enfo pf wave 2D spectra stays on the ensemble template (PDT 100)") {
     run([] {
         auto encoder = metkit::mars2grib::Mars2Grib();
         const auto handle =
-            encoder.encode(std::vector<double>(200, 0.1), waveRequest("enfo", "pf", 140251), spectraMisc());
+            encoder.encode(std::vector<double>(213988, 0.1), waveRequest("enfo", "pf", 140251), spectraMisc());
 
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 100);
         expectSpectra(handle);
@@ -153,7 +146,7 @@ CASE("enfo pf wave 2D spectra stays on the ensemble template (PDT 100)") {
 CASE("enfo pf wave period range stays on the ensemble template (PDT 104)") {
     run([] {
         auto encoder      = metkit::mars2grib::Mars2Grib();
-        const auto handle = encoder.encode(std::vector<double>(200, 0.5), waveRequest("enfo", "pf", 140114));
+        const auto handle = encoder.encode(std::vector<double>(213988, 0.5), waveRequest("enfo", "pf", 140114));
 
         EXPECT_EQUAL(handle->getLong("productDefinitionTemplateNumber"), 104);
     });

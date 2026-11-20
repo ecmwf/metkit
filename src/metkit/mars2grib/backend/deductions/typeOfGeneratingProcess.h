@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file typeOfGeneratingProcess.h
@@ -53,6 +46,7 @@
 
 // Tables includes
 #include "metkit/mars2grib/backend/tables/typeOfGeneratingProcess.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
@@ -206,11 +200,13 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
-        else if (type == "est" || type == "es" || type == "em" || type == "ses") {
+        else if (type == "est" || type == "es" || type == "em" || type == "ses" || type == "efi" || type == "efic" ||
+                 type == "sot") {
 
             // Ensemble-derived statistical products (ensemble statistics,
             // ensemble standard deviation, ensemble mean, ensemble spread
-            // of estimation). No dedicated code table entry exists for
+            // of estimation, and the EFI/SOT indices against the model climate).
+            // No dedicated code table entry exists for
             // "ensemble-derived analysis"; EnsembleForecast (4) is the
             // established convention to signal ensemble provenance.
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
@@ -248,11 +244,41 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
+        else if (type == "ep") {
+
+            // Ensemble probabilities
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::ProbabilityForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=" + type + ")";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (type == "icp") {
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=icp)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
         else if (type == "gbf") {
 
-            // GRIB best forecast (gbf) fields. Generated as part of the forecast
-            // system; the canonical ECMWF GRIB2 value is BiasCorrectedEnsembleForecast (11).
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
+            // Bias-corrected gridbox (gbf): ecPoint (weather-type subgrid-calibration) of an ensemble member.
+            // The operational ECMWF GRIB2 value is PostProcessedForecast (13), as for gwt and pfc.
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -267,8 +293,8 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
         }
         else if (type == "gwt") {
 
-            // GRIB generated with time (gwt) fields. Generated as part of the forecast
-            // system; the canonical ECMWF GRIB2 value is Forecast (13).
+            // Weather types (gwt): ecPoint (weather-type subgrid-calibration) of an ensemble member.
+            // The operational ECMWF GRIB2 value is PostProcessedForecast (13).
             tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
 
             // Emit RESOLVE log entry
@@ -293,6 +319,22 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
                 logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
                 logMsg += "' (type=ssd)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (type == "pfc") {
+
+            // Post-processed quantile forecasts (ecPoint)
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=" + type + ")";
                 return logMsg;
             }());
 

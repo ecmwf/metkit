@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 1996- ECMWF.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
@@ -33,7 +26,8 @@ MetkitTool::MetkitTool(int argc, char** argv) : eckit::Tool(argc, argv, "METKIT_
     instance_ = this;
 
     options_.push_back(new SimpleOption<bool>("version", "Prints the version and exits"));
-    options_.push_back(new SimpleOption<bool>("porcelain", "Stable output that can be used as input to other tools"));
+    options_.push_back(new SimpleOption<bool>(
+        "porcelain", "Stable output that can be used as input to other tools. A request is printed in a single line"));
 }
 
 static void usage(const std::string& tool) {

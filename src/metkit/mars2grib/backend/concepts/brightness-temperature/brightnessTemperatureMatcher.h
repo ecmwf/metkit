@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file brightnessTemperatureMatcher.h
@@ -44,20 +37,20 @@ namespace metkit::mars2grib::backend::concepts_ {
 
 /// @brief Entry-level matcher for the `brightnessTemperature` concept.
 ///
-/// The concept is activated for brightness-temperature products identified by:
+/// The concept is activated for the brightness-temperature ensemble mean:
 ///
 /// - `param == 194`
-/// - `stream == "oper"` or `stream == "elda"`
+/// - `stream == "elda"`
 /// - presence of the MARS key `channel`
 ///
-/// The stream is intentionally **not** represented as a concept variant.
-/// It only determines which surrounding product-family concept is active:
+/// It owns the brightness-temperature Local Use Section metadata (local
+/// definition 37), which is where the channel of the ensemble mean is encoded.
 ///
-/// - `elda` may coexist with the satellite concept
-/// - `oper` may coexist with the derived-product concept
-///
-/// The brightness-temperature concept itself owns only the common
-/// brightness-temperature Local Use Section metadata.
+/// A brightness temperature of `stream == "oper"` is a satellite product: its
+/// channel is encoded in Section 4 by the `satellite` concept (templates
+/// 4.204/4.205), so this concept does not apply. Such a request must carry the
+/// satellite identification (`ident` and `instrument`); without it the channel
+/// could not be encoded anywhere and the request is rejected.
 ///
 /// @tparam MarsDict_t Type of the MARS dictionary
 /// @tparam OptDict_t Type of the options dictionary
@@ -70,7 +63,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
 /// If the request is identified as a brightness-temperature request but the
-/// mandatory `channel` key is missing.
+/// mandatory `channel` key is missing, or if a `stream=oper` request lacks the
+/// satellite identification.
 template <class MarsDict_t, class OptDict_t>
 std::size_t brightnessTemperatureMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -104,8 +98,13 @@ std::size_t brightnessTemperatureMatcher(const MarsDict_t& mars, const OptDict_t
     if (stream == "elda") {
         return static_cast<std::size_t>(BrightnessTemperatureType::EnsembleMean);
     }
-    else if (stream == "oper") {
-        return static_cast<std::size_t>(BrightnessTemperatureType::Default);
+
+    // stream=oper: a satellite product, the channel goes to Section 4 with the satellite identification
+    if (!has(mars, "ident") || !has(mars, "instrument")) {
+        throw utils::exceptions::Mars2GribMatcherException(
+            "brightness temperature (param=194, stream=oper) requires the MARS keys \"ident\" and \"instrument\": "
+            "the channel is encoded with the satellite identification in Section 4",
+            Here());
     }
 
     return compile_time_registry_engine::MISSING;

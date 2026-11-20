@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file AllConcepts.h
@@ -103,6 +96,7 @@
 #include "metkit/mars2grib/backend/concepts/derived/derivedConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/destine/destineConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/focal-statistics/focalStatisticsConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/iteration/iterationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/level/levelConceptDescriptor.h"
@@ -114,7 +108,9 @@
 #include "metkit/mars2grib/backend/concepts/packing/packingConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/param/paramConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/post-processing/postProcessingConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/probability/probabilityConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/quantile/quantileConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/representation/representationConceptDescriptor.h"
@@ -182,6 +178,7 @@ using AllConcepts =
              GeneratingProcessConcept, LevelConcept, LongrangeConcept, IterationConcept, MarsConcept, NilConcept,
              OriginConcept, PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept,
              RepresentationConcept, SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept,
-             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, ProbabilityConcept, ReferencePeriodConcept>;
+             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, ProbabilityConcept, ReferencePeriodConcept,
+             QuantileConcept, PostProcessingConcept, FocalStatisticsConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail

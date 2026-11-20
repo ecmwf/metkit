@@ -1,8 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file readOptionsFromLocalConfiguration.h
@@ -61,6 +58,9 @@ inline Options readOptions(const eckit::LocalConfiguration& conf) {
 
     if (conf.has("tryFixBadInput_ZeroAccumulation")) {
         opts.tryFixBadInput_ZeroAccumulation = readBoolOption(conf, "tryFixBadInput_ZeroAccumulation");
+    }
+    if (conf.has("outputScheduleFile")) {
+        opts.outputScheduleFile = readStringOption(conf, "outputScheduleFile");
     }
 
     return opts;

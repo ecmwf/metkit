@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file satelliteMatcher.h
@@ -27,6 +20,7 @@
 // System include
 #include <cstddef>
 #include <exception>
+#include <string>
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/satellite/satelliteEnum.h"
@@ -37,10 +31,36 @@
 namespace metkit::mars2grib::backend::concepts_ {
 
 ///
+/// @brief Whether the MARS request describes a satellite product.
+///
+/// A satellite product carries the full satellite identification: `channel`, `ident` and `instrument`.
+///
+/// The brightness temperature of the ensemble data assimilation (`param=194`, `stream=elda`) is not a
+/// satellite product, whatever other keys the request carries: its `channel` is an index over instrument
+/// and channel, not a real channel. It is handled by the `brightnessTemperature` concept and keeps the
+/// channel in the local section (local definition 37).
+///
+/// This is the single definition of the condition: the `satellite` matcher and the `level` matcher (which
+/// skips satellite products) both use it.
+///
+template <class MarsDict_t>
+bool isSatelliteProduct(const MarsDict_t& mars) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+
+    if (has(mars, "param") && get_or_throw<long>(mars, "param") == 194 && has(mars, "stream") &&
+        get_or_throw<std::string>(mars, "stream") == "elda") {
+        return false;
+    }
+
+    return has(mars, "channel") && has(mars, "ident") && has(mars, "instrument");
+}
+
+///
 /// @brief Match the `satellite` concept variant.
 ///
-/// The concept is active as `SatelliteType::Default` when `channel`, `ident`,
-/// and `instrument` are present in the MARS request.
+/// The concept is active as `SatelliteType::Default` for a satellite product,
+/// see @ref isSatelliteProduct.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -60,11 +80,7 @@ std::size_t satelliteMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
     try {
 
-        using metkit::mars2grib::utils::dict_traits::get_or_throw;
-        using metkit::mars2grib::utils::dict_traits::has;
-
-        // Default satellite: requires full satellite identification keys
-        if (has(mars, "channel") && has(mars, "ident") && has(mars, "instrument")) {
+        if (isSatelliteProduct(mars)) {
             return static_cast<std::size_t>(SatelliteType::Default);
         }
 

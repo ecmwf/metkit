@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file IFSFromStartSingleLoopPositive.h
@@ -38,8 +31,10 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
@@ -47,6 +42,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the IFSFromStartSingleLoopPositive shape.
  *
+ * - the parameter does not identify index statistics;
  * - the regime is IFS;
  * - the product is forecast;
  * - the product does not satisfy both the seasonal class/stream discriminator
@@ -68,6 +64,7 @@ inline bool match_IFSFromStartSingleLoopPositive_Shape(const ProductTimeSpecInpu
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -80,8 +77,8 @@ inline bool match_IFSFromStartSingleLoopPositive_Shape(const ProductTimeSpecInpu
         const bool hasNoStattypeBlocks      = input.stattype.empty();
         const bool hasPositiveStep          = stepIsPositive(input);
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && usesFromStartTimespan && hasNoStattypeBlocks &&
-               hasPositiveStep;
+        return isNotIndexStatistics && isIfs && isForecast && isNotSeasonal && isNotSynoptic && usesFromStartTimespan &&
+               hasNoStattypeBlocks && hasPositiveStep;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_IFSFromStartSingleLoopPositive_Shape`",
@@ -169,7 +166,7 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeWindows(
                                           input.to_json(), Here());
         }
 
-        const TimeDuration timeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
+        const TimeDuration timeRange = *input.step;
 
         ResolvedInnerIncrement resolvedIncrement{};
 
@@ -235,6 +232,8 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeWindows(
         // The increment is the explicit, missing, or defaulted value resolved above.
         const auto timeIncrement = resolvedIncrement.timeIncrement;
 
+        MARS2GRIB_LOG_MODEL([&]() { return "Canonical TimeRange: " + std::to_string(canonicalTimeRange.length); }());
+
         ProductTimeSpecWindow window{typeOfStatisticalProcessing, typeOfTimeIncrement, canonicalTimeRange,
                                      timeIncrement};
 
@@ -299,6 +298,7 @@ inline bool check_IFSFromStartSingleLoopPositive_Shape(
                                           input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -311,8 +311,8 @@ inline bool check_IFSFromStartSingleLoopPositive_Shape(
         const bool hasNoStattypeBlocks      = input.stattype.empty();
         const bool hasPositiveStep          = stepIsPositive(input);
 
-        if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !usesFromStartTimespan ||
-            !hasNoStattypeBlocks || !hasPositiveStep) {
+        if (!isNotIndexStatistics || !isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic ||
+            !usesFromStartTimespan || !hasNoStattypeBlocks || !hasPositiveStep) {
             throw Mars2GribModelException("IFSFromStartSingleLoopPositive input semantics are not satisfied",
                                           input.to_json(), Here());
         }

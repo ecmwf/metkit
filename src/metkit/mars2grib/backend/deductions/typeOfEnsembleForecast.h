@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2025- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2025- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file typeOfEnsembleForecast.h
@@ -54,6 +47,7 @@
 // Tables includes
 #include "metkit/mars2grib/backend/deductions/perturbationNumber.h"
 #include "metkit/mars2grib/backend/tables/typeOfEnsembleForecast.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
@@ -162,6 +156,18 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Unperturbed;
             }
             else if (type == "pf") {
+                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
+            }
+            else if (type == "gbf" || type == "gwt") {
+                // ecPoint (weather-type subgrid-calibration) of an individual ensemble member: as the member itself
+                const auto perturbationNumber = resolve_PerturbationNumber_or_throw(mars, par, opt);
+                typeOfEnsembleForecast        = (perturbationNumber == 0) ? tables::TypeOfEnsembleForecast::Unperturbed
+                                                                          : tables::TypeOfEnsembleForecast::Perturbed;
+            }
+            else if (type == "icp") {
+                typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::InitialConditionsPerturbations;
+            }
+            else if (type == "ep") {
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Perturbed;
             }
             else {

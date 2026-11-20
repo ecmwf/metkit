@@ -1,12 +1,5 @@
-/*
- * (C) Copyright 2026- ECMWF and individual contributors.
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
- * In applying this licence, ECMWF does not waive the privileges and immunities
- * granted to it by virtue of its status as an intergovernmental organisation nor
- * does it submit to any jurisdiction.
- */
+// SPDX-FileCopyrightText: 2026- European Centre for Medium-Range Weather Forecasts (ECMWF)
+// SPDX-License-Identifier: Apache-2.0
 
 ///
 /// @file Instant.h
@@ -47,6 +40,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the Instant shape.
  *
+ * - the parameter does not identify index statistics;
  * - the product does not satisfy both the seasonal class/stream discriminator
  *   and the seasonal lead discriminator;
  * - `timespan` is explicitly `none`, or it is missing and the configured
@@ -65,6 +59,7 @@ inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
             (input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd");
@@ -76,7 +71,7 @@ inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
         const bool hasMissingStatisticalProcessing =
             input.innerMostTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
 
-        return isNotSeasonal && hasAcceptedTimespanRepresentation && hasNoStattypeBlocks &&
+        return isNotIndexStatistics && isNotSeasonal && hasAcceptedTimespanRepresentation && hasNoStattypeBlocks &&
                hasMissingStatisticalProcessing;
     }
     catch (...) {
@@ -235,6 +230,7 @@ inline bool check_Instant_Shape(
             throw Mars2GribModelException("Shape classification mismatch: expected Instant", input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
             (input.marsStream == "sfmd" || input.marsStream == "shmd");
@@ -246,7 +242,7 @@ inline bool check_Instant_Shape(
         const bool hasMissingStatisticalProcessing =
             input.innerMostTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
 
-        if (!isNotSeasonal || !hasAcceptedTimespanRepresentation || !hasNoStattypeBlocks ||
+        if (!isNotIndexStatistics || !isNotSeasonal || !hasAcceptedTimespanRepresentation || !hasNoStattypeBlocks ||
             !hasMissingStatisticalProcessing) {
             throw Mars2GribModelException("Instant input semantics are not satisfied", input.to_json(), Here());
         }
