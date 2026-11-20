@@ -266,23 +266,23 @@ CASE("check method: flatten()") {
 
     EXPECT_EQUAL(output.oss.str(),
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=300,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=400,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=500,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=12,levelist=300,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=12,levelist=400,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=12,levelist=500,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=14,levelist=300,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=14,levelist=400,param="
-                 "167,expver=0001,domain=g\n"
+                 "167,expver=0001,domain=g,timespan=none\n"
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=14,levelist=500,param="
-                 "167,expver=0001,domain=g\n");
+                 "167,expver=0001,domain=g,timespan=none\n");
 }
 
 CASE("check some types") {
