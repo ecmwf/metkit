@@ -29,10 +29,10 @@ list( APPEND metkit_srcs
     mars/MarsExpansion.h
     mars/MarsHandle.cc
     mars/MarsHandle.h
+    mars/MarsKeyword.cc
+    mars/MarsKeyword.h
     mars/MarsLanguage.cc
     mars/MarsLanguage.h
-    mars/MarsLocation.cc
-    mars/MarsLocation.h
     mars/MarsParsedRequest.cc
     mars/MarsParsedRequest.h
     mars/MarsParser.cc
@@ -41,6 +41,10 @@ list( APPEND metkit_srcs
     mars/MarsRequest.h
     mars/MarsRequestHandle.cc
     mars/MarsRequestHandle.h
+    mars/MarsVerb.cc
+    mars/MarsVerb.h
+    mars/MMapFileReader.cc
+    mars/MMapFileReader.h
     mars/Parameter.cc
     mars/Parameter.h
     mars/ParamID.cc
@@ -50,6 +54,9 @@ list( APPEND metkit_srcs
     mars/RequestEnvironment.cc
     mars/RequestEnvironment.h
     mars/StepRangeNormalise.h
+    mars/StreamWriter.cc
+    mars/StreamWriter.h
+    mars/SymbolTable.h
     mars/Type.cc
     mars/Type.h
     mars/TypeAny.cc

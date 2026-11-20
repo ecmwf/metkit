@@ -20,11 +20,11 @@ namespace metkit::mars::test {
 using ::eckit::BadValue;
 using ::eckit::Value;
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    MarsLanguage::get("retrieve").type(name)->expand(values);
+    MarsLanguage::get("retrieve").typeRef(name).expand(values);
     EXPECT_EQUAL(expected, values);
 }
 
@@ -38,8 +38,9 @@ std::string date(long d) {
 
 CASE("Test TypeDate expansions") {
 
-    TypeDate tdate("date", Value());
-    Type& td(tdate);
+    std::string typeName = "date";
+    auto tdate           = std::make_shared<TypeDate>(typeName, MarsLanguage::keyword("date"), Value());
+    Type& td(*tdate);
 
     assertTypeExpansion("date", {"20140506"}, {"20140506"});
     assertTypeExpansion("date", {"2014-05-06"}, {"20140506"});
@@ -80,7 +81,7 @@ CASE("Test TypeDate expansions") {
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 

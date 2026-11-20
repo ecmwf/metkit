@@ -18,7 +18,7 @@
 
 namespace metkit::mars::test {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CASE("test_metkit_exists_to-by-list-float") {
     std::stringstream ss;
@@ -29,7 +29,7 @@ CASE("test_metkit_exists_to-by-list-float") {
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    MarsLanguage::get("retrieve").type(name)->expand(values);
+    MarsLanguage::get("retrieve").typeRef(name).expand(values);
     EXPECT_EQUAL(values, expected);
 }
 
@@ -63,7 +63,7 @@ CASE("test_metkit_expand_levelist") {
 }  // namespace metkit::mars::test
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
     return eckit::testing::run_tests(argc, argv);

@@ -19,9 +19,12 @@ class TypeRegex : public Type {
 
 public:  // methods
 
-    TypeRegex(const std::string& name, const eckit::Value& settings);
+    TypeRegex(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeRegex(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     ~TypeRegex() noexcept override = default;
+
+    void write(std::ofstream& file) const override;
 
 private:  // methods
 
@@ -29,7 +32,6 @@ private:  // methods
     bool expand(std::string& value, const MarsRequest& request) const override;
 
     std::vector<eckit::Regex> regex_;
-    bool uppercase_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: 1996- European Centre for Medium-Range Weather Forecasts (ECMWF)
 // SPDX-License-Identifier: Apache-2.0
 
+#include "metkit/mars/TypesFactory.h"
+
 #include "eckit/exception/Exceptions.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/MarsLanguage.h"
 
 
 namespace metkit::mars {
@@ -20,7 +22,7 @@ TypesFactory::~TypesFactory() {
     TypesRegistry::instance().remove(name_);
 }
 
-Type* TypesRegistry::build(const std::string& keyword, const eckit::Value& settings) {
+std::unique_ptr<Type> TypesRegistry::build(MarsKeyword keyword, const eckit::Value& settings) {
     std::string name;
 
     if (settings["type"].isList()) {
@@ -42,7 +44,24 @@ Type* TypesRegistry::build(const std::string& keyword, const eckit::Value& setti
         throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
     }
 
-    return (*j).second->make(keyword, settings);
+    return std::unique_ptr<Type>((*j).second->make(keyword, settings));
+}
+
+std::unique_ptr<Type> TypesRegistry::build(const std::string& name, MarsKeyword key, MMapFileReader& file) {
+
+    eckit::AutoLock<eckit::Mutex> lock(mutex_);
+
+    std::map<std::string, TypesFactory*>::const_iterator j = m_.find(name);
+
+    if (j == m_.end()) {
+        eckit::Log::error() << "No TypesFactory for [" << name << "]" << std::endl;
+        eckit::Log::error() << "KeywordTypes are:" << std::endl;
+        for (j = m_.begin(); j != m_.end(); ++j)
+            eckit::Log::error() << "   " << (*j).first << std::endl;
+        throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
+    }
+
+    return std::unique_ptr<Type>((*j).second->make(key, file));
 }
 
 void TypesRegistry::list(std::ostream& s) {
@@ -62,8 +81,12 @@ void TypesRegistry::list(std::ostream& s) {
     s << "]";
 }
 
-Type* TypesFactory::build(const std::string& keyword, const eckit::Value& settings) {
-    return TypesRegistry::instance().build(keyword, settings);
+std::unique_ptr<Type> TypesFactory::build(MarsKeyword key, const eckit::Value& val) {
+    return TypesRegistry::instance().build(key, val);
+}
+
+std::unique_ptr<Type> TypesFactory::build(const std::string& name, MarsKeyword key, MMapFileReader& file) {
+    return TypesRegistry::instance().build(name, key, file);
 }
 
 void TypesFactory::list(std::ostream& s) {
