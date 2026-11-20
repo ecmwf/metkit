@@ -5435,6 +5435,159 @@
 171255:
 - _param_171255
 - Indicates a missing value
+171256:
+- lcca
+- Low cloud cover anomaly
+171257:
+- mcca
+- Medium cloud cover anomaly
+171258:
+- hcca
+- High cloud cover anomaly
+171259:
+- tcca
+- Total cloud cover anomaly
+171260:
+- tcioza
+- Total column integrated ozone anomaly
+171261:
+- vswa
+- Volumetric soil moisture anomaly
+171262:
+- sota
+- Soil temperature anomaly
+171263:
+- sda
+- Snow depth water equivalent anomaly
+171264:
+- sia
+- Wind speed anomaly
+171265:
+- fala
+- Forecast albedo anomaly
+171266:
+- utauoa
+- U-component of surface momentum flux into ocean anomaly
+171267:
+- vtauoa
+- V-component of surface momentum flux into ocean anomaly
+171268:
+- wphioa
+- Wave turbulent energy flux into ocean anomaly
+171269:
+- h1012a
+- Significant wave height of all waves with periods within the inclusive range from
+  10 to 12 seconds anomaly
+171270:
+- h1214a
+- Significant wave height of all waves with periods within the inclusive range from
+  12 to 14 seconds anomaly
+171271:
+- h1417a
+- Significant wave height of all waves with periods within the inclusive range from
+  14 to 17 seconds anomaly
+171272:
+- h1721a
+- Significant wave height of all waves with periods within the inclusive range from
+  17 to 21 seconds anomaly
+171273:
+- h2125a
+- Significant wave height of all waves with periods within the inclusive range from
+  21 to 25 seconds anomaly
+171274:
+- h2530a
+- Significant wave height of all waves with periods within the inclusive range from
+  25 to 30 seconds anomaly
+171275:
+- swha
+- Significant height of combined wind waves and swell anomaly
+171276:
+- pp1da
+- Peak wave period anomaly
+171277:
+- mwpa
+- Mean wave period anomaly
+171278:
+- cdwwa
+- Coefficient of drag with waves anomaly
+171279:
+- msqsa
+- Mean square slope of waves anomaly
+171280:
+- winda
+- 10 metre wind speed anomaly
+171281:
+- siconca
+- Sea ice area fraction anomaly
+171282:
+- siuea
+- Eastward sea ice velocity anomaly
+171283:
+- sivna
+- Northward sea ice velocity anomaly
+171284:
+- sialba
+- Sea ice albedo anomaly
+171285:
+- sigrowtha
+- Sea ice growth anomaly
+171286:
+- sivola
+- Sea ice volume per unit area anomaly
+171287:
+- snvola
+- Snow volume over sea ice per unit area anomaly
+171288:
+- sosa
+- Sea surface practical salinity anomaly
+171289:
+- tosa
+- Sea surface temperature anomaly
+171290:
+- hfdsa
+- Surface downward heat flux anomaly
+171291:
+- mlotst125a
+- Ocean mixed layer depth defined by sigma theta 0.125 kg m-3 anomaly
+171292:
+- mlott02a
+- Ocean mixed layer depth defined by temperature 0.2 C anomaly
+171293:
+- hcbtma
+- Total column heat content anomaly
+171294:
+- stheiga
+- Steric change in sea surface height anomaly
+171295:
+- swfupa
+- Net surface upward water flux anomaly
+171296:
+- svna
+- Northward surface sea water velocity anomaly
+171297:
+- svea
+- Eastward surface sea water velocity anomaly
+171298:
+- soa
+- Sea water practical salinity anomaly
+171299:
+- thetaoa
+- Sea water potential temperature anomaly
+171300:
+- vona
+- Northward sea water velocity anomaly
+171301:
+- uoea
+- Eastward sea water velocity anomaly
+171302:
+- thetaodmpa
+- Sea water potential temperature tendency due to newtonian relaxation anomaly
+171303:
+- sodma
+- Sea water salinity tendency due to newtonian relaxation anomaly
+171323:
+- sdea
+- Snow depth anomaly
 172008:
 - msror
 - Time-mean surface runoff rate
@@ -5699,6 +5852,30 @@
 173255:
 - _param_173255
 - Indicates a missing value
+173256:
+- msrora
+- Mean surface runoff rate anomaly
+173257:
+- mssrora
+- Mean sub-surface runoff rate anomaly
+173258:
+- roara
+- Mean runoff rate anomaly
+173259:
+- lspara
+- Mean stratiform precipitation (large-scale precipitation) rate anomaly
+173260:
+- mcpra
+- Mean convective precipitation rate anomaly
+173261:
+- sfara
+- Mean snowfall (convective + stratiform) rate anomaly
+173262:
+- evara
+- Mean evaporation rate anomaly
+173263:
+- tpara
+- Mean total precipitation rate anomaly
 174006:
 - _param_174006
 - Total soil moisture
@@ -7198,7 +7375,7 @@
 - Number of positive FRP pixels per grid cell
 210099:
 - frpfire
-- Wildfire radiative power
+- Wildfire radiative power density
 210100:
 - crfire
 - Wildfire combustion rate
@@ -14852,18 +15029,330 @@
 233035:
 - tvions
 - Time-integrated total column vertically-integrated net source of ozone
+234001:
+- strfs
+- Stream function significance
+234002:
+- vpots
+- Velocity potential significance
+234003:
+- pt_s
+- Potential temperature significance
+234024:
+- lmlts
+- Lake mix-layer temperature significance
+234025:
+- licds
+- Lake ice depth significance
+234031:
+- sics
+- Sea-ice cover significance
+234033:
+- rsns
+- Snow density significance
+234034:
+- ssts
+- Sea surface temperature significance
+234049:
+- 10fgs
+- 10 metre wind gust significance
+234059:
+- cape_s
+- Convective available potential energy significance
+234060:
+- pvs
+- Potential vorticity significance
+234078:
+- tclws
+- Total column liquid water significance
+234079:
+- tciws
+- Total column ice water significance
+234129:
+- zs
+- Geopotential significance
+234130:
+- ts
+- Temperature significance
+234131:
+- us
+- U component of wind significance
+234132:
+- vs
+- V component of wind significance
+234133:
+- qs
+- Specific humidity significance
+234136:
+- tcws
+- Total column water significance
+234137:
+- tcwvs
+- Total column water vapour significance
+234138:
+- vos
+- Relative vorticity significance
 234139:
 - sts
 - Surface temperature significance
 234151:
 - msls
 - Mean sea level pressure significance
+234155:
+- ds
+- Relative divergence significance
+234165:
+- 10us
+- 10 metre U wind component significance
+234166:
+- 10vs
+- 10 metre V wind component significance
 234167:
 - 2ts
 - 2 metre temperature significance
+234168:
+- 2ds
+- 2 metre dewpoint temperature significance
+234169:
+- ssrds
+- Surface solar radiation downwards significance
+234201:
+- mx2ts
+- Maximum temperature at 2 metres significance
+234202:
+- mn2ts
+- Minimum temperature at 2 metres significance
+234203:
+- o3s
+- Ozone mass mixing ratio significance
+234207:
+- 10sis
+- 10 metre wind speed significance
 234228:
 - tps
 - Total precipitation significance
+234229:
+- iewss
+- Instantaneous X surface stress significance
+234230:
+- insss
+- Instantaneous Y surface stress significance
+234235:
+- skts
+- Skin temperature significance
+234256:
+- lccs
+- Low cloud cover significance
+234257:
+- mccs
+- Medium cloud cover significance
+234258:
+- hccs
+- High cloud cover significance
+234259:
+- tccs
+- Total cloud cover significance
+234260:
+- tciozs
+- Total column integrated ozone significance
+234261:
+- vsws
+- Volumetric soil moisture significance
+234262:
+- sots
+- Soil temperature significance
+234263:
+- sds
+- Snow depth water equivalent significance
+234264:
+- sis
+- Wind speed significance
+234265:
+- fals
+- Forecast albedo significance
+234266:
+- utauos
+- U-component of surface momentum flux into ocean significance
+234267:
+- vtauos
+- V-component of surface momentum flux into ocean significance
+234268:
+- wphios
+- Wave turbulent energy flux into ocean significance
+234269:
+- h1012s
+- Significant wave height of all waves with periods within the inclusive range from
+  10 to 12 seconds significance
+234270:
+- h1214s
+- Significant wave height of all waves with periods within the inclusive range from
+  12 to 14 seconds significance
+234271:
+- h1417s
+- Significant wave height of all waves with periods within the inclusive range from
+  14 to 17 seconds significance
+234272:
+- h1721s
+- Significant wave height of all waves with periods within the inclusive range from
+  17 to 21 seconds significance
+234273:
+- h2125s
+- Significant wave height of all waves with periods within the inclusive range from
+  21 to 25 seconds significance
+234274:
+- h2530s
+- Significant wave height of all waves with periods within the inclusive range from
+  25 to 30 seconds significance
+234275:
+- swhs
+- Significant height of combined wind waves and swell significance
+234276:
+- pp1d_s
+- Peak wave period significance
+234277:
+- mwps
+- Mean wave period significance
+234278:
+- cdwws
+- Coefficient of drag with waves significance
+234279:
+- msqss
+- Mean square slope of waves significance
+234280:
+- winds
+- 10 metre wind speed significance
+234281:
+- siconcs
+- Sea ice area fraction significance
+234282:
+- siues
+- Eastward sea ice velocity significance
+234283:
+- sivns
+- Northward sea ice velocity significance
+234284:
+- sialbs
+- Sea ice albedo significance
+234285:
+- sigrowths
+- Sea ice growth significance
+234286:
+- sivols
+- Sea ice volume per unit area significance
+234287:
+- snvols
+- Snow volume over sea ice per unit area significance
+234288:
+- soss
+- Sea surface practical salinity significance
+234289:
+- toss
+- Sea surface temperature significance
+234290:
+- hfdss
+- Surface downward heat flux significance
+234291:
+- mlotst125s
+- Ocean mixed layer depth defined by sigma theta 0.125 kg m-3 significance
+234292:
+- mlott02s
+- Ocean mixed layer depth defined by temperature 0.2 C significance
+234293:
+- hcbtms
+- Total column heat content significance
+234294:
+- stheigs
+- Steric change in sea surface height significance
+234295:
+- swfups
+- Net surface upward water flux significance
+234296:
+- svns
+- Northward surface sea water velocity significance
+234297:
+- sves
+- Eastward surface sea water velocity significance
+234298:
+- so_s
+- Sea water practical salinity significance
+234299:
+- thetaos
+- Sea water potential temperature significance
+234300:
+- vons
+- Northward sea water velocity significance
+234301:
+- uoes
+- Eastward sea water velocity significance
+234302:
+- thetaodmps
+- Sea water potential temperature tendency due to newtonian relaxation significance
+234303:
+- sodms
+- Sea water salinity tendency due to newtonian relaxation significance
+234304:
+- sshfars
+- Mean surface sensible heat flux significance
+234305:
+- slhfars
+- Mean surface latent heat flux significance
+234306:
+- ssrdars
+- Mean surface short-wave (solar) radiation downward flux significance
+234307:
+- strdars
+- Mean surface long-wave (thermal) radiation downward flux significance
+234308:
+- ssrars
+- Mean surface short-wave (solar) radiation flux significance
+234309:
+- strars
+- Mean surface long-wave (thermal) radiation flux significance
+234310:
+- tsrars
+- Mean top short-wave (solar) radiation flux significance
+234311:
+- ttrars
+- Mean top long-wave (thermal) radiation flux significance
+234312:
+- ewssars
+- Mean east-west surface stress significance
+234313:
+- nsssars
+- Mean north-south surface stress significance
+234314:
+- sundars
+- Mean sunshine duration significance
+234315:
+- soiars
+- Mean solar insolation flux significance
+234316:
+- msrors
+- Mean surface runoff rate significance
+234317:
+- mssrors
+- Mean sub-surface runoff rate significance
+234318:
+- roars
+- Mean runoff rate significance
+234319:
+- lspars
+- Mean stratiform precipitation (large-scale precipitation) rate significance
+234320:
+- mcprs
+- Mean convective precipitation rate significance
+234321:
+- sfars
+- Mean snowfall (convective + stratiform) rate significance
+234322:
+- evars
+- Mean evaporation rate significance
+234323:
+- tpars
+- Mean total precipitation rate significance
+234324:
+- sdes
+- Snow depth significance
 235001:
 - avg_ttswr
 - Time-mean temperature tendency due to short-wave radiation
@@ -23628,15 +24117,63 @@
 476000:
 - ph
 - Potential of hydrogen
+476001:
+- avg_ph
+- Time-mean potential of hydrogen
+476003:
+- max_ph
+- Time-maximum potential of hydrogen
+476004:
+- min_ph
+- Time-minimum potential of hydrogen
+476005:
+- std_ph
+- Time-standard-deviation potential of hydrogen
 477000:
 - strataod
 - Stratospheric aerosol optical thickness
+477001:
+- avg_strataod
+- Time-mean stratospheric aerosol optical thickness
+477003:
+- max_strataod
+- Time-maximum stratospheric aerosol optical thickness
+477004:
+- min_strataod
+- Time-minimum stratospheric aerosol optical thickness
+477005:
+- std_strataod
+- Time-standard-deviation stratospheric aerosol optical thickness
 478000:
 - emi_mflx_lightn
 - Emission mass flux from lightning
+478001:
+- avg_emi_mflx_lightn
+- Time-mean emission mass flux from lightning
+478003:
+- max_emi_mflx_lightn
+- Time-maximum emission mass flux from lightning
+478004:
+- min_emi_mflx_lightn
+- Time-minimum emission mass flux from lightning
+478005:
+- std_emi_mflx_lightn
+- Time-standard-deviation emission mass flux from lightning
 479000:
 - lsroh
 - Loss rate due to OH
+479001:
+- avg_lsroh
+- Time-mean loss rate due to OH
+479003:
+- max_lsroh
+- Time-maximum loss rate due to OH
+479004:
+- min_lsroh
+- Time-minimum loss rate due to OH
+479005:
+- std_lsroh
+- Time-standard-deviation loss rate due to OH
 480000:
 - jrate
 - Photolysis rate
