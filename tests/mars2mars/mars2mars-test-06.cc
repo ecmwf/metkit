@@ -105,6 +105,19 @@ CASE("since-last-pp params: step 0 has no window, the field is flagged for dropp
     }
 }
 
+CASE("since-last-pp params: step 0 is dropped even in a context without a schedule") {
+    for (const long param : sinceLastPostProcessing) {
+        auto enfo = field("enfo", "pf", param, 600L);
+        enfo.set("number", 1L);
+        enfo.set("step", 0L);
+        EXPECT(dropped(convert(enfo)));
+
+        auto lwda = field("lwda", "fc", param, 0L);
+        lwda.set("step", 0L);
+        EXPECT(dropped(convert(lwda)));
+    }
+}
+
 CASE("since-last-pp params: a step outside the schedule is an error, never fs") {
     EXPECT_THROWS(convert(operField(201, 91)));
     EXPECT_THROWS(convert(operField(201, 146)));

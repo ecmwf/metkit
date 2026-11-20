@@ -264,6 +264,14 @@ inline void fixTimespanSinceLastPostProcessing(const InDict_t& in, OutDict_t& ou
         // step and time are strings in a MarsRequest and (usually) numbers in a typed dictionary
         const auto stepString = get_opt<std::string>(in, "step");
         const long step       = stepString ? std::stol(*stepString) : get_or_throw<long>(in, "step");
+
+        // Step 0 has no previous output step and therefore no window, whatever the schedule: drop it before the
+        // schedule lookup, so that contexts without a schedule (e.g. enfo 06/18 UTC) do not fail at step 0
+        if (step == 0) {
+            misc.set("dropField", true);
+            return;
+        }
+
         const auto timeString = get_opt<std::string>(in, "time");
         const long hour       = timeString ? OutputSchedule::hourOfMarsTime(*timeString)
                                            : OutputSchedule::hourOfMarsTime(get_or_throw<long>(in, "time"));
