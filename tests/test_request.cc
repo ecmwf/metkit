@@ -63,7 +63,7 @@ CASE("test_request_json") {
             EXPECT_EQUAL(ss.str(),
                          "{\"class\":\"od\",\"type\":\"an\",\"stream\":\"wave\",\"levtype\":\"sfc\",\"date\":"
                          "\"20240729\",\"time\":\"0000\",\"step\":\"24\",\"expver\":\"0001\",\"param\":\"140251\","
-                         "\"domain\":\"g\"}");
+                         "\"domain\":\"g\",\"timespan\":\"none\"}");
         }
         {
             std::stringstream ss;
