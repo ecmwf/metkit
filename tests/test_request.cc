@@ -39,7 +39,7 @@ CASE("test_request_json") {
                 ss.str(),
                 "{\"class\":\"od\",\"type\":\"fcmean\",\"stream\":\"enfh\",\"levtype\":\"sfc\",\"date\":\"20240729\","
                 "\"time\":[\"0000\",\"1200\"],\"step\":\"24\",\"expver\":\"0079\",\"number\":[\"1\",\"2\"],\"param\":["
-                "\"228236\",\"228235\",\"172228\"],\"domain\":\"g\"}");
+                "\"228236\",\"228235\",\"172228\"],\"domain\":\"g\",\"timespan\":\"none\"}");
         }
         {
             std::stringstream ss;
@@ -49,7 +49,7 @@ CASE("test_request_json") {
                 ss.str(),
                 "{\"class\":\"od\",\"type\":\"fcmean\",\"stream\":\"enfh\",\"levtype\":\"sfc\",\"date\":[\"20240729\"],"
                 "\"time\":[\"0000\",\"1200\"],\"step\":[\"24\"],\"expver\":\"0079\",\"number\":[\"1\",\"2\"],\"param\":"
-                "[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\"}");
+                "[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\",\"timespan\":[\"none\"]}");
         }
     }
     {
@@ -63,7 +63,7 @@ CASE("test_request_json") {
             EXPECT_EQUAL(ss.str(),
                          "{\"class\":\"od\",\"type\":\"an\",\"stream\":\"wave\",\"levtype\":\"sfc\",\"date\":"
                          "\"20240729\",\"time\":\"0000\",\"step\":\"24\",\"expver\":\"0001\",\"param\":\"140251\","
-                         "\"domain\":\"g\"}");
+                         "\"domain\":\"g\",\"timespan\":\"none\"}");
         }
         {
             std::stringstream ss;
