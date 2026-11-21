@@ -84,8 +84,12 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::AerosolOptical);
                 }
             }
-            else if (matchAny(paramInstant, 458000, 459000, 460000, 461000, 462000, 472000, 475000)) {
+            else if (matchAny(paramInstant, 458000, 459000, 460000, 461000, 462000, 472000, 475000, 482000)) {
                 if (matchAny(chem, 922)) {
+                    return static_cast<std::size_t>(CompositionType::AerosolOptical);
+                }
+                // Molecular (Rayleigh) backscatter: gaseous molecules
+                if (matchAny(paramInstant, 475000) && matchAny(chem, 400)) {
                     return static_cast<std::size_t>(CompositionType::AerosolOptical);
                 }
             }
@@ -95,9 +99,9 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 if (matchAny(chem, range(900, 916))) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
-                if (matchAny(chem, 2, 3, range(5, 24), range(26, 30), range(32, 50), 52, 53, range(55, 58),
-                             range(63, 80), 82, 83, 85, 86, range(99, 101), 107, 112, 159, 161, 169, range(173, 178),
-                             range(186, 204), 222, range(224, 231), 233, 311, 359, 404, 917)) {
+                if (matchAny(chem, range(2, 24), range(26, 30), range(32, 50), 52, 53, range(55, 59), range(63, 80), 82,
+                             83, 85, 86, range(99, 101), 107, 112, 159, 161, 169, range(173, 178), range(186, 204), 222,
+                             range(224, 231), 233, 311, 917)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
@@ -127,12 +131,12 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 }
             }
             else if (matchAny(paramInstant, 444000)) {
-                if (matchAny(chem, 6, 8, 13, 15, 17, 19, 26, 27, 33)) {
+                if (matchAny(chem, 6, 13, 15, 17, 19, 26, 27, 33, 233)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
             else if (matchAny(paramInstant, 445000)) {
-                if (matchAny(chem, 6, 8, 13, 15, 17, 19, 27, 33, 236)) {
+                if (matchAny(chem, 6, 13, 15, 17, 19, 27, 33, 233, 236)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
@@ -147,7 +151,7 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 }
             }
             else if (matchAny(paramInstant, 479000)) {
-                if (matchAny(chem, 404)) {
+                if (matchAny(chem, 4)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
@@ -158,34 +162,34 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
-            else if (matchAny(paramInstant, 423000, 425000, 429000, 463000, 464000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 49), 52, 99, 100, 188, 233, 311, 933, 934)) {
+            else if (matchAny(paramInstant, 422000, 423000, 425000, 429000, 463000)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 49), 52, 99, 100, 919, 233, 311, 908, 910)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
             else if (matchAny(paramInstant, 428000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 49), 52, 99, 100, 188, 311, 933, 934)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 49), 52, 99, 100, 919, 311, 908, 910)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
             else if (matchAny(paramInstant, 430000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 48), 52, 99, 100, 188, 233, 311, 933, 934)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, range(42, 48), 52, 99, 100, 919, 233, 311, 908, 910)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
             else if (matchAny(paramInstant, 421000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, 45, range(47, 49), 52, 99, 100, 188, 233, 311, 933,
-                             934)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 19, 27, 45, range(47, 49), 52, 99, 100, 919, 233, 311, 908,
+                             910)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
             else if (matchAny(paramInstant, 424000, 427000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 27, range(42, 49), 52, 99, 100, 188, 233, 311, 933, 934)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 27, range(42, 49), 52, 99, 100, 919, 233, 311, 908, 910)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
             else if (matchAny(paramInstant, 465000)) {
-                if (matchAny(chem, 2, 9, 10, 16, 19, 27, 42, range(45, 48), 52, 99, 100, 188, 233, 311, 933, 934)) {
+                if (matchAny(chem, 2, 9, 10, 16, 19, 27, 42, range(45, 48), 52, 99, 100, 919, 233, 311, 908, 910)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
@@ -195,7 +199,7 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 }
             }
             else if (matchAny(paramInstant, 426000)) {
-                if (matchAny(chem, 5, 9, 10, 12, 16, 19, range(42, 49), 52, 99, 100, 188, 311)) {
+                if (matchAny(chem, 5, 9, 10, 12, 16, 19, range(42, 49), 52, 99, 100, 919, 311)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
@@ -215,12 +219,12 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 }
             }
             else if (matchAny(paramInstant, 419000)) {
-                if (matchAny(chem, 19, 27, 188)) {
+                if (matchAny(chem, 19, 27, 919)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
             else if (matchAny(paramInstant, 420000)) {
-                if (matchAny(chem, 19, 188)) {
+                if (matchAny(chem, 19, 919)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }
