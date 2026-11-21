@@ -221,7 +221,7 @@ Category MarsLanguage::category(const std::string& keyword) const {
     if (it != types_.end()) {
         return it->second->category();
     }
-    throw eckit::UserError("Cannot find keyword: " + keyword);
+    return Category::None;
 }
 
 bool MarsLanguage::isData(const std::string& k) const {
