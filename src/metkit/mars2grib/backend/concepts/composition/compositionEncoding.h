@@ -80,7 +80,10 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, CompositionType Variant>
 constexpr bool compositionApplicable() {
-    return (Stage == StagePreset && Section == SecProductDefinitionSection);
+    // Also at runtime: the `param` concept sets paramId again at StageRuntime. For the ECMWF-local emission-sector
+    // params (412000, 463000, 465000, ...) paramId sets localTablesVersion 2, which hides a local chem (e.g. 99, 919;
+    // these need 1). Setting chemId after paramId (recipe order) keeps both decodable, as in the CAMS reanalysis (a5).
+    return ((Stage == StagePreset || Stage == StageRuntime) && Section == SecProductDefinitionSection);
 }
 
 
