@@ -226,8 +226,10 @@ inline const Recipe S4_R76 =
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
         Select<LevelConcept>,
-        Select<CompositionConcept, CompositionType::ChemicalSource>,
-        Select<ParamConcept>
+        // paramId before chemId: the ECMWF-local sector params (412000, 463000, 465000, ...) set localTablesVersion 2,
+        // a local chem (e.g. 99, 919) needs 1; setting chemId last keeps both decodable (as the CAMS reanalysis a5)
+        Select<ParamConcept>,
+        Select<CompositionConcept, CompositionType::ChemicalSource>
     >();
 
 inline const Recipe S4_R77 =
@@ -235,8 +237,10 @@ inline const Recipe S4_R77 =
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
         Select<LevelConcept>,
-        Select<CompositionConcept, CompositionType::ChemicalSource>,
+        // paramId before chemId: the ECMWF-local sector params (412000, 463000, 465000, ...) set localTablesVersion 2,
+        // a local chem (e.g. 99, 919) needs 1; setting chemId last keeps both decodable (as the CAMS reanalysis a5)
         Select<ParamConcept>,
+        Select<CompositionConcept, CompositionType::ChemicalSource>,
         Select<EnsembleConcept, EnsembleType::Individual>
     >();
 
@@ -245,8 +249,10 @@ inline const Recipe S4_R78 =
         Select<GeneratingProcessConcept>,
         Select<StatisticsConcept>,
         Select<LevelConcept>,
-        Select<CompositionConcept, CompositionType::ChemicalSource>,
-        Select<ParamConcept>
+        // paramId before chemId: the ECMWF-local sector params (412000, 463000, 465000, ...) set localTablesVersion 2,
+        // a local chem (e.g. 99, 919) needs 1; setting chemId last keeps both decodable (as the CAMS reanalysis a5)
+        Select<ParamConcept>,
+        Select<CompositionConcept, CompositionType::ChemicalSource>
     >();
 
 inline const Recipe S4_R80 =
@@ -263,8 +269,10 @@ inline const Recipe S4_R79 =
         Select<GeneratingProcessConcept>,
         Select<StatisticsConcept>,
         Select<LevelConcept>,
-        Select<CompositionConcept, CompositionType::ChemicalSource>,
+        // paramId before chemId: the ECMWF-local sector params (412000, 463000, 465000, ...) set localTablesVersion 2,
+        // a local chem (e.g. 99, 919) needs 1; setting chemId last keeps both decodable (as the CAMS reanalysis a5)
         Select<ParamConcept>,
+        Select<CompositionConcept, CompositionType::ChemicalSource>,
         Select<EnsembleConcept, EnsembleType::Individual>
     >();
 
