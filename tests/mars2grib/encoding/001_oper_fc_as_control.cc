@@ -23,7 +23,7 @@ CASE("stream=oper,type=fc as control forecast") {
     mars.set("time", 00'00'00);
     mars.set("step", 0);
 
-    std::vector<double> vals(200, 237.15);
+    std::vector<double> vals(213988, 237.15);
 
     const auto handle = encoder.encode(vals, mars);
 

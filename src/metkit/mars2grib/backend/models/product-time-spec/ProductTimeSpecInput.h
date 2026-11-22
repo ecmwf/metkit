@@ -111,40 +111,32 @@ bool requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(const MarsDict_t& m
 }
 
 ///
-/// @brief Resolve whether the product requires a fake second canonical loop.
+/// @brief Identify the explicitly supported index-statistics parameters.
 ///
-/// The rule is driven by the normalized `(type, paramId)` product whitelist.
+/// Parameter identifiers are opaque: membership is an explicit list, not a
+/// numeric family. Product identity is independent of MARS type and temporal
+/// representation; the shape matcher validates those separately so unsupported
+/// index inputs cannot fall through to ordinary statistical shapes.
 ///
-/// @tparam MarsDict_t MARS dictionary type.
-/// @tparam ParDict_t Parameter dictionary type.
-/// @tparam OptDict_t Options dictionary type.
-/// @param[in] mars MARS dictionary.
-/// @param[in] par Parameter dictionary.
-/// @param[in] opt Options dictionary.
-/// @return `true` when the product requires a fake second canonical loop.
-/// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException on
-///         evaluation failure.
+/// @param[in] paramId Normalized MARS parameter identifier.
+/// @return `true` for a supported index parameter, otherwise `false`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-bool requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                             const OptDict_t& opt) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-
-    try {
-        constexpr std::array<std::string_view, 4> indexStatisticsTypes = {{"efi", "efic", "sot", "cpf"}};
-
-        const std::string marsType = deductions::resolve_Type_or_throw(mars, par, opt);
-        const long marsParamId     = deductions::resolve_ParamId_or_throw(mars, par, opt);
-
-        const bool typeIsValid    = std::any_of(indexStatisticsTypes.begin(), indexStatisticsTypes.end(),
-                                                [&marsType](auto value) { return marsType == value; });
-        const bool paramIdIsValid = marsParamId / 1000 == 132;
-
-        return typeIsValid && paramIdIsValid;
-    }
-    catch (...) {
-        std::throw_with_nested(utils::exceptions::Mars2GribModelException(
-            "Failed to execute `requiresFakeSingleLoopDoubleLoopRepresentation_or_throw`", Here()));
+inline constexpr bool isIndexStatistics(long paramId) noexcept {
+    switch (paramId) {
+        case 132044:
+        case 132045:
+        case 132049:
+        case 132059:
+        case 132144:
+        case 132165:
+        case 132167:
+        case 132201:
+        case 132202:
+        case 132216:
+        case 132228:
+            return true;
+        default:
+            return false;
     }
 }
 
@@ -221,8 +213,8 @@ struct ProductTimeSpecInput {
     /// @brief Product whitelist requires the fake-double-loop single-loop source form.
     bool requiresFakeDoubleLoopSingleLoopRepresentation{false};
 
-    /// @brief Product whitelist requires a fake second canonical loop.
-    bool requiresFakeSingleLoopDoubleLoopRepresentation{false};
+    /// @brief Parameter identifies index statistics independently of representation eligibility.
+    bool isIndexStatistics{false};
 
     /// @brief Optional normalized MARS `year` source retained as a raw calendar year.
     std::optional<long> marsYear{};
@@ -313,18 +305,17 @@ struct ProductTimeSpecInput {
                 << ',' << detail::jsonQuote_modelInput("marsParamId") << ':' << marsParamId << ','
                 << detail::jsonQuote_modelInput("requiresFakeDoubleLoopSingleLoopRepresentation") << ':'
                 << (requiresFakeDoubleLoopSingleLoopRepresentation ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("requiresFakeSingleLoopDoubleLoopRepresentation") << ':'
-                << (requiresFakeSingleLoopDoubleLoopRepresentation ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("marsYear") << ':' << detail::optionalLongJson_modelInput(marsYear)
-                << ',' << detail::jsonQuote_modelInput("marsMonth") << ':'
-                << detail::optionalLongJson_modelInput(marsMonth) << ',' << detail::jsonQuote_modelInput("marsDate")
-                << ':' << detail::optionalDateJson_modelInput(marsDate) << ','
-                << detail::jsonQuote_modelInput("marsTime") << ':' << detail::optionalTimeJson_modelInput(marsTime)
-                << ',' << detail::jsonQuote_modelInput("marsHdate") << ':'
-                << detail::optionalDateJson_modelInput(marsHdate) << ',' << detail::jsonQuote_modelInput("marsFcmonth")
-                << ':' << detail::optionalLongJson_modelInput(marsFcmonth) << ','
-                << detail::jsonQuote_modelInput("isSynoptic") << ':' << (isSynoptic ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("regime") << ':'
+                << detail::jsonQuote_modelInput("isIndexStatistics") << ':' << (isIndexStatistics ? "true" : "false")
+                << ',' << detail::jsonQuote_modelInput("marsYear") << ':'
+                << detail::optionalLongJson_modelInput(marsYear) << ',' << detail::jsonQuote_modelInput("marsMonth")
+                << ':' << detail::optionalLongJson_modelInput(marsMonth) << ','
+                << detail::jsonQuote_modelInput("marsDate") << ':' << detail::optionalDateJson_modelInput(marsDate)
+                << ',' << detail::jsonQuote_modelInput("marsTime") << ':'
+                << detail::optionalTimeJson_modelInput(marsTime) << ',' << detail::jsonQuote_modelInput("marsHdate")
+                << ':' << detail::optionalDateJson_modelInput(marsHdate) << ','
+                << detail::jsonQuote_modelInput("marsFcmonth") << ':'
+                << detail::optionalLongJson_modelInput(marsFcmonth) << ',' << detail::jsonQuote_modelInput("isSynoptic")
+                << ':' << (isSynoptic ? "true" : "false") << ',' << detail::jsonQuote_modelInput("regime") << ':'
                 << detail::jsonQuote_modelInput(regime == deductions::SimulationRegime::AIFS ? "AIFS" : "IFS") << ','
                 << detail::jsonQuote_modelInput("simulationType") << ':'
                 << detail::jsonQuote_modelInput(simulationType == deductions::SimulationType::Analysis ? "Analysis"
@@ -402,10 +393,9 @@ ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
     const ParDict_t& par, const OptDict_t& opt) {
     using metkit::mars2grib::backend::models::product_time_spec::detail::
         isAllowed_InnerTypeOfStatisticalProcessingAtStepZero;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::isIndexStatistics;
     using metkit::mars2grib::backend::models::product_time_spec::detail::
         requiresFakeDoubleLoopSingleLoopRepresentation_or_throw;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::
-        requiresFakeSingleLoopDoubleLoopRepresentation_or_throw;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -417,8 +407,7 @@ ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
         input.marsParamId = deductions::resolve_ParamId_or_throw(mars, par, opt);
         input.requiresFakeDoubleLoopSingleLoopRepresentation =
             requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(mars, par, opt);
-        input.requiresFakeSingleLoopDoubleLoopRepresentation =
-            requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(mars, par, opt);
+        input.isIndexStatistics = isIndexStatistics(input.marsParamId);
         input.marsYear    = deductions::resolve_Year_opt(mars, par, opt);
         input.marsMonth   = deductions::resolve_Month_opt(mars, par, opt);
         input.marsDate    = deductions::resolve_Date_opt(mars, par, opt);

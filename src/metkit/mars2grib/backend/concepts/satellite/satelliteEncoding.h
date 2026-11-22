@@ -14,20 +14,22 @@
 /// - instrument characteristics
 /// - spectral channel information
 ///
-/// The encoding is distributed across multiple GRIB sections and encoding
-/// stages, reflecting the structure of GRIB Product Definition Templates
-/// for satellite products.
+/// All satellite metadata, including the channel, is encoded in the Product
+/// Definition Section, using the templates for simulated (synthetic) satellite
+/// data "with channel, bandwidth and polarisation" (WMO FT2026-1; ecCodes
+/// ECC-2272, GRIB2 tables version 37).
+///
+/// Earlier versions kept the channel in the ECMWF Local Use Section (local
+/// definition 24, or 192 = 24 + 36 for products that also carry analysis
+/// metadata) because templates 4.32/4.33 have no channel. With the channel in
+/// Section 4 the Local Use Section of a satellite product is the ordinary one
+/// (local definition 1, or 36 with analysis metadata).
 ///
 /// ---
 ///
 /// ## Encoding stages and sections
 ///
 /// The `satellite` concept operates in the following contexts:
-///
-/// ### Local Use Section (Section 2)
-/// - **StagePreset**
-/// - Encodes the `channel` key
-/// - Validates the Local Definition Number
 ///
 /// ### Product Definition Section (Section 4)
 /// - **StageAllocate**
@@ -36,7 +38,10 @@
 ///
 /// - **StagePreset**
 /// - Encodes satellite and instrument identifiers
+/// - Encodes the channel number
 /// - Encodes spectral wave number information
+/// - Sets the bandwidth to missing and the polarisation to missing (not
+///   available from the MARS keys)
 ///
 /// ---
 ///
@@ -44,8 +49,8 @@
 ///
 /// The concept currently supports GRIB Product Definition Templates:
 ///
-/// - Template 32
-/// - Template 33
+/// - Template 204 (analysis or forecast at a point in time)
+/// - Template 205 (individual ensemble forecast at a point in time)
 ///
 /// Any other template results in a validation error.
 ///
@@ -70,7 +75,6 @@
 ///
 /// The satellite concept is applicable when **any** of the following holds:
 ///
-/// - `Stage == StagePreset`  and `Section == SecLocalUseSection`
 /// - `Stage == StageAllocate` and `Section == SecProductDefinitionSection`
 /// - `Stage == StagePreset`  and `Section == SecProductDefinitionSection`
 ///
@@ -104,13 +108,11 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Checks
-#include "metkit/mars2grib/backend/checks/matchLocalDefinitionNumber.h"
 #include "metkit/mars2grib/backend/checks/matchProductDefinitionTemplateNumber.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/channel.h"
 #include "metkit/mars2grib/backend/deductions/instrumentType.h"
-#include "metkit/mars2grib/backend/deductions/numberOfFrequencies.h"
 #include "metkit/mars2grib/backend/deductions/satelliteNumber.h"
 #include "metkit/mars2grib/backend/deductions/satelliteSeries.h"
 #include "metkit/mars2grib/backend/deductions/scaleFactorOfCentralWaveNumber.h"
@@ -132,7 +134,6 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// The concept is applicable in multiple stages and sections, reflecting
 /// the distribution of satellite metadata across the GRIB message:
 ///
-/// - Local Use Section during preset
 /// - Product Definition Section during allocation and preset
 ///
 /// @tparam Stage   Encoding stage (compile-time constant)
@@ -144,12 +145,11 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <std::size_t Stage, std::size_t Section, SatelliteType Variant>
 constexpr bool satelliteApplicable() {
 
-    bool condition1 = (Stage == StagePreset && Section == SecLocalUseSection);
-    bool condition2 = (Stage == StageAllocate && Section == SecProductDefinitionSection);
-    bool condition3 = (Stage == StagePreset && Section == SecProductDefinitionSection);
+    bool condition1 = (Stage == StageAllocate && Section == SecProductDefinitionSection);
+    bool condition2 = (Stage == StagePreset && Section == SecProductDefinitionSection);
 
 
-    return (condition1 || condition2 || condition3);
+    return (condition1 || condition2);
 }
 
 ///
@@ -198,6 +198,7 @@ template <std::size_t Stage, std::size_t Section, SatelliteType Variant, class M
 void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
+    using metkit::mars2grib::utils::dict_traits::setMissing_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
     if constexpr (satelliteApplicable<Stage, Section, Variant>()) {
@@ -206,24 +207,10 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
 
             MARS2GRIB_LOG_CONCEPT(satellite);
 
-            if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
-
-                // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37});
-
-                // Deductions
-                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
-                // long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
-
-                // Encoding
-                set_or_throw<long>(out, "channelNumber", channelNumber);
-                // set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
-            }
-
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {204L, 205L});
 
                 // Encoding
                 set_or_throw<long>(out, "numberOfContributingSpectralBands", 1L);
@@ -232,9 +219,11 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {204L, 205L});
 
                 // Deductions
+                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
+
                 long satelliteNumber = deductions::resolve_satelliteNumber_or_throw(mars, par, opt);
                 long instrumentType  = deductions::resolve_InstrumentType_or_throw(mars, par, opt);
 
@@ -248,8 +237,14 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
                 set_or_throw<long>(out, "satelliteSeries", satelliteSeries);
                 set_or_throw<long>(out, "satelliteNumber", satelliteNumber);
                 set_or_throw<long>(out, "instrumentType", instrumentType);
+                set_or_throw<long>(out, "channelNumber", channelNumber);
                 set_or_throw<long>(out, "scaleFactorOfCentralWaveNumber", scaleFactorOfCentralWaveNumber);
                 set_or_throw<long>(out, "scaledValueOfCentralWaveNumber", scaledValueOfCentralWaveNumber);
+
+                // Bandwidth and polarisation are not available from the MARS keys
+                setMissing_or_throw(out, "scaleFactorOfBandwidth");
+                setMissing_or_throw(out, "scaledValueOfBandwidth");
+                set_or_throw<long>(out, "polarisation", 255L);
             }
         }
         catch (...) {

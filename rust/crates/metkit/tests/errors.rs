@@ -24,8 +24,5 @@ fn missing_grib_key_is_codes_exception() {
     let err = handle
         .get::<i64>("noSuchKey")
         .expect_err("unknown key read");
-    assert!(
-        matches!(err, Error::Metkit(metkit_sys::Error::CodesException(_))),
-        "got {err:?}"
-    );
+    assert!(matches!(err, Error::CodesException(_)), "got {err:?}");
 }

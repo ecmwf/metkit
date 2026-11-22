@@ -36,7 +36,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @brief Match the `statistics` concept variant.
 ///
 /// The matcher maps known statistical MARS parameter codes onto the appropriate
-/// local `StatisticsType` variant.
+/// local `StatisticsType` variant for the innermost operation. Index products
+/// use the operation of their underlying field; their outer IndexProcessing
+/// window is supplied by the ProductTimeSpec shape.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -58,10 +60,16 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
+        using metkit::mars2grib::utils::dict_traits::get_opt;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
         const auto param = get_or_throw<long>(mars, "param");
+
+        // Anomaly (171xxx, 173xxx) and significance (234xxx) parameters: time means (eefo fcmean/taem/pb)
+        if (matchAny(param, range(171000, 171999), range(173000, 173999), range(234000, 234999))) {
+            return static_cast<std::size_t>(StatisticsType::Average);
+        }
 
         if (matchAny(param, 8, 9, 20, 44, 45, 47, 50, 57, 58, range(142, 147), 169, range(175, 182), 189,
                      range(195, 197), 205, range(208, 213), 228, 239, 240, 3062, 3099, range(162100, 162113),
@@ -133,6 +141,10 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         // Note: In range 4xxxxy the following typeOfStatisticalProduct can be derived from the last digit:
         //       y == 1 -> mean; 2 -> accumulation; 3 -> maximum; 4 -> minimum; 5 -> standard deviation
         //       If the last digit is 0, the param is point-in-time.
+        // Exceptions to the last-digit rule (ecCodes grib2/paramId.chemsplit.def): accumulated deposition mass fluxes
+        if (matchAny(param, 444000, 445000)) {
+            return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
         if (matchAny(param, range(400000, 499999))) {
             switch (param % 10) {
                 case 0:
@@ -161,8 +173,28 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         //     typeOfStatisticalProcessing is defined for param " + std::to_string(param), Here());
         // }
 
-        if (matchAny(param, 132044, 132045, 132049, 132059, 132144, 132165, 132167, 132201, 132202, 132228)) {
-            return static_cast<std::size_t>(StatisticsType::IndexProcessing);
+        // Probabilities of anomalies over a time window: 2t, skt, msl (eefo, sfc) and temperature (enfo, pl) means,
+        // tp (eefo, sfc) accumulations
+        if (matchAny(param, range(131001, 131005), 131009, 131010, 131020, 131021)) {
+            return static_cast<std::size_t>(StatisticsType::Average);
+        }
+        if (matchAny(param, range(131006, 131008))) {
+            return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
+
+        // Index products: the variant is the innermost operation. The ProductTimeSpec
+        // shape supplies the implicit outer IndexProcessing window.
+        if (matchAny(param, 132045, 132165, 132167)) {
+            return static_cast<std::size_t>(StatisticsType::Average);
+        }
+        if (matchAny(param, 132144, 132228)) {
+            return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
+        if (matchAny(param, 132044, 132049, 132059, 132201, 132216)) {
+            return static_cast<std::size_t>(StatisticsType::Maximum);
+        }
+        if (matchAny(param, 132202)) {
+            return static_cast<std::size_t>(StatisticsType::Minimum);
         }
 
         // event probability standardised anomaly products

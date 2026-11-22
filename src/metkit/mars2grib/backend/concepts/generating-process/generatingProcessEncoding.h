@@ -160,39 +160,22 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
     if constexpr (generatingProcessApplicable<Stage, Section, Variant>()) {
 
         try {
-
             MARS2GRIB_LOG_CONCEPT(generatingProcess);
 
-            // Retrieve the information
-            std::optional<long> generatingProcessIdentifier =
-                deductions::resolve_GeneratingProcessIdentifier_opt(mars, par, opt);
-            std::optional<TypeOfGeneratingProcess> typeOfGeneratingProcess =
+            // Deductions
+            const std::optional<TypeOfGeneratingProcess> typeOfGeneratingProcess =
                 deductions::resolve_TypeOfGeneratingProcess_opt(mars, par, opt);
-
-            tables::BackgroundProcess backgroundProcess =
+            const tables::BackgroundProcess backgroundProcess =
                 deductions::resolve_BackgroundProcess_or_throw(mars, par, opt);
-            set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess));
+            const long generatingProcessIdentifier = deductions::resolve_GeneratingProcessIdentifier_opt(
+                mars, par, opt, static_cast<long>(backgroundProcess));
 
-            /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
-            /// Remove this logic.
-            ///
-            /// Deductions must not forward `std::optional` values directly.
-            /// A proper deduction must:
-            ///   - set an explicit value (e.g. `Missing`),
-            ///   - apply a DGOV-approved default,
-            ///   - or throw if the value is mandatory.
-            if (generatingProcessIdentifier.has_value()) {
-                set_or_throw<long>(out, "generatingProcessIdentifier", generatingProcessIdentifier.value());
-            }
-
-            /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
-            /// Remove this logic.
-            ///
-            /// Relying on pre-existing GRIB header values is not reproducible
-            /// and must be eliminated.
+            // Encoding
             if (typeOfGeneratingProcess.has_value()) {
                 set_or_throw<long>(out, "typeOfGeneratingProcess", static_cast<long>(typeOfGeneratingProcess.value()));
             }
+            set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess));
+            set_or_throw<long>(out, "generatingProcessIdentifier", generatingProcessIdentifier);
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(generatingProcess, "Unable to set `generatingProcess` concept...");

@@ -19,12 +19,18 @@ void extractChannel(const std::string& keyword, const metkit::codes::CodesHandle
         (void)opts;
         (void)misc;
 
-        if (!grib.has(keyword)) {
-            throw Grib2MarsGenericException(
-                "Missing GRIB key `" + keyword + "` required to extract MARS keyword `" + keyword + "`", Here());
+        // `channel` is the MARS alias of the local definitions 14, 24 and 37; with the channel in Section 4
+        // (templates 4.204/4.205) only the GRIB key `channelNumber` is available.
+        const std::string gribKey = grib.has(keyword) ? keyword : std::string("channelNumber");
+
+        if (!grib.has(gribKey)) {
+            throw Grib2MarsGenericException("Missing GRIB key `" + keyword +
+                                                "` or `channelNumber` required to extract MARS keyword `" + keyword +
+                                                "`",
+                                            Here());
         }
 
-        const long value = grib.getLong(keyword);
+        const long value = grib.getLong(gribKey);
 
         set_or_throw<long>(mars, keyword, value);
     }

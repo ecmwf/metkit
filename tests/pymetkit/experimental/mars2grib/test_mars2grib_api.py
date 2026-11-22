@@ -23,7 +23,7 @@ def test_encode_dict():
         "step": 0,
     }
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
 
     encoder.encode(vals, mars)
 
@@ -47,7 +47,7 @@ def test_encode_dict_multi_values():
         "step": 0,
     }
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
 
     with pytest.raises(RuntimeError, match="not of expected type"):
         encoder.encode(vals, mars)
@@ -72,7 +72,7 @@ def test_encode_dict_string():
         "step": "0",
     }
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
 
     # We don't support dict[str, str] yet
     with pytest.raises(RuntimeError):
@@ -98,7 +98,7 @@ def test_encode_dict_string_multiple_values():
         "step": "0",
     }
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
 
     # We don't support dict[str, str] yet
     with pytest.raises(RuntimeError):
@@ -127,7 +127,7 @@ def test_encode_mars_request():
         },
     )
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
 
     with pytest.raises(ValueError, match="Mars2Grib::encode: Currently metkit::mars::MarsRequest is not supported."):
         encoder.encode(vals, mars_request)
@@ -155,7 +155,7 @@ def test_encode_mixed_types():
         },
     )
 
-    vals = [237.15] * 200
+    vals = [237.15] * 213988
 
     with pytest.raises(ValueError, match="mars and misc have to be the same object type"):
         encoder.encode(vals, mars, misc={})

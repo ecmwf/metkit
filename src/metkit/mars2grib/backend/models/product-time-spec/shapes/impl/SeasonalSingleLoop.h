@@ -44,6 +44,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the SeasonalSingleLoop shape.
  *
+ * - the parameter does not identify index statistics;
  * - the product uses the seasonal class/stream discriminator:
  *   - `marsClass` is `od`, `rd`, or `c3`;
  *   - `marsStream` is `sfmd` or `shmd`;
@@ -67,6 +68,7 @@ inline bool match_SeasonalSingleLoop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool hasSeasonalClass = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
         const bool hasSeasonalStream =
             input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd";
@@ -78,8 +80,8 @@ inline bool match_SeasonalSingleLoop_Shape(const ProductTimeSpecInput& input) {
             timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasExactlyOneStattypeBlock = input.stattype.size() == 1;
 
-        return hasSeasonalClass && hasSeasonalStream && hasSeasonalLeadSemantics && isForecast && isNotSynoptic &&
-               hasAcceptedTimespanRepresentation && hasExactlyOneStattypeBlock;
+        return isNotIndexStatistics && hasSeasonalClass && hasSeasonalStream && hasSeasonalLeadSemantics &&
+               isForecast && isNotSynoptic && hasAcceptedTimespanRepresentation && hasExactlyOneStattypeBlock;
     }
     catch (...) {
         std::throw_with_nested(
@@ -338,6 +340,7 @@ inline bool check_SeasonalSingleLoop_Shape(
                                           Here());
         }
 
+        const bool isNotIndexStatistics     = !input.isIndexStatistics;
         const bool hasSeasonalClass  = input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3";
         const bool hasSeasonalStream = input.marsStream == "sfmd" || input.marsStream == "shmd";
         const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
@@ -348,8 +351,8 @@ inline bool check_SeasonalSingleLoop_Shape(
             timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasExactlyOneStattypeBlock = input.stattype.size() == 1;
 
-        if (!hasSeasonalClass || !hasSeasonalStream || !hasSeasonalLeadSemantics || !isForecast || !isNotSynoptic ||
-            !hasAcceptedTimespanRepresentation || !hasExactlyOneStattypeBlock) {
+        if (!isNotIndexStatistics || !hasSeasonalClass || !hasSeasonalStream || !hasSeasonalLeadSemantics ||
+            !isForecast || !isNotSynoptic || !hasAcceptedTimespanRepresentation || !hasExactlyOneStattypeBlock) {
             throw Mars2GribModelException("SeasonalSingleLoop input semantics are not satisfied", input.to_json(),
                                           Here());
         }

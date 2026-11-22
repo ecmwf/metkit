@@ -23,6 +23,8 @@
 
 
 #include "eckit/log/Log.h"
+#include "metkit/mars2grib/backend/tables/backgroundProcess.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
@@ -30,6 +32,64 @@
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::deductions {
+
+namespace {
+
+
+long defaultGeneratingProcessIdentifier(long backgroundProcess) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+
+    switch (backgroundProcess) {
+        case 1:        // aifs-single
+            return 6;  // aifs-single-mse-v3.0
+
+        case 2:        // aifs-ens
+            return 3;  // aifs-ens-crps-v3
+
+        case 3:        // aifs-single-mse
+            return 6;  // v3.0
+
+        case 4:        // aifs-ens-crps
+            return 3;  // v3
+
+        case 5:        // aifs-ens-diff
+            return 1;  // v0.1
+
+        case 6:        // aifs-compo-single
+            return 2;  // aifs-compo-single-mse-v0.2
+
+        case 7:        // aifs-compo-ens
+            return 1;  // aifs-compo-ens-crps-v0.1
+
+        case 8:        // aifs-compo-single-mse
+            return 2;  // v0.2
+
+        case 9:        // aifs-compo-ens-crps
+            return 1;  // v0.01
+
+        case 10:       // aifs-subs
+            return 1;  // aifs-subs-crps-v0.1
+
+        case 11:       // aifs-subs-crps
+            return 1;  // v0.1
+
+        case 144:      // gfas
+            return 3;  // v1.4.2
+
+        case 246:      // ldas
+        case 248:      // ecwam
+        case 250:      // nemo
+        case 252:      // ifs-compo
+        case 254:      // ifs
+            return 2;  // cy50r2
+    }
+
+    throw Mars2GribDeductionException(
+        "No default generatingProcessIdentifier exists for backgroundProcess " + std::to_string(backgroundProcess),
+        Here());
+}
+
+}  // namespace
 
 ///
 /// @brief Optionally resolve the GRIB `generatingProcessIdentifier` key from parameters.
@@ -85,43 +145,33 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] const MarsDict_t& mars,
-                                                            const ParDict_t& par,
-                                                            [[maybe_unused]] const OptDict_t& opt) {
+long resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] const MarsDict_t& mars, const ParDict_t& par,
+                                             [[maybe_unused]] const OptDict_t& opt, long backgroundProcess) {
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
+        if (has(par, "generatingProcessIdentifier")) {
+            const long generatingProcessIdentifier = get_or_throw<long>(par, "generatingProcessIdentifier");
 
-        // Get generatingProcessIdentifier from mars dictionary
-        std::optional<long> generatingProcessIdentifierVal = get_opt<long>(par, "generatingProcessIdentifier");
-
-        if (generatingProcessIdentifierVal.has_value()) {
-
-            // Logging of the par::generatingProcessIdentifier
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg =
-                    "`generatingProcessIdentifier`: mapped from `par::generatingProcessIdentifier`: actual='";
-                logMsg += std::to_string(generatingProcessIdentifierVal.value()) + "'";
-                return logMsg;
+                return "`generatingProcessIdentifier`: mapped from `par::generatingProcessIdentifier`: actual='" +
+                       std::to_string(generatingProcessIdentifier) + "'";
             }());
 
-            // Return the generatingProcessIdentifier from the parameter dictionary
-            return {generatingProcessIdentifierVal};
+            return generatingProcessIdentifier;
         }
         else {
+            const long generatingProcessIdentifier = defaultGeneratingProcessIdentifier(backgroundProcess);
 
-            // Logging of the par::generatingProcessIdentifier absence
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg =
-                    "`generatingProcessIdentifier`: `par::generatingProcessIdentifier` not present, return "
-                    "std::nullopt to skip deduction";
-                return logMsg;
+                return "`generatingProcessIdentifier`: defaulted to " + std::to_string(generatingProcessIdentifier) +
+                       " for backgroundProcess " + std::to_string(backgroundProcess);
             }());
 
-            // Key not present; return std::nullopt
-            return std::nullopt;
+            return generatingProcessIdentifier;
         }
     }
     catch (...) {

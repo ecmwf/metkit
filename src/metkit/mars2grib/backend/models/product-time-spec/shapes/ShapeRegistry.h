@@ -12,28 +12,29 @@
 ///
 /// The active callback-selection matrix is summarized case-by-case below. Each
 /// row lists the matcher facts that must simultaneously hold for that callback
-/// to be selected.
+/// to be selected. The index flag is `ProductTimeSpecInput::isIndexStatistics`;
+/// its only supported shape also requires MARS type `efi`, `efic`, or `sot`.
 ///
 /// | Shape case | Regime | Domain kind | Synoptic | `timespan.kind` | `stattype` | `timeIncrement` expectation |
-/// Fake-double-loop flag | Fake-second-loop flag |
+/// Fake-double-loop flag | Index flag |
 /// |------------|--------|-------------|----------|------------------|------------|-----------------------------|----------------------|----------------------|
 /// | `Instant` | any | any | any | `None`, or `Missing` when allowed | empty | redundant values validated later | n/a |
-/// n/a | | `IFSStandardSingleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit, missing, or
+/// `false` | | `IFSStandardSingleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit, missing, or
 /// defaulted | `false` | `false` | | `IFSFakeDoubleLoopSingleLoop` | `IFS` | `ForecastDomain` | `false` | `None`, or
 /// `Missing` when allowed | exactly one block | explicit, missing, or defaulted | `true` | `false` | |
 /// `IFSFromStartSingleLoopAtZero` | `IFS` | `ForecastDomain` | `false` | `FromStart` | empty |
-/// explicit, missing, or defaulted | n/a | n/a | | `IFSFromStartSingleLoopPositive` | `IFS` | `ForecastDomain` |
-/// `false` | `FromStart` | empty | explicit, missing, or defaulted | n/a | n/a | | `IFSSynopticSingleLoop` |
+/// explicit, missing, or defaulted | n/a | `false` | | `IFSFromStartSingleLoopPositive` | `IFS` | `ForecastDomain` |
+/// `false` | `FromStart` | empty | explicit, missing, or defaulted | n/a | `false` | | `IFSSynopticSingleLoop` |
 /// `IFS` | `SynopticAnalysisDomain` | `true` | synoptic-supported source | empty | intrinsic or redundant 24h value |
-/// n/a | n/a | | `AIFSStandardSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `Duration` | empty | must be missing
+/// n/a | `false` | | `AIFSStandardSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `Duration` | empty | must be missing
 /// | `false` | `false` | | `AIFSFakeDoubleLoopSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `None`, or `Missing`
-/// when allowed | exactly one block | must be missing | `true` | n/a | | `AIFSFromStartSingleLoopAtZero` | `AIFS` |
-/// `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | n/a | | `AIFSFromStartSingleLoopPositive`
-/// | `AIFS` | `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | n/a | | `SeasonalSingleLoop` |
+/// when allowed | exactly one block | must be missing | `true` | `false` | | `AIFSFromStartSingleLoopAtZero` | `AIFS` |
+/// `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | `false` | | `AIFSFromStartSingleLoopPositive`
+/// | `AIFS` | `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | `false` | | `SeasonalSingleLoop` |
 /// any | `SeasonalForecastDomain` | `false` | `None`, or `Missing` when allowed | empty | explicit, missing, or
-/// defaulted | n/a | n/a | | `SeasonalMultiloop` | any | `SeasonalForecastDomain` | `false` | `Duration` | one or more
-/// blocks | explicit, missing, or defaulted | n/a | n/a | | `IFSStandardMultiLoop` | `IFS` | `ForecastDomain` | `false`
-/// | `Duration` | one or more blocks | explicit, missing, or defaulted | n/a | n/a | | `IFSFakeSingleLoopDoubleLoop` |
+/// defaulted | n/a | `false` | | `SeasonalMultiloop` | any | `SeasonalForecastDomain` | `false` | `Duration` | one or more
+/// blocks | explicit, missing, or defaulted | n/a | `false` | | `IFSStandardMultiLoop` | `IFS` | `ForecastDomain` | `false`
+/// | `Duration` | one or more blocks | explicit, missing, or defaulted | n/a | `false` | | `IFSFakeSingleLoopDoubleLoop` |
 /// `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit, missing, or defaulted | `false` | `true` |
 ///
 /// @ingroup mars2grib_product_time_spec_shapes
