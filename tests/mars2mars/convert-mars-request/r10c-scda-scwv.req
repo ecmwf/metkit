@@ -1,0 +1,2 @@
+retrieve,class=od,expver=0001,date=20260901,time=0600,stream=scda,type=fc,levtype=sfc,param=167/228,step=0/6
+retrieve,class=od,expver=0001,date=20260901,time=0600,stream=scwv,type=fc,levtype=sfc,param=140229,step=0/6

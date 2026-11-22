@@ -50,7 +50,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * - `timespan` is duration-valued;
  * - no outer `stattype` blocks are present;
  * - the product does not require the fake-double-loop compatibility case;
- * - the product requires the fake-single-loop-double-loop compatibility case.
+ * - the parameter identifies index statistics and MARS type is efi, efic, or sot.
  *
  * @param[in] input Fully normalized ProductTimeSpec input snapshot.
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
@@ -63,6 +63,7 @@ inline bool match_IFSFakeSingleLoopDoubleLoop_Shape(const ProductTimeSpecInput& 
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool hasIndexType = input.marsType == "efi" || input.marsType == "efic" || input.marsType == "sot";
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -72,13 +73,14 @@ inline bool match_IFSFakeSingleLoopDoubleLoop_Shape(const ProductTimeSpecInput& 
         const bool isNotSeasonal                = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
         const bool isNotSynoptic                = !input.isSynoptic;
         const bool hasDurationTimespan          = input.timespan.kind == TimespanKind::Duration;
+        const bool hasDurationValue             = input.timespan.duration.has_value();
         const bool hasNoStattypeBlocks          = input.stattype.empty();
         const bool requiresFakeDoubleLoop       = input.requiresFakeDoubleLoopSingleLoopRepresentation;
         const bool doesNotRequireFakeDoubleLoop = !requiresFakeDoubleLoop;
-        const bool requiresFakeSecondLoop       = input.requiresFakeSingleLoopDoubleLoopRepresentation;
+        const bool isIndexStatistics            = input.isIndexStatistics;
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasNoStattypeBlocks &&
-               doesNotRequireFakeDoubleLoop && requiresFakeSecondLoop;
+        return hasIndexType && isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
+               hasDurationValue && hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && isIndexStatistics;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_IFSFakeSingleLoopDoubleLoop_Shape`",
@@ -351,6 +353,7 @@ inline bool check_IFSFakeSingleLoopDoubleLoop_Shape(
                                           input.to_json(), Here());
         }
 
+        const bool hasIndexType = input.marsType == "efi" || input.marsType == "efic" || input.marsType == "sot";
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -364,10 +367,10 @@ inline bool check_IFSFakeSingleLoopDoubleLoop_Shape(
         const bool hasNoStattypeBlocks          = input.stattype.empty();
         const bool requiresFakeDoubleLoop       = input.requiresFakeDoubleLoopSingleLoopRepresentation;
         const bool doesNotRequireFakeDoubleLoop = !requiresFakeDoubleLoop;
-        const bool requiresFakeSecondLoop       = input.requiresFakeSingleLoopDoubleLoopRepresentation;
+        const bool isIndexStatistics            = input.isIndexStatistics;
 
-        if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !hasDurationTimespan || !hasDurationValue ||
-            !hasNoStattypeBlocks || !doesNotRequireFakeDoubleLoop || !requiresFakeSecondLoop) {
+        if (!hasIndexType || !isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !hasDurationTimespan ||
+            !hasDurationValue || !hasNoStattypeBlocks || !doesNotRequireFakeDoubleLoop || !isIndexStatistics) {
             throw Mars2GribModelException("IFSFakeSingleLoopDoubleLoop input semantics are not satisfied",
                                           input.to_json(), Here());
         }

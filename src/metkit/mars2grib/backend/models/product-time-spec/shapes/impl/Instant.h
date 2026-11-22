@@ -40,6 +40,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the Instant shape.
  *
+ * - the parameter does not identify index statistics;
  * - the product does not satisfy both the seasonal class/stream discriminator
  *   and the seasonal lead discriminator;
  * - `timespan` is explicitly `none`, or it is missing and the configured
@@ -58,6 +59,7 @@ inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
             (input.marsStream == "sfmd" || input.marsStream == "shmd" || input.marsStream == "sfdd");
@@ -69,7 +71,7 @@ inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
         const bool hasMissingStatisticalProcessing =
             input.innerMostTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
 
-        return isNotSeasonal && hasAcceptedTimespanRepresentation && hasNoStattypeBlocks &&
+        return isNotIndexStatistics && isNotSeasonal && hasAcceptedTimespanRepresentation && hasNoStattypeBlocks &&
                hasMissingStatisticalProcessing;
     }
     catch (...) {
@@ -228,6 +230,7 @@ inline bool check_Instant_Shape(
             throw Mars2GribModelException("Shape classification mismatch: expected Instant", input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool hasSeasonalClassStream =
             (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
             (input.marsStream == "sfmd" || input.marsStream == "shmd");
@@ -239,7 +242,7 @@ inline bool check_Instant_Shape(
         const bool hasMissingStatisticalProcessing =
             input.innerMostTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
 
-        if (!isNotSeasonal || !hasAcceptedTimespanRepresentation || !hasNoStattypeBlocks ||
+        if (!isNotIndexStatistics || !isNotSeasonal || !hasAcceptedTimespanRepresentation || !hasNoStattypeBlocks ||
             !hasMissingStatisticalProcessing) {
             throw Mars2GribModelException("Instant input semantics are not satisfied", input.to_json(), Here());
         }

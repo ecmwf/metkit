@@ -41,6 +41,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the IFSStandardMultiLoop shape.
  *
+ * - the parameter does not identify index statistics;
  * - the regime is IFS;
  * - the product is forecast;
  * - the product does not satisfy both the seasonal class/stream discriminator
@@ -60,6 +61,7 @@ inline bool match_IFSStandardMultiLoop_Shape(const ProductTimeSpecInput& input) 
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -72,8 +74,8 @@ inline bool match_IFSStandardMultiLoop_Shape(const ProductTimeSpecInput& input) 
         const bool hasTimespanDuration      = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks   = !input.stattype.empty();
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasTimespanDuration &&
-               hasOuterStattypeBlocks;
+        return isNotIndexStatistics && isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
+               hasTimespanDuration && hasOuterStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
@@ -343,6 +345,7 @@ inline bool check_IFSStandardMultiLoop_Shape(
                                           input.to_json(), Here());
         }
 
+        const bool isNotIndexStatistics = !input.isIndexStatistics;
         const bool isIfs      = input.regime == SimulationRegime::IFS;
         const bool isForecast = input.simulationType == SimulationType::Forecast;
         const bool hasSeasonalClassStream =
@@ -355,8 +358,8 @@ inline bool check_IFSStandardMultiLoop_Shape(
         const bool hasTimespanDuration      = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks   = !input.stattype.empty();
 
-        if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !hasDurationTimespan || !hasTimespanDuration ||
-            !hasOuterStattypeBlocks) {
+        if (!isNotIndexStatistics || !isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic ||
+            !hasDurationTimespan || !hasTimespanDuration || !hasOuterStattypeBlocks) {
             throw Mars2GribModelException("IFSStandardMultiLoop input semantics are not satisfied", input.to_json(),
                                           Here());
         }

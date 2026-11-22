@@ -69,8 +69,10 @@ except AmbiguousParamError as exc:
 You can resolve the ambiguity in three ways:
 
 ```python
-# 1. Narrow with a MARS context (resolved via the C++ expand engine)
-db.shortname_to_param_id("tp", context={"class": "od"})   # 228
+# 1. Narrow with a full MARS context (resolved via the C++ expand engine).
+#    class, stream, type and levtype are all required; otherwise ValueError.
+db.shortname_to_param_id("tp", context={"class": "od", "stream": "oper", "type": "fc", "levtype": "sfc"})  # 228
+db.shortname_to_param_id("tp", context={"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"})  # 228228
 
 # 2. Narrow with hard metadata filters (no MARS request constructed)
 db.shortname_to_param_id("tp", table=128)                 # 228
@@ -98,6 +100,10 @@ for cand in db.shortname_to_param_id_candidates("tp"):
 > kwargs **proven to select exactly one** candidate, or `None` when no
 > combination of the available hard filters disambiguates it. The API never
 > advertises a selector that would remain ambiguous.
+
+> **Note:** A `context=` must contain non-empty `class`, `stream`, `type` and `levtype` (extra keys
+> are allowed); anything less, including `context={}`, raises `ValueError`. Omit `context` to see all
+> candidates. `context=None` (the default) behaves as before.
 
 > **Note:** Per-candidate MARS context computation is temporarily deferred, so every returned
 > or raised `ParamIDCandidate` currently carries `mars_request_context=None`. Passing

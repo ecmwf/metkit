@@ -74,7 +74,6 @@ constexpr bool paramApplicable() {
             (Section == SecProductDefinitionSection));
 }
 
-
 ///
 /// @brief Execute the `param` concept operation.
 ///

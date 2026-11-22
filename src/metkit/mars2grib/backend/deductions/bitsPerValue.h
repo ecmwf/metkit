@@ -55,6 +55,7 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -143,9 +144,13 @@ inline long lookup_bitsPerValueGridded_default(long paramId, std::string prefix,
     constexpr long CLOUD_ICE_WATER_CONTENT          = 247;
     constexpr long CLOUDY_BRIGHTNESS_TEMPERATURE    = 260510;
     constexpr long CLEAR_SKY_BRIGHTNESS_TEMPERATURE = 260511;
+    constexpr long WAVE_SPECTRA                     = 140251;
 
     if (paramId == CLOUD_COVER) {
         return 8;
+    }
+    else if (paramId == WAVE_SPECTRA) {
+        return 9;
     }
     else if (paramId == SNOW_DEPTH_BACKWARD_COMPAT || paramId == SNOW_DEPTH || paramId == FORECAST_SURFACE_ROUGHNESS) {
         return 24;

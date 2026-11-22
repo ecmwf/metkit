@@ -76,7 +76,8 @@ inline constexpr std::string_view referencePeriodName{"referencePeriod"};
 /// tables and registries.
 ///
 enum class ReferencePeriodType : std::size_t {
-    Default = 0
+    Default  = 0,
+    Quantile = 1
 };
 
 
@@ -92,7 +93,7 @@ enum class ReferencePeriodType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using ReferencePeriodList = ValueList<ReferencePeriodType::Default>;
+using ReferencePeriodList = ValueList<ReferencePeriodType::Default, ReferencePeriodType::Quantile>;
 
 
 ///
@@ -123,6 +124,7 @@ constexpr std::string_view referencePeriodTypeName();
     }
 
 DEF(ReferencePeriodType::Default, "default");
+DEF(ReferencePeriodType::Quantile, "quantile");
 
 #undef DEF
 

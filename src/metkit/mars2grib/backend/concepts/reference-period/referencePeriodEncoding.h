@@ -8,9 +8,10 @@
 /// This header defines the applicability rules and execution logic for the
 /// **referencePeriod concept** within the mars2grib backend.
 ///
-/// The current implementation is an inactive skeleton that provides the
-/// standard compile-time and runtime hooks required by the concept registry,
-/// without enabling any encoding behavior yet.
+/// The concept encodes the reference-period block of PDT 4.106/4.107/4.112/
+/// 4.131-4.135: the additional parameters (SOT percentiles), the model-climate
+/// time ranges and sample size, and for EFI/SOT the reference dataset and
+/// relation.
 ///
 /// The implementation follows the standard mars2grib concept model:
 /// - Compile-time applicability via `referencePeriodApplicable`
@@ -28,13 +29,27 @@
 ///
 #pragma once
 
+// System includes
+#include <array>
+#include <string>
+#include <vector>
+
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
+// Deductions
+#include "metkit/mars2grib/backend/deductions/additionalParametersForReferencePeriod.h"
+#include "metkit/mars2grib/backend/deductions/modelClimateReferencePeriod.h"
+#include "metkit/mars2grib/backend/deductions/sampleSizeOfModelClimate.h"
+#include "metkit/mars2grib/backend/deductions/startOfReferencePeriod.h"
+#include "metkit/mars2grib/backend/deductions/typeOfReferenceDataset.h"
+#include "metkit/mars2grib/backend/deductions/typeOfRelationToReferenceDataset.h"
+
 // Utils
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -43,67 +58,40 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @brief Compile-time applicability predicate for the `referencePeriod` concept.
 ///
-/// This predicate determines whether the `referencePeriod` concept is
-/// applicable for a given combination of:
-/// - encoding stage
-/// - GRIB section
-/// - concept variant
-///
-/// Applicability is evaluated entirely at compile time and is used by the
-/// concept dispatcher to control instantiation and execution.
-///
-/// @tparam Stage   Encoding stage (compile-time constant)
-/// @tparam Section GRIB section index (compile-time constant)
-/// @tparam Variant Reference-period concept variant
-///
-/// @return `true` if the concept is applicable for the given parameters,
-/// `false` otherwise.
-///
-/// @note
-/// The current skeleton implementation always returns `false`.
+/// The concept is applicable in the allocate and preset stages of the Product Definition Section.
 ///
 template <std::size_t Stage, std::size_t Section, ReferencePeriodType Variant>
 constexpr bool referencePeriodApplicable() {
-    return false;
+    return (Section == SecProductDefinitionSection) && (Stage == StageAllocate || Stage == StagePreset);
 }
-
 
 ///
 /// @brief Execute the `referencePeriod` concept operation.
 ///
-/// This function provides the standard runtime hook for the
-/// `referencePeriod` concept.
+/// StageAllocate:
+/// - `numberOfAdditionalParametersForReferencePeriod` (2 for SOT, else 0)
+/// - `numberOfReferencePeriodTimeRanges` (2)
 ///
-/// If the concept is invoked when not applicable, a
-/// `Mars2GribConceptException` is thrown.
-///
-/// @tparam Stage      Encoding stage (compile-time constant)
-/// @tparam Section    GRIB section index (compile-time constant)
-/// @tparam Variant    Reference-period concept variant
-/// @tparam MarsDict_t Type of the MARS input dictionary
-/// @tparam ParDict_t  Type of the parameter dictionary
-/// @tparam OptDict_t  Type of the options dictionary
-/// @tparam OutDict_t  Type of the GRIB output dictionary
-///
-/// @param[in]  mars MARS input dictionary
-/// @param[in]  par  Parameter dictionary
-/// @param[in]  opt  Options dictionary
-/// @param[out] out  Output GRIB dictionary to be populated
-///
-/// @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
-/// If the concept is invoked when not applicable.
-///
-/// @see referencePeriodApplicable
+/// StagePreset:
+/// - `typeOfReferenceDataset` (code table 4.100) and `typeOfRelationToReferenceDataset` (code table 4.101), see
+///   `resolve_TypeOfReferenceDataset_or_throw` and `resolve_TypeOfRelationToReferenceDataset_or_throw`
+/// - SOT only: the two percentiles as additional parameters (`scaleFactorOfAdditionalParameterForReferencePeriod`,
+///   `scaledValueOfAdditionalParameterForReferencePeriod`), see
+///   `resolve_AdditionalParametersForReferencePeriod_or_throw`
+/// - the start of the reference period (`yearOfStartOfReferencePeriod`, `monthOfStartOfReferencePeriod`,
+///   `dayOfStartOfReferencePeriod`, `hourOfStartOfReferencePeriod`, `minuteOfStartOfReferencePeriod`,
+///   `secondOfStartOfReferencePeriod`), only set when resolved, see `resolve_StartOfReferencePeriod_opt`
+/// - `sampleSizeOfReferencePeriod` from the optional `sampleSizeOfModelClimate`, only set when resolved, see
+///   `resolve_SampleSizeOfModelClimate_opt`
+/// - the model-climate time ranges (`typeOfStatisticalProcessingForTimeRangeForReferencePeriod`,
+///   `indicatorOfUnitForTimeRangeForReferencePeriod`, `lengthOfTimeRangeForReferencePeriod`), outer (years) first
+///   and inner (days) second, only set when resolved, see `resolve_ModelClimateReferencePeriod_opt`
 ///
 template <std::size_t Stage, std::size_t Section, ReferencePeriodType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
-    static_cast<void>(mars);
-    static_cast<void>(par);
-    static_cast<void>(opt);
-    static_cast<void>(out);
-
+    using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
     if constexpr (referencePeriodApplicable<Stage, Section, Variant>()) {
@@ -111,6 +99,76 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
         try {
 
             MARS2GRIB_LOG_CONCEPT(referencePeriod);
+
+
+            // =============================================================
+            // StageAllocate
+            // =============================================================
+            if constexpr (Stage == StageAllocate) {
+                if constexpr (Variant == ReferencePeriodType::Quantile) {
+                    set_or_throw<long>(out, "numberOfAdditionalParametersForReferencePeriod", 2);
+                }
+                else {
+                    set_or_throw<long>(out, "numberOfAdditionalParametersForReferencePeriod", 0);
+                }
+                set_or_throw<long>(out, "numberOfReferencePeriodTimeRanges", 2);
+            }
+
+            // =============================================================
+            // StagePreset
+            // =============================================================
+            if constexpr (Stage == StagePreset) {
+
+                const auto typeOfReferenceDataset = deductions::resolve_TypeOfReferenceDataset_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "typeOfReferenceDataset", static_cast<long>(typeOfReferenceDataset));
+
+                const auto typeOfRelationToReferenceDataset =
+                    deductions::resolve_TypeOfRelationToReferenceDataset_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "typeOfRelationToReferenceDataset",
+                                   static_cast<long>(typeOfRelationToReferenceDataset));
+
+                if constexpr (Variant == ReferencePeriodType::Quantile) {
+                    const auto additionalParameters =
+                        deductions::resolve_AdditionalParametersForReferencePeriod_or_throw(mars, par, opt);
+
+                    set_or_throw<std::vector<long>>(
+                        out, "scaleFactorOfAdditionalParameterForReferencePeriod",
+                        {additionalParameters.first.scaleFactor, additionalParameters.second.scaleFactor});
+                    set_or_throw<std::vector<long>>(
+                        out, "scaledValueOfAdditionalParameterForReferencePeriod",
+                        {additionalParameters.first.scaledValue, additionalParameters.second.scaledValue});
+                }
+
+                const auto startOfReferencePeriod = deductions::resolve_StartOfReferencePeriod_opt(mars, par, opt);
+                if (startOfReferencePeriod.has_value()) {
+                    set_or_throw<long>(out, "yearOfStartOfReferencePeriod", startOfReferencePeriod->year);
+                    set_or_throw<long>(out, "monthOfStartOfReferencePeriod", startOfReferencePeriod->month);
+                    set_or_throw<long>(out, "dayOfStartOfReferencePeriod", startOfReferencePeriod->day);
+                    set_or_throw<long>(out, "hourOfStartOfReferencePeriod", startOfReferencePeriod->hour);
+                    set_or_throw<long>(out, "minuteOfStartOfReferencePeriod", startOfReferencePeriod->minute);
+                    set_or_throw<long>(out, "secondOfStartOfReferencePeriod", startOfReferencePeriod->second);
+                }
+
+                const auto sampleSizeOfModelClimate = deductions::resolve_SampleSizeOfModelClimate_opt(mars, par, opt);
+                if (sampleSizeOfModelClimate.has_value()) {
+                    set_or_throw<long>(out, "sampleSizeOfReferencePeriod", sampleSizeOfModelClimate.value());
+                }
+
+                const auto modelClimate = deductions::resolve_ModelClimateReferencePeriod_opt(mars, par, opt);
+                if (modelClimate.has_value()) {
+                    set_or_throw<std::vector<long>>(
+                        out, "typeOfStatisticalProcessingForTimeRangeForReferencePeriod",
+                        {modelClimate->outer.typeOfStatisticalProcessingForTimeRangeForReferencePeriod,
+                         modelClimate->inner.typeOfStatisticalProcessingForTimeRangeForReferencePeriod});
+                    set_or_throw<std::vector<long>>(
+                        out, "indicatorOfUnitForTimeRangeForReferencePeriod",
+                        {modelClimate->outer.indicatorOfUnitForTimeRangeForReferencePeriod,
+                         modelClimate->inner.indicatorOfUnitForTimeRangeForReferencePeriod});
+                    set_or_throw<std::vector<long>>(out, "lengthOfTimeRangeForReferencePeriod",
+                                                    {modelClimate->outer.lengthOfTimeRangeForReferencePeriod,
+                                                     modelClimate->inner.lengthOfTimeRangeForReferencePeriod});
+                }
+            }
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(referencePeriod, "Unable to set `referencePeriod` concept...");

@@ -494,7 +494,7 @@ void MarsLanguage::parse(MarsVerb verb) {
 
 Category MarsLanguage::category(MarsKeyword keyword) {
     if (!keyword || keyword >= categories_.size()) {
-        throw eckit::UserError("Cannot find keyword with id " + std::to_string(keyword));
+        return Category::Unknown;
     }
     return categories_[keyword];
 }

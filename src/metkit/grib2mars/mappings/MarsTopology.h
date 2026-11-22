@@ -174,6 +174,22 @@ private:
         }
     }
 
+    /// The satellite templates with the channel in Section 4 (4.204/4.205) have no `mars.channel` alias in
+    /// ecCodes: it is only defined by the local definitions that used to hold the channel (14, 24, 37).
+    static void append_channel_keyword(const metkit::codes::CodesHandle& grib, std::vector<std::string>& keywords) {
+        using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
+
+        try {
+            if (grib.has("channelNumber")) {
+                append_unique(keywords, "channel");
+            }
+        }
+        catch (...) {
+            std::throw_with_nested(Grib2MarsGenericException(
+                "Failed to add MARS keyword `channel` while building grib2mars MarsTopology", Here()));
+        }
+    }
+
     static void append_geometry_keyword(const metkit::codes::CodesHandle& grib, std::vector<std::string>& keywords) {
         using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
@@ -228,6 +244,7 @@ private:
 
             // MARS keywords required by mars2grib but not always injected by ecCodes.
             append_packing_keyword(grib, keywords);
+            append_channel_keyword(grib, keywords);
             append_geometry_keyword(grib, keywords);
             append_required_keywords(keywords);
 

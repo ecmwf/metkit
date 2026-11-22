@@ -1,0 +1,63 @@
+# Output schedule of the model: the forecast steps written per (class, stream, type, time).
+#
+# mars2mars needs it for the params whose statistic runs "since the previous post-processing"
+# (10fg 49, mx2t 201, mn2t 202, mxtpr 228226, mntpr 228227) when a request gives a single step:
+# their window is the interval since the previous output step. A context that is not listed here
+# is an error, because the window cannot be guessed (it is never `timespan=fs`, which is reserved
+# for accumulations since the start of the forecast).
+#
+# Format: `bands` are consecutive; each band covers the steps after the end of the previous band
+# up to `to` (inclusive), every `by` hours. `time` lists the base times (hhmm, quoted) that share
+# the schedule.
+#
+# Evidence: the step set of 2t (167) in the legacy archive, od:0001 20261027 (oper 06/12/18 UTC)
+# and 20261028 (enfo pf 00 UTC), and the converted archive fdbsc od:2250 oper 20261013 00 UTC
+# (237055 holds timespan 1h at steps 1-90, 3h at 93-144, 6h at 150-360). enfo 12 UTC is assumed
+# to match 00 UTC (to be confirmed); enfo has no cf in the current cycle, the entry serves legacy
+# requests. Still to add: the enfo 06/18 UTC runs.
+
+schedules:
+  - class: od
+    stream: oper
+    type: fc
+    time: ["0000", "1200"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
+      - to: 360
+        by: 6
+  # The 06 and 18 UTC runs (the former scda stream)
+  - class: od
+    stream: oper
+    type: fc
+    time: ["0600", "1800"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
+  # ENS: the same schedule as oper 00/12 UTC
+  - class: od
+    stream: enfo
+    type: pf
+    time: ["0000", "1200"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
+      - to: 360
+        by: 6
+  - class: od
+    stream: enfo
+    type: cf
+    time: ["0000", "1200"]
+    bands:
+      - to: 90
+        by: 1
+      - to: 144
+        by: 3
+      - to: 360
+        by: 6
