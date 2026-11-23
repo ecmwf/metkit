@@ -42,6 +42,7 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/mars/marsEnum.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
@@ -174,6 +175,8 @@ void MarsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
             std::string marsTypeVal   = deductions::resolve_Type_or_throw(mars, par, opt);
             std::string marsStreamVal = deductions::resolve_Stream_or_throw(mars, par, opt);
             std::string marsExpverVal = deductions::resolve_Expver_or_throw(mars, par, opt);
+
+            metkit::mars2grib::utils::dict_traits::dump_or_ignore(out, "dump.grib");
 
             // Encoding
             set_or_throw<std::string>(out, "marsClass", marsClassVal);

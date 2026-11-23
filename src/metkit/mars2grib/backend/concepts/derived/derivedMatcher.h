@@ -67,7 +67,9 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             type == "taem" ||  // Time-averaged ensemble mean
             type == "taes" ||  // Time-averaged ensemble standard deviation
             type == "efi" ||   // Extreme forecast index
-            type == "efic"     // Extreme forecast index
+            type == "efic" ||  // Extreme forecast index
+            type == "cm" ||    // Cluster Mean
+            type == "cr"       // Cluster Representative
         ) {
             return static_cast<std::size_t>(DerivedType::Default);
         }

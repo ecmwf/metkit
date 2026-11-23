@@ -5,6 +5,7 @@
 #pragma once
 
 // All elements needed to used the "dsl" objects to define recipes
+#include "metkit/mars2grib/backend/concepts/cluster/clusterConceptDescriptor.h"
 #include "metkit/mars2grib/backend/sections/resolver/dsl.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
@@ -51,6 +52,13 @@ inline const Recipe S2_R25 =
     make_recipe<25,
         Select<MarsConcept>,
         Select<ModelErrorConcept, ModelErrorType::ComponentIndex>
+    >();
+
+// Cluster scenarios
+inline const Recipe S2_32 =
+    make_recipe<32,
+        Select<MarsConcept>,
+        Select<ClusterConcept>
     >();
 
 // Analysis-related products
@@ -129,6 +137,7 @@ inline const Recipes Section2Recipes{ 2,
         &S2_R16,
         &S2_R20,
         &S2_R25,
+        &S2_32,
         &S2_R36,
         &S2_R37,
         &S2_R38,
