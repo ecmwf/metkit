@@ -80,6 +80,9 @@ eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& bas
         else if (overwrite.isFloatingPointList(key)) {
             result.set(key, overwrite.getDoubleVector(key));
         }
+        else if (overwrite.isIntegralList(key)) {
+            result.set(key, overwrite.getLongVector(key));
+        }
         else {
             throw eckit::NotImplemented("Unexpected type for '" + key + "'", Here());
         }
