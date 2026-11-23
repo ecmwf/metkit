@@ -6,6 +6,7 @@
 #include <pthread.h>
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
@@ -39,7 +40,6 @@
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Parameter.h"
-#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -95,7 +95,47 @@ void ExpansionContext::unset(MarsKeyword key) {
 // static members of MarsLanguage
 std::unique_ptr<SymbolTable<MarsVerb>> MarsLanguage::verbs_{};
 std::unique_ptr<SymbolTable<MarsKeyword>> MarsLanguage::keywords_{};
-std::vector<Category> MarsLanguage::categories_{};
+decltype(MarsLanguage::categories_) MarsLanguage::categories_ = [] {
+    decltype(MarsLanguage::categories_) categories;
+    categories.fill(Category::Unknown);
+    return categories;
+}();
+
+namespace {
+
+/// Verbs that are registered without a language definition
+constexpr std::array<const char*, 2> verbsWithoutLanguage{
+    "verb",     // used by marsgen tool (placeholder for archive/retrieve)
+    "environ",  // sent by mars-client to complement a request
+};
+
+}  // namespace
+
+Category MarsLanguage::keywordCategory(const std::string& keyword, const eckit::Value& settings) {
+    if (!settings.contains("category")) {
+        return Category::Other;
+    }
+    std::string category = settings["category"];
+    if (category == "data") {
+        return Category::Data;
+    }
+    if (category == "derived") {
+        return Category::Derived;
+    }
+    if (category == "postproc") {
+        return Category::PostProc;
+    }
+    if (category == "sink") {
+        return Category::Sink;
+    }
+    std::stringstream ss;
+    ss << "Keyword: " << keyword << " - Unknown category: " << category << " in " << settings;
+    throw eckit::SeriousBug(ss.str());
+}
+
+MarsKeyword MarsLanguage::registerKeyword(const std::string& name, Category category) {
+    return keywords_->add(name, [category](MarsKeyword k) { categories_[k] = category; });
+}
 MarsKeyword MarsLanguage::maxDataKeyword_ = 0;
 std::shared_mutex MarsLanguage::contextsMutex_;
 std::map<MarsVerb, size_t> MarsLanguage::langOffsets_{};
@@ -166,7 +206,7 @@ bool MarsLanguage::loadBinary() {
     // do not leave a half-loaded state behind: the YAML parsing below starts from scratch
     verbs_.reset();
     keywords_.reset();
-    categories_.clear();
+    categories_.fill(Category::Unknown);
     maxDataKeyword_ = 0;
     langOffsets_.clear();
     {
@@ -201,19 +241,31 @@ void MarsLanguage::init() {
         }
     }
     keywords_ = std::make_unique<SymbolTable<MarsKeyword>>();
-    categories_.push_back(Category::Other);  // keyword 0
-    keywords_->add(std::string{"_verb"});
-    categories_.push_back(Category::Other);  // for "_verb"
+    registerKeyword("_verb", Category::Other);
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
-        keywords_->add(a);
-        categories_.push_back(Category::Data);
+        registerKeyword(a, Category::Data);
     }
     maxDataKeyword_ = keywords_->size();
-    keywords_->add(std::string{"day"});  // keyword required for date filtering by day
-    categories_.push_back(Category::Derived);
+    registerKeyword("day", Category::Derived);  // required for date filtering by day
 
-    verbs_->add(std::string{"verb"});     // used by marsgen tool (placeholder for archive/retrieve)
-    verbs_->add(std::string{"environ"});  // sent by mars-client to complement a request
+    for (const char* verb : verbsWithoutLanguage) {
+        verbs_->add(std::string{verb});
+    }
+
+    // Register the keywords of all the languages up front, with their category. A keyword can be referenced (e.g. by
+    // the context of a modifier, see parseRule()) before the language defining it is parsed: its category must not
+    // depend on the order in which the languages are parsed, and cannot change once the keyword is published.
+    // This also gives the keywords the same ids as when they are loaded from the binary file.
+    for (size_t i = 0; i < verbs.size(); ++i) {
+        eckit::Value lang = languages_[verbs[i]];
+        eckit::Value keys = lang.keys();
+        for (size_t j = 0; j < keys.size(); ++j) {
+            std::string keyword = keys[j];
+            if (keyword[0] != '_') {
+                registerKeyword(keyword, keywordCategory(keyword, lang[keyword]));
+            }
+        }
+    }
 
     auto emptyValue = eckit::Value{};
     addContext(emptyValue);
@@ -222,20 +274,22 @@ void MarsLanguage::init() {
 void MarsLanguage::writeDictionaries(std::ofstream& file) {
     verbs_->write(file);
     keywords_->write(file);
-    write16(file, categories_.size());
-    for (const auto& category : categories_) {
-        write8(file, static_cast<uint8_t>(category));
+    // entry 0 is the reserved "unknown" keyword
+    const size_t numKeywords = keywords_->size();
+    write16(file, numKeywords);
+    for (size_t i = 0; i < numKeywords; ++i) {
+        write8(file, static_cast<uint8_t>(i == 0 ? Category::Other : categories_[i]));
     }
     write16(file, maxDataKeyword_);
 }
 void MarsLanguage::readDictionaries(MMapFileReader& file) {
     verbs_                = std::make_unique<SymbolTable<MarsVerb>>(file);
     keywords_             = std::make_unique<SymbolTable<MarsKeyword>>(file);
+    // single-threaded (called from init()): the keywords are not visible yet
     size_t categoriesSize = file.read16();
-    categories_.clear();
-    categories_.reserve(categoriesSize);
+    ASSERT(categoriesSize == keywords_->size());
     for (size_t i = 0; i < categoriesSize; ++i) {
-        categories_.push_back(static_cast<Category>(file.read8()));
+        categories_[i] = static_cast<Category>(file.read8());
     }
     maxDataKeyword_ = file.read16();
 }
@@ -349,7 +403,7 @@ const Context& MarsLanguage::addContext(eckit::Value& val) {
 
 MarsLanguage::MarsLanguage(const std::string& verb) {
     pthread_once(&once, initLanguage);
-    verb_ = verbs_->symbol(verb);
+    verb_ = verbs_->symbol(eckit::StringTools::lower(verb));
     parse(verb_);
 }
 
@@ -392,7 +446,12 @@ void MarsLanguage::parse(MarsVerb verb) {
 
     loadYaml();  // not loaded yet if the binary file is used for the other verbs
 
-    eckit::Value lang    = languages_[verbs_->name(verb)];
+    // operator[] would insert a nil entry in the shared languages_ for a verb without a language definition
+    const std::string& verbName = verbs_->name(verb);
+    if (!languages_.contains(verbName)) {
+        throw eckit::UserError("No language definition for verb '" + verbName + "'", Here());
+    }
+    eckit::Value lang    = languages_[verbName];
     eckit::Value params  = lang.keys();
     eckit::Value options = lang["_options"];
 
@@ -402,38 +461,13 @@ void MarsLanguage::parse(MarsVerb verb) {
             continue;
         }
 
-        MarsKeyword keyword = keywords_->add(keywordStr);
+        eckit::Value settings = lang[keywordStr];
+
+        // registered by init() with its category, unless it is shared with a language parsed earlier
+        MarsKeyword keyword = registerKeyword(keywordStr, keywordCategory(keywordStr, settings));
         keywordList_.push_back(keywordStr);
 
         ASSERT(types_.find(keyword) == types_.end());
-
-        eckit::Value settings = lang[keywordStr];
-
-        Category category = Category::Other;
-        if (settings.contains("category")) {
-            std::string categoryStr = settings["category"];
-            if (categoryStr == "data") {
-                category = Category::Data;
-            }
-            else if (categoryStr == "derived") {
-                category = Category::Derived;
-            }
-            else if (categoryStr == "postproc") {
-                category = Category::PostProc;
-            }
-            else if (categoryStr == "sink") {
-                category = Category::Sink;
-            }
-            else {
-                std::stringstream ss;
-                ss << "Keyword: " << keywordStr << " - Unknown category: " << categoryStr << " in " << settings;
-                throw eckit::SeriousBug(ss.str());
-            }
-        }
-        // categories_ is indexed by keyword id: only newly registered keywords get an entry
-        if (uint16_t(keyword) == categories_.size()) {
-            categories_.push_back(category);
-        }
 
         if (options.contains(keywordStr)) {
             eckit::ValueMap m = options[keywordStr];
@@ -493,10 +527,8 @@ void MarsLanguage::parse(MarsVerb verb) {
 }
 
 Category MarsLanguage::category(MarsKeyword keyword) {
-    if (!keyword || keyword >= categories_.size()) {
-        return Category::Unknown;
-    }
-    return categories_[keyword];
+    // no lock: the entry of a keyword is written before the keyword is published, and never changes afterwards
+    return keyword ? categories_[keyword] : Category::Unknown;
 }
 
 bool MarsLanguage::isData(const std::string& k) const {
@@ -539,6 +571,16 @@ const MarsLanguage& MarsLanguage::get(MarsVerb verb) {
 const MarsLanguage& MarsLanguage::get(const std::string& verb) {
     pthread_once(&once, initLanguage);
     return get(verbs_->symbol(eckit::StringTools::lower(verb)));
+}
+
+bool MarsLanguage::hasLanguage(MarsVerb verb) {
+    pthread_once(&once, initLanguage);
+    if (!verb) {
+        return false;
+    }
+    const std::string& name = verbs_->name(verb);
+    return std::none_of(verbsWithoutLanguage.begin(), verbsWithoutLanguage.end(),
+                        [&name](const char* v) { return name == v; });
 }
 
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
@@ -882,9 +924,7 @@ const std::string& MarsLanguage::name(MarsVerb verb) {
 
 MarsKeyword MarsLanguage::addKeyword(const std::string& name, Category category) {
     pthread_once(&once, initLanguage);
-    MarsKeyword key = keywords_->add(name);
-    categories_.push_back(category);
-    return key;
+    return registerKeyword(name, category);
 }
 MarsKeyword MarsLanguage::keyword(const std::string& name) {
     pthread_once(&once, initLanguage);

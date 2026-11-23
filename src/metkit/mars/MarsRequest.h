@@ -77,7 +77,7 @@ protected:
     // each verb can have a different set of types, potentially with a different behaviour
     // e.g. retrieve requires a single levtype while list can accept multiple ones
     MarsVerb verb_;
-    const MarsLanguage* lang_ = nullptr;
+    std::optional<std::reference_wrapper<const MarsLanguage>> lang_ = std::nullopt;
 
     std::vector<Parameter> data_;
 };

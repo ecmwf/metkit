@@ -26,7 +26,6 @@
 #include "eckit/exception/Exceptions.h"
 
 #include "metkit/mars/MMapFileReader.h"
-#include "metkit/mars/StreamWriter.h"
 
 namespace metkit::mars {
 
@@ -47,7 +46,14 @@ public:
     }
     explicit SymbolTable(MMapFileReader& file);
 
-    S add(const std::string& name);
+    S add(const std::string& name) {
+        return add(name, [](S) {});
+    }
+    /// Registers @p name. If it is a new name, @p onInsert(symbol) is called under the exclusive lock, before the symbol
+    /// can be seen by any other thread: data indexed by symbol and written there is published together with the symbol.
+    /// @p onInsert must not throw and must not call back into this table.
+    template <typename F>
+    S add(const std::string& name, F&& onInsert);
     void addAlias(const std::string& name, S symbol);
 
     S symbol(const std::string& name) const;
@@ -89,7 +95,8 @@ SymbolTable<S>::SymbolTable(MMapFileReader& file) {
 }
 
 template <typename S>
-S SymbolTable<S>::add(const std::string& name) {
+template <typename F>
+S SymbolTable<S>::add(const std::string& name, F&& onInsert) {
 
     // fast path: most calls are lookups of names that are already registered, avoid the exclusive lock
     if (S symb = symbol_or_default(name); symb != S{}) {
@@ -113,6 +120,7 @@ S SymbolTable<S>::add(const std::string& name) {
         map_.erase(it);
         throw eckit::SeriousBug(ss.str(), Here());
     }
+    onInsert(symbol);
     names_.push_back(it->first);
     return symbol;
 }

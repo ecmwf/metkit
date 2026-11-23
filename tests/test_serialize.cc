@@ -20,10 +20,8 @@
 #include "eckit/testing/Test.h"
 
 #include "metkit/mars/MMapFileReader.h"
-#include "metkit/mars/StreamWriter.h"
 
 namespace metkit::mars::test {
-
 namespace {
 
 /// Temporary file removed on destruction

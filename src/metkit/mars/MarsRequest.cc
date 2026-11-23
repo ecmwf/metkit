@@ -41,7 +41,7 @@ namespace {
 
 Parameter makeParameter(MarsVerb verb, MarsKeyword key, std::vector<std::string> vals) {
     std::optional<std::reference_wrapper<const Type>> type;
-    if (verb) {
+    if (MarsLanguage::hasLanguage(verb)) {  // e.g. "environ" has no language: its parameters stay untyped
         type = MarsLanguage::get(verb).type(key);
     }
     if (type) {
@@ -82,11 +82,11 @@ void MarsDataCube::set(MarsKeyword key, const std::vector<std::string>& value) {
                 return;
             }
         }
-        if (!lang_ || lang_->verb() != verb_) {
+        if (!lang_ || lang_->get().verb() != verb_) {
             ASSERT(verb_);
-            lang_ = &MarsLanguage::get(verb_);
+            lang_ = MarsLanguage::get(verb_);
         }
-        auto type = lang_->type(key);
+        auto type = lang_->get().type(key);
         if (!type) {
             throw eckit::UserError("Unknown type for parameter " + MarsLanguage::name(key));
         }
@@ -101,11 +101,11 @@ void MarsDataCube::set(MarsKeyword key, std::vector<std::string>&& value) {
                 return;
             }
         }
-        if (!lang_ || lang_->verb() != verb_) {
+        if (!lang_ || lang_->get().verb() != verb_) {
             ASSERT(verb_);
-            lang_ = &MarsLanguage::get(verb_);
+            lang_ = MarsLanguage::get(verb_);
         }
-        auto type = lang_->type(key);
+        auto type = lang_->get().type(key);
         if (!type) {
             throw eckit::UserError("Unknown type for parameter " + MarsLanguage::name(key));
         }
@@ -303,7 +303,7 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate) : MarsDataCube(0) {
 
     if (validate) {
         // every parameter must be a keyword of the language of the verb (UserError otherwise)
-        lang_ = &MarsLanguage::get(verbId());
+        lang_ = MarsLanguage::get(verbId());
         std::vector<Parameter> all(begin(), end());
         data_.clear();
         for (auto& v : params_) {
@@ -311,7 +311,7 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate) : MarsDataCube(0) {
         }
         for (auto& p : all) {
             if (!p.typed()) {
-                auto type = lang_->type(MarsLanguage::keyword(p.name()));
+                auto type = lang_->get().type(MarsLanguage::keyword(p.name()));
                 if (!type) {
                     throw eckit::UserError("Unknown type for parameter " + p.name());
                 }
@@ -341,12 +341,33 @@ void MarsRequest::verb(const std::string& name) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Parameters lookup
 
+namespace {
+
+/// Slot of a category in MarsRequest::params_, which is also the order of iteration (after the data):
+/// the sinks (target, source...) come last, as in the requests written by MARS
+size_t slot(Category c) {
+    switch (c) {
+        case Category::Derived:
+            return 0;
+        case Category::PostProc:
+            return 1;
+        case Category::Other:
+            return 2;
+        case Category::Sink:
+            return 3;
+        default:
+            throw eckit::SeriousBug("No parameter slot for category " + std::to_string(static_cast<int>(c)), Here());
+    }
+}
+
+}  // namespace
+
 const std::vector<Parameter>& MarsRequest::params(Category c) const {
     ASSERT(c != Category::Unknown);
     if (c == Category::Data) {
         return data_;
     }
-    return params_[static_cast<size_t>(c) - 1];
+    return params_[slot(c)];
 }
 
 std::vector<Parameter>& MarsRequest::params(Category c) {
@@ -354,7 +375,7 @@ std::vector<Parameter>& MarsRequest::params(Category c) {
     if (c == Category::Data) {
         return data_;
     }
-    return params_[static_cast<size_t>(c) - 1];
+    return params_[slot(c)];
 }
 
 void MarsRequest::add(Parameter&& p) {
@@ -377,6 +398,14 @@ MarsRequest::Position MarsRequest::locate(MarsKeyword key) const {
     for (size_t i = 0; i < pp.size(); ++i) {
         if (pp[i].id() == key) {
             return {category, i};
+        }
+    }
+
+    // a parameter stored by name before its keyword was registered (e.g. before the language was parsed from YAML)
+    const auto& other = params(Category::Other);
+    for (size_t i = 0; i < other.size(); ++i) {
+        if (other[i].id() == MarsKeyword{} && other[i].is(key)) {
+            return {Category::Other, i};
         }
     }
     return {};
@@ -456,11 +485,15 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name, boo
 void MarsRequest::values(MarsKeyword key, const std::vector<std::string>& vals) {
     ASSERT(key);
     if (Position pos = locate(key)) {
-        params(pos.category)[pos.index].values(vals);
+        auto& pp = params(pos.category);
+        if (pp[pos.index].id() == key) {
+            pp[pos.index].values(vals);
+            return;
+        }
+        // stored by name before the keyword was registered: replace it with a parameter of the keyword
+        pp.erase(pp.begin() + pos.index);
     }
-    else {
-        add(makeParameter(verb_, key, vals));
-    }
+    add(makeParameter(verb_, key, vals));
 }
 void MarsRequest::values(const std::string& name, const std::vector<std::string>& vals) {
     MarsKeyword key = MarsLanguage::keyword_or_default(name);
@@ -477,11 +510,15 @@ void MarsRequest::values(const std::string& name, const std::vector<std::string>
 void MarsRequest::values(MarsKeyword key, std::vector<std::string>&& vals) {
     ASSERT(key);
     if (Position pos = locate(key)) {
-        params(pos.category)[pos.index].values(std::move(vals));
+        auto& pp = params(pos.category);
+        if (pp[pos.index].id() == key) {
+            pp[pos.index].values(std::move(vals));
+            return;
+        }
+        // stored by name before the keyword was registered: replace it with a parameter of the keyword
+        pp.erase(pp.begin() + pos.index);
     }
-    else {
-        add(makeParameter(verb_, key, std::move(vals)));
-    }
+    add(makeParameter(verb_, key, std::move(vals)));
 }
 void MarsRequest::values(const std::string& name, std::vector<std::string>&& vals) {
     MarsKeyword key = MarsLanguage::keyword_or_default(name);

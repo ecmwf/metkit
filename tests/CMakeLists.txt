@@ -96,6 +96,18 @@ foreach( test
                       LIBS         metkit)
 endforeach()
 
+# keyword registration: once with the language served from language.bin, once parsing the YAML only
+ecbuild_add_test( TARGET       metkit_test_language_registration
+                  SOURCES      test_language_registration.cc
+                  INCLUDES     "${ECKIT_INCLUDE_DIRS}"
+                  ENVIRONMENT  "${metkit_env}"
+                  NO_AS_NEEDED
+                  LIBS         metkit )
+
+ecbuild_add_test( TARGET       metkit_test_language_registration_yaml
+                  COMMAND      metkit_test_language_registration
+                  ENVIRONMENT  "${metkit_env}" "METKIT_FORCE_BINFILE_CREATION=1" )
+
 # a METKIT_HOME without language.yaml: the language can only be loaded from language.bin
 if( HAVE_METKIT_CONFIG )
     set( _binary_only_home ${CMAKE_CURRENT_BINARY_DIR}/binary_only_home )

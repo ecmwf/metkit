@@ -12,7 +12,6 @@
 #include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Quantile.h"
-#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 

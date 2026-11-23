@@ -13,7 +13,6 @@
 #include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsVerb.h"
-#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/SymbolTable.h"
 
 namespace metkit::mars::test {

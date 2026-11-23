@@ -3,7 +3,6 @@
 
 #include "metkit/mars/TypeEnum.h"
 
-#include <cstddef>
 #include <cstdint>
 #include <fstream>
 #include <functional>
@@ -24,7 +23,6 @@
 #include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/TypesFactory.h"
 

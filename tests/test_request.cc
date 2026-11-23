@@ -250,10 +250,11 @@ CASE("test_request_sparse_categories") {
 
     r.setValue("grid", "1");
     r.setValue("class", "od");
-    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "target", "grid"}));
+    // iteration follows the categories: data (class), postproc (grid), sink (target)
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "grid", "target"}));
     EXPECT_EQUAL(r.end() - r.begin(), 3);
-    EXPECT_EQUAL(r.begin()[1].name(), "target");
-    EXPECT_EQUAL((r.end() - 1)->name(), "grid");
+    EXPECT_EQUAL(r.begin()[1].name(), "grid");
+    EXPECT_EQUAL((r.end() - 1)->name(), "target");
     EXPECT_EQUAL(r["target"], "output.grib");
     EXPECT_EQUAL(r["GRID"], "1");
     EXPECT(!r.has("missing"));

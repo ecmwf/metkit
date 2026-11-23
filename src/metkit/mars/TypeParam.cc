@@ -3,7 +3,6 @@
 
 #include "metkit/mars/TypeParam.h"
 
-#include "eckit/codec/detail/Endian.h"
 #include "eckit/config/Resource.h"
 #include "eckit/io/FileLock.h"
 #include "eckit/log/Log.h"
@@ -15,11 +14,9 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/TypesFactory.h"
 
 #include <algorithm>
-#include <cctype>
 #include <fstream>
 #include <limits>
 #include <set>
@@ -49,7 +46,7 @@ class Matcher {
 public:
 
     Matcher(const std::string& name, std::vector<std::string>&& values);
-    Matcher(MMapFileReader& file);
+    Matcher(metkit::mars::MMapFileReader& file);
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
 
@@ -65,7 +62,7 @@ public:
 Matcher::Matcher(const std::string& name, std::vector<std::string>&& values) :
     name_(name), key_(metkit::mars::MarsLanguage::keyword(name)), values_(std::move(values)) {}
 
-Matcher::Matcher(MMapFileReader& file) {
+Matcher::Matcher(metkit::mars::MMapFileReader& file) {
     name_             = file.readString();
     key_              = metkit::mars::MarsLanguage::keyword(name_);
     uint8_t numValues = file.read8();
@@ -92,10 +89,10 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
 }
 
 void Matcher::write(std::ofstream& out) const {
-    writeString(out, name_);
-    write8(out, values_.size());
+    metkit::mars::writeString(out, name_);
+    metkit::mars::write8(out, values_.size());
     for (const auto& v : values_) {
-        writeString(out, v);
+        metkit::mars::writeString(out, v);
     }
 }
 
@@ -132,7 +129,7 @@ public:
 
     Rule(const eckit::Value& matchers, const ParamIdAliases& ids, const std::vector<uint32_t>& values = {},
          const std::map<uint32_t, uint32_t>& param2paramid = {});
-    Rule(MMapFileReader& file);
+    Rule(metkit::mars::MMapFileReader& file);
 
     static void setDefault(const eckit::Value& setters, const ParamIdAliases& ids);
 
@@ -268,7 +265,7 @@ Rule::Rule(const eckit::Value& matchers, const ParamIdAliases& ids, const std::v
     }
 }
 
-Rule::Rule(MMapFileReader& file) {
+Rule::Rule(metkit::mars::MMapFileReader& file) {
     uint8_t numMatchers = file.read8();
     matchers_.reserve(numMatchers);
     for (uint8_t i = 0; i < numMatchers; ++i) {
@@ -388,23 +385,23 @@ std::string Rule::lookup(const std::string& s) const {
 
 void Rule::write(std::ofstream& out) const {
 
-    write8(out, matchers_.size());
+    metkit::mars::write8(out, matchers_.size());
     for (const auto& m : matchers_) {
         m.write(out);
     }
-    write16(out, values_.size());
+    metkit::mars::write16(out, values_.size());
     for (const auto& v : values_) {
-        write32(out, v);
+        metkit::mars::write32(out, v);
     }
-    write16(out, name2paramid_.size());
+    metkit::mars::write16(out, name2paramid_.size());
     for (const auto& [name, id] : name2paramid_) {
-        writeString(out, name);
-        write32(out, id);
+        metkit::mars::writeString(out, name);
+        metkit::mars::write32(out, id);
     }
-    write16(out, param2paramid_.size());
+    metkit::mars::write16(out, param2paramid_.size());
     for (const auto& [number, id] : param2paramid_) {
-        write16(out, static_cast<uint16_t>(number));  // 16 bits are enough since it is only storing 3 decimal digits
-        write32(out, id);
+        metkit::mars::write16(out, static_cast<uint16_t>(number));  // 16 bits are enough since it is only storing 3 decimal digits
+        metkit::mars::write32(out, id);
     }
 }
 
@@ -485,7 +482,7 @@ void Rule::init() {
     if (!metkitForceBinfileCreation && !metkitLegacyParamCheck && !metkitRawParam) {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
         if (paramBinFile.exists()) {
-            MMapFileReader file(paramBinFile.localPath());
+            metkit::mars::MMapFileReader file(paramBinFile.localPath());
 
             try {
                 std::string header{file.readString(4)};
@@ -681,18 +678,18 @@ void Rule::init() {
 
                         const char* header = "PARA";
                         file.write(header, 4);
-                        write16(file, LibMetkit::binaryFilesVersion());
+                        metkit::mars::write16(file, LibMetkit::binaryFilesVersion());
 
-                        write32(file, Rule::defaultValues_.size());
+                        metkit::mars::write32(file, Rule::defaultValues_.size());
                         for (auto v : defaultValues_) {
-                            write32(file, v);
+                            metkit::mars::write32(file, v);
                         }
-                        write32(file, Rule::defaultMapping_.size());
+                        metkit::mars::write32(file, Rule::defaultMapping_.size());
                         for (const auto& [name, id] : defaultMapping_) {
-                            writeString(file, name);
-                            write32(file, id);
+                            metkit::mars::writeString(file, name);
+                            metkit::mars::write32(file, id);
                         }
-                        write32(file, rules->size());
+                        metkit::mars::write32(file, rules->size());
                         for (const auto& r : *rules) {
                             r.write(file);
                         }

@@ -16,6 +16,8 @@
 #include <string_view>
 #include <vector>
 
+namespace metkit::mars {
+
 /// Read-only memory mapped file, read sequentially (and convert from little endian).
 class MMapFileReader {
 public:
@@ -62,3 +64,6 @@ void write32(std::ofstream& file, size_t size);
 void writeString(std::ofstream& file, const std::string& str);
 void writeStringSet(std::ofstream& file, const std::set<std::string>& s);
 void writeStringVector(std::ofstream& file, const std::vector<std::string>& v);
+
+}  // namespace metkit::mars
+

@@ -12,7 +12,6 @@
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/SymbolTable.h"
 
 namespace metkit::mars {
@@ -28,7 +27,7 @@ public:
                                              "get",      "list",    "pointdb", "read",        "write"};
 
         for (const auto& verb : verbs) {
-            metkit::mars::MarsLanguage marsLanguage(verb);
+            metkit::mars::MarsLanguage::get(verb);  // parses the language, registering its keywords
         }
 
         if (metkitForceBinfileCreation) {  // creating the binary file

@@ -54,8 +54,6 @@ list( APPEND metkit_srcs
     mars/RequestEnvironment.cc
     mars/RequestEnvironment.h
     mars/StepRangeNormalise.h
-    mars/StreamWriter.cc
-    mars/StreamWriter.h
     mars/SymbolTable.h
     mars/Type.cc
     mars/Type.h

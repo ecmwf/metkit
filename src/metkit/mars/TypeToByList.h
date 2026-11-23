@@ -12,7 +12,6 @@
 #include "eckit/utils/Translator.h"
 
 #include "metkit/mars/MMapFileReader.h"
-#include "metkit/mars/StreamWriter.h"
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {

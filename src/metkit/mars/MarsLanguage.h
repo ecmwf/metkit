@@ -9,7 +9,9 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
+#include <limits>
 #include <map>
 #include <memory>
 #include <set>
@@ -66,12 +68,11 @@ struct ContextPtrComparator {
     bool operator()(const Context* a, const Context* b) const { return std::less<const Context>()(*a, *b); }
 };
 
+/// The language of a verb. Languages are only obtained from MarsLanguage::get(), which keeps them for the lifetime of
+/// the process: the typed parameters of requests refer to the types of a language without owning them.
 class MarsLanguage {
 public:  // methods
 
-    MarsLanguage(MarsVerb verb);
-    MarsLanguage(const std::string& verb);
-    MarsLanguage(MarsVerb verb, MMapFileReader& file);
     ~MarsLanguage() = default;
 
     MarsLanguage(const MarsLanguage&)            = delete;
@@ -102,6 +103,8 @@ public:  // class methods
 
     static const MarsLanguage& get(MarsVerb verb);
     static const MarsLanguage& get(const std::string& verb);
+    /// @return false for the verbs that are registered without a language definition (e.g. "environ"): get() throws
+    static bool hasLanguage(MarsVerb verb);
 
     static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
                                  bool fullMatch, const std::map<std::string, std::string>& aliases = {});
@@ -129,10 +132,19 @@ public:  // class methods
 
 private:  // methods
 
+    explicit MarsLanguage(MarsVerb verb);
+    MarsLanguage(const std::string& verb);
+    MarsLanguage(MarsVerb verb, MMapFileReader& file);
+
     friend class Type;
     friend class TypeMixed;
 
     void parse(MarsVerb verb);
+
+    /// Registers @p name with @p category if it is a new keyword (the category of a known keyword is left unchanged)
+    static MarsKeyword registerKeyword(const std::string& name, Category category);
+    /// The category of @p keyword in a language definition (Category::Other if not specified)
+    static Category keywordCategory(const std::string& keyword, const eckit::Value& settings);
 
     static bool loadBinary();  // true if the language was loaded from the binary file
     static void loadYaml();
@@ -147,7 +159,9 @@ private:  // members
 
     static std::unique_ptr<SymbolTable<MarsVerb>> verbs_;
     static std::unique_ptr<SymbolTable<MarsKeyword>> keywords_;
-    static std::vector<Category> categories_;
+    /// Indexed by keyword, never resized: an entry is written once, under the lock of keywords_, before its keyword is
+    /// published, so category() can read it without locking. Unregistered keywords are Category::Unknown.
+    static std::array<Category, size_t{std::numeric_limits<MarsKeyword::value_t>::max()} + 1> categories_;
     static MarsKeyword maxDataKeyword_;
 
     static std::shared_mutex contextsMutex_;

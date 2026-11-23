@@ -73,8 +73,6 @@ void expect_mars(const std::string& text, const Expected& expected, bool strict 
 
 CASE("grid: regular Gaussian grids") {
 
-    MarsLanguage::get("retrieve");
-
     const Sequence F{16,  24,  32,  48,  64,  80,  96,   128,  160,  192,  200,  256,  320,
                      400, 512, 576, 640, 800, 912, 1024, 1280, 1600, 2000, 2560, 4000, 8000};
 
