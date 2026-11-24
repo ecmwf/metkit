@@ -117,7 +117,7 @@ void GribToRequestTool::usage(const std::string& tool) const {
 }
 
 namespace {
-static void toJSON(const std::vector<MarsRequest>& requests) {
+void toJSON(const std::vector<MarsRequest>& requests) {
     JSON j(Log::info());
     for (const auto& r : requests) {
         r.json(j);
@@ -125,13 +125,13 @@ static void toJSON(const std::vector<MarsRequest>& requests) {
     Log::info() << std::endl;
 }
 
-static void toStdOut(const std::vector<MarsRequest>& requests) {
+void toStdOut(const std::vector<MarsRequest>& requests) {
     for (const auto& r : requests) {
         eckit::Log::info() << r << std::endl;
     }
 }
 
-static void addKeyValue(std::vector<MarsRequest>& requests, const std::string& key, const std::string& value) {
+void addKeyValue(std::vector<MarsRequest>& requests, const std::string& key, const std::string& value) {
     std::transform(requests.begin(), requests.end(), requests.begin(), [key, value](MarsRequest& r) -> MarsRequest {
         r.setValue(key, value);
         return r;

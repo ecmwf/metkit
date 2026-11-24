@@ -474,6 +474,24 @@ MarsRequest MarsRequest::extract(const std::string& category) const {
     return req;
 }
 
+MarsRequest MarsRequest::expandAlternatives() const {
+    MarsRequest req(verb_);
+    for (const auto& param : params_) {
+        Parameter p = param;
+        std::vector<std::string> alternatives;
+        alternatives.reserve(param.values().size());
+        eckit::Tokenizer tokenizer("|");
+        for (const auto& value : param.values()) {
+            std::vector<std::string> tokens = tokenizer.tokenize(value);
+            alternatives.insert(alternatives.end(), tokens.begin(), tokens.end());
+        }
+        p.values(alternatives);
+        req.params_.push_back(p);
+    }
+    return req;
+}
+
+
 void MarsRequest::verb(const std::string& verb) {
     verb_ = verb;
 }

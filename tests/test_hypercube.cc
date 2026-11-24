@@ -7,6 +7,7 @@
 
 #include <algorithm>
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"
 
 #include "metkit/hypercube/HyperCube.h"
@@ -167,6 +168,87 @@ CASE("test_metkit_hypercube_request METK-132") {
         EXPECT_EQUAL(flattened_requests[i].values("levelist"), expected_flat_requests[i].values("levelist"));
         EXPECT_EQUAL(flattened_requests[i].values("param"), expected_flat_requests[i].values("param"));
     }
+}
+
+
+CASE("test_metkit_hypercube_alternative_paramids") {
+    std::vector<std::string> keys = {"levelist", "param"};
+
+    MarsRequest r = MarsRequest::parse("retrieve,levelist=1/2,param=228228|228/167");
+    metkit::hypercube::HyperCube cube{r};
+    EXPECT_EQUAL(cube.count(), 4);
+
+    cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228228"));
+    EXPECT_EQUAL(cube.count(), 3);
+
+    cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228"));
+    EXPECT_EQUAL(cube.count(), 3);
+
+    std::vector<MarsRequest> expected_flat_requests = {
+        MarsRequest::parse("retrieve,levelist=2,param=228228|228"),
+        MarsRequest::parse("retrieve,levelist=1,param=167"),
+        MarsRequest::parse("retrieve,levelist=2,param=167"),
+    };
+
+    auto dense_requests = cube.vacantRequests();
+    EXPECT_EQUAL(dense_requests.size(), 2);
+
+    std::vector<MarsRequest> flattened_requests;
+    for (const auto& req : dense_requests) {
+        auto flattened = req.split(keys);
+        for (const auto& f : flattened) {
+            flattened_requests.push_back(f);
+        }
+    }
+
+    EXPECT_EQUAL(flattened_requests.size(), 3);
+    EXPECT_EQUAL(flattened_requests.size(), expected_flat_requests.size());
+
+    // compare both vectors
+    std::sort(flattened_requests.begin(), flattened_requests.end());
+    std::sort(expected_flat_requests.begin(), expected_flat_requests.end());
+    for (size_t i = 0; i < expected_flat_requests.size(); ++i) {
+        EXPECT_EQUAL(flattened_requests[i].values("levelist"), expected_flat_requests[i].values("levelist"));
+        EXPECT_EQUAL(flattened_requests[i].values("param"), expected_flat_requests[i].values("param"));
+    }
+
+    cube.clear(MarsRequest::parse("retrieve,levelist=2,param=228"));
+    EXPECT_EQUAL(cube.count(), 2);
+}
+
+CASE("test_metkit_hypercube_alternative_paramids_lookup") {
+    MarsRequest r = MarsRequest::parse("retrieve,levelist=1,param=228228|228/167");
+    metkit::hypercube::HyperCube cube{r};
+    EXPECT_EQUAL(cube.size(), 2);
+
+    // every alternative, and the full alternative list, identifies the same slot
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228228")));
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228")));
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=167")));
+
+    // values which are neither an axis value nor one of its alternatives are not in the cube
+    EXPECT(!cube.contains(MarsRequest::parse("retrieve,levelist=1,param=166")));
+    EXPECT(!cube.contains(MarsRequest::parse("retrieve,levelist=2,param=228")));
+
+    // a request carrying a list of alternatives is ambiguous and must be rejected
+    EXPECT_THROWS_AS(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228228|228")), eckit::UserError);
+    EXPECT_THROWS_AS(cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228228|228")), eckit::UserError);
+}
+
+CASE("test_metkit_hypercube_alternative_paramids_clear") {
+    MarsRequest r = MarsRequest::parse("retrieve,levelist=1,param=228228|228/167");
+    metkit::hypercube::HyperCube cube{r};
+
+    EXPECT(cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228")));
+    EXPECT_EQUAL(cube.count(), 1);
+    EXPECT(!cube.contains(MarsRequest::parse("retrieve,levelist=1,param=228228")));
+
+    // clearing the same slot through another alternative is a no-op
+    EXPECT(!cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228228")));
+    EXPECT_EQUAL(cube.count(), 1);
+
+    // the other slot is not affected
+    EXPECT(cube.contains(MarsRequest::parse("retrieve,levelist=1,param=167")));
 }
 
 }  // namespace metkit::mars::test

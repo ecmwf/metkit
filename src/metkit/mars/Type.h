@@ -13,6 +13,7 @@
 #include <iosfwd>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -61,20 +62,7 @@ public:
 
     Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
 
-    bool matches(MarsRequest req) const override {
-        if (key_ == "_verb") {
-            return (vals_.find(req.verb()) != vals_.end());
-        }
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    bool matches(MarsRequest req) const override;
 
 private:  // methods
 
@@ -91,17 +79,7 @@ class Exclude : public ContextRule {
 public:
 
     Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-    bool matches(MarsRequest req) const override {
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return false;
-            }
-        }
-        return true;
-    }
+    bool matches(MarsRequest req) const override;
 
 private:  // methods
 
@@ -188,6 +166,7 @@ enum class Category : uint8_t {
 class Type : public eckit::Counted {
 public:  // methods
 
+    // ctor from the language.yaml definition
     Type(const std::string& name, const eckit::Value& settings);
 
     ~Type() noexcept override = default;
