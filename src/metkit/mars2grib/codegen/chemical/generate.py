@@ -2,6 +2,7 @@
 
 import csv
 import os
+import sys
 from collections import defaultdict
 from subprocess import run
 
@@ -29,31 +30,54 @@ def write_code(destination_path, template_path, code):
 #                         mars2mars Conversion Rules                          #
 ###############################################################################
 
+def set_param_chem(mapping, new_param=None):
+    """Format the return statement that sets the output param, chem (and wavelength) for one mapping.
+
+    new_param overrides the param with a C++ expression (see ssaParam in the m2m template)."""
+    new_paramId = new_param or mapping['new_paramId']
+    chemId = mapping['chemId']
+    wavelength = mapping['wavelength']
+    if wavelength:
+        return f"return setParamChemWavelength(out, {new_paramId}, {chemId}, {wavelength:.1f});"
+    return f"return setParamChem(out, {new_paramId}, {chemId});"
+
+
+def levtype_dependent_param(stream, old_paramId, by_levtype):
+    """Return the C++ expression selecting the new param from the levtype of the request.
+
+    The only levtype-dependent mapping supported is the single-scattering albedo, which is cssa (482000) at levtype
+    sfc and ssa (458000) otherwise, see ssaParam in the m2m template."""
+    sfc, default = by_levtype.get('sfc'), by_levtype.get('')
+    same_chem = sfc and default and all(sfc[k] == default[k] for k in ('chemId', 'wavelength'))
+    if set(by_levtype) != {'sfc', ''} or not same_chem or (sfc['new_paramId'], default['new_paramId']) != (482000, 458000):
+        print(f"Unsupported levtype-dependent mapping for stream={stream},old_paramId={old_paramId}: "
+              f"only (sfc: 482000, default: 458000) with identical chemId and wavelength is supported", file=sys.stderr)
+        exit(255)
+    return 'ssaParam(in)'
+
+
 def generateM2M():
-    mappings = {}
+    # {(stream, old_paramId): {levtype: mapping}}, where an empty levtype is the default for any other levtype
+    mappings = defaultdict(dict)
     with open(MAPPINGS_PATH, 'r') as f:
         reader = csv.DictReader(f, delimiter=';')
         for row in reader:
             stream = row['stream']
+            levtype = row['levtype']
             old_paramId = int(row['old_paramId'])
-            if (stream, old_paramId) in mappings:
-                print(f"More than one mapping exists from stream={stream},old_paramId={old_paramId}", file=sys.stderr)
+            if levtype in mappings[(stream, old_paramId)]:
+                print(f"More than one mapping exists from stream={stream},levtype={levtype},old_paramId={old_paramId}", file=sys.stderr)
                 exit(255)
             new_paramId = int(row['new_paramId'])
             chemId = int(row['chemId'])
             wavelength = None if row['wavelength'] == '' else int(row['wavelength'])
-            mappings[(stream, old_paramId)] = {'new_paramId': new_paramId, 'chemId': chemId, 'wavelength': wavelength}
+            mappings[(stream, old_paramId)][levtype] = {'new_paramId': new_paramId, 'chemId': chemId, 'wavelength': wavelength}
 
     rules = {'oper': [], 'gfas': []}
     for stream, old_paramId in sorted(mappings.keys()):
-        mapping = mappings[(stream, old_paramId)]
-        new_paramId = mapping['new_paramId']
-        chemId = mapping['chemId']
-        wavelength = mapping['wavelength']
-        if wavelength:
-            rules[stream].append(f"case {old_paramId}:\n    return setParamChemWavelength(out, {new_paramId}, {chemId}, {wavelength:.1f});")
-        else:
-            rules[stream].append(f"case {old_paramId}:\n    return setParamChem(out, {new_paramId}, {chemId});")
+        by_levtype = mappings[(stream, old_paramId)]
+        new_param = None if set(by_levtype) == {''} else levtype_dependent_param(stream, old_paramId, by_levtype)
+        rules[stream].append(f"case {old_paramId}:\n    {set_param_chem(by_levtype[''], new_param)}")
 
     code = f"""if (stream == "oper") {{ switch (param) {{
     {''.join(rules['oper'])}

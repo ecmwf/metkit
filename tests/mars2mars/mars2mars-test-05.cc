@@ -23,7 +23,8 @@
 
 namespace {
 
-eckit::LocalConfiguration converted(const std::string& stream, long param, const std::string& step = "24") {
+eckit::LocalConfiguration converted(const std::string& stream, long param, const std::string& step = "24",
+                                    const std::string& levtype = "sfc") {
     eckit::LocalConfiguration mars;
     mars.set("class", "mc");
     mars.set("stream", stream);
@@ -31,7 +32,10 @@ eckit::LocalConfiguration converted(const std::string& stream, long param, const
     mars.set("expver", "0001");
     mars.set("date", 20261001L);
     mars.set("time", 0L);
-    mars.set("levtype", "sfc");
+    mars.set("levtype", levtype);
+    if (levtype != "sfc") {
+        mars.set("levelist", 60L);
+    }
     mars.set("param", param);
     if (step.find('-') == std::string::npos) {
         mars.set("step", std::stol(step));
@@ -79,9 +83,22 @@ CASE("CAMS emission flux by sector (212xxx/216xxx): param = sector, chem = speci
     EXPECT_EQUAL(ene.getLong("param"), 423000);
     EXPECT_EQUAL(ene.getLong("chem"), 12);
 
+    // As in the CAMS reanalysis (a5): residential = 422000 (residential, commercial and other combustion), the
+    // SOA precursor (SOG2B) = 919, black carbon / organic matter = the hydrophobic bins 910 / 908
     const auto res = converted("oper", 216226);  // Condensable gas type 2b (SOG2B), residential
-    EXPECT_EQUAL(res.getLong("param"), 464000);
-    EXPECT_EQUAL(res.getLong("chem"), 188);
+    EXPECT_EQUAL(res.getLong("param"), 422000);
+    EXPECT_EQUAL(res.getLong("chem"), 919);
+
+    const auto bc = converted("oper", 212224);  // Black carbon aerosol, residential
+    EXPECT_EQUAL(bc.getLong("param"), 422000);
+    EXPECT_EQUAL(bc.getLong("chem"), 910);
+
+    const auto om = converted("oper", 212231);  // Organic matter aerosol, power generation
+    EXPECT_EQUAL(om.getLong("param"), 423000);
+    EXPECT_EQUAL(om.getLong("chem"), 908);
+
+    const auto acetone = converted("oper", 212092);  // Acetone, power generation (kept as acetone)
+    EXPECT_EQUAL(acetone.getLong("chem"), 52);
 
     const auto aviation = converted("oper", 212255);  // Aviation NOx as NO2
     EXPECT_EQUAL(aviation.getLong("param"), 418000);
@@ -141,6 +158,48 @@ CASE("accumulated deposition from the forecast start is timespan fs") {
     EXPECT_EQUAL(wet.getLong("param"), 444000);
     EXPECT_EQUAL(wet.getLong("step"), 24);
     EXPECT_EQUAL(wet.getString("timespan"), "fs");
+}
+
+CASE("deposition of SO2 is chem 233 (sulphur dioxide), not 8 (volcanic sulphur dioxide)") {
+    EXPECT_EQUAL(converted("oper", 222017, "0-24").getLong("param"), 445000);
+    EXPECT_EQUAL(converted("oper", 222017, "0-24").getLong("chem"), 233);
+    EXPECT_EQUAL(converted("oper", 223017, "0-24").getLong("param"), 444000);
+    EXPECT_EQUAL(converted("oper", 223017, "0-24").getLong("chem"), 233);
+}
+
+CASE("columns of the chemistry tracers and the CH4 loss rate use the chemistry chems, as the mixing ratios") {
+    EXPECT_EQUAL(converted("oper", 218004).getLong("chem"), 4);   // Total column methane (chemistry)
+    EXPECT_EQUAL(converted("oper", 218059).getLong("chem"), 59);  // Total column water vapour (chemistry)
+    EXPECT_EQUAL(converted("oper", 217004, "24", "ml").getLong("chem"), 4);
+    EXPECT_EQUAL(converted("oper", 210071, "24", "ml").getLong("param"), 479000);
+    EXPECT_EQUAL(converted("oper", 210071, "24", "ml").getLong("chem"), 4);
+}
+
+CASE("single-scattering albedo: column (sfc) is 482000, on levels 458000") {
+    const auto column = converted("oper", 215133);  // Single scattering albedo at 355 nm
+    EXPECT_EQUAL(column.getLong("param"), 482000);
+    EXPECT_EQUAL(column.getLong("chem"), 922);
+    EXPECT_EQUAL(column.getDouble("wavelength"), 355.0);
+
+    const auto level = converted("oper", 215133, "24", "ml");
+    EXPECT_EQUAL(level.getLong("param"), 458000);
+    EXPECT_EQUAL(level.getDouble("wavelength"), 355.0);
+
+    EXPECT_EQUAL(converted("oper", 216011).getLong("param"), 482000);  // at 10 um
+}
+
+CASE("molecular backscatter is the unattenuated backscatter of gaseous molecules (475000, chem 400)") {
+    const auto mol = converted("oper", 216014, "24", "ml");  // Molecular backscatter coefficient at 532 nm
+    EXPECT_EQUAL(mol.getLong("param"), 475000);
+    EXPECT_EQUAL(mol.getLong("chem"), 400);
+    EXPECT_EQUAL(mol.getDouble("wavelength"), 532.0);
+    EXPECT_EQUAL(converted("oper", 216023, "24", "ml").getDouble("wavelength"), 910.0);
+}
+
+CASE("natural / anthropogenic aerosol optical thickness at 532 nm (215094 / 215095) has no chem: not mapped") {
+    EXPECT(!converted("oper", 215094, "24", "ml").has("chem"));
+    EXPECT(!converted("oper", 215095, "24", "ml").has("chem"));
+    EXPECT_EQUAL(converted("oper", 215093, "24", "ml").getLong("param"), 457000);  // total: mapped
 }
 
 CASE("a time window starting at step 0 keeps its length") {

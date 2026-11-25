@@ -68,6 +68,15 @@ inline void setParamChemWavelength(OutDict_t& out, long param, long chem, double
 }
 
 
+/// @brief Single-scattering albedo: a column value (levtype sfc) is 482000 (cssa), a value on levels 458000 (ssa).
+///
+/// Some legacy params (e.g. 215133, 355 nm) carry both, distinguished only by the levtype.
+template <class InDict_t>
+inline long ssaParam(const InDict_t& in) {
+    using metkit::mars2mars::utils::dict_traits::get_or_throw;
+    return get_or_throw<std::string>(in, "levtype") == "sfc" ? 482000 : 458000;
+}
+
 /// @brief Convert surface-like legacy requests into sol layer output.
 template <class InDict_t, class OutDict_t, class OptDict_t>
 inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc,

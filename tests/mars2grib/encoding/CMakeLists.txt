@@ -17,6 +17,7 @@ foreach( _src
         016_enfo_ep_131089-131091.cc
         017_model_component_background_process.cc
         018_satellite_channel_in_section4.cc
+        019_mc_emission_sector_local_chem.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 
