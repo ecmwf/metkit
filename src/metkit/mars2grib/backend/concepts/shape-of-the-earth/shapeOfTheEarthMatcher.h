@@ -35,7 +35,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @brief Match the `shapeOfTheEarth` concept variant.
 ///
 /// The concept is active as `ShapeOfTheEarthType::Default` for grid-point
-/// fields. It is inactive for spherical harmonics, identified by `truncation`.
+/// fields. It is inactive for spherical harmonics, identified by the eckit grid type `sh`
+/// of the MARS `grid`.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary

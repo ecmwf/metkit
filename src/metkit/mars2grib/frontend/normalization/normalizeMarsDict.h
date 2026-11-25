@@ -68,7 +68,7 @@ bool fixMarsGrid(MarsDict_t& mars) {
 ///
 /// @brief Conditionally sanitizes a dictionary by running a suite of atomic key checks.
 ///
-/// This function iterates through specific keys (truncation, grid, etc.) and
+/// This function iterates through specific keys (grid, etc.) and
 /// applies the normalization rules defined in the @ref per_key directory.
 ///
 /// @tparam MiscDict_t Type of the dictionary to be sanitized

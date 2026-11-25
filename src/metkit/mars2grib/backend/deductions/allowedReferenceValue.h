@@ -62,32 +62,25 @@ namespace metkit::mars2grib::backend::deductions {
 /// @brief Resolve the GRIB allowed reference value from input dictionaries.
 ///
 /// @section Deduction contract
-/// - Reads: exactly one of `mars["grid"]` or `mars["truncation"]`; `mars["param"]` for grid-point products
+/// - Reads: `mars["param"]`
 /// - Writes: none
 /// - Side effects: logging (RESOLVE)
 /// - Failure mode: throws
 ///
-/// This deduction resolves the GRIB `allowedReferenceValue` by first determining
-/// whether the request describes a grid-point or spectral representation. Exactly
-/// one of `grid` or `truncation` must be present in the MARS dictionary.
-///
-/// For grid-point products, the mandatory MARS parameter identifier (`param`) is
-/// retrieved and used to consult a statically defined table of admissible
+/// This deduction resolves the GRIB `allowedReferenceValue` from the mandatory
+/// MARS parameter identifier (`param`), which is retrieved and used to consult
+/// a statically defined table of admissible
 /// reference value ranges. For parameters with an explicit range definition, the
 /// resolved reference value is chosen as the midpoint of the corresponding
 /// `[min, max]` interval. If no explicit range is defined for the parameter, a
 /// default reference value of `0.0` is returned.
-///
-/// For spectral products identified by `truncation`, the resolved reference
-/// value is `0.0`.
 ///
 /// No semantic interpretation beyond the explicit range table is applied.
 /// The admissible ranges are defined locally and are not validated against
 /// external GRIB tables.
 ///
 /// @tparam MarsDict_t
-/// Type of the MARS dictionary. Must support presence checks for `grid` and
-/// `truncation`; grid-point products must also support keyed access to `param`
+/// Type of the MARS dictionary. Must support keyed access to `param`
 /// and conversion to an integral type.
 ///
 /// @tparam ParDict_t
@@ -109,8 +102,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// The resolved allowed reference value.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If neither or both of `grid` and `truncation` are present, if `param` is
-/// missing or malformed for a grid-point product, or if any unexpected error
+/// If `param` is missing or malformed, or if any unexpected error
 /// occurs during deduction.
 ///
 /// @note

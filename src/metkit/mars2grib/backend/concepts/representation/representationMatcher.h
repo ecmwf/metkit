@@ -35,9 +35,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @brief Match the `representation` concept variant.
 ///
-/// Spherical harmonics are selected when `truncation` is present. Otherwise the
-/// matcher builds the eckit geometry from MARS `grid` and maps the resulting
-/// grid type onto the corresponding representation variant.
+/// The matcher builds the eckit geometry from MARS `grid` and maps the resulting
+/// grid type onto the corresponding representation variant. Spherical harmonics
+/// are selected when the grid type is `sh` (e.g. `grid=T799`).
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary

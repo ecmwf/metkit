@@ -59,13 +59,13 @@ namespace metkit::mars2grib::backend::deductions {
 /// Resolution rules:
 /// - If `par::subSetTruncation` is present and valid, its value is used directly.
 /// - If `par::subSetTruncation` is absent, the value defaults explicitly to the
-///       smaller of the MARS truncation (`mars::truncation`) and a fixed maximum of 20.
+///       smaller of the truncation derived from the MARS grid (`mars::grid`, e.g. `T799`) and a fixed maximum of 20.
 ///
 /// @tparam MarsDict_t Type of the MARS dictionary
 /// @tparam ParDict_t  Type of the parameter dictionary
 /// @tparam OptDict_t  Type of the options dictionary (unused)
 ///
-/// @param[in] mars MARS dictionary providing `truncation` for defaulting and validation
+/// @param[in] mars MARS dictionary providing `grid` (from which the truncation is derived) for defaulting and validation
 /// @param[in] par  Parameter dictionary; may contain `subSetTruncation`
 /// @param[in] opt  Options dictionary (unused)
 ///
@@ -73,8 +73,8 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// - If an unexpected error occurs during dictionary access
-/// - If `par::subSetTruncation` is provided but exceeds the MARS truncation or is negative
-/// - If MARS truncation is invalid when needed for defaulting
+/// - If `par::subSetTruncation` is provided but exceeds the truncation of the MARS grid or is negative
+/// - If the truncation of the MARS grid is invalid when needed for defaulting
 ///
 /// @note
 /// This deduction is fully deterministic and does not depend on
@@ -90,7 +90,7 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
     try {
 
         // subSetTruncation must not be larger than any pentagonalResolutionParameter
-        // NOTE: Mars keyword truncation is equivalent to pentagonalResolutionParameter{J,K,M}
+        // NOTE: The truncation of the Mars grid (T<truncation>) is equivalent to pentagonalResolutionParameter{J,K,M}
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
 
         const long truncation = [&]() {

@@ -62,7 +62,8 @@
 /// ## Geometry handling
 ///
 /// Geometry parameters are in most cases retrieved from eckit::geo, based on the MARS key `grid`.
-/// For spherical harmonics, the geometry is based on the MARS key `truncation`.
+/// This includes spherical harmonics, where the MARS key `grid` takes the form `T<truncation>`
+/// (e.g. `T799`) and the truncation is retrieved from the resulting eckit::geo grid.
 ///
 /// @warning
 /// This is a transitional design.

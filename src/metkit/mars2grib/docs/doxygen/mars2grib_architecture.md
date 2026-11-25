@@ -21,7 +21,6 @@ In addition to classical MARS metadata, the dictionary is **extended** and may
 contain post-processing related keywords, including (but not limited to):
 
 - grid
-- truncation
 - packing
 
 These extended keywords are treated as first-class inputs and participate
