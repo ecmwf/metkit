@@ -70,10 +70,6 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
             return static_cast<std::size_t>(RepresentationType::Dummy);
         }
 
-        if (has(mars, "truncation")) {
-            return static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
-        }
-
         const auto marsGrid = get_or_throw<std::string>(mars, "grid");
         const auto gridType = std::unique_ptr<const eckit::geo::Grid>(
                                   eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}}))
@@ -92,6 +88,9 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
         }
         else if (gridType == "HEALPix") {
             return static_cast<std::size_t>(RepresentationType::Healpix);
+        }
+        else if (gridType == "sh") {
+            return static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
         }
 
         throw utils::exceptions::Mars2GribMatcherException(

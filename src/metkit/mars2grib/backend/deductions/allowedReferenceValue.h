@@ -192,22 +192,6 @@ double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParD
             {263501, {173.0, 1000.0}},
         };
 
-        const bool hasGrid       = has(mars, "grid");
-        const bool hasTruncation = has(mars, "truncation");
-
-        if (hasGrid == hasTruncation) {
-            throw Mars2GribDeductionException(
-                "`allowedReferenceValue` requires exactly one of MARS keys `grid` or `truncation`", Here());
-        }
-
-        if (hasTruncation) {
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                return std::string{"`allowedReferenceValue` resolved for spectral representation: value='0.000000'"};
-            }());
-
-            return 0.0;
-        }
-
         // Default reference value for grid-point products
         double ret = 0.0;
 

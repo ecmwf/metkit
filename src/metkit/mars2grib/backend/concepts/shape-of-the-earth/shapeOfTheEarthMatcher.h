@@ -22,6 +22,7 @@
 #include <exception>
 
 // Utils
+#include "eckit/geo/Grid.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/shape-of-the-earth/shapeOfTheEarthEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
@@ -61,8 +62,13 @@ std::size_t shapeOfTheEarthMatcher(const MarsDict_t& mars, const OptDict_t& opt)
             return static_cast<std::size_t>(ShapeOfTheEarthType::Dummy);
         }
 
+        const auto marsGrid = get_or_throw<std::string>(mars, "grid");
+        const auto gridType = std::unique_ptr<const eckit::geo::Grid>(
+                                  eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}}))
+                                  ->type();
+
         // NOTE: Spherical harmonics is encoded without shape of the earth
-        if (has(mars, "truncation")) {
+        if (gridType == "sh") {
             return compile_time_registry_engine::MISSING;
         }
 

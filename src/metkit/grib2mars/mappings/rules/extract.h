@@ -45,7 +45,6 @@
 #include "metkit/grib2mars/mappings/rules/system.h"
 #include "metkit/grib2mars/mappings/rules/time.h"
 #include "metkit/grib2mars/mappings/rules/timespan.h"
-#include "metkit/grib2mars/mappings/rules/truncation.h"
 #include "metkit/grib2mars/mappings/rules/type.h"
 #include "metkit/grib2mars/mappings/rules/wavelength.h"
 
@@ -78,7 +77,6 @@ const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict, OptDict_
         {"number", extractNumber<MarsDict, MiscDict, OptDict_t>},
         {"quantile", extractQuantile<MarsDict, MiscDict, OptDict_t>},
         {"grid", extractGrid<MarsDict, MiscDict, OptDict_t>},
-        {"truncation", extractTruncation<MarsDict, MiscDict, OptDict_t>},
         {"packing", extractPacking<MarsDict, MiscDict, OptDict_t>},
         {"date", extractDate<MarsDict, MiscDict, OptDict_t>},
         {"hdate", extractHdate<MarsDict, MiscDict, OptDict_t>},

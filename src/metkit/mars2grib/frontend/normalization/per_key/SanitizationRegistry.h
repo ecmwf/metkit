@@ -26,10 +26,12 @@ struct MarsSanitizerRegistry {
 
     static std::vector<Entry> get_all_tests() {
         return {
-            {"origin", per_key::sanitise_origin_or_throw<T>},        {"class", per_key::sanitise_class_or_throw<T>},
-            {"stream", per_key::sanitise_stream_or_throw<T>},        {"type", per_key::sanitise_type_or_throw<T>},
-            {"expver", per_key::sanitise_expver_or_throw<T>},        {"date", per_key::sanitise_date_or_throw<T>},
-            {"truncation", per_key::sanitise_truncation_or_throw<T>}
+            {"origin", per_key::sanitise_origin_or_throw<T>},
+            {"class", per_key::sanitise_class_or_throw<T>},
+            {"stream", per_key::sanitise_stream_or_throw<T>},
+            {"type", per_key::sanitise_type_or_throw<T>},
+            {"expver", per_key::sanitise_expver_or_throw<T>},
+            {"date", per_key::sanitise_date_or_throw<T>}
             // ... the script can be extended to populate this list
         };
     }

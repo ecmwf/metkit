@@ -94,12 +94,9 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
 
         const long truncation = [&]() {
-            if (get_or_throw<bool>(opt, "skipSection3")) {
-                const std::string grid           = get_or_throw<std::string>(mars, "grid");
-                const eckit::geo::Grid* gridSpec = eckit::geo::GridFactory::make_from_string(grid);
-                return static_cast<long>(gridSpec->truncation());
-            }
-            return get_or_throw<long>(mars, "truncation");
+            const std::string grid           = get_or_throw<std::string>(mars, "grid");
+            const eckit::geo::Grid* gridSpec = eckit::geo::GridFactory::make_from_string(grid);
+            return static_cast<long>(gridSpec->truncation());
         }();
 
         if (truncation < 0) {
@@ -128,6 +125,8 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
                 return "`subSetTruncation` overridden from parameter dictionary: value='" +
                        std::to_string(subSetTrunc) + "'";
             }());
+
+            std::cout << "subSetTruncation = " << subSetTrunc << std::endl;
 
             // Success exit point
             return subSetTrunc;
