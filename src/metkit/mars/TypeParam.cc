@@ -745,7 +745,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     if (!rule) {
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;
 
-        if (flags_[4]) {
+        if (firstRule()) {
             bool found = false;
             for (const auto& r : *rules) {
                 if (r.match(request, true)) {

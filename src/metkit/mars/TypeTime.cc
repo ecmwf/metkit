@@ -16,11 +16,11 @@ namespace metkit::mars {
 TypeTime::TypeTime(const std::string& type, MarsKeyword key, const eckit::Value& settings) : Type(type, key, settings) {
 
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, settings);
-    flags_[1] = true;
+    flags_[Multiple] = true;
 }
 TypeTime::TypeTime(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, file);
-    flags_[1] = true;
+    flags_[Multiple] = true;
 }
 bool TypeTime::expand(std::string& value, const MarsRequest&) const {
 

@@ -358,7 +358,7 @@ public:
 
 private:
 
-    std::map<std::string, MarsRequest> inherited_;
+    std::map<MarsVerb, MarsRequest> inherited_;
 };
 
 }  // namespace

@@ -47,7 +47,7 @@ bool TypeRegex::expand(std::string& value, const MarsRequest&) const {
 
     for (std::vector<eckit::Regex>::const_iterator j = regex_.begin(); j != regex_.end(); ++j) {
         if ((*j).match(value)) {
-            if (flags_[3]) {
+            if (uppercase()) {
                 value = eckit::StringTools::upper(value);
             }
             return true;

@@ -50,7 +50,7 @@ public:  // methods
     MarsDataCube(MarsVerb verb);
     virtual ~MarsDataCube() = default;
 
-    virtual MarsVerb verbId() const;
+    virtual MarsVerb verb() const;
     virtual void verb(MarsVerb id);
 
     using iterator       = std::vector<Parameter>::iterator;
@@ -221,8 +221,8 @@ public:  // methods
 
     const std::string& operator[](const std::string&) const;
 
-    MarsVerb verbId() const override;
-    const std::string& verb() const { return verbName_; }
+    MarsVerb verb() const override;
+    const std::string& verbStr() const { return verbName_; }
 
     void verb(MarsVerb id) override;
     void verb(const std::string& name);

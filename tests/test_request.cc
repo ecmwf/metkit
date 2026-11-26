@@ -211,6 +211,32 @@ CASE("test_request_count_single_level_params") {
     }
 }
 
+CASE("test_request_verb_name_is_printed") {
+    // the verb is written by name (not by id), also by the requests produced by flatten() and subset()
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+
+    std::ostringstream oss;
+    oss << r;
+    EXPECT_EQUAL(oss.str().substr(0, 9), "retrieve,");
+    EXPECT_EQUAL(r.asString().substr(0, 9), "retrieve,");
+
+    MarsRequest s = r.subset({"class"});
+    EXPECT_EQUAL(s.verbStr(), "retrieve");
+    EXPECT(s.verb() == MarsLanguage::verb("retrieve"));
+
+    // a verb that is not in the language is kept by name: printing, comparing and subsetting must not throw
+    MarsRequest unknown("notaverb");
+    unknown.setValue("class", "od");
+    EXPECT_EQUAL(unknown.verbStr(), "notaverb");
+    EXPECT_THROWS_AS(unknown.verb(), eckit::UserError);
+    EXPECT_NO_THROW(unknown.asString());
+    EXPECT_EQUAL(unknown.asString().substr(0, 9), "notaverb,");
+    EXPECT_NO_THROW(unknown.subset({"class"}));
+    EXPECT_NO_THROW(static_cast<void>(unknown < r));
+    EXPECT(r < unknown || unknown < r);
+}
+
 CASE("test_raw_request_stream_roundtrip") {
     // a request decoded from a stream must be fully usable: lookups go through the parameter index
     MarsRequest r("retrieve");
@@ -224,7 +250,8 @@ CASE("test_raw_request_stream_roundtrip") {
     eckit::MemoryStream in(buffer);
     MarsRequest decoded(in);
 
-    EXPECT_EQUAL(decoded.verb(), "retrieve");
+    EXPECT_EQUAL(decoded.verbStr(), "retrieve");
+    EXPECT(decoded.verb() == MarsLanguage::verb("retrieve"));
     EXPECT(decoded.has("class"));
     EXPECT(decoded.find("param") != nullptr);
     EXPECT_EQUAL(decoded["class"], "od");
@@ -276,7 +303,8 @@ CASE("test_request_subset") {
 
     MarsRequest subset = r.subset({"class"});
 
-    EXPECT_EQUAL(subset.verb(), "retrieve");
+    EXPECT_EQUAL(subset.verbStr(), "retrieve");
+    EXPECT(subset.verb() == MarsLanguage::verb("retrieve"));
     EXPECT_EQUAL(subset.params(), (std::vector<std::string>{"class"}));
     EXPECT_EQUAL(subset.values("class"), (std::vector<std::string>{"od"}));
     EXPECT(!subset.has("target"));
@@ -398,7 +426,8 @@ CASE("test_request_copy_and_move") {
     MarsRequest c(std::move(b));
     EXPECT_EQUAL(c["class"], "rd");
     EXPECT_EQUAL(c["type"], "an");
-    EXPECT_EQUAL(c.verb(), "retrieve");
+    EXPECT_EQUAL(c.verbStr(), "retrieve");
+    EXPECT(c.verb() == MarsLanguage::verb("retrieve"));
 
     // and a moved-from request can be used again
     b = a;
@@ -447,7 +476,8 @@ CASE("test_request_stream_validate") {
     out3 << upper;
     eckit::MemoryStream in3(buffer);
     MarsRequest lower(in3, false);
-    EXPECT_EQUAL(lower.verb(), "retrieve");
+    EXPECT_EQUAL(lower.verbStr(), "retrieve");
+    EXPECT(lower.verb() == MarsLanguage::verb("retrieve"));
     EXPECT(lower.find("class") != nullptr);
 }
 
@@ -490,8 +520,10 @@ CASE("test_request_no_implicit_conversions") {
     EXPECT((std::is_constructible_v<MarsRequest, std::string>));
 
     MarsVerb retrieve = MarsLanguage::verb("retrieve");
-    EXPECT_EQUAL(MarsRequest{retrieve}.verb(), "retrieve");
-    EXPECT_EQUAL(MarsRequest{"retrieve"}.verb(), "retrieve");
+    EXPECT_EQUAL(MarsRequest{retrieve}.verbStr(), "retrieve");
+    EXPECT(MarsRequest{retrieve}.verb() == MarsLanguage::verb("retrieve"));
+    EXPECT_EQUAL(MarsRequest{"retrieve"}.verbStr(), "retrieve");
+    EXPECT(MarsRequest{"retrieve"}.verb() == MarsLanguage::verb("retrieve"));
 }
 
 //----------------------------------------------------------------------------------------------------------------------

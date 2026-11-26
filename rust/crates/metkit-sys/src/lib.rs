@@ -18,9 +18,9 @@ include!(concat!(env!("OUT_DIR"), "/metkit_exceptions.rs"));
         // MarsRequest
         "split", "subset", "merge", "filter", "extract", "erase", "md5", "json", "asString",
         "countValues", "getParams", "setValuesTyped", "parameters", "fromOpaque", "begin", "end",
-        "find", "postproc", "data", "verbId",
+        "find", "postproc", "data", "verbStr",
         // MarsLanguage
-        "write", "addKeyword", "name", "hasKeyword", "isSink", "expandVerb", "keyword",
+        "write", "addKeyword", "name", "isSink", "expandVerb", "keyword",
         "maxDataKeyword", "writeDictionaries", "bestMatch", "hasVerb", "isDerived", "type",
         "readContexts", "readDictionaries", "isPostProc", "flatten", "jsonFile", "writeContexts",
     ]

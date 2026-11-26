@@ -54,7 +54,7 @@ Parameter makeParameter(MarsVerb verb, MarsKeyword key, std::vector<std::string>
 
 MarsDataCube::MarsDataCube(MarsVerb verb) : verb_(verb) {}
 
-MarsVerb MarsDataCube::verbId() const {
+MarsVerb MarsDataCube::verb() const {
     return verb_;
 }
 
@@ -303,7 +303,7 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate) : MarsDataCube(0) {
 
     if (validate) {
         // every parameter must be a keyword of the language of the verb (UserError otherwise)
-        lang_ = MarsLanguage::get(verbId());
+        lang_ = MarsLanguage::get(verb());
         std::vector<Parameter> all(begin(), end());
         data_.clear();
         for (auto& v : params_) {
@@ -322,7 +322,7 @@ MarsRequest::MarsRequest(eckit::Stream& s, bool validate) : MarsDataCube(0) {
     }
 }
 
-MarsVerb MarsRequest::verbId() const {
+MarsVerb MarsRequest::verb() const {
     if (verb_) {
         return verb_;
     }
@@ -593,7 +593,7 @@ std::vector<std::string> MarsRequest::params() const {
 }
 
 void MarsRequest::encode(eckit::Stream& s) const {
-    s << verb();
+    s << verbStr();  // the name, not the id: the id is not stable across processes
 
     int numParams = size();
     s << numParams;
@@ -617,7 +617,7 @@ void MarsRequest::print(std::ostream& s) const {
 
 void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool printVerb) const {
     if (printVerb) {
-        s << verb() << ',';
+        s << verbStr() << ',';
     }
     std::string separator = "";
     if (size()) {
@@ -738,7 +738,7 @@ std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys
 }
 
 MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {
-    MarsRequest req(verb());
+    MarsRequest req(verbStr());
 
     for (auto it = begin(); it != end(); it++) {
         if (keys.find(it->name()) != keys.end()) {
@@ -780,8 +780,8 @@ void MarsRequest::md5(eckit::MD5& md5) const {
 }
 
 bool MarsRequest::operator<(const MarsRequest& other) const {
-    if (verb() != other.verb()) {
-        return verb() < other.verb();
+    if (verbStr() != other.verbStr()) {
+        return verbStr() < other.verbStr();
     }
     return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
 }

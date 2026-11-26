@@ -31,11 +31,11 @@ public:
 
 TypeRange::TypeRange(const std::string& type, MarsKeyword key, const eckit::Value& vals) : Type(type, key, vals) {
     toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, vals);
-    flags_[1] = true;
+    flags_[Multiple] = true;
 }
 TypeRange::TypeRange(const std::string& type, MarsKeyword key, MMapFileReader& file) : Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, file);
-    flags_[1] = true;
+    flags_[Multiple] = true;
 }
 
 void TypeRange::print(std::ostream& out) const {

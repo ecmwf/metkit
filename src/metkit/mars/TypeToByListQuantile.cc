@@ -49,13 +49,13 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string& type, MarsKeyword 
                              << std::endl;
 
     toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, vals);
-    flags_[1] = true;
+    flags_[Multiple] = true;
 }
 
 TypeToByListQuantile::TypeToByListQuantile(const std::string& type, MarsKeyword key, MMapFileReader& file) :
     Type(type, key, file) {
     toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, file);
-    flags_[1] = true;
+    flags_[Multiple] = true;
 
     uint8_t numDenominators = file.read8();
     for (uint8_t i = 0; i < numDenominators; ++i) {

@@ -55,7 +55,8 @@ Sequence make_power_sequence(Sequence::value_type min, Sequence::value_type max)
 
 void expect_mars(const std::string& text, const Expected& expected, bool strict = false) {
     auto r = MarsRequest::parse(text, strict);
-    EXPECT_EQUAL(expected.verb, r.verb());
+    EXPECT_EQUAL(expected.verb, r.verbStr());
+    EXPECT_EQUAL(MarsLanguage::verb(expected.verb), r.verb());
 
     for (const auto& kv : expected.keyvalue) {
         auto v = r.values(kv.first);
@@ -230,15 +231,26 @@ CASE("check defaults and _clear_defaults") {
     }
 }
 
-CASE("check method: isData()") {
+CASE("check method: isData() & category()") {
 
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("class"), true);
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("date"), true);
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("time"), true);
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("step"), true);
     EXPECT_EQUAL(MarsLanguage::get("retrieve").isData("number"), true);
+
     EXPECT_EQUAL(MarsLanguage::get("disseminate").isData("accuracy"), false);
     EXPECT_EQUAL(MarsLanguage::get("disseminate").isData("grid"), false);
+
+    EXPECT(MarsLanguage::get("retrieve").category(MarsLanguage::keyword("class")) == Category::Data);
+    EXPECT(MarsLanguage::get("retrieve").category(MarsLanguage::keyword("date")) == Category::Data);
+    EXPECT(MarsLanguage::get("retrieve").category(MarsLanguage::keyword("time")) == Category::Data);
+    EXPECT(MarsLanguage::get("retrieve").category(MarsLanguage::keyword("step")) == Category::Data);
+    EXPECT(MarsLanguage::get("retrieve").category(MarsLanguage::keyword("number")) == Category::Data);
+    
+    EXPECT(MarsLanguage::get("disseminate").category(MarsLanguage::keyword("accuracy")) == Category::PostProc);
+    EXPECT(MarsLanguage::get("disseminate").category(MarsLanguage::keyword("grid")) == Category::PostProc);
+
 }
 
 CASE("check method: flatten()") {

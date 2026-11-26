@@ -4,14 +4,17 @@
 /// @file   test_dictionary.cc
 /// @date   Oct 2026
 
+#include <fstream>
 #include <set>
 #include <string>
 #include <thread>
 #include <vector>
 
 #include "eckit/exception/Exceptions.h"
+#include "eckit/filesystem/PathName.h"
 #include "eckit/testing/Test.h"
 
+#include "metkit/mars/MMapFileReader.h"
 #include "metkit/mars/MarsKeyword.h"
 #include "metkit/mars/MarsVerb.h"
 #include "metkit/mars/SymbolTable.h"
@@ -112,6 +115,40 @@ CASE("test_dictionary_concurrent_add") {
         EXPECT_EQUAL(dict.name(keys[0][i]), "name" + std::to_string(i));
     }
     EXPECT_EQUAL(distinct.size(), static_cast<size_t>(numNames));
+}
+
+CASE("test_dictionary_serialisation_marker") {
+    SymbolTable<MarsKeyword> dict;
+    auto a = dict.add("alpha");
+    dict.addAlias("beta", a);
+
+    eckit::PathName path = eckit::PathName::unique("metkit_test_dictionary");
+    {
+        std::ofstream out(path, std::ios::binary | std::ios::trunc);
+        dict.write(out);
+        out.close();
+        EXPECT(out);
+    }
+
+    {  // the serialisation starts with the marker, and round trips
+        EXPECT_EQUAL(std::string{MMapFileReader(path.localPath()).readString(4)}, "DICT");
+        MMapFileReader in(path.localPath());
+        SymbolTable<MarsKeyword> loaded(in);
+        EXPECT_EQUAL(loaded.symbol("alpha"), a);
+        EXPECT_EQUAL(loaded.symbol("beta"), a);
+        EXPECT_EQUAL(loaded.name(a), "alpha");
+        EXPECT(in.atEnd());
+    }
+
+    {  // a file that does not start with the marker is rejected
+        std::ofstream out(path, std::ios::binary | std::ios::trunc);
+        out.write("XXXX", 4);
+        out.close();
+        MMapFileReader in(path.localPath());
+        EXPECT_THROWS_AS(SymbolTable<MarsKeyword>{in}, eckit::SeriousBug);
+    }
+
+    path.unlink();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

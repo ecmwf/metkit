@@ -68,7 +68,7 @@ std::unique_ptr<ContextRule> ContextRule::parse(MMapFileReader& file) {
 bool Include::matches(const MarsRequest& req) const {
     static const MarsKeyword verbKey = MarsLanguage::keyword("_verb");
     if (key_ == verbKey) {
-        return (vals_.find(req.verb()) != vals_.end());
+        return (vals_.find(req.verbStr()) != vals_.end());
     }
     if (!req.has(key_)) {
         return false;
@@ -263,12 +263,12 @@ void Context::write(std::ofstream& file) const {
 Type::Type(const std::string& type, MarsKeyword key, const eckit::Value& settings) :
     typeName_(type), id_(key), name_(key ? MarsLanguage::name(id_) : emptyString) {
 
-    flags_[0] = settings.contains("flatten") ? bool(settings["flatten"]) : true;
-    flags_[1] = settings.contains("multiple") ? bool(settings["multiple"]) : false;
-    flags_[2] = settings.contains("duplicates") ? bool(settings["duplicates"]) : true;
-    flags_[3] = settings.contains("uppercase") ? bool(settings["uppercase"]) : false;
-    flags_[4] = settings.contains("first_rule") ? bool(settings["first_rule"]) : false;
-    flags_[5] = false;  // has groups
+    flags_[Flatten] = settings.contains("flatten") ? bool(settings["flatten"]) : true;
+    flags_[Multiple] = settings.contains("multiple") ? bool(settings["multiple"]) : false;
+    flags_[Duplicates] = settings.contains("duplicates") ? bool(settings["duplicates"]) : true;
+    flags_[Uppercase] = settings.contains("uppercase") ? bool(settings["uppercase"]) : false;
+    flags_[FirstRule] = settings.contains("first_rule") ? bool(settings["first_rule"]) : false;
+    flags_[HasGroups] = false;  // has groups
 
     if (settings.contains("defaults")) {
         eckit::Value defaults = settings["defaults"];
@@ -394,14 +394,6 @@ void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& va
     }
 }
 
-bool Type::flatten() const {
-    return flags_[0];
-}
-
-bool Type::multiple() const {
-    return flags_[1];
-}
-
 size_t Type::count(const std::vector<std::string>& values) const {
     return flatten() ? values.size() : 1;
 }
@@ -453,6 +445,12 @@ std::string Type::tidy(const std::string& value, const MarsRequest& request) con
     return result;
 }
 
+bool Type::flatten() const { return flags_[Flatten]; }
+bool Type::multiple() const { return flags_[Multiple]; }
+bool Type::duplicates() const { return flags_[Duplicates]; }
+bool Type::uppercase() const { return flags_[Uppercase]; }
+bool Type::firstRule() const { return flags_[FirstRule]; }
+
 bool Type::expand(std::string& value, const MarsRequest&) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
@@ -487,7 +485,7 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
             }
         }
         else {
-            if (!flags_[2] && seen.find(value) != seen.end()) {
+            if (!duplicates() && seen.find(value) != seen.end()) {
                 std::ostringstream oss;
                 oss << *this << ": duplicated value '" << value << "'";
                 throw eckit::UserError(oss.str());
@@ -498,7 +496,7 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
 
     std::swap(newvals, values);
 
-    if (!flags_[1] && values.size() > 1) {
+    if (!multiple() && values.size() > 1) {
         throw eckit::UserError("Only one value possible for '" + name() + "'");
     }
 }
@@ -532,6 +530,7 @@ void Type::clearDefaults() {
 void Type::pass2(MarsRequest& request) const {}
 
 void Type::finalise(MarsRequest& request, bool strict) const {
+    static const MarsVerb list = MarsLanguage::verb("list");
 
     const std::vector<std::string>& values = request.values(id_, true);
     if (values.size() == 1 && values[0] == "off") {
@@ -551,7 +550,7 @@ void Type::finalise(MarsRequest& request, bool strict) const {
             }
         }
 
-        if (request.verb() != "list") {
+        if (request.verb() != list) {
             for (const auto& [ctx, values] : sets_) {
                 if (ctx.get().matches(request)) {
                     if (strict && !request.has(id_)) {

@@ -54,7 +54,7 @@ uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicat
             addValue(names[i], idx, allowDuplicates, false);
         }
     }
-    if (flags_[3]) {
+    if (uppercase()) {
         firstName = eckit::StringTools::upper(firstName);
     }
     groups_.emplace_back(firstName, std::vector<std::string>{});
@@ -120,7 +120,7 @@ TypeEnum::TypeEnum(const std::string& type, MarsKeyword key, const eckit::Value&
 }
 
 TypeEnum::TypeEnum(const std::string& type, MarsKeyword key, MMapFileReader& file) :
-    Type(type, key, file), hasGroups_{flags_[5]} {
+    Type(type, key, file), hasGroups_{hasGroups()} {
 
     uint16_t numGroups = file.read16();
     for (uint16_t i = 0; i < numGroups; ++i) {

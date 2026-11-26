@@ -15,7 +15,7 @@ namespace metkit_bridge {
 //----------------------------------------------------------------------------------------------------------------------
 
 rust::String MarsRequestWrapper::verb() const {
-    return rust::String(request_.verb());
+    return rust::String(request_.verbStr());
 }
 
 bool MarsRequestWrapper::has(rust::Str key) const {
