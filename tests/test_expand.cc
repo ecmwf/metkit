@@ -78,7 +78,8 @@ struct ExpectedRequest {
 
 void expand(const MarsRequest& r, const ExpectedRequest& expected, std::set<std::string> ignore) {
     try {
-        EXPECT_EQUAL(expected.verb, r.verb());
+        EXPECT_EQUAL(expected.verb, r.verbStr());
+        EXPECT_EQUAL(MarsLanguage::verb(expected.verb), r.verb());
         for (const auto& e : expected.vals) {
             if (!r.has(e.first)) {
                 if (ignore.find(e.first) != ignore.end()) {

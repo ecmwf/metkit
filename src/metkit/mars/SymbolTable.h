@@ -18,6 +18,7 @@
 #include <shared_mutex>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <unordered_map>
@@ -66,6 +67,9 @@ public:
 
 private:
 
+    /// Marks the beginning of a serialised dictionary, so that a misaligned or corrupted file is detected
+    static constexpr std::string_view MARKER{"DICT"};
+
     void print(std::ostream&) const;
 
     mutable std::shared_mutex mutex_;
@@ -82,6 +86,14 @@ template <typename S>
 SymbolTable<S>::SymbolTable(MMapFileReader& file) {
     static const std::string empty{};
     names_.push_back(empty);
+
+    if (std::string_view marker = file.readString(MARKER.size()); marker != MARKER) {
+        std::ostringstream ss;
+        ss << "Invalid " << (typeid(S{}).name()) << " dictionary in binary file: expected marker '" << MARKER
+           << "', found '" << marker << "'";
+        throw eckit::SeriousBug(ss.str(), Here());
+    }
+
     size_t num = file.read32();
     for (size_t i = 0; i < num; ++i) {
         add(std::string{file.readString()});
@@ -205,6 +217,7 @@ void SymbolTable<S>::write(std::ofstream& file) const {
     std::shared_lock lock(mutex_);
     std::map<std::string, S> map(map_.begin(), map_.end());
 
+    file.write(MARKER.data(), MARKER.size());
     write32(file, names_.size() - 1);
     for (size_t i = 1; i < names_.size(); ++i) {
         writeString(file, names_[i]);

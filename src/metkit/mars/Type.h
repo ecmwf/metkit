@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-#include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsRequest.h"
@@ -194,6 +193,14 @@ class TypesFactory;
 
 class Type {  // : public std::enable_shared_from_this<Type> {
 
+public:
+    constexpr static uint8_t Flatten = 0;
+    constexpr static uint8_t Multiple = 1;
+    constexpr static uint8_t Duplicates = 2;
+    constexpr static uint8_t Uppercase = 3;
+    constexpr static uint8_t FirstRule = 4;
+    constexpr static uint8_t HasGroups = 5;
+
 public:  // methods
 
     Type(const std::string& type, MarsKeyword key, const eckit::Value& settings);
@@ -249,6 +256,10 @@ protected:  // methods
     void set(const Context& context, const std::vector<std::string>& values);
     void unset(const Context& context);
 
+    bool duplicates() const;
+    bool uppercase() const;
+    bool firstRule() const;
+
 protected:  // members
 
     std::string typeName_;
@@ -257,12 +268,12 @@ protected:  // members
     const std::string& name_;
 
     std::bitset<8> flags_;
-    // flags_[0] --> flatten
-    // flags_[1] --> multiple
-    // flags_[2] --> duplicates
-    // flags_[3] --> uppercase (enum/regex)
-    // flags_[4] --> firstRule (param)
-    // flags_[5] --> hasGroups: only meaningful in the binary file, use hasGroups() at runtime
+    // flags_[Flatten]    --> flatten
+    // flags_[Multiple]   --> multiple
+    // flags_[Duplicates] --> duplicates
+    // flags_[Uppercase]  --> uppercase (enum/regex)
+    // flags_[FirstRule]  --> firstRule (param)
+    // flags_[HasGroups]  --> hasGroups: only meaningful in the binary file, use hasGroups() at runtime
 
     std::list<std::pair<std::reference_wrapper<const Context>, std::vector<std::string>>> defaults_;
     std::list<std::pair<std::reference_wrapper<const Context>, std::vector<std::string>>> sets_;

@@ -78,7 +78,7 @@ private:
     std::vector<std::string> values_;
 };
 
-HyperCube::HyperCube(const mars::MarsRequest& request) : verb_(request.verbId()), cube_(std::vector<eckit::Ordinal>()) {
+HyperCube::HyperCube(const mars::MarsRequest& request) : verb_(request.verb()), cube_(std::vector<eckit::Ordinal>()) {
 
     std::vector<eckit::Ordinal> dimensions;
 

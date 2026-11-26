@@ -82,11 +82,11 @@ public:
 
     TypeToByListFloat(const std::string& type, MarsKeyword key, const eckit::Value& val) : TypeFloat(type, key, val) {
         toByList_ = std::make_unique<TypeToByList<float, float>>(*this, val);
-        flags_[1] = true;
+        flags_[Multiple] = true;
     }
     TypeToByListFloat(const std::string& type, MarsKeyword key, MMapFileReader& file) : TypeFloat(type, key, file) {
         toByList_ = std::make_unique<TypeToByList<float, float>>(*this, file);
-        flags_[1] = true;
+        flags_[Multiple] = true;
     }
 
     ~TypeToByListFloat() noexcept override = default;

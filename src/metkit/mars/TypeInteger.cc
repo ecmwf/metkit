@@ -130,11 +130,11 @@ public:
     TypeToByListInt(const std::string& type, MarsKeyword key, const eckit::Value& settings) :
         TypeInteger(type, key, settings) {
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, settings);
-        flags_[1] = true;
+        flags_[Multiple] = true;
     }
     TypeToByListInt(const std::string& name, MarsKeyword key, MMapFileReader& file) : TypeInteger(name, key, file) {
         toByList_ = std::make_unique<TypeToByList<long, long>>(*this, file);
-        flags_[1] = true;
+        flags_[Multiple] = true;
     }
 
 protected:

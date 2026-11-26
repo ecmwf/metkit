@@ -23,6 +23,7 @@ static MarsVerb verb_from_binary_file(const std::string& name) {
     EXPECT_EQUAL(std::string{file.readString(4)}, "LANG");
     EXPECT_EQUAL(file.read16(), LibMetkit::binaryFilesVersion());
 
+    EXPECT_EQUAL(std::string{file.readString(4)}, "DICT");  // the verbs are the first dictionary
     const uint32_t numVerbs = file.read32();
     for (uint32_t i = 0; i < numVerbs; ++i) {
         if (file.readString() == name) {

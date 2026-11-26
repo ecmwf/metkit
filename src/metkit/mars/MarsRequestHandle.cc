@@ -10,7 +10,7 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
-
+#include "metkit/mars/MarsLanguage.h"
 
 namespace metkit::mars {
 
@@ -62,25 +62,31 @@ const eckit::StringDict& MarsRequestHandle::stats() const {
 }
 
 eckit::Length MarsRequestHandle::openForRead() {
+    static const MarsVerb retrieve = MarsLanguage::verb("retrieve");
+    static const MarsVerb stage = MarsLanguage::verb("stage");
+    static const MarsVerb list = MarsLanguage::verb("list");
+    static const MarsVerb get = MarsLanguage::verb("get");
+    
     eckit::Log::info() << "MarsRequestHandle::openForRead[" << request_ << "]" << std::endl;
 
     ASSERT(!opened_);
     opened_ = true;
 
-
-    const std::string v(eckit::StringTools::lower(request_.verb()));
-    ASSERT(v == "retrieve" || v == "stage" || v == "list" || v == "get");
+    const auto v = request_.verb();
+    ASSERT(v == retrieve || v == stage || v == list || v == get);
 
     return protocol_->retrieve(request_);
 }
 
 void MarsRequestHandle::openForWrite(const eckit::Length& size) {
+    static const MarsVerb archive = MarsLanguage::verb("archive");
+
     eckit::Log::info() << "MarsRequestHandle::openForWrite[" << request_ << "]" << std::endl;
 
     ASSERT(!opened_);
     opened_ = true;
 
-    ASSERT(eckit::StringTools::lower(request_.verb()) == "archive");
+    ASSERT(request_.verb() == archive);
     protocol_->archive(request_, size);
 }
 

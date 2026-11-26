@@ -47,7 +47,6 @@ public:  // operators
     bool operator<(const MarsVerb& other) const { return value_ < other.value_; }
 
     operator value_t() const { return value_; }
-    operator std::string_view() const;
 
 private:  // members
 

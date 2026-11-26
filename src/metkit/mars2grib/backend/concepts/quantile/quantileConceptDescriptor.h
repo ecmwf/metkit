@@ -35,6 +35,8 @@ struct QuantileConcept : RegisterEntryDescriptor<QuantileType, QuantileList> {
         else {
             return nullptr;
         }
+
+        mars2gribUnreachable();
     }
 
     template <std::size_t Capability, QuantileType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
