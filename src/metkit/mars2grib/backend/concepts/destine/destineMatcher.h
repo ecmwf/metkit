@@ -33,7 +33,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @brief Match the `destine` concept variant.
 ///
-/// The concept is active for class `d1` requests without `anoffset`. The
+/// The concept is active for class `d1`. The
 /// `dataset` keyword selects the concrete DestinE variant.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
@@ -57,7 +57,7 @@ std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         using metkit::mars2grib::utils::dict_traits::has;
         using metkit::mars2grib::utils::exceptions::Mars2GribMatcherException;
 
-        if (!has(mars, "anoffset") && get_or_throw<std::string>(mars, "class") == "d1") {
+        if (get_or_throw<std::string>(mars, "class") == "d1") {
             if (has(mars, "dataset")) {
                 if (get_or_throw<std::string>(mars, "dataset") == "extremes-dt") {
                     return static_cast<std::size_t>(DestineType::ExtremesDT);
@@ -73,7 +73,7 @@ std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             }
             else {
                 throw Mars2GribMatcherException{
-                    "Missing required mars keyword \"dataset\" for class \"d1\" without \"anoffset\"!", Here()};
+                    "Missing required mars keyword \"dataset\" for class \"d1\"!", Here()};
             }
         }
 
