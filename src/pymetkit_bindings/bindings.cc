@@ -71,7 +71,7 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
         .def(py::init([](const std::string& verb, const std::map<std::string, std::vector<std::string>>& values) {
             return mars_request_from_map(verb, values);
         }))
-        .def("verb", [](const mars::MarsRequest& request) { return request.verb(); })
+        .def("verb", [](const mars::MarsRequest& request) { return request.verbStr(); })
         .def("set_verb", [](mars::MarsRequest& request, const std::string& verb) { request.verb(verb); })
         .def("set", [](mars::MarsRequest& request, const std::string& param,
                        const std::vector<std::string>& values) { request.values(param, values); })

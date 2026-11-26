@@ -49,7 +49,7 @@ class GribToRequestTool : public MetkitTool {
 public:
 
     GribToRequestTool(int argc, char** argv) : MetkitTool(argc, argv) {
-        options_.push_back(new SimpleOption<std::string>("verb", "Verb in the request, default = retrieve"));
+        options_.push_back(new SimpleOption<std::string>("verb", "MarsVerb in the request, default = retrieve"));
         options_.push_back(
             new SimpleOption<std::string>("database", "add database keyword to requests, default = none"));
         options_.push_back(new SimpleOption<std::string>("source", "add source keyword to requests, default = none"));
@@ -170,7 +170,7 @@ void GribToRequestTool::execute(const eckit::option::CmdArgs& args) {
         // split the requests into groups of requests with the same set of metadata (but potentially different values)
         for (const auto& r : requests) {
             std::set<std::string> keys;
-            for (const auto& p : r.parameters()) {
+            for (const auto& p : r) {
                 keys.insert(p.name());
             }
             coherentRequests[keys].push_back(r);

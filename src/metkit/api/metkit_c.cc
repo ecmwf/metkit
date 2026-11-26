@@ -229,7 +229,7 @@ metkit_error_t metkit_marsrequest_verb(const metkit_marsrequest_t* request, cons
     return tryCatch([request, verb] {
         ASSERT(request);
         ASSERT(verb);
-        *verb = request->verb().c_str();
+        *verb = request->verbStr().c_str();
     });
 }
 

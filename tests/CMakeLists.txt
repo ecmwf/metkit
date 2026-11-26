@@ -69,6 +69,7 @@ foreach( test
         c_api
         context
         date
+        dictionary
         expand
         filter
         hypercube
@@ -80,10 +81,12 @@ foreach( test
         obstype
         param_axis
         request
+        serialize
         step
         steprange_axis
         time
         type_levelist
+        type_threads
         typesfactory )
     ecbuild_add_test( TARGET       "metkit_test_${test}"
                       SOURCES      "test_${test}.cc"
@@ -92,6 +95,36 @@ foreach( test
                       NO_AS_NEEDED
                       LIBS         metkit)
 endforeach()
+
+# keyword registration: once with the language served from language.bin, once parsing the YAML only
+ecbuild_add_test( TARGET       metkit_test_language_registration
+                  SOURCES      test_language_registration.cc
+                  INCLUDES     "${ECKIT_INCLUDE_DIRS}"
+                  ENVIRONMENT  "${metkit_env}"
+                  NO_AS_NEEDED
+                  LIBS         metkit )
+
+ecbuild_add_test( TARGET       metkit_test_language_registration_yaml
+                  COMMAND      metkit_test_language_registration
+                  ENVIRONMENT  "${metkit_env}" "METKIT_FORCE_BINFILE_CREATION=1" )
+
+# a METKIT_HOME without language.yaml: the language can only be loaded from language.bin
+if( HAVE_METKIT_CONFIG )
+    set( _binary_only_home ${CMAKE_CURRENT_BINARY_DIR}/binary_only_home )
+    file( MAKE_DIRECTORY ${_binary_only_home}/share/metkit )
+    file( GLOB _metkit_config_files RELATIVE ${PROJECT_SOURCE_DIR}/share/metkit ${PROJECT_SOURCE_DIR}/share/metkit/*.yaml )
+    list( REMOVE_ITEM _metkit_config_files language.yaml )
+    foreach( _file ${_metkit_config_files} language.bin )
+        file( CREATE_LINK ${CMAKE_BINARY_DIR}/share/metkit/${_file} ${_binary_only_home}/share/metkit/${_file} SYMBOLIC )
+    endforeach()
+
+    ecbuild_add_test( TARGET       metkit_test_language_binary_first_use
+                      SOURCES      test_language_binary_first_use.cc
+                      INCLUDES     "${ECKIT_INCLUDE_DIRS}"
+                      ENVIRONMENT  "METKIT_HOME=${_binary_only_home}"
+                      NO_AS_NEEDED
+                      LIBS         metkit )
+endif()
 
 # Compile C test
 ecbuild_add_test( TARGET        metkit_test_c_compiled

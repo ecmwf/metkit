@@ -23,10 +23,16 @@ for req in $srcdir/*.req; do
 done
 [[ $failed -eq 0 ]] || die "convert-mars-request output differs from the reference"
 
-# A request of ~5M fields must be converted without flattening it field by field
-out=$( (ulimit -v 2000000 && $cmr --porcelain $srcdir/r05-large.req) | grep -v "^Matching")
-[[ $(echo "$out" | wc -l) -eq 1 ]] || die "r05-large: expected a single output request"
-echo "$out" | grep -q "number=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50" || die "r05-large: number list lost"
+# A request of ~5M fields must be converted without flattening it field by field.
+# The check relies on a virtual memory limit (ulimit -v), which is not supported on every platform (e.g. macOS):
+# skip it where the limit cannot be set, as running unbounded could exhaust the memory on a regression.
+if (ulimit -v 2000000) 2>/dev/null; then
+    out=$( (ulimit -v 2000000 && $cmr --porcelain $srcdir/r05-large.req) | grep -v "^Matching")
+    [[ $(echo "$out" | wc -l) -eq 1 ]] || die "r05-large: expected a single output request"
+    echo "$out" | grep -q "number=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50" || die "r05-large: number list lost"
+else
+    echo "$(basename "$0"): skipping r05-large: cannot set a virtual memory limit on this platform" >&2
+fi
 
 # A since-last-post-processing param in a context without an output schedule is an error, never timespan=fs
 if $cmr --porcelain $srcdir/r06c-since-last-pp-no-schedule.req > /dev/null 2>&1; then

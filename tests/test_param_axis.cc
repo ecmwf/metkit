@@ -20,7 +20,7 @@
 
 namespace metkit::mars::test {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static std::ostream& operator<<(std::ostream& out, const std::vector<Param>& params) {
     out << '[';
     const char* sep = "";
@@ -66,7 +66,7 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
     const MarsLanguage& language = MarsLanguage::get("retrieve");
     MarsRequest req;
     ExpansionContext ctx;
-    req.setValuesTyped(language.type(name), values);
+    req.setValuesTyped(&language.typeRef(name), values);
     req = language.expand(req, ctx, false, true);
     EXPECT_EQUAL(expected, req.values(name));
 }
@@ -702,7 +702,7 @@ CASE("table15") {
 
 }  // namespace metkit::mars::test
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
     return eckit::testing::run_tests(argc, argv);

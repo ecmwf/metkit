@@ -73,12 +73,13 @@ struct ExpectedRequest {
 };
 }  // namespace
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 
 void expand(const MarsRequest& r, const ExpectedRequest& expected, std::set<std::string> ignore) {
     try {
-        EXPECT_EQUAL(expected.verb, r.verb());
+        EXPECT_EQUAL(expected.verb, r.verbStr());
+        EXPECT_EQUAL(MarsLanguage::verb(expected.verb), r.verb());
         for (const auto& e : expected.vals) {
             if (!r.has(e.first)) {
                 if (ignore.find(e.first) != ignore.end()) {
@@ -513,12 +514,12 @@ CASE("test_metkit_expand_multirequest-5") {
 }
 
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
-    const metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
-    EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
+    auto& t = metkit::mars::MarsLanguage::get("retrieve").typeRef(key);
+    EXPECT_THROWS_AS(t.expand(values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
-    const metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
-    t->expand(values);
+    auto& t = metkit::mars::MarsLanguage::get("retrieve").typeRef(key);
+    t.expand(values);
     EXPECT_EQUAL(expected, values);
 }
 
@@ -1531,7 +1532,7 @@ CASE("test_metkit_files") {
         }
     }
 }
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
 
