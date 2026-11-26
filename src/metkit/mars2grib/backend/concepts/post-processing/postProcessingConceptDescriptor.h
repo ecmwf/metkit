@@ -35,6 +35,8 @@ struct PostProcessingConcept : RegisterEntryDescriptor<PostProcessingType, PostP
         else {
             return nullptr;
         }
+
+        mars2gribUnreachable();
     }
 
     template <std::size_t Capability, PostProcessingType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
