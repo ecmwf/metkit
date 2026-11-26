@@ -7,7 +7,7 @@
 
 #include <sstream>
 #include <string>
-#include <type_traits>
+#include <vector>
 
 #include "eckit/io/Buffer.h"
 #include "eckit/log/JSON.h"
@@ -30,7 +30,98 @@ using namespace eckit::testing;
 
 namespace metkit::mars::test {
 
+namespace {
+
+MarsRequest requestWith(const std::string& name, const std::vector<std::string>& values) {
+    MarsRequest request;
+    request.values(name, values);
+    return request;
+}
+
+}  // namespace
+
 //----------------------------------------------------------------------------------------------------------------------
+
+CASE("test_request_data_type_classification") {
+    {
+        MarsRequest request = requestWith("type", {"ob"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"fb"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"ob", "fb"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"ai"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"af"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"ab"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"tf"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"an", "tf"});
+        EXPECT(request.dataType() == DataType::Unknown);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 0.5);
+    }
+
+    for (const std::string& type : {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"}) {
+        MarsRequest request = requestWith("type", {type});
+        EXPECT(request.dataType() == DataType::Odb);
+        auto odb = request.is_odb();
+        EXPECT(odb == 1.0);
+    }
+    {
+        auto odb = requestWith("type", {"an"}).is_odb();
+        EXPECT(odb == 0.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"an"});
+        auto buf            = request.is_bufr();
+        auto odb            = request.is_odb();
+        EXPECT(buf.numerator() == 0 && odb.numerator() == 0);
+        EXPECT(request.dataType() == DataType::Grib);
+    }
+}
+
+CASE("test_request_multiple_type_values") {
+    const MarsRequest feedback = requestWith("type", {"ai", "af"});
+    EXPECT(feedback.dataType() == DataType::Bufr);
+    EXPECT(feedback.is_bufr() == 1.0);
+    EXPECT(feedback.is_odb() == 0.0);
+
+    const MarsRequest mixed = requestWith("type", {"ob", "ofb"});
+    EXPECT(mixed.dataType() == DataType::Unknown);
+    EXPECT(mixed.is_bufr() == 0.5);
+    EXPECT(mixed.is_odb() == 0.5);
+}
 
 CASE("test_request_json") {
     {

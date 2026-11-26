@@ -206,6 +206,54 @@ size_t MarsDataCube::count() const {
     return result;
 }
 
+eckit::Fraction MarsDataCube::valuesIncluded(MarsKeyword key, const std::set<std::string>& filter) const {
+    for (const auto& p : data_) {
+        if (p.id() == key) {
+            return eckit::Fraction(std::count_if(p.values().begin(), p.values().end(), [&filter](const std::string& value) {
+                return filter.find(eckit::StringTools::lower(value)) != filter.end();
+            }), p.values().size());
+        }
+    }
+    return eckit::Fraction(0, 1);
+}
+
+eckit::Fraction MarsDataCube::is_bufr() const {
+    static const MarsKeyword type = MarsLanguage::keyword("type");
+    static const MarsKeyword stream = MarsLanguage::keyword("stream");
+    static const std::set<std::string> bufr_types   = {"ai", "af", "ob", "fb", "ab", "tf"};
+    static const std::set<std::string> bufr_streams = {"ssmi"};
+
+    auto streamFraction = valuesIncluded(stream, bufr_streams);
+    if (streamFraction.numerator() == streamFraction.denominator()) {
+        return streamFraction;
+    }
+    return valuesIncluded(type, bufr_types);
+}
+
+eckit::Fraction MarsDataCube::is_odb() const {
+    static const MarsKeyword type = MarsLanguage::keyword("type");
+    static const std::set<std::string> odb_types = {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"};
+    return valuesIncluded(type, odb_types);
+}
+
+DataType MarsDataCube::dataType() const {
+    auto bufr = is_bufr();
+    auto odb  = is_odb();
+    if (bufr.numerator() == 0) {
+        if (odb.numerator() == 0) {
+            return Grib;
+        }
+        if (odb.numerator() == odb.denominator()) {
+            return Odb;
+        }
+    }
+    if (bufr.numerator() == bufr.denominator()) {
+        if (odb.numerator() == 0) {
+            return Bufr;
+        }
+    }
+    return Unknown;
+}
 
 ParameterIterator::ParameterIterator(const std::vector<Parameter>& data,
                                      const std::array<std::vector<Parameter>, 4>& other, bool end) {

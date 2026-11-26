@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+#include "eckit/types/Fraction.h"
 #include "eckit/utils/Translator.h"
 #include "eckit/value/Value.h"
 
@@ -41,6 +42,13 @@ namespace metkit::mars {
 
 class MarsLanguage;
 class Type;
+
+enum DataType {
+    Bufr,
+    Odb,
+    Grib,
+    Unknown
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -65,12 +73,20 @@ public:  // methods
     /// The number of fields the datacube refers to
     size_t count() const;
 
+    eckit::Fraction is_bufr() const;
+    eckit::Fraction is_odb() const;
+    DataType dataType() const;
+
     const std::vector<std::string>& get(MarsKeyword key) const;
     void set(MarsKeyword key, const std::vector<std::string>& value);
     void set(MarsKeyword key, std::vector<std::string>&& value);
     void unset(MarsKeyword key);
     bool has(MarsKeyword key) const;
     void merge(const MarsDataCube& other);
+
+private:
+
+    eckit::Fraction valuesIncluded(MarsKeyword key, const std::set<std::string>& filter) const;
 
 protected:
 
@@ -321,8 +337,8 @@ public:  // static methods
 
 private:  // methods
 
-    void print(std::ostream& s) const;
-    void encode(eckit::Stream& s) const;
+    void print(std::ostream&) const;
+    void encode(eckit::Stream&) const;
 
     /// Where a parameter is held: the container (0 data, 1 postproc, 2 other) and the index in it
     struct Position {
