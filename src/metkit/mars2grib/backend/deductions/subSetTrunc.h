@@ -37,6 +37,7 @@
 
 // System includes
 #include <algorithm>
+#include <memory>
 #include <string>
 
 #include "eckit/geo/Grid.h"
@@ -65,7 +66,8 @@ namespace metkit::mars2grib::backend::deductions {
 /// @tparam ParDict_t  Type of the parameter dictionary
 /// @tparam OptDict_t  Type of the options dictionary (unused)
 ///
-/// @param[in] mars MARS dictionary providing `grid` (from which the truncation is derived) for defaulting and validation
+/// @param[in] mars MARS dictionary providing `grid` (from which the truncation is derived) for defaulting and
+/// validation
 /// @param[in] par  Parameter dictionary; may contain `subSetTruncation`
 /// @param[in] opt  Options dictionary (unused)
 ///
@@ -74,7 +76,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// - If an unexpected error occurs during dictionary access
 /// - If `par::subSetTruncation` is provided but exceeds the truncation of the MARS grid or is negative
-/// - If the truncation of the MARS grid is invalid when needed for defaulting
+/// - If the truncation cannot be derived from the MARS grid
 ///
 /// @note
 /// This deduction is fully deterministic and does not depend on
@@ -94,15 +96,10 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
 
         const long truncation = [&]() {
-            const std::string grid           = get_or_throw<std::string>(mars, "grid");
-            const eckit::geo::Grid* gridSpec = eckit::geo::GridFactory::make_from_string(grid);
+            const std::string grid = get_or_throw<std::string>(mars, "grid");
+            const std::unique_ptr<const eckit::geo::Grid> gridSpec(eckit::geo::GridFactory::make_from_string(grid));
             return static_cast<long>(gridSpec->truncation());
         }();
-
-        if (truncation < 0) {
-            throw Mars2GribDeductionException(
-                "Invalid MARS truncation: value='" + std::to_string(truncation) + "' is negative", Here());
-        }
 
         if (has(par, "subSetTruncation")) {
 
@@ -125,8 +122,6 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
                 return "`subSetTruncation` overridden from parameter dictionary: value='" +
                        std::to_string(subSetTrunc) + "'";
             }());
-
-            std::cout << "subSetTruncation = " << subSetTrunc << std::endl;
 
             // Success exit point
             return subSetTrunc;
