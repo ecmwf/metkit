@@ -5,20 +5,26 @@
 /// @date   Jul 2024
 /// @author Emanuele Danovaro
 
+#include <sstream>
 #include <string>
 #include <vector>
 
+#include "eckit/io/Buffer.h"
 #include "eckit/log/JSON.h"
-#include "eckit/types/Date.h"
+#include "eckit/serialisation/MemoryStream.h"
+#include "eckit/serialisation/ResizableMemoryStream.h"
 
 #include "metkit/mars/MarsExpansion.h"
+#include "metkit/mars/MarsKeyword.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsVerb.h"
+#include "metkit/mars/SymbolTable.h"
 #include "metkit/mars/Type.h"
+#include "metkit/mars/TypeAny.h"
 
 #include "eckit/testing/Test.h"
-#include "eckit/utils/Tokenizer.h"
 
 using namespace eckit::testing;
 
@@ -34,7 +40,88 @@ MarsRequest requestWith(const std::string& name, const std::vector<std::string>&
 
 }  // namespace
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+CASE("test_request_data_type_classification") {
+    {
+        MarsRequest request = requestWith("type", {"ob"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"fb"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"ob", "fb"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"ai"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"af"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"ab"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"tf"});
+        EXPECT(request.dataType() == DataType::Bufr);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 1.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"an", "tf"});
+        EXPECT(request.dataType() == DataType::Unknown);
+        auto buf = request.is_bufr();
+        EXPECT(buf == 0.5);
+    }
+
+    for (const std::string& type : {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"}) {
+        MarsRequest request = requestWith("type", {type});
+        EXPECT(request.dataType() == DataType::Odb);
+        auto odb = request.is_odb();
+        EXPECT(odb == 1.0);
+    }
+    {
+        auto odb = requestWith("type", {"an"}).is_odb();
+        EXPECT(odb == 0.0);
+    }
+    {
+        MarsRequest request = requestWith("type", {"an"});
+        auto buf            = request.is_bufr();
+        auto odb            = request.is_odb();
+        EXPECT(buf.numerator() == 0 && odb.numerator() == 0);
+        EXPECT(request.dataType() == DataType::Grib);
+    }
+}
+
+CASE("test_request_multiple_type_values") {
+    const MarsRequest feedback = requestWith("type", {"ai", "af"});
+    EXPECT(feedback.dataType() == DataType::Bufr);
+    EXPECT(feedback.is_bufr() == 1.0);
+    EXPECT(feedback.is_odb() == 0.0);
+
+    const MarsRequest mixed = requestWith("type", {"ob", "ofb"});
+    EXPECT(mixed.dataType() == DataType::Unknown);
+    EXPECT(mixed.is_bufr() == 0.5);
+    EXPECT(mixed.is_odb() == 0.5);
+}
 
 CASE("test_request_json") {
     {
@@ -93,6 +180,13 @@ CASE("test_request_count") {
         const char* text =
             "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/"
             "12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
+        MarsRequest r = MarsRequest::parse(text);
+        EXPECT_EQUAL(12, r.count());
+    }
+    {
+        const char* text =
+            "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/"
+            "12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate,area=12/13/14/15,grid=.1/.1";
         MarsRequest r = MarsRequest::parse(text);
         EXPECT_EQUAL(12, r.count());
     }
@@ -208,90 +302,325 @@ CASE("test_request_count_single_level_params") {
     }
 }
 
-CASE("test_request_data_type_classification") {
-    {
-        MarsRequest request = requestWith("type", {"ob"});
-        EXPECT(request.dataType() == DataType::Bufr);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 1.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"fb"});
-        EXPECT(request.dataType() == DataType::Bufr);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 1.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"ob", "fb"});
-        EXPECT(request.dataType() == DataType::Bufr);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 1.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"ai"});
-        EXPECT(request.dataType() == DataType::Bufr);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 1.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"af"});
-        EXPECT(request.dataType() == DataType::Bufr);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 1.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"ab"});
-        EXPECT(request.dataType() == DataType::Bufr);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 1.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"tf"});
-        EXPECT(request.dataType() == DataType::Bufr);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 1.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"an", "tf"});
-        EXPECT(request.dataType() == DataType::Unknown);
-        auto buf = request.is_bufr();
-        EXPECT(buf == 0.5);
-    }
+CASE("test_request_verb_name_is_printed") {
+    // the verb is written by name (not by id), also by the requests produced by flatten() and subset()
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
 
-    for (const std::string& type : {"ofb", "mfb", "oai", "sfb", "fsoifb", "fcdfb", "ofa"}) {
-        MarsRequest request = requestWith("type", {type});
-        EXPECT(request.dataType() == DataType::Odb);
-        auto odb = request.is_odb();
-        EXPECT(odb == 1.0);
+    std::ostringstream oss;
+    oss << r;
+    EXPECT_EQUAL(oss.str().substr(0, 9), "retrieve,");
+    EXPECT_EQUAL(r.asString().substr(0, 9), "retrieve,");
+
+    MarsRequest s = r.subset({"class"});
+    EXPECT_EQUAL(s.verbStr(), "retrieve");
+    EXPECT(s.verb() == MarsLanguage::verb("retrieve"));
+
+    // a verb that is not in the language is kept by name: printing, comparing and subsetting must not throw
+    MarsRequest unknown("notaverb");
+    unknown.setValue("class", "od");
+    EXPECT_EQUAL(unknown.verbStr(), "notaverb");
+    EXPECT_THROWS_AS(unknown.verb(), eckit::UserError);
+    EXPECT_NO_THROW(unknown.asString());
+    EXPECT_EQUAL(unknown.asString().substr(0, 9), "notaverb,");
+    EXPECT_NO_THROW(unknown.subset({"class"}));
+    EXPECT_NO_THROW(static_cast<void>(unknown < r));
+    EXPECT(r < unknown || unknown < r);
+}
+
+CASE("test_raw_request_stream_roundtrip") {
+    // a request decoded from a stream must be fully usable: lookups go through the parameter index
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.values("param", std::vector<std::string>{"t", "z"});
+
+    eckit::Buffer buffer(4096);
+    eckit::ResizableMemoryStream out(buffer);
+    out << r;
+
+    eckit::MemoryStream in(buffer);
+    MarsRequest decoded(in);
+
+    EXPECT_EQUAL(decoded.verbStr(), "retrieve");
+    EXPECT(decoded.verb() == MarsLanguage::verb("retrieve"));
+    EXPECT(decoded.has("class"));
+    EXPECT(decoded.find("param") != nullptr);
+    EXPECT_EQUAL(decoded["class"], "od");
+    EXPECT_EQUAL(decoded.values("param").size(), 2u);
+    EXPECT_EQUAL(decoded.params().size(), 2u);
+}
+
+CASE("test_request_sparse_categories") {
+    MarsRequest r("retrieve");
+    const MarsRequest& request = r;
+    EXPECT(r.begin() == r.end());
+    EXPECT(!r.has("missing"));
+    EXPECT(r.find("missing") == nullptr);
+    EXPECT(r.params().empty());
+
+    r.setValue("target", "output.grib");
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"target"}));
+    EXPECT_EQUAL(r.begin()->name(), "target");
+    EXPECT(!r.has("class"));
+    EXPECT(!r.has("missing"));
+    EXPECT(request.params(Category::Derived).empty());
+    EXPECT(request.params(Category::PostProc).empty());
+
+    r.setValue("grid", "1");
+    r.setValue("class", "od");
+    // iteration follows the categories: data (class), postproc (grid), sink (target)
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "grid", "target"}));
+    EXPECT_EQUAL(r.end() - r.begin(), 3);
+    EXPECT_EQUAL(r.begin()[1].name(), "grid");
+    EXPECT_EQUAL((r.end() - 1)->name(), "target");
+    EXPECT_EQUAL(r["target"], "output.grib");
+    EXPECT_EQUAL(r["GRID"], "1");
+    EXPECT(!r.has("missing"));
+
+    r.erase("grid");
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "target"}));
+    r.erase("class");
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"target"}));
+    r.erase("target");
+    EXPECT(r.begin() == r.end());
+    EXPECT(r.params().empty());
+    EXPECT(!r.has("missing"));
+}
+
+CASE("test_request_subset") {
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.setValue("target", "output.grib");
+
+    MarsRequest subset = r.subset({"class"});
+
+    EXPECT_EQUAL(subset.verbStr(), "retrieve");
+    EXPECT(subset.verb() == MarsLanguage::verb("retrieve"));
+    EXPECT_EQUAL(subset.params(), (std::vector<std::string>{"class"}));
+    EXPECT_EQUAL(subset.values("class"), (std::vector<std::string>{"od"}));
+    EXPECT(!subset.has("target"));
+}
+
+CASE("test_request_typed_unregistered_parameter") {
+    MarsRequest request("retrieve");
+
+    request.setValuesTyped(new TypeAny("test_custom_typed_parameter"), {"value"});
+    EXPECT(request.has("test_custom_typed_parameter"));
+    EXPECT_EQUAL(request.values("test_custom_typed_parameter"), (std::vector<std::string>{"value"}));
+
+    const Parameter* parameter = request.find("test_custom_typed_parameter");
+    EXPECT(parameter != nullptr);
+    EXPECT(parameter->typed());
+    EXPECT_EQUAL(parameter->type().name(), "test_custom_typed_parameter");
+}
+
+CASE("test_request_unknown_names") {
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+
+    // queries about a name that is not a keyword are not errors
+    EXPECT(r.has("class"));
+    EXPECT(!r.has("not_a_keyword"));
+    EXPECT(r.find("not_a_keyword") == nullptr);
+    EXPECT_EQUAL(r.countValues("not_a_keyword"), 0u);
+    EXPECT(r.values("not_a_keyword", true).empty());
+    EXPECT_NO_THROW(r.unsetValues("not_a_keyword"));
+
+    // ... but asking for the values of a missing parameter is the user's error
+    EXPECT_THROWS_AS(r.values("not_a_keyword"), eckit::UserError);
+
+    // a request accepts any keyword: it is validated when it is expanded
+    EXPECT_NO_THROW(r.setValue("not_a_keyword", "x"));
+    EXPECT(r.has("not_a_keyword"));
+    EXPECT_EQUAL(r["not_a_keyword"], "x");
+    EXPECT_THROWS_AS(MarsExpansion{true}.expand(r), eckit::UserError);
+
+    r.unsetValues("not_a_keyword");
+    EXPECT(!r.has("not_a_keyword"));
+    EXPECT_EQUAL(r.params().size(), 1u);
+}
+
+CASE("test_request_untyped_parameters") {
+    MarsRequest r("retrieve");
+    r.values("custom", std::vector<std::string>{"a", "b"});
+    r.setValue("class", "od");
+
+    // an untyped parameter keeps all its values, and accepts several
+    const Parameter* custom = r.find("custom");
+    EXPECT(custom != nullptr);
+    EXPECT(!custom->typed());
+    EXPECT(custom->multiple());
+    EXPECT_EQUAL(custom->count(), 2u);
+    EXPECT_THROWS_AS(custom->type(), eckit::SeriousBug);
+
+    // the parameters of registered keywords are found by name and by keyword, and are not duplicated
+    MarsKeyword klass = MarsLanguage::keyword("class");
+    EXPECT(r.has(klass));
+    EXPECT_EQUAL(r.values(klass).at(0), "od");
+    r.setValue(klass, "rd");
+    EXPECT_EQUAL(r["class"], "rd");
+    EXPECT_EQUAL(r.params().size(), 2u);
+
+    // the data parameters (here an axis) come first, then the others
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"class", "custom"}));
+
+    r.erase(klass);
+    EXPECT(!r.has("class"));
+    EXPECT_EQUAL(r.params(), (std::vector<std::string>{"custom"}));
+}
+
+CASE("test_request_typed_parameters") {
+    MarsRequest r = MarsRequest::parse(
+        "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/12,type=fcmean,levtype=sfc,step=24,number=1/"
+        "to/2,param=mucin/mucape/tprate,area=12/13/14/15,grid=.1/.1");
+
+    // expanded parameters are typed, and are found by keyword or by name, whatever the case of the name
+    MarsKeyword klass  = MarsLanguage::keyword("class");
+    const Parameter* p = r.find("class");
+    EXPECT(p != nullptr);
+    EXPECT(p->typed());
+    EXPECT_EQUAL(p->id(), klass);
+    EXPECT(r.find(klass) == p);
+    EXPECT(r.find("CLASS") == p);
+    EXPECT(r.has("Class"));
+
+    EXPECT_EQUAL(r.countValues("param"), 3u);
+    EXPECT_EQUAL(r.countValues("number"), 2u);
+    EXPECT(r.find("param")->multiple());
+    EXPECT(!r.find("class")->multiple());
+
+    // modifying the values keeps the type
+    r.setValue("step", "48");
+    EXPECT(r.find("step")->typed());
+    EXPECT_EQUAL(r["step"], "48");
+
+    // an expanded request is a request like any other
+    r.setValue("custom", "x");
+    EXPECT(!r.find("custom")->typed());
+    r.erase(klass);
+    EXPECT(!r.has("class"));
+    EXPECT(r.has("custom"));
+}
+
+CASE("test_request_copy_and_move") {
+    MarsRequest a("retrieve");
+    a.setValue("class", "od");
+
+    // copies are independent
+    MarsRequest b(a);
+    b.setValue("class", "rd");
+    b.setValue("type", "an");
+    EXPECT_EQUAL(a["class"], "od");
+    EXPECT(!a.has("type"));
+    EXPECT_EQUAL(b["class"], "rd");
+
+    MarsRequest c(std::move(b));
+    EXPECT_EQUAL(c["class"], "rd");
+    EXPECT_EQUAL(c["type"], "an");
+    EXPECT_EQUAL(c.verbStr(), "retrieve");
+    EXPECT(c.verb() == MarsLanguage::verb("retrieve"));
+
+    // and a moved-from request can be used again
+    b = a;
+    EXPECT_EQUAL(b["class"], "od");
+
+    // a vector of requests can grow: the requests are moved (and must not be lost)
+    std::vector<MarsRequest> requests;
+    for (int i = 0; i < 100; ++i) {
+        MarsRequest r("retrieve");
+        r.setValue("step", i);
+        requests.push_back(std::move(r));
     }
-    {
-        auto odb = requestWith("type", {"an"}).is_odb();
-        EXPECT(odb == 0.0);
-    }
-    {
-        MarsRequest request = requestWith("type", {"an"});
-        auto buf            = request.is_bufr();
-        auto odb            = request.is_odb();
-        EXPECT(buf.numerator() == 0 && odb.numerator() == 0);
-        EXPECT(request.dataType() == DataType::Grib);
+    for (int i = 0; i < 100; ++i) {
+        EXPECT_EQUAL(requests[i]["step"], std::to_string(i));
     }
 }
 
-CASE("test_request_multiple_type_values") {
-    const MarsRequest feedback = requestWith("type", {"ai", "af"});
-    EXPECT(feedback.dataType() == DataType::Bufr);
-    EXPECT(feedback.is_bufr() == 1.0);
-    EXPECT(feedback.is_odb() == 0.0);
+CASE("test_request_stream_validate") {
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.setValue("type", "an");
 
-    const MarsRequest mixed = requestWith("type", {"ob", "ofb"});
-    EXPECT(mixed.dataType() == DataType::Unknown);
-    EXPECT(mixed.is_bufr() == 0.5);
-    EXPECT(mixed.is_odb() == 0.5);
+    eckit::Buffer buffer(4096);
+    eckit::ResizableMemoryStream out(buffer);
+    out << r;
+
+    // validating the request types the parameters
+    eckit::MemoryStream in(buffer);
+    MarsRequest decoded(in, true);
+    EXPECT(decoded.find("class")->typed());
+    EXPECT(decoded.find("type")->typed());
+    EXPECT_EQUAL(decoded["class"], "od");
+
+    // ... and rejects the keywords that are not in the language
+    MarsRequest custom("retrieve");
+    custom.setValue("not_a_keyword", "x");
+    eckit::ResizableMemoryStream out2(buffer);
+    out2 << custom;
+    eckit::MemoryStream in2(buffer);
+    EXPECT_THROWS_AS(MarsRequest(in2, true), eckit::UserError);
+
+    // the case of the names can be normalised
+    MarsRequest upper("RETRIEVE");
+    upper.setValue("CLASS", "od");
+    eckit::ResizableMemoryStream out3(buffer);
+    out3 << upper;
+    eckit::MemoryStream in3(buffer);
+    MarsRequest lower(in3, false);
+    EXPECT_EQUAL(lower.verbStr(), "retrieve");
+    EXPECT(lower.verb() == MarsLanguage::verb("retrieve"));
+    EXPECT(lower.find("class") != nullptr);
 }
 
-//-----------------------------------------------------------------------------
+CASE("test_raw_request_matches") {
+    MarsRequest r("retrieve");
+    r.setValue("class", "od");
+    r.values("param", std::vector<std::string>{"t", "z"});
+
+    MarsRequest filter("retrieve");
+    filter.values("param", std::vector<std::string>{"z"});
+    EXPECT(r.matches(filter));
+
+    MarsRequest other("retrieve");
+    other.values("param", std::vector<std::string>{"u"});
+    EXPECT(!r.matches(other));
+
+    MarsRequest missing("retrieve");
+    missing.setValue("levtype", "sfc");
+    EXPECT(!r.matches(missing));
+}
+
+CASE("test_language_verbs") {
+    // verbs are case insensitive, and aliases are resolved
+    EXPECT_EQUAL(&MarsLanguage::get("RETRIEVE"), &MarsLanguage::get("retrieve"));
+    EXPECT_EQUAL(&MarsLanguage::get("ret"), &MarsLanguage::get("retrieve"));
+
+    // an unknown verb is an error of the user
+    EXPECT_THROWS_AS(MarsLanguage::get("not_a_verb"), eckit::UserError);
+    EXPECT_THROWS_AS(MarsLanguage::expandVerb("not_a_verb"), eckit::UserError);
+}
+
+CASE("test_request_no_implicit_conversions") {
+    // a verb (an integral) or a string must not silently become a request
+    EXPECT(!(std::is_convertible_v<MarsVerb, MarsRequest>));
+    EXPECT(!(std::is_convertible_v<int, MarsRequest>));
+    EXPECT(!(std::is_convertible_v<std::string, MarsRequest>));
+    EXPECT(!(std::is_convertible_v<const char*, MarsRequest>));
+
+    EXPECT((std::is_constructible_v<MarsRequest, MarsVerb>));
+    EXPECT((std::is_constructible_v<MarsRequest, std::string>));
+
+    MarsVerb retrieve = MarsLanguage::verb("retrieve");
+    EXPECT_EQUAL(MarsRequest{retrieve}.verbStr(), "retrieve");
+    EXPECT(MarsRequest{retrieve}.verb() == MarsLanguage::verb("retrieve"));
+    EXPECT_EQUAL(MarsRequest{"retrieve"}.verbStr(), "retrieve");
+    EXPECT(MarsRequest{"retrieve"}.verb() == MarsLanguage::verb("retrieve"));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars::test
+
 
 int main(int argc, char** argv) {
     return run_tests(argc, argv);

@@ -19,7 +19,8 @@ class TypeRange : public Type {
 
 public:  // methods
 
-    TypeRange(const std::string& name, const eckit::Value& settings);
+    TypeRange(const std::string& type, MarsKeyword key, const eckit::Value& val);
+    TypeRange(const std::string& type, MarsKeyword key, MMapFileReader& file);
 
     ~TypeRange() noexcept override = default;
 

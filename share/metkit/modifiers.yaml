@@ -74,6 +74,10 @@
     model: [aifs-single-mse]
 
 - context:
+    type: ['!', me, eme]
+  unset: [coeffindex]
+
+- context:
     class: ['!', d1]
     dataset: ['!', on-demand-extremes-dt]
   unset: [georef]
@@ -225,7 +229,7 @@
 
 - context:
     type: ['!', pd, cd, pb, taem, pfc]
-    unset: [quantile]
+  unset: [quantile]
 
 - context:
     class: ['!', d1, ed, ng, ms]

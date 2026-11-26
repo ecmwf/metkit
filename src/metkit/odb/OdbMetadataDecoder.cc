@@ -69,14 +69,14 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
-    std::string keyword         = eckit::StringTools::lower(mapitr->second);
-    const metkit::mars::Type* t = language.type(keyword);
+    std::string keyword = eckit::StringTools::lower(mapitr->second);
+    auto& t             = language.typeRef(keyword);
 
     ASSERT(options_.valueRepresentation == eckit::message::ValueRepresentation::String);
 
     for (auto val : vals) {
         std::string stringVal = eckit::Translator<T, std::string>()(val);
-        std::string tidyVal   = t->tidy(stringVal);
+        std::string tidyVal   = t.tidy(stringVal);
         if (stringVal == tidyVal)  // if t->tidy had no effect, set the original value
             gather_.setValue(keyword, val);
         else

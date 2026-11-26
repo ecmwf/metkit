@@ -67,5 +67,5 @@ add_custom_target(pymetkit-wheel ALL DEPENDS ${CMAKE_BINARY_DIR}/pymetkit.wheel.
 
 install(CODE "
     file(GLOB _whl \"${CMAKE_BINARY_DIR}/pymetkit-*.whl\")
-    file(INSTALL \${_whl} DESTINATION \"\${CMAKE_INSTALL_PREFIX}\")
+    file(INSTALL \${_whl} DESTINATION \"\${CMAKE_INSTALL_PREFIX}/wheels\")
 ")
