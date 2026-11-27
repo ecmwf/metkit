@@ -62,7 +62,8 @@
 /// ## Geometry handling
 ///
 /// Geometry parameters are in most cases retrieved from eckit::geo, based on the MARS key `grid`.
-/// For spherical harmonics, the geometry is based on the MARS key `truncation`.
+/// This includes spherical harmonics, where the MARS key `grid` takes the form `T<truncation>`
+/// (e.g. `T799`) and the truncation is retrieved from the resulting eckit::geo grid.
 ///
 /// @warning
 /// This is a transitional design.
@@ -123,6 +124,7 @@
 #include "eckit/geo/Grid.h"
 #include "eckit/geo/PointLonLat.h"
 #include "eckit/geo/grid/ORCA.h"
+#include "eckit/geo/grid/SphericalHarmonics.h"
 #include "eckit/geo/grid/reduced/HEALPix.h"
 #include "eckit/geo/grid/reduced/ReducedGaussian.h"
 #include "eckit/geo/grid/regular/RegularGaussian.h"
@@ -517,20 +519,25 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                 else if constexpr (Variant == RepresentationType::SphericalHarmonics) {
 
                     // Deductions
-                    const auto marsTruncation = get_or_throw<long>(mars, "truncation");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
+                    const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
+                    const auto* grid = dynamic_cast<const eckit::geo::grid::SphericalHarmonics*>(genericGrid.get());
 
-                    const auto pentagonalResolutionParameterJ = marsTruncation;
-                    const auto pentagonalResolutionParameterK = marsTruncation;
-                    const auto pentagonalResolutionParameterM = marsTruncation;
+                    const auto truncation = grid->truncation();
+
+                    const auto pentagonalResolutionParameterJ = truncation;
+                    const auto pentagonalResolutionParameterK = truncation;
+                    const auto pentagonalResolutionParameterM = truncation;
 
                     // Encoding
                     set_or_throw<long>(out, "pentagonalResolutionParameterJ", pentagonalResolutionParameterJ);
                     set_or_throw<long>(out, "pentagonalResolutionParameterK", pentagonalResolutionParameterK);
                     set_or_throw<long>(out, "pentagonalResolutionParameterM", pentagonalResolutionParameterM);
 
-                    // Initialize values with the deduced reference value
-                    std::size_t numberOfCoefficients = (marsTruncation + 1) * (marsTruncation + 2);
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
+                    // Initialize coefficients with all zeros
+                    std::size_t numberOfCoefficients = grid->size();
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, 0.0));
                 }
                 else {
                     MARS2GRIB_CONCEPT_THROW(representation, "Unknown `representation` variant...");

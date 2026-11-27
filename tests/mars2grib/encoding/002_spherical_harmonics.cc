@@ -63,12 +63,7 @@ CASE("encoding") {
             mars.set("step", 0);
 
             const auto grid = std::string("T") + std::to_string(J);
-            if (useGridSpec) {
-                mars.set("grid", grid);
-            }
-            else {
-                mars.set("truncation", J);
-            }
+            mars.set("grid", grid);
 
             const auto S = JS >= 0 ? JS : default_sub_set_truncation(J);
             eckit::LocalConfiguration misc;

@@ -200,22 +200,11 @@ private:
                 return;
             }
 
-            const std::string gridType = grib.getString("gridType");
-
-            if (gridType == "sh") {
-                remove_keyword(keywords, "grid");
-                append_unique(keywords, "truncation");
-                return;
-            }
-
-            remove_keyword(keywords, "truncation");
             append_unique(keywords, "grid");
         }
         catch (...) {
-            std::throw_with_nested(
-                Grib2MarsGenericException("Failed to select MARS geometry keyword `grid`/`truncation` "
-                                          "while building grib2mars MarsTopology",
-                                          Here()));
+            std::throw_with_nested(Grib2MarsGenericException(
+                "Failed to select MARS geometry keyword `grid` while building grib2mars MarsTopology", Here()));
         }
     }
 

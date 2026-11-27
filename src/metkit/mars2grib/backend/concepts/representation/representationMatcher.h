@@ -35,9 +35,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @brief Match the `representation` concept variant.
 ///
-/// Spherical harmonics are selected when `truncation` is present. Otherwise the
-/// matcher builds the eckit geometry from MARS `grid` and maps the resulting
-/// grid type onto the corresponding representation variant.
+/// The matcher builds the eckit geometry from MARS `grid` and maps the resulting
+/// grid type onto the corresponding representation variant. Spherical harmonics
+/// are selected when the grid type is `sh` (e.g. `grid=T799`).
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -70,10 +70,6 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
             return static_cast<std::size_t>(RepresentationType::Dummy);
         }
 
-        if (has(mars, "truncation")) {
-            return static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
-        }
-
         const auto marsGrid = get_or_throw<std::string>(mars, "grid");
         const auto gridType = std::unique_ptr<const eckit::geo::Grid>(
                                   eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}}))
@@ -92,6 +88,9 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
         }
         else if (gridType == "HEALPix") {
             return static_cast<std::size_t>(RepresentationType::Healpix);
+        }
+        else if (gridType == "sh") {
+            return static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
         }
 
         throw utils::exceptions::Mars2GribMatcherException(

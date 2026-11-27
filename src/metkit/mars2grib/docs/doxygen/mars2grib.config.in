@@ -1269,7 +1269,6 @@ INPUT = \@MARS2GRIB_SOURCE_DIRECTORY@/utils/configConverter.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/normalization/per_key/mars/date.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/normalization/per_key/mars/frequency.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/normalization/per_key/mars/domain.h \
-@MARS2GRIB_SOURCE_DIRECTORY@/frontend/normalization/per_key/mars/truncation.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/normalization/per_key/mars/instrument.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/normalization/per_key/mars/grid.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/frontend/normalization/per_key/mars/levelist.h \

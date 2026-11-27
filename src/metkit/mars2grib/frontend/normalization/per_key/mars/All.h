@@ -31,7 +31,6 @@
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/system.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/time.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/timespan.h"
-#include "metkit/mars2grib/frontend/normalization/per_key/mars/truncation.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/type.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/wavelength.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
