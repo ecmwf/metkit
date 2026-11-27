@@ -849,6 +849,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
                     }
                 }
             }
+            ctx = ExpansionContext(result);
         }
 
         // pass2 modifies the request: go through a snapshot of the types, not through the parameters being modified
@@ -864,9 +865,6 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
         std::ostringstream oss;
         oss << e.what() << " request=" << r << ", expanded=" << result;
         throw eckit::UserError(oss.str());
-    }
-    if (inherit) {
-        ctx = ExpansionContext(result);
     }
     return result;
 }
