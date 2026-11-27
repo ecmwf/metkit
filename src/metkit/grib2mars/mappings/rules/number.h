@@ -12,6 +12,7 @@ namespace metkit::grib2mars::rules::impl {
 template <class MarsDict, class MiscDict, class OptDict_t>
 void extractNumber(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc,
                    const OptDict_t& opts) {
+    using metkit::grib2mars::utils::dict_traits::get_or_throw;
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
@@ -25,6 +26,8 @@ void extractNumber(const std::string& keyword, const metkit::codes::CodesHandle&
         const long value = grib.getLong(keyword);
         set_or_throw<long>(mars, keyword, value);
 
+        const auto type = get_or_throw<std::string>(mars, "type");
+
         if (grib.has("numberOfForecastsInEnsemble")) {
             const long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
 
@@ -32,7 +35,10 @@ void extractNumber(const std::string& keyword, const metkit::codes::CodesHandle&
                 misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
             }
         }
-        else if (grib.getString("type") != "me") {
+        else if (type == "cm" || type == "cr") {
+            misc.set("numberOfForecastsInEnsemble", 51);  // Was not present in GRIB1 for these products
+        }
+        else if (type != "me") {
             throw Grib2MarsGenericException(
                 "Missing GRIB key `numberOfForecastsInEnsemble` required to extract MARS keyword `" + keyword + "`",
                 Here());

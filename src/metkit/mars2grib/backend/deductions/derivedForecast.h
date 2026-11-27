@@ -146,6 +146,12 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
             else if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
                 derivedForecast = tables::DerivedForecast::LargeAnomalyIndexAllMembers;
             }
+            else if (marsType == "cm") {
+                derivedForecast = tables::DerivedForecast::UnweightedMeanClusterMembers;
+            }
+            else if (marsType == "cr") {
+                derivedForecast = tables::DerivedForecast::ClusterRepresentativeMember;
+            }
             else {
                 throw Mars2GribDeductionException(
                     "Mapping from mars type " + marsType + " to derivedForecast is not implemented", Here());

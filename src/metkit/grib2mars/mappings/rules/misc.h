@@ -60,6 +60,37 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
             const long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
             misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
         }
+
+        // Cluster Mean / Cluster Representative
+        if (type == "cm" || type == "cr") {
+            const bool g1 = grib.getLong("edition") == 1;
+
+            const auto clusteringStartTimeStep = grib.getLong(g1 ? "startTimeStep" : "clusteringStartTimeStep");
+            const auto clusteringEndTimeStep   = grib.getLong(g1 ? "endTimeStep" : "clusteringEndTimeStep");
+            const auto representativeMember    = grib.getLong("representativeMember");
+            auto climatologicalRegime          = grib.getLong("climatologicalRegime");
+            const auto NL                      = grib.getLong(g1 ? "controlForecastCluster" : "NL");
+            const auto totalNumberOfClusters   = grib.getLong("totalNumberOfClusters");
+            const auto numberOfForecastsInTheCluster =
+                grib.getLong(g1 ? "numberOfForecastsInCluster" : "numberOfForecastsInTheCluster");
+            const auto ensembleForecastNumbers =
+                numberOfForecastsInTheCluster > 0 ? grib.getLongArray("ensembleForecastNumbers") : std::vector<long>{};
+
+            if (climatologicalRegime == 0) {
+                climatologicalRegime = 255;
+            }
+
+            misc.set("typeOfProcessedData", 5);
+
+            misc.set("clusteringStartTimeStep", clusteringStartTimeStep);
+            misc.set("clusteringEndTimeStep", clusteringEndTimeStep);
+            misc.set("representativeMember", representativeMember);
+            misc.set("climatologicalRegime", climatologicalRegime);
+            misc.set("NL", NL);
+            misc.set("totalNumberOfClusters", totalNumberOfClusters);
+            misc.set("numberOfForecastsInTheCluster", numberOfForecastsInTheCluster);
+            misc.set("ensembleForecastNumbers", ensembleForecastNumbers);
+        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MISC keywords", Here()));

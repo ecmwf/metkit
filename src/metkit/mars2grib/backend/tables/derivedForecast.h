@@ -42,6 +42,7 @@ enum class DerivedForecast : long {
     MinimumAllMembers            = 8,
     MaximumAllMembers            = 9,
     VarianceAllMembers           = 10,
+    ClusterRepresentativeMember  = 192,  // Note: ECMWF Local use entry
     Missing                      = 255
 };
 
@@ -82,6 +83,8 @@ inline std::string enum2name_DerivedForecast_or_throw(DerivedForecast value) {
             return "maximum-all-members";
         case DerivedForecast::VarianceAllMembers:
             return "variance-all-members";
+        case DerivedForecast::ClusterRepresentativeMember:
+            return "cluster-representative-member";
         case DerivedForecast::Missing:
             return "missing";
         default:
@@ -170,6 +173,8 @@ inline DerivedForecast long2enum_DerivedForecast_or_throw(long value) {
             return DerivedForecast::MaximumAllMembers;
         case 10:
             return DerivedForecast::VarianceAllMembers;
+        case 192:
+            return DerivedForecast::ClusterRepresentativeMember;
         case 255:
             return DerivedForecast::Missing;
         default:
