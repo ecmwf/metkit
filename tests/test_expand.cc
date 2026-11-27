@@ -1496,16 +1496,16 @@ CASE("test_metkit_disseminate_params-static") {
 }
 CASE("test_metkit_disseminate_inheritance") {
     const char* text =
-        "disseminate,param=w/vo,resol=500\n"
+        "disseminate,date=20261126,time=1200,step=0,param=w/vo,resol=500\n"
         "disseminate,param=d,levelist=950/300,accuracy=12\n"
         "disseminate,levtype=pv,param=z,levelist=2000,resol=off\n";
     std::vector<std::string> expected = {
         "disseminate,param=135/"
         "138,resol=500,class=od,type=an,stream=oper,levtype=pl,date=20261126,time=1200,step=0,expver=0001,domain=g,"
-        "levelist=1000/850/700/500/400/300,truncation=500\n"
+        "levelist=1000/850/700/500/400/300,truncation=500",
         "disseminate,levelist=950/"
         "300,param=155,accuracy=12,class=od,type=an,stream=oper,levtype=pl,date=20261126,time=1200,step=0,expver=0001,"
-        "domain=g,resol=500,truncation=500\n"
+        "domain=g,resol=500,truncation=500",
         "disseminate,levtype=pv,levelist=2000,param=129,class=od,type=an,stream=oper,date=20261126,time=1200,step=0,"
         "expver=0001,domain=g,accuracy=12"};
 
