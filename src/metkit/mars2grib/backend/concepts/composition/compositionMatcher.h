@@ -112,9 +112,9 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 if (matchAny(chem, range(900, 917), 924)) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
-                if (matchAny(chem, range(2, 24), range(26, 30), range(32, 50), 52, 53, range(55, 59), range(63, 80), 82,
-                             83, 85, 86, range(99, 101), 107, 112, 118, 159, 161, 169, range(173, 178), range(186, 204),
-                             222, range(224, 230), 233, 236, 311)) {
+                if (matchAny(chem, range(2, 30), range(32, 50), 52, 53, range(55, 59), range(63, 80), 82, 83, 85, 86,
+                             range(99, 101), 107, 112, 118, 159, 161, 169, range(173, 178), range(186, 204), 222,
+                             range(224, 230), 233, 236, 311, 404)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
