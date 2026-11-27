@@ -100,13 +100,7 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out, const
         }
 
         const long marsParamId = get_or_throw<long>(in, "param");
-
-        // Force these params to point-in-time, ignoring the step-range
-        if (matchAny(marsParamId, 131073, range(131089, 131091), range(133093, 133098))) {
-            set_or_throw<long>(out, "step", endStep);
-            set_or_throw<std::string>(out, "timespan", "none");
-        }
-        else if (endStep == startStep) {
+        if (endStep == startStep) {
             if (endStep != 0) {
                 const bool canFixZeroAccumulation =
                     marsParamId == 162110 && get_or_throw<bool>(opts, "tryFixBadInput_ZeroAccumulation");

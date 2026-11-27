@@ -17,6 +17,7 @@ foreach( _src
         016_enfo_ep_131089-131091.cc
         017_model_component_background_process.cc
         018_satellite_channel_in_section4.cc
+        019_enfo_ep_point_in_time_or_time_range.cc
     )
     get_filename_component( _name "${_src}" NAME_WE )
 

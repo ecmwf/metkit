@@ -207,6 +207,17 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         //     return static_cast<std::size_t>(StatisticsType::Maximum);
         // }
 
+        // Probability products that exist as both point-in-time, and time-range
+        if (matchAny(param, 131073)) {
+            const bool isTimeRange = get_opt<std::string>(mars, "timespan").value_or("none") != "none";
+            if (isTimeRange) {
+                return static_cast<std::size_t>(StatisticsType::Minimum);
+            }
+            else {
+                return compile_time_registry_engine::MISSING;
+            }
+        }
+
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {
