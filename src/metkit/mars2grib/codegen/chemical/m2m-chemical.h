@@ -91,7 +91,7 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
 
         const auto klass = get_or_throw<std::string>(in, "class");
 
-        if (klass != "mc") {
+        if (klass != "mc" && klass != "gg" && klass != "a5" && klass != "cr") {
             return;
         }
 

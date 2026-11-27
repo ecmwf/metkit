@@ -119,7 +119,7 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// The legacy archive tells the components apart by MARS keys only: the fire emissions are `stream=gfas`
 /// or `stream=gfra` (gfas in reanalysis mode), the land surface analysis is `stream=ldas`, atmospheric
-/// composition is `class=mc`, `cr` or `a5` (IFS-compo), the native ocean fields are on `levtype=o2d`/`o3d`
+/// composition is `class=mc`, `gg`, `cr` or `a5` (IFS-compo), the native ocean fields are on `levtype=o2d`/`o3d`
 /// (nemo), the wave fields carry table-140 params or their time statistics (ecwam), and everything else
 /// is the atmosphere (IFS). The IFS ocean diagnostics (t20d, pt300m, sc300m, ...) are on `levtype=sfc` and
 /// therefore IFS, which is what makes ecCodes keep them on `sfc`.
@@ -137,7 +137,7 @@ tables::BackgroundProcess componentOfField(const MarsDict_t& mars) {
     }
 
     const std::optional<std::string> marsClass = get_opt<std::string>(mars, "class");
-    if (marsClass && (*marsClass == "mc" || *marsClass == "cr" || *marsClass == "a5")) {
+    if (marsClass && (*marsClass == "mc" || *marsClass == "gg" || *marsClass == "cr" || *marsClass == "a5")) {
         return tables::BackgroundProcess::ifs_compo;
     }
 

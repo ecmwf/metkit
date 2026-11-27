@@ -14,7 +14,7 @@
 /// |-------------------------------------------------|-----------|-------------------|
 /// | stream=gfas or stream=gfra                      | gfas      | 144               |
 /// | stream=ldas                                     | ldas      | 246               |
-/// | class=mc, class=cr or class=a5                  | IFS-compo | 252               |
+/// | class=mc, class=gg, class=cr or class=a5        | IFS-compo | 252               |
 /// | levtype=o2d or levtype=o3d                      | nemo      | 250               |
 /// | param 140xxx, 141xxx, 143xxx, 144xxx or 145xxx  | ecwam     | 248               |
 /// | anything else                                   | IFS       | 254               |

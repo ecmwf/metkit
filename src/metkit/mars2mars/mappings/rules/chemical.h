@@ -91,7 +91,7 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
 
         const auto klass = get_or_throw<std::string>(in, "class");
 
-        if (klass != "mc") {
+        if (klass != "mc" && klass != "gg" && klass != "a5" && klass != "cr") {
             return;
         }
 
@@ -124,6 +124,10 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                     return setParamChem(out, 402000, 911);
                 case 210048:
                     return setParamChem(out, 402000, 924);
+                case 210061:
+                    return setParamChem(out, 402000, 25);
+                case 210062:
+                    return setParamChem(out, 402000, 404);
                 case 210071:
                     return setParamChem(out, 479000, 4);
                 case 210072:
